@@ -1,0 +1,13 @@
+digraph test {
+"node_0" [label="main()" shape=box];
+"node_1" [label="foo(int *, int *)" shape=box];
+"node_2" [label="bar(int *, int *)" shape=box];
+"node_3" [label="fizz(int *, int *)" shape=box];
+"node_4" [label="buzz(int *, int *)" shape=box];
+"node_5" [label="printf(char const *)" shape=box];
+"node_0" -> "node_1" [label="2"];
+"node_0" -> "node_2" [label="1"];
+"node_0" -> "node_3" [label="1"];
+"node_0" -> "node_4" [label="1"];
+"node_0" -> "node_5" [label="5"];
+}

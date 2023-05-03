@@ -1,0 +1,7 @@
+{
+    "clock": 10,
+    "codeOutputDir": "../test/output_code/.",
+    "statsOutputDir": "../test/output_stat/scenarioB",
+    "appName": "scenarioB",
+    "inputType": "givenApp"
+}

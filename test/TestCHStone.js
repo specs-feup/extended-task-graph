@@ -2,6 +2,7 @@
 
 
 laraImport("clava.Clava");
+laraImport("lara.Io");
 laraImport("UnnamedPartitioningTool");
 
 function main() {
@@ -11,6 +12,8 @@ function main() {
 
     benches.setBenchmarks(["aes"]);
     benches.setInputSizes(["N"]);
+
+    const json = Io.readJson("../test/temp/config.json");
 
     for (var bench of benches) {
         bench.load();

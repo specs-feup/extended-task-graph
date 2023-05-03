@@ -1,0 +1,7 @@
+digraph test {
+"node_0" [label="main(int, char **)" shape=box];
+"node_1" [label="abs(int)" shape=box style=dashed];
+"node_2" [label="printf(char const *)" shape=box];
+"node_0" -> "node_1" [label="1"];
+"node_0" -> "node_2" [label="7"];
+}

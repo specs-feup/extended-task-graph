@@ -31,13 +31,15 @@ class UnnamedPartitioningTool {
         }
         if (!this.#config.hasOwnProperty("statsOutputDir")) {
             var weavingDir = Clava.getWeavingFolder().toString();
+            /*
             weavingDir = Strings.replacer(weavingDir.toString(), /\\/g, '/');
             weavingDir = Strings.escapeJson(weavingDir);
             println(weavingDir);
 
             const idx = weavingDir.lastIndexOf("/");
             this.#config.statsOutputDir = weavingDir.substring(0, idx + 1) + "output_stats";
-            println(this.#config.statsOutputDir);
+            */
+            this.#config.statsOutputDir = weavingDir + "/" + this.#config.appName + "_output_stats";
         }
     }
 
