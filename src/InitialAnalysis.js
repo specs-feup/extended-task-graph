@@ -19,13 +19,13 @@ class InitialAnalysis {
     dumpAST() {
         const dumper = new AstDumper();
         const str = dumper.dump();
-        this.saveToFile(str, "ast.txt")
+        this.saveToFile(str, "ast.txt");
     }
 
     dumpCallGraph() {
         const dumper = new CallGraphDumper();
         const str = dumper.dump();
-        this.saveToFile(str, "callgraph.txt")
+        this.saveToFile(str, "callgraph.dot");
     }
 
     saveToFile(str, filename) {

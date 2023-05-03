@@ -30,7 +30,7 @@ class AstDumper {
         }
         this.#addLevelToResult(str, indent);
 
-        if (jp.children.length > 20) {
+        if (jp.children.length > 4) {
             var allLits = true;
             for (const child of jp.children) {
                 if (child.joinPointType != "intLiteral") {

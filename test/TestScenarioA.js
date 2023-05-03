@@ -4,7 +4,7 @@ laraImport("UnnamedPartitioningTool");
 
 function main() {
     const config = {
-        "statsOutputDir": "../output_stats"
+        "statsOutputDir": "../test/output_stats"
     }
 
     const upt = new UnnamedPartitioningTool(config);
