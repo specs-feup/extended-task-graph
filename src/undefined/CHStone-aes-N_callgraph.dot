@@ -1,0 +1,28 @@
+digraph test {
+"node_0" [label="encrypt(int *, int *, int)" shape=box];
+"node_1" [label="KeySchedule(int, int *)" shape=box];
+"node_2" [label="AddRoundKey(int *, int, int)" shape=box];
+"node_3" [label="ByteSub_ShiftRow(int *, int)" shape=box];
+"node_4" [label="MixColumn_AddRoundKey(int *, int, int)" shape=box];
+"node_5" [label="printf(char const *)" shape=box];
+"node_6" [label="decrypt(int *, int *, int)" shape=box];
+"node_7" [label="InversShiftRow_ByteSub(int *, int)" shape=box];
+"node_8" [label="AddRoundKey_InversMixColumn(int *, int, int)" shape=box];
+"node_9" [label="SubByte(int)" shape=box];
+"node_10" [label="aes_main()" shape=box];
+"node_11" [label="main()" shape=box];
+"node_0" -> "node_1" [label="1"];
+"node_0" -> "node_2" [label="2"];
+"node_0" -> "node_3" [label="2"];
+"node_0" -> "node_4" [label="1"];
+"node_0" -> "node_5" [label="1"];
+"node_6" -> "node_1" [label="1"];
+"node_6" -> "node_2" [label="2"];
+"node_6" -> "node_7" [label="2"];
+"node_6" -> "node_8" [label="1"];
+"node_6" -> "node_5" [label="1"];
+"node_1" -> "node_9" [label="5"];
+"node_10" -> "node_0" [label="1"];
+"node_10" -> "node_6" [label="1"];
+"node_11" -> "node_10" [label="1"];
+}

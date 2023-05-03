@@ -17,7 +17,7 @@ function main() {
 
         const config = {
             "appName": bench.getName(),
-            //"statsOutputDir": "../test/output_stats/" + bench.getName(),
+            "statsOutputDir": "../test/output_stats/" + bench.getName(),
             "codeOutputDir": "../test/output_code/" + bench.getName(), // same as passed as an argument to Clava
         }
 

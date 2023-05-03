@@ -6,9 +6,11 @@ laraImport("analysis/CallGraphDumper");
 
 class InitialAnalysis {
     #outputDir
+    #appName
 
-    constructor(outputDir) {
+    constructor(outputDir, appName) {
         this.#outputDir = outputDir;
+        this.#appName = appName;
     }
 
     analyse() {
@@ -29,6 +31,6 @@ class InitialAnalysis {
     }
 
     saveToFile(str, filename) {
-        Io.writeFile(this.#outputDir + "/" + filename, str);
+        Io.writeFile(this.#outputDir + "/" + this.#appName + "_" + filename, str);
     }
 }

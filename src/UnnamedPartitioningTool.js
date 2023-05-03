@@ -13,16 +13,37 @@ class UnnamedPartitioningTool {
     run() {
         this.log("Running UnnamedPartitioningTool");
 
+        this.applyInitialConfig();
+
         this.initialAnalysis();
 
-        this.preprocessing();
+        //this.preprocessing();
 
         this.log("Done");
     }
 
+    applyInitialConfig() {
+        if (!this.#config.hasOwnProperty("appName")) {
+            config.appName = "default_app_name";
+        }
+        if (this.#config.hasOwnProperty("codeOutputDir")) {
+            // update weaving folder
+        }
+        if (!this.#config.hasOwnProperty("statsOutputDir")) {
+            var weavingDir = Clava.getWeavingFolder().toString();
+            weavingDir = Strings.replacer(weavingDir.toString(), /\\/g, '/');
+            weavingDir = Strings.escapeJson(weavingDir);
+            println(weavingDir);
+
+            const idx = weavingDir.lastIndexOf("/");
+            this.#config.statsOutputDir = weavingDir.substring(0, idx + 1) + "output_stats";
+            println(this.#config.statsOutputDir);
+        }
+    }
+
     initialAnalysis() {
         this.log("Running initial analysis step");
-        const analyser = new InitialAnalysis(this.#config.statsOutputDir);
+        const analyser = new InitialAnalysis(this.#config.statsOutputDir, this.#config.appName);
         analyser.analyse();
     }
 
