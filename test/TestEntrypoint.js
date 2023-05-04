@@ -4,28 +4,28 @@ laraImport("clava.Clava");
 laraImport("UnnamedPartitioningTool");
 
 function handleBenchmark(config) {
+    const importPath = config["importPath"];
+    const benchmarkName = config["appName"];
+    const benchmarkSize = config["inputSize"];
 
-    laraImport("lara.benchmark.CHStoneBenchmarkSet");
+    laraImport(importPath);
     const benches = new CHStoneBenchmarkSet();
 
-    benches.setBenchmarks(["aes"]);
-    benches.setInputSizes(["N"]);
+    benches.setBenchmarks(benchmarkName);
+    benches.setInputSizes(benchmarkSize);
 
     for (var bench of benches) {
         bench.load();
-
-        const config = {
-            "appName": bench.getName(),
-            //"statsOutputDir": "../test/output_stats/" + bench.getName(),
-            "codeOutputDir": "../test/output_code/" + bench.getName(), // same as passed as an argument to Clava
-        }
+        const fullName = bench.getName();
+        config["statsOutputDir"] += "/" + fullName;
+        config["codeOutputDir"] += "/" + fullName;
+        config["appName"] = fullName;
 
         const upt = new UnnamedPartitioningTool(config);
         upt.run();
 
         Clava.writeCode(config["codeOutputDir"]);
     }
-
 }
 
 function handleGivenApp(config) {
@@ -46,3 +46,4 @@ function main() {
 }
 
 main();
+
