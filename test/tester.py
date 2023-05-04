@@ -22,7 +22,7 @@ def prepare_command_and_file_given(appName):
     # to be removed once we figure out how to pass args to JS
     config["inputType"] = "givenApp"
 
-    with open(CONFIG, "w") as f:
+    with open(CONFIG, "w+") as f:
         json.dump(config, f, indent=4)
 
     command = Template(
@@ -47,7 +47,7 @@ def prepare_command_and_file_bench(appName):
     config["importPath"] = importPath
     config["inputSize"] = inputSize
 
-    with open(CONFIG, "w") as f:
+    with open(CONFIG, "w+") as f:
         json.dump(config, f, indent=4)
 
     command = Template(
@@ -88,7 +88,8 @@ def run_apps():
 
 
 def run_benchmarks():
-    run_chstone()
+    # run_chstone()
+    run_rosetta()
 
 
 def run_chstone():
@@ -104,6 +105,15 @@ def run_chstone():
     dispatch_bench("CHStone-mips")
     dispatch_bench("CHStone-motion")
     dispatch_bench("CHStone-sha")
+
+
+def run_rosetta():
+    dispatch_bench("Rosetta-3drendering")
+    # dispatch_bench("Rosetta-digitrecog")
+    # dispatch_bench("Rosetta-facedetect")
+    # dispatch_bench("Rosetta-opticalflow-curr")
+    # dispatch_bench("Rosetta-opticalflow-sintel")
+    # dispatch_bench("Rosetta-spamfilter")
 
 
 if __name__ == "__main__":
