@@ -1,5 +1,5 @@
 # appName: (inputFolderName, outputFolderName, standard, toolConfig)
-givenApps = {
+apps = {
     "scenarioA": ("scenarioA", ".", "c11", {"clock": 10}),
     "scenarioB": ("scenarioB", ".", "c11", {"clock": 10})
 }

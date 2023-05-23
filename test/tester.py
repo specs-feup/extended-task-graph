@@ -1,56 +1,57 @@
 import json
 import os
 from string import Template
-from benchmarks import benchmarks, givenApps
-from clava_config import ClavaConfig
+from benchmarks import benchmarks, apps
+from clava import Clava
 
 
+ENTRYPOINT = "../test/TestEntrypoint.js"
 CODE_DIR = "../test/output_code/"
 STAT_DIR = "../test/output_stats/"
 INPUT_DIR = "../test/inputs/"
 TEMP_FOLDER = "../test/temp/"
 CONFIG = TEMP_FOLDER + "config.json"
+EXTRA_INCLUDES = [
+    "C:\\Users\\Tiago\\Dev\\Experiments\\ClavaFunctionOutliner\\src"]
 
 
-def get_default_args():
-    cfg = ClavaConfig()
-    cfg.set_check_syntax()
-    cfg.set_clean_intermediate_files()
-    cfg.set_copy_files_in_sources()
-    cfg.set_custom_resources()
-    cfg.set_parallel_parsing()
-    cfg.set_parse_includes()
-    cfg.set_show_stack()
-    cfg.set_verbosity(0)
-    return cfg.build_command()
+def set_default_args(clava):
+    clava.set_check_syntax()
+    clava.set_clean_intermediate_files()
+    clava.set_copy_files_in_sources()
+    clava.set_custom_resources()
+    clava.set_parallel_parsing()
+    clava.set_parse_includes()
+    clava.set_show_stack()
+    clava.set_verbosity(0)
+    clava.set_includes_folder(EXTRA_INCLUDES)
 
 
-def prepare_command_and_file_given(appName):
-    flags = get_default_args()
-    inputPath, outputPath, standard, config = givenApps[appName]
+def prepare_command_and_file_app(appName):
+    inputPath, outputPath, standard, config = apps[appName]
     inputPath = INPUT_DIR + inputPath
     outputPath = CODE_DIR + outputPath
 
     config["appName"] = appName
     config["codeOutputDir"] = outputPath
     config["statsOutputDir"] = STAT_DIR + appName
-    config["inputType"] = "givenApp"
+    config["inputType"] = "app"
 
     if not os.path.exists(TEMP_FOLDER):
         os.makedirs(TEMP_FOLDER)
     with open(CONFIG, "w+") as f:
         json.dump(config, f, indent=4)
 
-    command = Template(
-        "clava ../test/TestEntrypoint.js $flags -std $standard -p $input -of $output")
-    res = command.substitute(
-        flags=flags, input=inputPath, output=outputPath, standard=standard)
-    return res
+    clava = Clava(ENTRYPOINT)
+    set_default_args(clava)
+    clava.set_standard(standard)
+    clava.set_workspace(inputPath)
+    clava.set_output_folder_name(outputPath)
+
+    return clava
 
 
 def prepare_command_and_file_bench(appName):
-    flags = get_default_args()
-
     canonicalName, inputSize, suite, standard, config = benchmarks[appName]
     dep = "https://github.com/specs-feup/clava-benchmarks.git?folder=" + suite
 
@@ -66,32 +67,36 @@ def prepare_command_and_file_bench(appName):
     with open(CONFIG, "w+") as f:
         json.dump(config, f, indent=4)
 
-    command = Template(
-        "clava ../test/TestEntrypoint.js $flags -std $standard -of $output -dep $dependency")
-    res = command.substitute(
-        flags=flags, output=CODE_DIR, standard=standard, dependency=dep)
-    return res
-
-
-def exec_clava(cmd):
-    output = Template("Running Clava with the following command:\n\t$cmd\n")
-    print(output.substitute(cmd=cmd))
-    ret = os.system(cmd)
-
-
-def dispatch_given(appName):
-    print('-' * 30 + " Running " + appName + " " + '-' * 30)
-    cmd = prepare_command_and_file_given(appName)
-    print(cmd)
-    exec_clava(cmd)
-    print('-' * 80)
+    clava = Clava(ENTRYPOINT)
+    set_default_args(clava)
+    clava.set_standard(standard)
+    clava.set_output_folder_name(CODE_DIR)
+    clava.set_dependencies(dep)
+    return clava
 
 
 def dispatch_bench(appName):
+    dispatch(appName, True)
+
+
+def dispatch_app(appName):
+    dispatch(appName, False)
+
+
+def dispatch(appName, isBenchmark):
     print('-' * 30 + " Running " + appName + " " + '-' * 30)
-    cmd = prepare_command_and_file_bench(appName)
-    exec_clava(cmd)
-    print('-' * 80)
+    if isBenchmark:
+        clava = prepare_command_and_file_bench(appName)
+    else:
+        clava = prepare_command_and_file_app(appName)
+
+    cmd = clava.get_current_command()
+    info = Template("Running Clava with the following command:\n\t$cmd\n")
+    print(info.substitute(cmd=cmd))
+
+    res = clava.run()
+    dashes = '-' * 34
+    print(dashes + " (code = " + str(res) + ") " + dashes)
 
 
 def ensure_temp_exists():
@@ -101,13 +106,13 @@ def ensure_temp_exists():
 
 def main():
     os.chdir('src')
-    # run_apps()
-    run_benchmarks()
+    run_apps()
+    # run_benchmarks()
 
 
 def run_apps():
-    # dispatch_given("scenarioA")
-    dispatch_given("scenarioB")
+    dispatch_app("scenarioA")
+    # dispatch_app("scenarioB")
     pass
 
 

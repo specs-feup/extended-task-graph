@@ -29,7 +29,7 @@ function handleBenchmark(config) {
     }
 }
 
-function handleGivenApp(config) {
+function handleApp(config) {
     const upt = new UnnamedPartitioningTool(config);
     upt.run();
 }
@@ -39,8 +39,8 @@ function main() {
 
     if (json["inputType"] === "benchmark") {
         handleBenchmark(json);
-    } else if (json["inputType"] === "givenApp") {
-        handleGivenApp(json);
+    } else if (json["inputType"] === "app") {
+        handleApp(json);
     } else {
         throw "Invalid input type";
     }

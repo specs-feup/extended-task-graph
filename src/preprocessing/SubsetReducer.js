@@ -5,9 +5,12 @@ laraImport("clava.opt.NormalizeToSubset");
 laraImport("clava.opt.PrepareForInlining");
 laraImport("clava.code.Inliner");
 laraImport("clava.code.StatementDecomposer");
+laraImport("UPTStage");
 
-class SubsetReducer {
-    constructor() { }
+class SubsetReducer extends UPTStage {
+    constructor() {
+        super("Preprocessor-SubsetReducer");
+    }
 
     reduce() {
         this.normalizeToSubset();
@@ -16,6 +19,7 @@ class SubsetReducer {
 
     normalizeToSubset() {
         NormalizeToSubset(Query.root(), { simplifyLoops: { forToWhile: false } });
+        this.log("Successfully normalized to subset");
     }
 
     decomposeStatements() {
@@ -24,5 +28,6 @@ class SubsetReducer {
         for (var stmt of Query.search("statement", { isInsideHeader: false })) {
             decomp.decomposeAndReplace(stmt);
         }
+        this.log("Successfully decomposed statements");
     }
 }

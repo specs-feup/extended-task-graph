@@ -2,15 +2,23 @@
 
 laraImport("InitialAnalysis")
 laraImport("Preprocessor");
+laraImport("UPTStage");
 
-class UnnamedPartitioningTool {
+class UnnamedPartitioningTool extends UPTStage {
     #config;
 
     constructor(config) {
+        super("Main");
         this.#config = config;
     }
 
     run() {
+        println("*".repeat(100));
+        this.runStages();
+        println("*".repeat(100));
+    }
+
+    runStages() {
         this.log("Running UnnamedPartitioningTool");
 
         this.applyInitialConfig();
@@ -45,9 +53,5 @@ class UnnamedPartitioningTool {
         this.log("Running preprocessing step");
         const prepropcessor = new Preprocessor();
         prepropcessor.preprocess();
-    }
-
-    log(msg) {
-        println("[UPT] " + msg);
     }
 }
