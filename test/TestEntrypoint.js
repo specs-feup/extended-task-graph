@@ -4,12 +4,13 @@ laraImport("clava.Clava");
 laraImport("UnnamedPartitioningTool");
 
 function handleBenchmark(config) {
-    const importPath = config["importPath"];
+    const suite = config["suite"];
     const benchmarkName = config["appName"];
     const benchmarkSize = config["inputSize"];
+    const importPath = `lara.benchmark.${suite}BenchmarkSet`;
 
     laraImport(importPath);
-    const benches = new CHStoneBenchmarkSet();
+    const benches = eval(`new ${suite}BenchmarkSet();`);
 
     benches.setBenchmarks(benchmarkName);
     benches.setInputSizes(benchmarkSize);
