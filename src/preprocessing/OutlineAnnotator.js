@@ -38,24 +38,36 @@ class OutlineAnnotator extends UPTStage {
         const filteredRegions = this.#filterRegions(regions);
 
         // finally, wrap all the regions we found
-        const wrappedRegions = [];
         for (const region of filteredRegions) {
-            const start = region[0];
-            const end = region[1];
-            this.log("Region from " + start + " to " + end);
-            const wrapper = this.#wrapRegion(start, end);
-            wrappedRegions.push(wrapper);
+            this.#wrapRegion(region);
         }
 
         this.log("Finished annotating outlining regions")
-        return wrappedRegions;
+        return filteredRegions;
+    }
+
+    #validateRegion(region) {
+        for (const stmt of region) {
+            //const hasDecls = Query.searchFrom(stmt, "vardecl").chain().length > 0;
+            const hasUseless = stmt.instanceOf(["wrapperStmt", "declStmt", "returnStmt"]);
+
+            // found at least one stmt that is not a decl, comment or return
+            if (!hasUseless) {
+                println("Found useful stmt: " + stmt.joinPointType + " " + stmt.code);
+                return true;
+            }
+        }
+        return false;
     }
 
     #filterRegions(regions) {
         const filteredRegions = [];
 
         for (const region of regions) {
-            filteredRegions.push(region);
+            const valid = this.#validateRegion(region);
+            if (valid) {
+                filteredRegions.push(region);
+            }
         }
         return filteredRegions;
     }
@@ -64,22 +76,25 @@ class OutlineAnnotator extends UPTStage {
         const regions = [];
         let currStart = null;
         let currEnd = null;
+        let currRegion = [];
 
         for (const stmt of scope.children) {
             if (!this.#hasFunctionCalls(stmt)) {
                 if (currStart == null) {
                     currStart = stmt;
                     currEnd = stmt;
+                    currRegion.push(stmt);
                 }
                 else {
                     currEnd = stmt;
+                    currRegion.push(stmt);
                 }
             }
             else {
                 if (currStart != null) {
-                    regions.push([currStart, currEnd]);
+                    regions.push(Array.from(currRegion));
                 }
-                // not sure if this covers all calses
+                // not sure if this covers all cases
                 if (stmt.instanceOf(["switch", "loop", "if"])) {
                     for (const child of stmt.children) {
                         if (child.instanceOf("body")) {
@@ -90,20 +105,24 @@ class OutlineAnnotator extends UPTStage {
                 }
                 currStart = null;
                 currEnd = null;
+                currRegion = [];
             }
         }
         return regions;
     }
 
-    #wrapRegion(start, end) {
+    #wrapRegion(region) {
+        const start = region[0];
+        const end = region[region.length - 1];
+
         const beginWrapper = ClavaJoinPoints.stmtLiteral("#pragma clava_outline_begin\n");
         const endWrapper = ClavaJoinPoints.stmtLiteral("#pragma clava_outline_end\n");
 
         start.insertBefore(beginWrapper);
         end.insertAfter(endWrapper);
 
-        const res = [beginWrapper, endWrapper];
-        return res;
+        region.unshift(beginWrapper);
+        region.push(endWrapper);
     }
 
     #hasFunctionCalls(jp) {
