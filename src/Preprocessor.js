@@ -32,7 +32,11 @@ class Preprocessor extends UPTStage {
         for (const region of regions) {
             const outliner = new Outliner();
             outliner.setVerbosity(false);
+            outliner.setDefaultPrefix("outlined_fun_");
             outliner.outline(region[0], region[region.length - 1]);
+
+            region[0].detach();
+            region[region.length - 1].detach();
             outCount++;
         }
         this.log("Outlined " + outCount + " regions");
