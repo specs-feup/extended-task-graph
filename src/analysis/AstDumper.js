@@ -20,20 +20,30 @@ class AstDumper {
         return this.#currentRes.slice();
     }
 
+    #buildLabel(key, val) {
+        return "  {" + key + ": " + val + "}";
+    }
+
     #dumpJoinPoint(jp, indent) {
         var str = jp.joinPointType;
-        if (jp.joinPointType == "param") {
-            str += " type: " + jp.type;
+        if (jp.instanceOf("param")) {
+            str += this.#buildLabel("type", jp.type);
         }
-        if (jp.joinPointType == "unaryOp") {
-            str += " kind: " + jp.kind;
+        if (jp.instanceOf(["unaryOp", "binaryOp"])) {
+            str += this.#buildLabel("kind", jp.kind);
+        }
+        if (jp.instanceOf("call")) {
+            str += this.#buildLabel("fun", jp.name);
+        }
+        if (jp.instanceOf("function")) {
+            str += this.#buildLabel("sig", jp.signature);
         }
         this.#addLevelToResult(str, indent);
 
         if (jp.children.length > 4) {
             var allLits = true;
             for (const child of jp.children) {
-                if (child.joinPointType != "intLiteral") {
+                if (!child.instanceOf("intLiteral")) {
                     allLits = false;
                 }
             }

@@ -96,8 +96,8 @@ class OutlineAnnotator extends UPTStage {
     }
 
     #wrapRegion(start, end) {
-        const beginWrapper = ClavaJoinPoints.stmtLiteral("#pragma clava outline begin");
-        const endWrapper = ClavaJoinPoints.stmtLiteral("#pragma clava outline end");
+        const beginWrapper = ClavaJoinPoints.stmtLiteral("#pragma clava_outline_begin\n");
+        const endWrapper = ClavaJoinPoints.stmtLiteral("#pragma clava_outline_end\n");
 
         start.insertBefore(beginWrapper);
         end.insertAfter(endWrapper);
@@ -107,7 +107,7 @@ class OutlineAnnotator extends UPTStage {
     }
 
     #hasFunctionCalls(jp) {
-        return Query.searchFrom(jp, "call").chain().length > 0;
+        return Query.searchFrom(jp, "call").chain().length > 0 || jp.instanceOf("call");
     }
 
     #getEligibleFunctions() {
