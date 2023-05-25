@@ -48,12 +48,10 @@ class OutlineAnnotator extends UPTStage {
 
     #validateRegion(region) {
         for (const stmt of region) {
-            //const hasDecls = Query.searchFrom(stmt, "vardecl").chain().length > 0;
             const hasUseless = stmt.instanceOf(["wrapperStmt", "declStmt", "returnStmt"]);
 
             // found at least one stmt that is not a decl, comment or return
             if (!hasUseless) {
-                println("Found useful stmt: " + stmt.joinPointType + " " + stmt.code);
                 return true;
             }
         }
@@ -95,7 +93,7 @@ class OutlineAnnotator extends UPTStage {
                     regions.push(Array.from(currRegion));
                 }
                 // not sure if this covers all cases
-                if (stmt.instanceOf(["switch", "loop", "if"])) {
+                if (stmt.instanceOf(["switch", "if", "loop"])) {
                     for (const child of stmt.children) {
                         if (child.instanceOf("body")) {
                             const childRegions = this.#findRegionsInScope(child);
@@ -139,7 +137,7 @@ class OutlineAnnotator extends UPTStage {
 
         const uniqueFuns = [];
         for (const fun of funs) {
-            if (!uniqueFuns.some(elem => elem.signature === fun.signature)) {
+            if (!uniqueFuns.some(elem => elem.signature === fun.signature) && fun) {
                 uniqueFuns.push(fun);
             }
         }
@@ -151,7 +149,7 @@ class OutlineAnnotator extends UPTStage {
 
         for (const call of Query.searchFrom(parent, "call")) {
             const fun = call.function;
-            if (fun.hasDefinition) {
+            if (fun.hasDefinition && fun.isImplementation) {
                 funs.push(fun);
                 const children = this.#getEligibleFunctionsFrom(fun);
                 funs.push(...children);
