@@ -1,12 +1,15 @@
 "use strict";
 
 laraImport("preprocessing/SubsetReducer");
-laraImport("preprocessing/AppOutliner");
+laraImport("preprocessing/OutlineAnnotator");
 laraImport("UPTStage");
 
 class Preprocessor extends UPTStage {
-    constructor() {
+    #starterFunction;
+
+    constructor(starterFunction) {
         super("Preprocessor");
+        this.#starterFunction = starterFunction;
     }
 
     preprocess() {
@@ -21,8 +24,8 @@ class Preprocessor extends UPTStage {
     }
 
     outlineRegions() {
-        const appOut = new AppOutliner();
-        appOut.outline();
+        const annot = new OutlineAnnotator(this.#starterFunction);
+        const regions = annot.annotate();
         this.log("Region outlining finished successfully");
     }
 

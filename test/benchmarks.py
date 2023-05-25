@@ -7,7 +7,7 @@ apps = {
 # appName: (canonicalName, inputSize, suite, standard, config)
 benchmarks = {
     "CHStone-adpcm": ("adpcm", "N", "CHStone", "c11", {"clock": 10}),
-    "CHStone-aes": ("aes", "N", "CHStone", "c11", {"clock": 10}),
+    "CHStone-aes": ("aes", "N", "CHStone", "c11", {"clock": 10, "starterFunction": "aes_main"}),
     "CHStone-blowfish": ("blowfish", "N", "CHStone", "c11", {"clock": 10}),
     "CHStone-dfadd": ("dfadd", "N", "CHStone", "c11", {"clock": 10}),
     "CHStone-dfdiv": ("dfdiv", "N", "CHStone", "c11", {"clock": 10}),

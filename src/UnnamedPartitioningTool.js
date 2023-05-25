@@ -1,15 +1,15 @@
 "use strict";
 
-laraImport("InitialAnalysis")
+laraImport("InitialAnalysis");
 laraImport("Preprocessor");
 laraImport("UPTStage");
+laraImport("UPTConfig");
 
 class UnnamedPartitioningTool extends UPTStage {
-    #config;
 
     constructor(config) {
         super("Main");
-        this.#config = config;
+        UPTConfig.init(config);
     }
 
     run() {
@@ -31,27 +31,32 @@ class UnnamedPartitioningTool extends UPTStage {
     }
 
     applyInitialConfig() {
-        if (!this.#config.hasOwnProperty("appName")) {
-            config.appName = "default_app_name";
+        if (!UPTConfig.has("appName")) {
+            UPTConfig.set("appName", "default_app_name");
         }
-        if (this.#config.hasOwnProperty("codeOutputDir")) {
+        if (UPTConfig.has("codeOutputDir")) {
             // update weaving folder
         }
-        if (!this.#config.hasOwnProperty("statsOutputDir")) {
+        if (!UPTConfig.has("statsOutputDir")) {
             const weavingDir = Clava.getWeavingFolder().toString();
-            this.#config.statsOutputDir = weavingDir + "/" + this.#config.appName + "_output_stats";
+            const appName = UPTConfig.get("appName");
+            const newDir = weavingDir + "/" + appName + "_output_stats";
+            UPTConfig.set("statsOutputDir", newDir);
+        }
+        if (!UPTConfig.has("starterFunction")) {
+            UPTConfig.set("starterFunction", "");
         }
     }
 
     initialAnalysis() {
         this.log("Running initial analysis step");
-        const analyser = new InitialAnalysis(this.#config.statsOutputDir, this.#config.appName);
+        const analyser = new InitialAnalysis(UPTConfig.get("statsOutputDir"), UPTConfig.get("appName"));
         analyser.analyse();
     }
 
     preprocessing() {
         this.log("Running preprocessing step");
-        const prepropcessor = new Preprocessor();
+        const prepropcessor = new Preprocessor(UPTConfig.get("starterFunction"));
         prepropcessor.preprocess();
     }
 }

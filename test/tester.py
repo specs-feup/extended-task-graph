@@ -16,7 +16,7 @@ EXTRA_INCLUDES = [
 
 
 def set_default_args(clava):
-    clava.set_check_syntax()
+    # clava.set_check_syntax()
     clava.set_clean_intermediate_files()
     clava.set_copy_files_in_sources()
     clava.set_custom_resources()
@@ -106,8 +106,8 @@ def ensure_temp_exists():
 
 def main():
     os.chdir('src')
-    run_apps()
-    # run_benchmarks()
+    # run_apps()
+    run_benchmarks()
 
 
 def run_apps():
