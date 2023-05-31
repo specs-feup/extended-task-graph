@@ -12,7 +12,9 @@ INPUT_DIR = "../test/inputs/"
 TEMP_FOLDER = "../test/temp/"
 CONFIG = TEMP_FOLDER + "config.json"
 EXTRA_INCLUDES = [
-    "C:\\Users\\Tiago\\Dev\\Experiments\\ClavaFunctionOutliner\\src"]
+    "C:\\Users\\Tiago\\Dev\\Experiments\\Clava\\FunctionOutliner\\src",
+    "C:\\Users\\Tiago\\Dev\\Experiments\\Clava\\FunctionVoidifier\\src",
+]
 
 
 def set_default_args(clava):
@@ -24,7 +26,7 @@ def set_default_args(clava):
     clava.set_parse_includes()
     clava.set_show_stack()
     clava.set_verbosity(0)
-    clava.set_includes_folder(EXTRA_INCLUDES)
+    clava.set_extra_includes_folder(EXTRA_INCLUDES)
 
 
 def prepare_command_and_file_app(appName):

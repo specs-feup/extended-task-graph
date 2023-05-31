@@ -90,10 +90,14 @@ class Clava:
         self._remove_from_set(self.cmd_verbose, "--verbose")
         self._add("-b " + str(level), "--verbose " + str(level))
 
-    def set_includes_folder(self, folders):
+    def set_extra_includes_folder(self, folders):
+        if len(folders) == 0:
+            return
         folders = self._join_inputs(folders)
         self._add("-i " + folders, "--includes " + folders)
 
     def set_dependencies(self, dependencies):
+        if len(dependencies) == 0:
+            return
         dependencies = self._join_inputs(dependencies)
         self._add("-dep " + dependencies, "--dependencies " + dependencies)

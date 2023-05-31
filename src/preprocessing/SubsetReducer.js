@@ -5,6 +5,7 @@ laraImport("clava.opt.NormalizeToSubset");
 laraImport("clava.opt.PrepareForInlining");
 laraImport("clava.code.Inliner");
 laraImport("clava.code.StatementDecomposer");
+laraImport("clava.code.Voidifier");
 laraImport("UPTStage");
 
 class SubsetReducer extends UPTStage {
@@ -15,6 +16,7 @@ class SubsetReducer extends UPTStage {
     reduce() {
         this.normalizeToSubset();
         this.decomposeStatements();
+        this.ensureVoidReturns();
     }
 
     normalizeToSubset() {
@@ -29,5 +31,18 @@ class SubsetReducer extends UPTStage {
             decomp.decomposeAndReplace(stmt);
         }
         this.log("Successfully decomposed statements");
+    }
+
+    ensureVoidReturns() {
+        const vf = new Voidifier();
+
+        let count = 0;
+        for (var fun of Query.search("function", { "isImplementation": true })) {
+            if (fun.name != "main") {
+                const turnedVoid = vf.voidify(fun, "rtr_val");
+                count += turnedVoid ? 1 : 0;
+            }
+        }
+        this.log("Successfully ensured " + count + " function(s) return void");
     }
 }
