@@ -26,9 +26,28 @@ class SubsetReducer extends UPTStage {
 
     decomposeStatements() {
         const decomp = new StatementDecomposer();
+        const templates = [
+            //["exprStmt", ["binaryOp", ["arrayAccess"], ["call"]]]
+            ["binaryOp noassign", ["call"], ["_"]],
+            ["binaryOp noassign", ["_"], ["call"]]
+        ];
 
-        for (var stmt of Query.search("statement", { isInsideHeader: false })) {
-            decomp.decomposeAndReplace(stmt);
+        for (const stmt of Query.search("statement", { isInsideHeader: false })) {
+            let hasMatched = false;
+
+            for (const template of templates) {
+
+                for (const binaryOp of Query.searchFrom(stmt)) {
+                    const matched = UPTUtils.matchTemplate(binaryOp, template);
+                    if (matched) {
+                        hasMatched = true;
+                        break;
+                    }
+                }
+            }
+            if (hasMatched) {
+                decomp.decomposeAndReplace(stmt);
+            }
         }
         this.log("Successfully decomposed statements");
     }

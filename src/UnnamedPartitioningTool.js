@@ -4,6 +4,7 @@ laraImport("InitialAnalysis");
 laraImport("Preprocessor");
 laraImport("UPTStage");
 laraImport("UPTConfig");
+laraImport("UPTUtils");
 
 class UnnamedPartitioningTool extends UPTStage {
 
@@ -58,5 +59,8 @@ class UnnamedPartitioningTool extends UPTStage {
         this.log("Running preprocessing step");
         const prepropcessor = new Preprocessor(UPTConfig.get("starterFunction"));
         prepropcessor.preprocess();
+
+        const res = UPTUtils.verifySyntax();
+        this.log(res ? "Syntax verified" : "Syntax verification failed");
     }
 }

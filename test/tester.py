@@ -86,7 +86,7 @@ def dispatch_app(appName):
 
 
 def dispatch(appName, isBenchmark):
-    print('-' * 30 + " Running " + appName + " " + '-' * 30)
+    print("-" * 30 + " Running " + appName + " " + "-" * 30)
     if isBenchmark:
         clava = prepare_command_and_file_bench(appName)
     else:
@@ -97,7 +97,7 @@ def dispatch(appName, isBenchmark):
     print(info.substitute(cmd=cmd))
 
     res = clava.run()
-    dashes = '-' * 34
+    dashes = "-" * 34
     print(dashes + " (code = " + str(res) + ") " + dashes)
 
 
@@ -107,7 +107,7 @@ def ensure_temp_exists():
 
 
 def main():
-    os.chdir('src')
+    os.chdir("src")
     # run_apps()
     run_benchmarks()
 
@@ -125,29 +125,27 @@ def run_benchmarks():
 
 
 def run_chstone():
+    # dispatch_bench("CHStone-adpcm")
     dispatch_bench("CHStone-aes")
-    '''
-    dispatch_bench("CHStone-adpcm")
-    dispatch_bench("CHStone-blowfish")
-    dispatch_bench("CHStone-dfadd")
-    dispatch_bench("CHStone-dfdiv")
-    dispatch_bench("CHStone-dfmul")
-    dispatch_bench("CHStone-dfsin")
-    dispatch_bench("CHStone-gsm")
-    dispatch_bench("CHStone-jpeg")
-    dispatch_bench("CHStone-mips")
-    dispatch_bench("CHStone-motion")
-    dispatch_bench("CHStone-sha")
-    '''
+    # dispatch_bench("CHStone-blowfish")
+    # dispatch_bench("CHStone-dfadd")
+    # dispatch_bench("CHStone-dfdiv")
+    # dispatch_bench("CHStone-dfmul")
+    # dispatch_bench("CHStone-dfsin")
+    # dispatch_bench("CHStone-gsm")
+    # dispatch_bench("CHStone-jpeg")
+    # dispatch_bench("CHStone-mips")
+    # dispatch_bench("CHStone-motion")
+    # dispatch_bench("CHStone-sha")
 
 
 def run_rosetta():
     dispatch_bench("Rosetta-3drendering")
-    dispatch_bench("Rosetta-digitrecog")
-    dispatch_bench("Rosetta-facedetect")
+    # dispatch_bench("Rosetta-digitrecog")
+    # dispatch_bench("Rosetta-facedetect")
     # dispatch_bench("Rosetta-opticalflow-curr")
     # dispatch_bench("Rosetta-opticalflow-sintel")
-    dispatch_bench("Rosetta-spamfilter")
+    # dispatch_bench("Rosetta-spamfilter")
 
 
 def run_hiflipvx():
