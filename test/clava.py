@@ -14,17 +14,16 @@ class Clava:
 
     def _remove_from_set(self, set, prefix):
         for item in set:
-            if item.startswith(prefix + ' '):
+            if item.startswith(prefix + " "):
                 set.remove(item)
 
     def _join_inputs(self, input_data):
         if isinstance(input_data, str):
             return input_data
         elif isinstance(input_data, (list, tuple)):
-            return ';'.join(str(item) for item in input_data)
+            return ";".join(str(item) for item in input_data)
         else:
-            raise TypeError(
-                "Input must be a string or a list/tuple of elements")
+            raise TypeError("Input must be a string or a list/tuple of elements")
 
     def _build_command_args(self, verbose=False):
         if verbose:
@@ -35,7 +34,7 @@ class Clava:
     def run(self, verbose=False):
         final_cmd = self.get_current_command(verbose)
 
-        #info = Template("Running Clava with the following command:\n\t$cmd\n")
+        # info = Template("Running Clava with the following command:\n\t$cmd\n")
         # print(info.substitute(cmd=final_cmd))
         ret = os.system(final_cmd)
         return ret
@@ -69,6 +68,9 @@ class Clava:
 
     def set_copy_files_in_sources(self):
         self._add("-cfs", "--copy-files-in-sources")
+
+    def set_no_clava_info(self):
+        self._add("-nci", "--no-clava-info")
 
     def set_standard(self, standard):
         self._remove_from_set(self.cmd_simple, "-std")

@@ -18,7 +18,7 @@ EXTRA_INCLUDES = [
 
 
 def set_default_args(clava):
-    # clava.set_check_syntax()
+    # clava.set_no_clava_info()
     clava.set_clean_intermediate_files()
     clava.set_copy_files_in_sources()
     clava.set_custom_resources()
@@ -126,8 +126,8 @@ def run_benchmarks():
 
 def run_chstone():
     # dispatch_bench("CHStone-adpcm")
-    dispatch_bench("CHStone-aes")
-    # dispatch_bench("CHStone-blowfish")
+    # dispatch_bench("CHStone-aes")
+    dispatch_bench("CHStone-blowfish")
     # dispatch_bench("CHStone-dfadd")
     # dispatch_bench("CHStone-dfdiv")
     # dispatch_bench("CHStone-dfmul")

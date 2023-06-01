@@ -20,7 +20,7 @@ class UnnamedPartitioningTool extends UPTStage {
     }
 
     runStages() {
-        this.log("Running UnnamedPartitioningTool");
+        this.log("Running UnnamedPartitioningTool for application \"" + UPTConfig.get("appName") + "\"");
 
         this.applyInitialConfig();
 
