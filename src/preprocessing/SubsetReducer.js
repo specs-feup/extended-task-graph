@@ -29,10 +29,14 @@ class SubsetReducer extends UPTStage {
         const templates = [
             //["exprStmt", ["binaryOp", ["arrayAccess"], ["call"]]]
             ["binaryOp noassign", ["call"], ["_"]],
-            ["binaryOp noassign", ["_"], ["call"]]
+            ["binaryOp noassign", ["_"], ["call"]],
+            ["ternaryOp", ["call"], ["_"], ["_"]],
+            ["ternaryOp", ["_"], ["call"], ["_"]],
+            ["ternaryOp", ["_"], ["_"], ["call"]],
         ];
 
         for (const stmt of Query.search("statement", { isInsideHeader: false })) {
+            if (stmt.instanceOf(["body", "scope", "if", "loop"])) continue;
             let hasMatched = false;
 
             for (const template of templates) {
@@ -46,6 +50,8 @@ class SubsetReducer extends UPTStage {
                 }
             }
             if (hasMatched) {
+                //println(stmt.code);
+                //println(stmt.joinPointType);
                 decomp.decomposeAndReplace(stmt);
             }
         }
