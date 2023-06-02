@@ -119,8 +119,8 @@ def run_apps():
 
 
 def run_benchmarks():
-    run_chstone()
-    # run_rosetta()
+    # run_chstone()
+    run_rosetta()
     # run_hiflipvx()
 
 

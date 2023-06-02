@@ -3,6 +3,7 @@
 laraImport("clava.code.Outliner");
 laraImport("preprocessing/SubsetReducer");
 laraImport("preprocessing/OutlineAnnotator");
+laraImport("preprocessing/CodeSanitizer");
 laraImport("UPTStage");
 
 class Preprocessor extends UPTStage {
@@ -14,8 +15,15 @@ class Preprocessor extends UPTStage {
     }
 
     preprocess() {
+        this.sanitizeCode();
         this.reduceToSubset();
         this.outlineRegions();
+    }
+
+    sanitizeCode() {
+        const sanitizer = new CodeSanitizer();
+        sanitizer.sanitize();
+        this.log("Code sanitization finished successfully");
     }
 
     reduceToSubset() {
