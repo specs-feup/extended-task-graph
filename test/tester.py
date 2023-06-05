@@ -12,8 +12,8 @@ INPUT_DIR = "../test/inputs/"
 TEMP_FOLDER = "../test/temp/"
 CONFIG = TEMP_FOLDER + "config.json"
 EXTRA_INCLUDES = [
-    "C:\\Users\\Tiago\\Dev\\Experiments\\Clava\\FunctionOutliner\\src",
-    "C:\\Users\\Tiago\\Dev\\Experiments\\Clava\\FunctionVoidifier\\src",
+    os.path.join("..", "..", "Experiments", "Clava", "FunctionOutliner", "src"),
+    os.path.join("..", "..", "Experiments", "Clava", "FunctionVoidifier", "src"),
 ]
 
 
