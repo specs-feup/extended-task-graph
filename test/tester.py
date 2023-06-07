@@ -119,8 +119,8 @@ def run_apps():
 
 
 def run_benchmarks():
-    # run_chstone()
-    run_rosetta()
+    run_chstone()
+    # run_rosetta()
     # run_hiflipvx()
 
 
@@ -131,11 +131,11 @@ def run_chstone():
     # dispatch_bench("CHStone-dfadd")
     # dispatch_bench("CHStone-dfdiv")
     # dispatch_bench("CHStone-dfmul")
-    dispatch_bench("CHStone-dfsin")
+    # dispatch_bench("CHStone-dfsin")
     # dispatch_bench("CHStone-gsm")
     # dispatch_bench("CHStone-jpeg")
     # dispatch_bench("CHStone-mips")
-    # dispatch_bench("CHStone-motion")
+    dispatch_bench("CHStone-motion")
     # dispatch_bench("CHStone-sha")
 
 
