@@ -1,16 +1,16 @@
 "use strict";
 
-laraImport("InitialAnalysis");
+laraImport("ApplicationAnalyser");
 laraImport("Preprocessor");
 laraImport("UPTStage");
-laraImport("UPTConfig");
 laraImport("UPTUtils");
 
 class UnnamedPartitioningTool extends UPTStage {
+    #config;
 
     constructor(config) {
         super("Main");
-        UPTConfig.init(config);
+        this.#config = config;
     }
 
     run() {
@@ -20,47 +20,54 @@ class UnnamedPartitioningTool extends UPTStage {
     }
 
     runStages() {
-        this.log("Running UnnamedPartitioningTool for application \"" + UPTConfig.get("appName") + "\"");
-
         this.applyInitialConfig();
+
+        this.log("Running UnnamedPartitioningTool for application \"" + this.#config["appName"] + "\"");
 
         this.initialAnalysis();
 
         this.preprocessing();
 
+        this.intermediateAnalysis();
+
         this.log("Done");
     }
 
     applyInitialConfig() {
-        if (!UPTConfig.has("appName")) {
+        if (!this.#config.hasOwnProperty("appName")) {
             UPTConfig.set("appName", "default_app_name");
         }
-        if (UPTConfig.has("codeOutputDir")) {
-            // update weaving folder
-        }
-        if (!UPTConfig.has("statsOutputDir")) {
-            const weavingDir = Clava.getWeavingFolder().toString();
-            const appName = UPTConfig.get("appName");
-            const newDir = weavingDir + "/" + appName + "_output_stats";
-            UPTConfig.set("statsOutputDir", newDir);
-        }
-        if (!UPTConfig.has("starterFunction")) {
+        if (!this.#config.hasOwnProperty("starterFunction")) {
             UPTConfig.set("starterFunction", "");
         }
     }
 
     initialAnalysis() {
         this.log("Running initial analysis step");
-        const analyser = new InitialAnalysis(UPTConfig.get("statsOutputDir"), UPTConfig.get("appName"));
-        analyser.analyse();
+        const outDir = this.#config["outputDir"] + "/app_stats_init"
+        const appName = this.#config["appName"];
+        const analyser = new ApplicationAnalyser(outDir, appName);
+        analyser.runAllTasks();
     }
 
     preprocessing() {
         this.log("Running preprocessing step");
-        const prepropcessor = new Preprocessor(UPTConfig.get("starterFunction"));
+        const starterFunction = this.#config["starterFunction"];
+        const prepropcessor = new Preprocessor(starterFunction);
         prepropcessor.preprocess();
 
         const res = UPTUtils.verifySyntax();
         this.log(res ? "Syntax verified" : "Syntax verification failed");
+    }
+
+    intermediateAnalysis() {
+        this.log("Running intermediate analysis step");
+        const outDir = this.#config["outputDir"] + "/app_stats_inter"
+        const appName = this.#config["appName"];
+        const analyser = new ApplicationAnalyser(outDir, appName);
+        analyser.runAllTasks();
+
+        UPTUtils.generateCode(this.#config["outputDir"], "src_inter");
+        this.log("Intermediate source code written to src_inter");
     }
 }

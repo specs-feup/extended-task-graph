@@ -1,4 +1,6 @@
 import os
+import json
+import subprocess
 from string import Template
 
 
@@ -30,6 +32,11 @@ class Clava:
             return " ".join(self.cmd_verbose)
         else:
             return " ".join(self.cmd_simple)
+
+    def _encode_json(self, json_dict):
+        json_string = json.dumps(json_dict)
+        escaped_string = subprocess.list2cmdline([json_string])
+        return escaped_string
 
     def run(self, verbose=False):
         final_cmd = self.get_current_command(verbose)
@@ -72,6 +79,9 @@ class Clava:
     def set_no_clava_info(self):
         self._add("-nci", "--no-clava-info")
 
+    def set_no_code_generation(self):
+        self._add("-ncg", "--no-code-gen")
+
     def set_standard(self, standard):
         self._remove_from_set(self.cmd_simple, "-std")
         self._remove_from_set(self.cmd_verbose, "-std")
@@ -86,6 +96,12 @@ class Clava:
         self._remove_from_set(self.cmd_simple, "-of")
         self._remove_from_set(self.cmd_verbose, "--output-foldername")
         self._add("-of " + name, "--output-foldername " + name)
+
+    def set_args(self, json):
+        args = self._encode_json(json)
+        self._remove_from_set(self.cmd_simple, "-av")
+        self._remove_from_set(self.cmd_verbose, "--argv")
+        self._add("-av " + args, "--argv " + args)
 
     def set_verbosity(self, level=0):
         self._remove_from_set(self.cmd_simple, "-b")

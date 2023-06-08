@@ -4,9 +4,9 @@ laraImport("clava.Clava");
 laraImport("UnnamedPartitioningTool");
 
 function handleBenchmark(config) {
-    const suite = config["suite"];
-    const benchmarkName = config["appName"];
-    const benchmarkSize = config["inputSize"];
+    const benchmarkName = laraArgs["benchName"];
+    const suite = laraArgs["suite"];
+    const benchmarkSize = laraArgs["inputSize"];
     const importPath = `lara.benchmark.${suite}BenchmarkSet`;
 
     laraImport(importPath);
@@ -17,15 +17,8 @@ function handleBenchmark(config) {
 
     for (var bench of benches) {
         bench.load();
-        const fullName = bench.getName();
-        config["statsOutputDir"] += "/" + fullName;
-        config["codeOutputDir"] += "/" + fullName;
-        config["appName"] = fullName;
-
         const upt = new UnnamedPartitioningTool(config);
         upt.run();
-
-        Clava.writeCode(config["codeOutputDir"]);
     }
 }
 
@@ -37,9 +30,9 @@ function handleApp(config) {
 function main() {
     const json = Io.readJson("../test/temp/config.json");
 
-    if (json["inputType"] === "benchmark") {
+    if (laraArgs["inputType"] === "bench") {
         handleBenchmark(json);
-    } else if (json["inputType"] === "app") {
+    } else if (laraArgs["inputType"] === "app") {
         handleApp(json);
     } else {
         throw "Invalid input type";

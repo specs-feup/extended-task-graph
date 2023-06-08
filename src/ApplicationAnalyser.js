@@ -5,17 +5,17 @@ laraImport("analysis/AstDumper");
 laraImport("analysis/CallGraphDumper");
 laraImport("UPTStage");
 
-class InitialAnalysis extends UPTStage {
+class ApplicationAnalyser extends UPTStage {
     #outputDir
     #appName
 
     constructor(outputDir, appName) {
-        super("InitialAnalysis")
+        super("ApplicationAnalyser")
         this.#outputDir = outputDir;
         this.#appName = appName;
     }
 
-    analyse() {
+    runAllTasks() {
         this.dumpAST();
         this.dumpCallGraph();
     }

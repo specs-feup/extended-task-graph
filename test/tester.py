@@ -1,13 +1,12 @@
-import json
 import os
+import json
 from string import Template
 from benchmarks import benchmarks, apps
 from clava import Clava
 
 
 ENTRYPOINT = "../test/TestEntrypoint.js"
-CODE_DIR = "../test/output_code/"
-STAT_DIR = "../test/output_stats/"
+OUTPUT_DIR = "../test/outputs/"
 INPUT_DIR = "../test/inputs/"
 TEMP_FOLDER = "../test/temp/"
 CONFIG = TEMP_FOLDER + "config.json"
@@ -25,6 +24,7 @@ def set_default_args(clava):
     clava.set_parallel_parsing()
     clava.set_parse_includes()
     clava.set_show_stack()
+    clava.set_no_code_generation()
     clava.set_verbosity(0)
     clava.set_extra_includes_folder(EXTRA_INCLUDES)
 
@@ -32,48 +32,58 @@ def set_default_args(clava):
 def prepare_command_and_file_app(appName):
     inputPath, outputPath, standard, config = apps[appName]
     inputPath = INPUT_DIR + inputPath
-    outputPath = CODE_DIR + outputPath
+    outputPath = OUTPUT_DIR + outputPath
 
+    # UPT config
     config["appName"] = appName
-    config["codeOutputDir"] = outputPath
-    config["statsOutputDir"] = STAT_DIR + appName
-    config["inputType"] = "app"
+    config["inputDir"] = inputPath + "/" + appName
+    config["outputDir"] = outputPath + "/" + appName
 
     if not os.path.exists(TEMP_FOLDER):
         os.makedirs(TEMP_FOLDER)
     with open(CONFIG, "w+") as f:
         json.dump(config, f, indent=4)
 
+    # Clava command line arguments
     clava = Clava(ENTRYPOINT)
     set_default_args(clava)
     clava.set_standard(standard)
     clava.set_workspace(inputPath)
     clava.set_output_folder_name(outputPath)
+    clava.set_args({"inputType": "app"})
 
     return clava
 
 
 def prepare_command_and_file_bench(appName):
-    canonicalName, inputSize, suite, standard, config = benchmarks[appName]
+    canonical_name, input_size, suite, standard, config = benchmarks[appName]
     dep = "https://github.com/specs-feup/clava-benchmarks.git?folder=" + suite
+    full_name = suite + "-" + canonical_name + "-" + input_size
+    output_path = OUTPUT_DIR + full_name
 
-    config["appName"] = canonicalName
-    config["codeOutputDir"] = CODE_DIR + "/" + suite
-    config["statsOutputDir"] = STAT_DIR + "/" + suite
-    config["inputType"] = "benchmark"
-    config["suite"] = suite
-    config["inputSize"] = inputSize
+    # UPT config
+    config["appName"] = full_name
+    config["outputDir"] = output_path
 
     if not os.path.exists(TEMP_FOLDER):
         os.makedirs(TEMP_FOLDER)
     with open(CONFIG, "w+") as f:
         json.dump(config, f, indent=4)
 
+    # Clava command line arguments
+    args = {
+        "inputType": "bench",
+        "benchName": canonical_name,
+        "inputSize": input_size,
+        "suite": suite,
+    }
+
     clava = Clava(ENTRYPOINT)
     set_default_args(clava)
     clava.set_standard(standard)
-    clava.set_output_folder_name(CODE_DIR)
+    clava.set_output_folder_name(OUTPUT_DIR)
     clava.set_dependencies(dep)
+    clava.set_args(args)
     return clava
 
 
@@ -92,9 +102,9 @@ def dispatch(appName, isBenchmark):
     else:
         clava = prepare_command_and_file_app(appName)
 
-    cmd = clava.get_current_command()
+    commands = clava.get_current_command()
     info = Template("Running Clava with the following command:\n\t$cmd\n")
-    print(info.substitute(cmd=cmd))
+    print(info.substitute(cmd=commands))
 
     res = clava.run()
     dashes = "-" * 34
@@ -114,7 +124,7 @@ def main():
 
 def run_apps():
     dispatch_app("scenarioA")
-    # dispatch_app("scenarioB")
+    dispatch_app("scenarioB")
     pass
 
 
@@ -125,7 +135,7 @@ def run_benchmarks():
 
 
 def run_chstone():
-    # dispatch_bench("CHStone-adpcm")
+    dispatch_bench("CHStone-adpcm")
     # dispatch_bench("CHStone-aes")
     # dispatch_bench("CHStone-blowfish")
     # dispatch_bench("CHStone-dfadd")
@@ -135,7 +145,7 @@ def run_chstone():
     # dispatch_bench("CHStone-gsm")
     # dispatch_bench("CHStone-jpeg")
     # dispatch_bench("CHStone-mips")
-    dispatch_bench("CHStone-motion")
+    # dispatch_bench("CHStone-motion")
     # dispatch_bench("CHStone-sha")
 
 

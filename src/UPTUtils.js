@@ -16,6 +16,11 @@ class UPTUtils {
         return valid;
     }
 
+    static generateCode(weaveDir, folder) {
+        const path = weaveDir + "/" + folder;
+        Clava.writeCode(path);
+    }
+
     static matchTemplate(jp, template) {
         const split = template[0].split(" ");
         const type = split[0];
