@@ -34,28 +34,40 @@ class OutlineAnnotator extends UPTStage {
                 this.log(fun.name + ": found " + funRegions.length + " outlining regions");
             }
         }
-
         const filteredRegions = this.#filterRegions(regions);
 
         // finally, wrap all the regions we found
+        const wrappedRegions = [];
         for (const region of filteredRegions) {
-            this.#wrapRegion(region);
+            const wrappedRegion = this.#wrapRegion(region);
+            wrappedRegions.push(wrappedRegion);
         }
 
         this.log("Finished annotating outlining regions")
-        return filteredRegions;
+        return wrappedRegions;
     }
 
     #validateRegion(region) {
+        let hasOneUsefulStmt = false;
         for (const stmt of region) {
-            const hasUseless = stmt.instanceOf(["wrapperStmt", "declStmt", "returnStmt"]);
-
-            // found at least one stmt that is not a decl, comment or return
-            if (!hasUseless) {
-                return true;
+            hasOneUsefulStmt = !stmt.instanceOf(["wrapperStmt", "declStmt", "returnStmt"]);
+            if (hasOneUsefulStmt) {
+                break;
             }
         }
-        return false;
+        if (!hasOneUsefulStmt) {
+            return false;
+        }
+
+        // having at least one useful statement is not enough
+        // we need to check a few more things
+        if (region.length == 2 && region[1].instanceOf("returnStmt")) {
+            const isTrivialReturn = Query.searchFrom(region[0], "varref", { name: "rtr_val" }).chain().length > 0;
+            if (isTrivialReturn) {
+                return false;
+            }
+        }
+        return true;
     }
 
     #filterRegions(regions) {
@@ -72,40 +84,58 @@ class OutlineAnnotator extends UPTStage {
 
     #findRegionsInScope(scope) {
         const regions = [];
-        let currStart = null;
-        let currEnd = null;
+        const extraScopes = [];
         let currRegion = [];
 
         for (const stmt of scope.children) {
-            if (!this.#hasFunctionCalls(stmt)) {
-                if (currStart == null) {
-                    currStart = stmt;
-                    currEnd = stmt;
-                    currRegion.push(stmt);
+            if (stmt.instanceOf(["if", "loop"])) {
+                const bodies = [];
+                for (const child of stmt.children) {
+                    if (child.instanceOf("body")) {
+                        bodies.push(child);
+                    }
+                }
+
+                let atLeastOne = false;
+                for (const body of bodies) {
+                    if (this.#hasFunctionCalls(body)) {
+                        atLeastOne = true;
+                        break;
+                    }
+                }
+
+                if (atLeastOne) {
+                    if (currRegion.length > 0) {
+                        regions.push(currRegion);
+                        currRegion = [];
+                    }
+                    extraScopes.push(...bodies);
                 }
                 else {
-                    currEnd = stmt;
                     currRegion.push(stmt);
+                }
+            }
+            else if (this.#hasFunctionCalls(stmt)) {
+                if (currRegion.length > 0) {
+                    regions.push(currRegion);
+                    currRegion = [];
                 }
             }
             else {
-                if (currStart != null) {
-                    regions.push(Array.from(currRegion));
-                }
-                // not sure if this covers all cases
-                if (stmt.instanceOf(["switch", "if", "loop"])) {
-                    for (const child of stmt.children) {
-                        if (child.instanceOf("body")) {
-                            const childRegions = this.#findRegionsInScope(child);
-                            regions.push(...childRegions);
-                        }
-                    }
-                }
-                currStart = null;
-                currEnd = null;
-                currRegion = [];
+                currRegion.push(stmt);
             }
         }
+        // push the last region
+        if (currRegion.length > 0) {
+            regions.push(currRegion);
+        }
+
+        // recursively find and push regions in the scopes we found
+        for (const extraScope of extraScopes) {
+            const extraScopeRegions = this.#findRegionsInScope(extraScope);
+            regions.push(...extraScopeRegions);
+        }
+
         return regions;
     }
 
@@ -119,8 +149,8 @@ class OutlineAnnotator extends UPTStage {
         start.insertBefore(beginWrapper);
         end.insertAfter(endWrapper);
 
-        region.unshift(beginWrapper);
-        region.push(endWrapper);
+        const wrappedRegion = [beginWrapper, ...region, endWrapper];
+        return wrappedRegion;
     }
 
     #hasFunctionCalls(jp) {

@@ -24,19 +24,6 @@ class SubsetReducer extends UPTStage {
         this.log("Successfully normalized to subset");
     }
 
-    ensureVoidReturns() {
-        const vf = new Voidifier();
-
-        let count = 0;
-        for (var fun of Query.search("function", { "isImplementation": true })) {
-            if (fun.name != "main") {
-                const turnedVoid = vf.voidify(fun, "rtr_val");
-                count += turnedVoid ? 1 : 0;
-            }
-        }
-        this.log("Successfully ensured " + count + " function(s) return void");
-    }
-
     decomposeStatements(maxPasses = 1) {
         const decomp = new StatementDecomposer();
         let hasChanged = true;
@@ -63,6 +50,19 @@ class SubsetReducer extends UPTStage {
             }
         }
         this.log("Successfully decomposed statements in " + nPasses + " passes");
+    }
+
+    ensureVoidReturns() {
+        const vf = new Voidifier();
+
+        let count = 0;
+        for (var fun of Query.search("function", { "isImplementation": true })) {
+            if (fun.name != "main") {
+                const turnedVoid = vf.voidify(fun, "rtr_val");
+                count += turnedVoid ? 1 : 0;
+            }
+        }
+        this.log("Successfully ensured " + count + " function(s) return void");
     }
 
     #matchesATemplate(stmt) {
@@ -103,7 +103,6 @@ class SubsetReducer extends UPTStage {
                 return true;
             }
         }
-
         return false;
     }
 

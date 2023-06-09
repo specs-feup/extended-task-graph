@@ -27,11 +27,11 @@ class UnnamedPartitioningTool extends UPTStage {
         this.initialAnalysis();
 
         const valid = this.preprocessing();
-        /*
+
         if (!valid) {
             this.log("Aborting...");
             return;
-        }*/
+        }
 
         this.intermediateAnalysis();
 
