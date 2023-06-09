@@ -61,7 +61,6 @@ class SubsetReducer extends UPTStage {
             if (hasChanged) {
                 nPasses++;
             }
-            println("------");
         }
         this.log("Successfully decomposed statements in " + nPasses + " passes");
     }

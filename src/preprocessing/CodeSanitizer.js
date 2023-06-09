@@ -13,6 +13,13 @@ class CodeSanitizer extends UPTStage {
         this.#nukeAll("labelStmt");
         this.#removeRegisterQualifiers();
         this.#removeAllComments();
+        this.#forceBracketsInScopes();
+    }
+
+    #forceBracketsInScopes() {
+        for (const scope of Query.search("scope", { naked: true })) {
+            scope.naked = false;
+        }
     }
 
     #removeAllComments() {
