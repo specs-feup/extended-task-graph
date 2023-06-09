@@ -26,7 +26,12 @@ class UnnamedPartitioningTool extends UPTStage {
 
         this.initialAnalysis();
 
-        this.preprocessing();
+        const valid = this.preprocessing();
+        /*
+        if (!valid) {
+            this.log("Aborting...");
+            return;
+        }*/
 
         this.intermediateAnalysis();
 
@@ -38,7 +43,7 @@ class UnnamedPartitioningTool extends UPTStage {
             UPTConfig.set("appName", "default_app_name");
         }
         if (!this.#config.hasOwnProperty("starterFunction")) {
-            UPTConfig.set("starterFunction", "");
+            UPTConfig.set("starterFunction", "main");
         }
     }
 
@@ -58,6 +63,7 @@ class UnnamedPartitioningTool extends UPTStage {
 
         const res = UPTUtils.verifySyntax();
         this.log(res ? "Syntax verified" : "Syntax verification failed");
+        return res;
     }
 
     intermediateAnalysis() {

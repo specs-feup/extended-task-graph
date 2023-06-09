@@ -26,8 +26,8 @@ class AstDumper {
 
     #dumpJoinPoint(jp, indent) {
         var str = jp.joinPointType;
-        if (jp.instanceOf("param")) {
-            str += this.#buildLabel("type", jp.type);
+        if (jp.instanceOf(["param", "vardecl"])) {
+            str += this.#buildLabel("name", jp.name) + this.#buildLabel("type", jp.type.joinPointType);
         }
         if (jp.instanceOf(["unaryOp", "binaryOp"])) {
             str += this.#buildLabel("kind", jp.kind);

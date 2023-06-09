@@ -39,6 +39,16 @@ class UPTUtils {
                 }
             }
         }
+        if (cond == "assign") {
+            if (!jp.instanceOf("binaryOp")) {
+                println("[TemplateMatcher] Cannot process condition \"assign\" on a joinpoint of type " + jp.joinPointType + "; ignoring");
+            }
+            else {
+                if (jp.kind != "assign") {
+                    return false;
+                }
+            }
+        }
 
         for (let i = 1; i < template.length; i++) {
             if (!UPTUtils.matchTemplate(jp.children[i - 1], template[i])) {
