@@ -13,6 +13,9 @@ CONFIG = TEMP_FOLDER + "config.json"
 EXTRA_INCLUDES = [
     os.path.join("..", "..", "Experiments", "Clava", "FunctionOutliner", "src"),
     os.path.join("..", "..", "Experiments", "Clava", "FunctionVoidifier", "src"),
+    os.path.join("..", "..", "Experiments", "Clava", "ArrayFlattener", "src"),
+    os.path.join("..", "..", "Experiments", "Clava", "ConstantPropagator", "src"),
+    os.path.join("..", "..", "Experiments", "Clava", "SwitchToIf", "src"),
 ]
 
 
@@ -129,20 +132,20 @@ def run_apps():
 
 
 def run_benchmarks():
-    # run_chstone()
-    run_rosetta()
+    run_chstone()
+    # run_rosetta()
     # run_hiflipvx()
 
 
 def run_chstone():
     dispatch_bench("CHStone-adpcm")
-    dispatch_bench("CHStone-aes")
-    dispatch_bench("CHStone-blowfish")
-    dispatch_bench("CHStone-dfdiv")
-    dispatch_bench("CHStone-dfmul")
-    dispatch_bench("CHStone-gsm")
-    dispatch_bench("CHStone-mips")
-    dispatch_bench("CHStone-sha")
+    # dispatch_bench("CHStone-aes")
+    # dispatch_bench("CHStone-blowfish")
+    # dispatch_bench("CHStone-dfdiv")
+    # dispatch_bench("CHStone-dfmul")
+    # dispatch_bench("CHStone-gsm")
+    # dispatch_bench("CHStone-mips")
+    # dispatch_bench("CHStone-sha")
 
     # dispatch_bench("CHStone-jpeg")  # switch/break issue
     # dispatch_bench("CHStone-motion")  # decomposer can't decompose very weird stmt
@@ -151,9 +154,9 @@ def run_chstone():
 
 
 def run_rosetta():
-    dispatch_bench("Rosetta-3drendering")
-    # dispatch_bench("Rosetta-digitrecog")
-    # dispatch_bench("Rosetta-facedetect")
+    # dispatch_bench("Rosetta-3drendering") # ok
+    # dispatch_bench("Rosetta-digitrecog") # ok
+    dispatch_bench("Rosetta-facedetect")  # problem with int_sqrt?
     # dispatch_bench("Rosetta-opticalflow-curr")
     # dispatch_bench("Rosetta-opticalflow-sintel")
     # dispatch_bench("Rosetta-spamfilter")

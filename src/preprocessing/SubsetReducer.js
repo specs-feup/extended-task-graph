@@ -6,6 +6,9 @@ laraImport("clava.opt.PrepareForInlining");
 laraImport("clava.code.Inliner");
 laraImport("clava.code.StatementDecomposer");
 laraImport("clava.code.Voidifier");
+laraImport("clava.code.ArrayFlattener");
+laraImport("clava.code.ConstantPropagator");
+laraImport("clava.code.SwitchToIf");
 laraImport("UPTStage");
 
 class SubsetReducer extends UPTStage {
@@ -16,20 +19,21 @@ class SubsetReducer extends UPTStage {
     reduce() {
         this.normalizeToSubset();
         this.decomposeStatements();
+        this.applyCodeTransforms();
         this.ensureVoidReturns();
     }
 
     normalizeToSubset() {
         NormalizeToSubset(Query.root(), { simplifyLoops: { forToWhile: false } });
-        this.log("Successfully normalized to subset");
+        this.log("Codebase normalized to subset");
     }
 
     decomposeStatements(maxPasses = 1) {
         const decomp = new StatementDecomposer();
         let hasChanged = true;
-        let nPasses = 0;
+        let nPasses = 1;
 
-        while (hasChanged && nPasses < maxPasses) {
+        while (hasChanged && nPasses <= maxPasses) {
             hasChanged = false;
 
             for (const stmt of Query.search("statement", { isInsideHeader: false })) {
@@ -49,7 +53,28 @@ class SubsetReducer extends UPTStage {
                 nPasses++;
             }
         }
-        this.log("Successfully decomposed statements in " + nPasses + " passes");
+        this.log("Decomposed statements in " + nPasses + " passes");
+    }
+
+    applyCodeTransforms() {
+        const flattener = new ArrayFlattener();
+        flattener.flattenAll();
+        this.log("Flattened all arrays into 1D");
+
+        const propagator = new ConstantPropagator();
+        for (const fun of Query.search("function", { "isImplementation": true })) {
+            propagator.propagate(fun);
+        }
+        this.log("Applied constant propagation to all functions");
+
+        let count = 0;
+        const switchToIf = new SwitchToIf();
+        for (const switchStmt of Query.search("switch")) {
+            switchToIf.convert(switchStmt);
+            count++;
+        }
+        this.log("Converted " + count + " switch statements into if-else statements");
+
     }
 
     ensureVoidReturns() {
@@ -62,7 +87,7 @@ class SubsetReducer extends UPTStage {
                 count += turnedVoid ? 1 : 0;
             }
         }
-        this.log("Successfully ensured " + count + " function(s) return void");
+        this.log("Ensured " + count + " function(s) return void");
     }
 
     #matchesATemplate(stmt) {
