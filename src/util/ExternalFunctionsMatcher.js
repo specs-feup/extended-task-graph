@@ -1,7 +1,7 @@
 "use strict";
 
-class BuiltinFunctionsMatcher {
-    #mathHFuns = {
+class ExternalFunctionsMatcher {
+    static mathHFuns = {
         "acos": [
             "double"
         ],
@@ -467,26 +467,26 @@ class BuiltinFunctionsMatcher {
     }
 
     static isFromMathH(funOrCall) {
-        return BuiltinFunctionsMatcher.#isFromGeneric(funOrCall, BuiltinFunctionsMatcher.#mathH);
+        return ExternalFunctionsMatcher.#isFromGeneric(funOrCall, ExternalFunctionsMatcher.mathHFuns);
     }
 
-    static isFromAnyBuiltin(funOrCall) {
-        if (BuiltinFunctionsMatcher.isFromMathH(funOrCall)) {
+    static isValidExternal(funOrCall) {
+        if (ExternalFunctionsMatcher.isFromMathH(funOrCall)) {
             return true;
         }
         return false;
     }
 
     static #isFromGeneric(funOrCall, funList) {
-        const fun = BuiltinFunctionsMatcher.#sanitize(funOrCall);
+        const fun = ExternalFunctionsMatcher.#sanitize(funOrCall);
 
         if (funList.hasOwnProperty(fun.name)) {
             const funParams = fun.params;
             const builtinParams = funList[fun.name];
 
             for (let i = 0; i < funParams.length; i++) {
-                funParam = funParams[i].type.code;
-                builtinParam = builtinParams[i];
+                const funParam = funParams[i].type.code;
+                const builtinParam = builtinParams[i];
                 if (funParam !== builtinParam) {
                     return false;
                 }
@@ -497,14 +497,14 @@ class BuiltinFunctionsMatcher {
     }
 
     static #sanitize(funOrCall) {
-        if (funOrCall.instanceof("call")) {
+        if (funOrCall.instanceOf("call")) {
             return funOrCall.function;
         }
-        else if (funOrCall.instanceof("function")) {
+        else if (funOrCall.instanceOf("function")) {
             return funOrCall;
         }
         else {
-            throw new Error("[BuiltinFunctionsMatcher] Expected function or call");
+            throw new Error("[ExternalFunctionsMatcher] Expected function or call");
         }
     }
 }

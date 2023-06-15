@@ -4,6 +4,7 @@ laraImport("clava.ClavaJoinPoints");
 laraImport("clava.code.Outliner");
 laraImport("weaver.Query");
 laraImport("UPTStage");
+laraImport("util.ExternalFunctionsMatcher");
 
 class OutlineAnnotator extends UPTStage {
     #startFunction;
@@ -154,7 +155,18 @@ class OutlineAnnotator extends UPTStage {
     }
 
     #hasFunctionCalls(jp) {
-        return Query.searchFrom(jp, "call").chain().length > 0 || jp.instanceOf("call");
+        if (jp.instanceOf("call")) {
+            return true;
+        }
+
+        for (const call of Query.searchFrom(jp, "call")) {
+            const fun = call.function;
+            const isValidExternal = ExternalFunctionsMatcher.isValidExternal(fun);
+            if (!isValidExternal) {
+                return true;
+            }
+        }
+        return false;
     }
 
     #getEligibleFunctions() {
