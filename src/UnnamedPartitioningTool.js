@@ -16,14 +16,16 @@ class UnnamedPartitioningTool extends UPTStage {
         this.setOutputDir(this.#config["outputDir"]);
     }
 
-    run() {
-        println("*".repeat(100));
-        this.runStages();
-        println("*".repeat(100));
+    runBothFlows() {
+        this.#printLine();
+        this.log("Running UnnamedPartitioningTool for application \"" + this.getAppName() + "\" using both flows");
+        this.runCodeTransformationFlow();
+        this.runHolisticFlow(false);
     }
 
-    runStages() {
-        this.log("Running UnnamedPartitioningTool for application \"" + this.getAppName() + "\"");
+    runCodeTransformationFlow() {
+        this.#printLine();
+        this.log("Running code transformation flow");
 
         this.initialAnalysis();
 
@@ -36,7 +38,20 @@ class UnnamedPartitioningTool extends UPTStage {
 
         this.intermediateAnalysis();
 
-        this.log("Done");
+        this.log("Code transformation flow finished successfully!");
+        this.#printLine();
+    }
+
+    runHolisticFlow(printFirstLine = true) {
+        if (printFirstLine) {
+            this.#printLine();
+        }
+        this.log("Running holistic HW/SW partitioning flow");
+
+        // TODO
+
+        this.log("Holistic HW/SW partitioning flow finished successfully!");
+        this.#printLine();
     }
 
     applyInitialConfig() {
@@ -81,5 +96,9 @@ class UnnamedPartitioningTool extends UPTStage {
 
         ClavaUtils.generateCode(this.getOutputDir(), "src_inter_tasks");
         this.log("Intermediate task-based source code written to \"src_inter_tasks\"");
+    }
+
+    #printLine() {
+        println("*".repeat(100));
     }
 }

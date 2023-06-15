@@ -18,13 +18,13 @@ function handleBenchmark(config) {
     for (var bench of benches) {
         bench.load();
         const upt = new UnnamedPartitioningTool(config);
-        upt.run();
+        upt.runBothFlows();
     }
 }
 
 function handleApp(config) {
     const upt = new UnnamedPartitioningTool(config);
-    upt.run();
+    upt.runBothFlows();
 }
 
 function main() {
