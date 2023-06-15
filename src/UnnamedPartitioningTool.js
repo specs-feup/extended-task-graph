@@ -1,8 +1,8 @@
 "use strict";
 
-laraImport("ApplicationAnalyser");
-laraImport("Preprocessor");
 laraImport("UPTStage");
+laraImport("analysis/ApplicationAnalyser");
+laraImport("preprocessing/Preprocessor");
 laraImport("util.ClavaUtils");
 
 class UnnamedPartitioningTool extends UPTStage {
