@@ -52,7 +52,8 @@ class UnnamedPartitioningTool extends UPTStage {
         const outDir = this.#config["outputDir"] + "/app_stats_init"
         const appName = this.#config["appName"];
         const analyser = new ApplicationAnalyser(outDir, appName);
-        analyser.runAllTasks();
+        analyser.dumpAST();
+        analyser.dumpCallGraph();
     }
 
     preprocessing() {

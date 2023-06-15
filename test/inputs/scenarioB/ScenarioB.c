@@ -66,7 +66,10 @@ int main()
 
     n = custom_sqrt(n);
 
+    n = n + 2;
+    n = n + n;
     n = sqrt(n);
+    n = n * n;
 
     // Scenario B: extract a set of statements with function calls
     // into their own function

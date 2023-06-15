@@ -3,6 +3,7 @@
 laraImport("lara.Io");
 laraImport("analysis/AstDumper");
 laraImport("analysis/CallGraphDumper");
+laraImport("analysis/SourceCodeStats");
 laraImport("UPTStage");
 
 class ApplicationAnalyser extends UPTStage {
@@ -18,6 +19,7 @@ class ApplicationAnalyser extends UPTStage {
     runAllTasks() {
         this.dumpAST();
         this.dumpCallGraph();
+        this.generateStatistics();
     }
 
     dumpAST() {
@@ -32,6 +34,15 @@ class ApplicationAnalyser extends UPTStage {
         const str = dumper.dump();
         this.saveToFile(str, "callgraph.dot");
         this.log("Call graph dumped to file callgraph.dot")
+    }
+
+    generateStatistics() {
+        const codeStats = new SourceCodeStats();
+        codeStats.generateAll();
+        const str = codeStats.asCsv();
+
+        this.saveToFile(str, "code_stats.csv");
+        this.log("Generated file with source code statistics");
     }
 
     saveToFile(str, filename) {
