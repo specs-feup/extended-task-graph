@@ -5,7 +5,7 @@ laraImport("CodeTransformationFlow");
 laraImport("HolisticPartitioningFlow");
 laraImport("analysis/ApplicationAnalyser");
 laraImport("preprocessing/Preprocessor");
-laraImport("util.ClavaUtils");
+laraImport("util/ClavaUtils");
 
 class UnnamedPartitioningTool extends UPTStage {
     #config;

@@ -8,7 +8,7 @@ laraImport("UPTStage");
 
 class ApplicationAnalyser extends UPTStage {
     constructor(outputDir, appName) {
-        super("ApplicationAnalyser", outputDir, appName);
+        super("CTFlow-ApplicationAnalyser", outputDir, appName);
     }
 
     runAllTasks() {

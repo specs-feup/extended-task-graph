@@ -9,12 +9,12 @@ laraImport("clava.code.Voidifier");
 laraImport("clava.code.ArrayFlattener");
 laraImport("clava.code.ConstantPropagator");
 laraImport("clava.code.SwitchToIf");
-laraImport("util.ClavaUtils")
+laraImport("util/ClavaUtils")
 laraImport("UPTStage");
 
 class SubsetReducer extends UPTStage {
     constructor() {
-        super("Preprocessor-SubsetReducer");
+        super("CTFlow-Preprocessor-SubsetReducer");
     }
 
     reduce() {

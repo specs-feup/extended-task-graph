@@ -6,7 +6,7 @@ laraImport("UPTStage");
 
 class CodeSanitizer extends UPTStage {
     constructor() {
-        super("Preprocessor-CodeSanitizer");
+        super("CTFlow-Preprocessor-CodeSanitizer");
     }
 
     sanitize() {

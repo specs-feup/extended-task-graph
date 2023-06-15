@@ -4,13 +4,13 @@ laraImport("clava.ClavaJoinPoints");
 laraImport("clava.code.Outliner");
 laraImport("weaver.Query");
 laraImport("UPTStage");
-laraImport("util.ExternalFunctionsMatcher");
+laraImport("util/ExternalFunctionsMatcher");
 
 class OutlineAnnotator extends UPTStage {
     #startFunction;
 
     constructor(startFunction) {
-        super("Preprocessor-AppOutliner");
+        super("CTFlow-Preprocessor-AppOutliner");
         this.#startFunction = startFunction;
     }
 

@@ -4,14 +4,13 @@ laraImport("clava.code.Outliner");
 laraImport("preprocessing/SubsetReducer");
 laraImport("preprocessing/OutlineAnnotator");
 laraImport("preprocessing/CodeSanitizer");
-//laraImport("util/ClavaUtils");
 laraImport("UPTStage");
 
 class Preprocessor extends UPTStage {
     #starterFunction;
 
     constructor(starterFunction, outputDir, appName) {
-        super("Preprocessor", outputDir, appName);
+        super("CTFlow-Preprocessor", outputDir, appName);
         this.#starterFunction = starterFunction;
     }
 

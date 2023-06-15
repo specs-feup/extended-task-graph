@@ -3,7 +3,7 @@
 laraImport("UPTStage");
 laraImport("analysis/ApplicationAnalyser");
 laraImport("preprocessing/Preprocessor");
-laraImport("util.ClavaUtils");
+laraImport("util/ClavaUtils");
 
 class CodeTransformationFlow extends UPTStage {
     #config;
