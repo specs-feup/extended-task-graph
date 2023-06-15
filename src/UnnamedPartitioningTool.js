@@ -1,6 +1,8 @@
 "use strict";
 
 laraImport("UPTStage");
+laraImport("CodeTransformationFlow");
+laraImport("HolisticPartitioningFlow");
 laraImport("analysis/ApplicationAnalyser");
 laraImport("preprocessing/Preprocessor");
 laraImport("util.ClavaUtils");
@@ -11,7 +13,7 @@ class UnnamedPartitioningTool extends UPTStage {
     constructor(config) {
         super("Main");
         this.#config = config;
-        this.applyInitialConfig();
+        this.#applyInitialConfig();
         this.setAppName(this.#config["appName"]);
         this.setOutputDir(this.#config["outputDir"]);
     }
@@ -25,20 +27,10 @@ class UnnamedPartitioningTool extends UPTStage {
 
     runCodeTransformationFlow() {
         this.#printLine();
-        this.log("Running code transformation flow");
 
-        this.initialAnalysis();
+        const flow = new CodeTransformationFlow(this.#config);
+        flow.run();
 
-        const valid = this.preprocessing();
-
-        if (!valid) {
-            this.log("Aborting...");
-            return;
-        }
-
-        this.intermediateAnalysis();
-
-        this.log("Code transformation flow finished successfully!");
         this.#printLine();
     }
 
@@ -46,56 +38,20 @@ class UnnamedPartitioningTool extends UPTStage {
         if (printFirstLine) {
             this.#printLine();
         }
-        this.log("Running holistic HW/SW partitioning flow");
 
-        // TODO
+        const flow = new HolisticPartitioningFlow(this.#config);
+        flow.run();
 
-        this.log("Holistic HW/SW partitioning flow finished successfully!");
         this.#printLine();
     }
 
-    applyInitialConfig() {
+    #applyInitialConfig() {
         if (!this.#config.hasOwnProperty("appName")) {
             UPTConfig.set("appName", "default_app_name");
         }
         if (!this.#config.hasOwnProperty("starterFunction")) {
             UPTConfig.set("starterFunction", "main");
         }
-    }
-
-    initialAnalysis() {
-        this.log("Running initial analysis step");
-        const outDir = this.getOutputDir() + "/app_stats_init"
-        const appName = this.getAppName();
-        const analyser = new ApplicationAnalyser(outDir, appName);
-        analyser.dumpAST();
-        analyser.dumpCallGraph();
-    }
-
-    preprocessing() {
-        this.log("Running preprocessing step");
-        const starterFunction = this.#config["starterFunction"];
-        const outDir = this.getOutputDir();
-        const appName = this.getAppName();
-
-        const prepropcessor = new Preprocessor(starterFunction, outDir, appName);
-        prepropcessor.preprocess();
-
-        const res = ClavaUtils.verifySyntax();
-        this.log(res ? "Syntax verified" : "Syntax verification failed");
-        return res;
-    }
-
-    intermediateAnalysis() {
-        this.log("Running intermediate analysis step");
-        const outDir = this.getOutputDir() + "/app_stats_inter"
-        const appName = this.getAppName();
-
-        const analyser = new ApplicationAnalyser(outDir, appName);
-        analyser.runAllTasks();
-
-        ClavaUtils.generateCode(this.getOutputDir(), "src_inter_tasks");
-        this.log("Intermediate task-based source code written to \"src_inter_tasks\"");
     }
 
     #printLine() {
