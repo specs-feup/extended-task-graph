@@ -7,13 +7,8 @@ laraImport("analysis/SourceCodeStats");
 laraImport("UPTStage");
 
 class ApplicationAnalyser extends UPTStage {
-    #outputDir
-    #appName
-
     constructor(outputDir, appName) {
-        super("ApplicationAnalyser")
-        this.#outputDir = outputDir;
-        this.#appName = appName;
+        super("ApplicationAnalyser", outputDir, appName);
     }
 
     runAllTasks() {
@@ -43,9 +38,5 @@ class ApplicationAnalyser extends UPTStage {
 
         this.saveToFile(str, "code_stats.csv");
         this.log("Generated file with source code statistics");
-    }
-
-    saveToFile(str, filename) {
-        Io.writeFile(this.#outputDir + "/" + this.#appName + "_" + filename, str);
     }
 }

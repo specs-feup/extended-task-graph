@@ -4,19 +4,21 @@ laraImport("clava.code.Outliner");
 laraImport("preprocessing/SubsetReducer");
 laraImport("preprocessing/OutlineAnnotator");
 laraImport("preprocessing/CodeSanitizer");
+//laraImport("util/ClavaUtils");
 laraImport("UPTStage");
 
 class Preprocessor extends UPTStage {
     #starterFunction;
 
-    constructor(starterFunction) {
-        super("Preprocessor");
+    constructor(starterFunction, outputDir, appName) {
+        super("Preprocessor", outputDir, appName);
         this.#starterFunction = starterFunction;
     }
 
     preprocess() {
         this.sanitizeCode();
         this.reduceToSubset();
+        this.generateSubsetCode();
         this.outlineRegions();
     }
 
@@ -30,6 +32,11 @@ class Preprocessor extends UPTStage {
         const reducer = new SubsetReducer();
         reducer.reduce();
         this.log("Subset reduction finished successfully");
+    }
+
+    generateSubsetCode() {
+        ClavaUtils.generateCode(this.getOutputDir(), "src_inter_subset");
+        this.log("Intermediate subset-reduced source code written to \"src_inter_subset\"");
     }
 
     outlineRegions() {

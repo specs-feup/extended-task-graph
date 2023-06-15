@@ -11,6 +11,9 @@ class UnnamedPartitioningTool extends UPTStage {
     constructor(config) {
         super("Main");
         this.#config = config;
+        this.applyInitialConfig();
+        this.setAppName(this.#config["appName"]);
+        this.setOutputDir(this.#config["outputDir"]);
     }
 
     run() {
@@ -20,9 +23,7 @@ class UnnamedPartitioningTool extends UPTStage {
     }
 
     runStages() {
-        this.applyInitialConfig();
-
-        this.log("Running UnnamedPartitioningTool for application \"" + this.#config["appName"] + "\"");
+        this.log("Running UnnamedPartitioningTool for application \"" + this.getAppName() + "\"");
 
         this.initialAnalysis();
 
@@ -49,8 +50,8 @@ class UnnamedPartitioningTool extends UPTStage {
 
     initialAnalysis() {
         this.log("Running initial analysis step");
-        const outDir = this.#config["outputDir"] + "/app_stats_init"
-        const appName = this.#config["appName"];
+        const outDir = this.getOutputDir() + "/app_stats_init"
+        const appName = this.getAppName();
         const analyser = new ApplicationAnalyser(outDir, appName);
         analyser.dumpAST();
         analyser.dumpCallGraph();
@@ -59,7 +60,10 @@ class UnnamedPartitioningTool extends UPTStage {
     preprocessing() {
         this.log("Running preprocessing step");
         const starterFunction = this.#config["starterFunction"];
-        const prepropcessor = new Preprocessor(starterFunction);
+        const outDir = this.getOutputDir();
+        const appName = this.getAppName();
+
+        const prepropcessor = new Preprocessor(starterFunction, outDir, appName);
         prepropcessor.preprocess();
 
         const res = ClavaUtils.verifySyntax();
@@ -69,12 +73,13 @@ class UnnamedPartitioningTool extends UPTStage {
 
     intermediateAnalysis() {
         this.log("Running intermediate analysis step");
-        const outDir = this.#config["outputDir"] + "/app_stats_inter"
-        const appName = this.#config["appName"];
+        const outDir = this.getOutputDir() + "/app_stats_inter"
+        const appName = this.getAppName();
+
         const analyser = new ApplicationAnalyser(outDir, appName);
         analyser.runAllTasks();
 
-        ClavaUtils.generateCode(this.#config["outputDir"], "src_inter");
-        this.log("Intermediate source code written to src_inter");
+        ClavaUtils.generateCode(this.getOutputDir(), "src_inter_tasks");
+        this.log("Intermediate task-based source code written to \"src_inter_tasks\"");
     }
 }
