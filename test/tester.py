@@ -121,19 +121,19 @@ def ensure_temp_exists():
 
 def main():
     os.chdir("src")
-    # run_apps()
-    run_benchmarks()
+    run_apps()
+    # run_benchmarks()
 
 
 def run_apps():
-    dispatch_app("scenarioA")
+    # dispatch_app("scenarioA")
     dispatch_app("scenarioB")
     pass
 
 
 def run_benchmarks():
-    run_chstone()
-    # run_rosetta()
+    # run_chstone()
+    run_rosetta()
     # run_hiflipvx()
 
 
@@ -156,10 +156,10 @@ def run_chstone():
 def run_rosetta():
     # dispatch_bench("Rosetta-3drendering") # ok
     # dispatch_bench("Rosetta-digitrecog") # ok
-    dispatch_bench("Rosetta-facedetect")  # problem with int_sqrt?
-    # dispatch_bench("Rosetta-opticalflow-curr")
+    # dispatch_bench("Rosetta-facedetect")  # ok
+    dispatch_bench("Rosetta-opticalflow-curr")
     # dispatch_bench("Rosetta-opticalflow-sintel")
-    # dispatch_bench("Rosetta-spamfilter")
+    # dispatch_bench("Rosetta-spamfilter") #default arg issue
 
 
 def run_hiflipvx():

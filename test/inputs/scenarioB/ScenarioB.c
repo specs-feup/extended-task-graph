@@ -40,12 +40,22 @@ void buzz(int A[N], int B[N])
     }
 }
 
+unsigned int custom_sqrt(unsigned int n)
+{
+    for (int i = 0; i < 100; i++)
+    {
+        n = n + i;
+    }
+    return n;
+}
+
 int main()
 {
     int A[N] = {[0 ... N - 1] = 10};
     int B[N] = {[0 ... N - 1] = 20};
     int C[N] = {[0 ... N - 1] = 30};
     int D[N] = {[0 ... N - 1] = 40};
+    int n;
 
     for (int i = 0; i < N; i++)
     {
@@ -53,6 +63,10 @@ int main()
     }
 
     int var1 = foo(A, B);
+
+    n = custom_sqrt(n);
+
+    n = sqrt(n);
 
     // Scenario B: extract a set of statements with function calls
     // into their own function

@@ -1,0 +1,510 @@
+"use strict";
+
+class BuiltinFunctionsMatcher {
+    #mathHFuns = {
+        "acos": [
+            "double"
+        ],
+        "acosf": [
+            "float"
+        ],
+        "acoshf": [
+            "float"
+        ],
+        "acoshl": [
+            "long double"
+        ],
+        "acosl": [
+            "long double"
+        ],
+        "asin": [
+            "double"
+        ],
+        "asinf": [
+            "float"
+        ],
+        "asinhf": [
+            "float"
+        ],
+        "asinhl": [
+            "long double"
+        ],
+        "asinl": [
+            "long double"
+        ],
+        "atan": [
+            "double"
+        ],
+        "atan2": [
+            "double",
+            "double"
+        ],
+        "atan2f": [
+            "float",
+            "float"
+        ],
+        "atan2l": [
+            "long double",
+            "long double"
+        ],
+        "atanf": [
+            "float"
+        ],
+        "atanl": [
+            "long double"
+        ],
+        "cbrtf": [
+            "float"
+        ],
+        "cbrtl": [
+            "long double"
+        ],
+        "ceil": [
+            "double"
+        ],
+        "ceilf": [
+            "float"
+        ],
+        "ceill": [
+            "long double"
+        ],
+        "copysign": [
+            "double",
+            "double"
+        ],
+        "copysignf": [
+            "float",
+            "float"
+        ],
+        "copysignl": [
+            "long double",
+            "long double"
+        ],
+        "cos": [
+            "double"
+        ],
+        "cosf": [
+            "float"
+        ],
+        "cosh": [
+            "double"
+        ],
+        "coshf": [
+            "float"
+        ],
+        "coshl": [
+            "long double"
+        ],
+        "cosl": [
+            "long double"
+        ],
+        "exp": [
+            "double"
+        ],
+        "expf": [
+            "float"
+        ],
+        "expl": [
+            "long double"
+        ],
+        "expm1f": [
+            "float"
+        ],
+        "expm1l": [
+            "long double"
+        ],
+        "exp2": [
+            "double"
+        ],
+        "exp2f": [
+            "float"
+        ],
+        "exp2l": [
+            "long double"
+        ],
+        "fabsf": [
+            "float"
+        ],
+        "fabsl": [
+            "long double"
+        ],
+        "floor": [
+            "double"
+        ],
+        "floorf": [
+            "float"
+        ],
+        "floorl": [
+            "long double"
+        ],
+        "fma": [
+            "double",
+            "double",
+            "double"
+        ],
+        "fmaf": [
+            "float",
+            "float",
+            "float"
+        ],
+        "fmal": [
+            "long double",
+            "long double",
+            "long double"
+        ],
+        "fmax": [
+            "double",
+            "double"
+        ],
+        "fmaxf": [
+            "float",
+            "float"
+        ],
+        "fmaxl": [
+            "long double",
+            "long double"
+        ],
+        "fmin": [
+            "double",
+            "double"
+        ],
+        "fminf": [
+            "float",
+            "float"
+        ],
+        "fminl": [
+            "long double",
+            "long double"
+        ],
+        "fmod": [
+            "double",
+            "double"
+        ],
+        "fmodf": [
+            "float",
+            "float"
+        ],
+        "fmodl": [
+            "long double",
+            "long double"
+        ],
+        "frexp": [
+            "double",
+            "int *"
+        ],
+        "frexpf": [
+            "float",
+            "int *"
+        ],
+        "frexpl": [
+            "long double",
+            "int *"
+        ],
+        "hypotf": [
+            "float",
+            "float"
+        ],
+        "hypotl": [
+            "long double",
+            "long double"
+        ],
+        "ilogbf": [
+            "float"
+        ],
+        "ilogbl": [
+            "long double"
+        ],
+        "ldexp": [
+            "double",
+            "int"
+        ],
+        "ldexpf": [
+            "float",
+            "int"
+        ],
+        "ldexpl": [
+            "long double",
+            "int"
+        ],
+        "lgammaf": [
+            "float"
+        ],
+        "lgammal": [
+            "long double"
+        ],
+        "llrint": [
+            "double"
+        ],
+        "llrintf": [
+            "float"
+        ],
+        "llrintl": [
+            "long double"
+        ],
+        "llround": [
+            "double"
+        ],
+        "llroundf": [
+            "float"
+        ],
+        "llroundl": [
+            "long double"
+        ],
+        "log": [
+            "double"
+        ],
+        "logbf": [
+            "float"
+        ],
+        "logbl": [
+            "long double"
+        ],
+        "logf": [
+            "float"
+        ],
+        "logl": [
+            "long double"
+        ],
+        "log1pf": [
+            "float"
+        ],
+        "log1pl": [
+            "long double"
+        ],
+        "log10": [
+            "double"
+        ],
+        "log10f": [
+            "float"
+        ],
+        "log10l": [
+            "long double"
+        ],
+        "lrint": [
+            "double"
+        ],
+        "lrintf": [
+            "float"
+        ],
+        "lrintl": [
+            "long double"
+        ],
+        "lround": [
+            "double"
+        ],
+        "lroundf": [
+            "float"
+        ],
+        "lroundl": [
+            "long double"
+        ],
+        "modf": [
+            "double",
+            "double *"
+        ],
+        "modff": [
+            "float",
+            "float *"
+        ],
+        "modfl": [
+            "long double",
+            "long double *"
+        ],
+        "nan": [
+            "char const *"
+        ],
+        "nanf": [
+            "char const *"
+        ],
+        "nanl": [
+            "char const *"
+        ],
+        "nearbyint": [
+            "double"
+        ],
+        "nearbyintf": [
+            "float"
+        ],
+        "nearbyintl": [
+            "long double"
+        ],
+        "nextafterf": [
+            "float",
+            "float"
+        ],
+        "nextafterl": [
+            "long double",
+            "long double"
+        ],
+        "nexttoward": [
+            "double",
+            "long double"
+        ],
+        "nexttowardf": [
+            "float",
+            "long double"
+        ],
+        "nexttowardl": [
+            "long double",
+            "long double"
+        ],
+        "pow": [
+            "double",
+            "double"
+        ],
+        "powf": [
+            "float",
+            "float"
+        ],
+        "powl": [
+            "long double",
+            "long double"
+        ],
+        "remainderf": [
+            "float",
+            "float"
+        ],
+        "remainderl": [
+            "long double",
+            "long double"
+        ],
+        "remquo": [
+            "double",
+            "double",
+            "int *"
+        ],
+        "remquof": [
+            "float",
+            "float",
+            "int *"
+        ],
+        "remquol": [
+            "long double",
+            "long double",
+            "int *"
+        ],
+        "rintf": [
+            "float"
+        ],
+        "rintl": [
+            "long double"
+        ],
+        "round": [
+            "double"
+        ],
+        "roundf": [
+            "float"
+        ],
+        "roundl": [
+            "long double"
+        ],
+        "scalbln": [
+            "double",
+            "long"
+        ],
+        "scalblnf": [
+            "float",
+            "long"
+        ],
+        "scalblnl": [
+            "long double",
+            "long"
+        ],
+        "sin": [
+            "double"
+        ],
+        "sinf": [
+            "float"
+        ],
+        "sinh": [
+            "double"
+        ],
+        "sinhf": [
+            "float"
+        ],
+        "sinhl": [
+            "long double"
+        ],
+        "sinl": [
+            "long double"
+        ],
+        "sqrt": [
+            "double"
+        ],
+        "sqrtf": [
+            "float"
+        ],
+        "sqrtl": [
+            "long double"
+        ],
+        "tan": [
+            "double"
+        ],
+        "tanf": [
+            "float"
+        ],
+        "tanh": [
+            "double"
+        ],
+        "tanhf": [
+            "float"
+        ],
+        "tanhl": [
+            "long double"
+        ],
+        "tanl": [
+            "long double"
+        ],
+        "tgamma": [
+            "double"
+        ],
+        "tgammaf": [
+            "float"
+        ],
+        "tgammal": [
+            "long double"
+        ]
+    }
+
+    static isFromMathH(funOrCall) {
+        return BuiltinFunctionsMatcher.#isFromGeneric(funOrCall, BuiltinFunctionsMatcher.#mathH);
+    }
+
+    static isFromAnyBuiltin(funOrCall) {
+        if (BuiltinFunctionsMatcher.isFromMathH(funOrCall)) {
+            return true;
+        }
+        return false;
+    }
+
+    static #isFromGeneric(funOrCall, funList) {
+        const fun = BuiltinFunctionsMatcher.#sanitize(funOrCall);
+
+        if (funList.hasOwnProperty(fun.name)) {
+            const funParams = fun.params;
+            const builtinParams = funList[fun.name];
+
+            for (let i = 0; i < funParams.length; i++) {
+                funParam = funParams[i].type.code;
+                builtinParam = builtinParams[i];
+                if (funParam !== builtinParam) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    static #sanitize(funOrCall) {
+        if (funOrCall.instanceof("call")) {
+            return funOrCall.function;
+        }
+        else if (funOrCall.instanceof("function")) {
+            return funOrCall;
+        }
+        else {
+            throw new Error("[BuiltinFunctionsMatcher] Expected function or call");
+        }
+    }
+}

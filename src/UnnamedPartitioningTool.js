@@ -3,7 +3,7 @@
 laraImport("ApplicationAnalyser");
 laraImport("Preprocessor");
 laraImport("UPTStage");
-laraImport("UPTUtils");
+laraImport("util.ClavaUtils");
 
 class UnnamedPartitioningTool extends UPTStage {
     #config;
@@ -61,7 +61,7 @@ class UnnamedPartitioningTool extends UPTStage {
         const prepropcessor = new Preprocessor(starterFunction);
         prepropcessor.preprocess();
 
-        const res = UPTUtils.verifySyntax();
+        const res = ClavaUtils.verifySyntax();
         this.log(res ? "Syntax verified" : "Syntax verification failed");
         return res;
     }
@@ -73,7 +73,7 @@ class UnnamedPartitioningTool extends UPTStage {
         const analyser = new ApplicationAnalyser(outDir, appName);
         analyser.runAllTasks();
 
-        UPTUtils.generateCode(this.#config["outputDir"], "src_inter");
+        ClavaUtils.generateCode(this.#config["outputDir"], "src_inter");
         this.log("Intermediate source code written to src_inter");
     }
 }

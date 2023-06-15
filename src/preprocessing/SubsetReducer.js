@@ -9,6 +9,7 @@ laraImport("clava.code.Voidifier");
 laraImport("clava.code.ArrayFlattener");
 laraImport("clava.code.ConstantPropagator");
 laraImport("clava.code.SwitchToIf");
+laraImport("util.ClavaUtils")
 laraImport("UPTStage");
 
 class SubsetReducer extends UPTStage {
@@ -31,9 +32,9 @@ class SubsetReducer extends UPTStage {
     decomposeStatements(maxPasses = 1) {
         const decomp = new StatementDecomposer();
         let hasChanged = true;
-        let nPasses = 1;
+        let nPasses = 0;
 
-        while (hasChanged && nPasses <= maxPasses) {
+        while (hasChanged && nPasses < maxPasses) {
             hasChanged = false;
 
             for (const stmt of Query.search("statement", { isInsideHeader: false })) {
@@ -49,11 +50,9 @@ class SubsetReducer extends UPTStage {
                     hasChanged = true;
                 }
             }
-            if (hasChanged) {
-                nPasses++;
-            }
+            nPasses++;
         }
-        this.log("Decomposed statements in " + nPasses + " passes");
+        this.log("Decomposed statements in " + nPasses + " pass(es)");
     }
 
     applyCodeTransforms() {
@@ -104,7 +103,7 @@ class SubsetReducer extends UPTStage {
         for (const template of templates) {
 
             for (const binaryOp of Query.searchFrom(stmt)) {
-                const matched = UPTUtils.matchTemplate(binaryOp, template);
+                const matched = ClavaUtils.matchTemplate(binaryOp, template);
                 if (matched) {
                     hasMatched = true;
                     break;

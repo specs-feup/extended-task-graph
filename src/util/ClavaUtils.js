@@ -2,7 +2,7 @@
 
 laraImport("clava.Clava");
 
-class UPTUtils {
+class ClavaUtils {
     static verifySyntax() {
         let valid = true;
         Clava.pushAst();
@@ -51,7 +51,7 @@ class UPTUtils {
         }
 
         for (let i = 1; i < template.length; i++) {
-            if (!UPTUtils.matchTemplate(jp.children[i - 1], template[i])) {
+            if (!ClavaUtils.matchTemplate(jp.children[i - 1], template[i])) {
                 return false;
             }
         }
