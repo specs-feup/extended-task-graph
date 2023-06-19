@@ -6,7 +6,7 @@ laraImport("weaver.Query");
 laraImport("UPTStage");
 laraImport("util/ExternalFunctionsMatcher");
 
-class OutlineAnnotator extends UPTStage {
+class OutlineRegionFinder extends UPTStage {
     #startFunction;
 
     constructor(startFunction) {
@@ -21,7 +21,8 @@ class OutlineAnnotator extends UPTStage {
         const regions = [];
 
         for (const fun of funs) {
-            const nCalls = Query.searchFrom(fun, "call").chain().length;
+            //const nCalls = Query.searchFrom(fun, "call").chain().length;
+            const nCalls = this.#getEffectiveCallsInFunction(fun).length;
 
             // if the function has no calls, there is no need to outline it
             if (nCalls == 0) {
@@ -156,7 +157,8 @@ class OutlineAnnotator extends UPTStage {
 
     #hasFunctionCalls(jp) {
         if (jp.instanceOf("call")) {
-            return true;
+            const isValidExternal = ExternalFunctionsMatcher.isValidExternal(jp.function);
+            return !isValidExternal;
         }
 
         for (const call of Query.searchFrom(jp, "call")) {
@@ -186,6 +188,7 @@ class OutlineAnnotator extends UPTStage {
         return uniqueFuns;
     }
 
+    // returns all the functions that are valid for outlining
     #getEligibleFunctionsFrom(parent) {
         const funs = [];
 
@@ -198,5 +201,16 @@ class OutlineAnnotator extends UPTStage {
             }
         }
         return funs;
+    }
+
+    // returns the calls in a function that are not to external functions
+    #getEffectiveCallsInFunction(fun) {
+        const calls = [];
+        for (const call of Query.searchFrom(fun, "call")) {
+            if (this.#hasFunctionCalls(call)) {
+                calls.push(call);
+            }
+        }
+        return calls;
     }
 }

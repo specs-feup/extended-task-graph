@@ -165,9 +165,9 @@ def run_rosetta():
     # dispatch_bench("Rosetta-3drendering") # ok
     # dispatch_bench("Rosetta-digitrecog") # ok
     # dispatch_bench("Rosetta-facedetect")  # ok
+    dispatch_bench("Rosetta-spamfilter")  # ok
     # dispatch_bench("Rosetta-opticalflow-curr") # fails call graph generation
     # dispatch_bench("Rosetta-opticalflow-sintel")
-    dispatch_bench("Rosetta-spamfilter")  # default arg issue
 
 
 def run_hiflipvx():

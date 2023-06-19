@@ -2,7 +2,7 @@
 
 laraImport("clava.code.Outliner");
 laraImport("preprocessing/SubsetReducer");
-laraImport("preprocessing/OutlineAnnotator");
+laraImport("preprocessing/OutlineRegionFinder");
 laraImport("preprocessing/CodeSanitizer");
 laraImport("UPTStage");
 
@@ -47,7 +47,7 @@ class Preprocessor extends UPTStage {
     }
 
     outlineRegions() {
-        const annot = new OutlineAnnotator(this.#starterFunction);
+        const annot = new OutlineRegionFinder(this.#starterFunction);
         const regions = annot.annotate();
 
         let outCount = 0;
