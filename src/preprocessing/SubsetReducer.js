@@ -7,7 +7,7 @@ laraImport("clava.code.Inliner");
 laraImport("clava.code.StatementDecomposer");
 laraImport("clava.code.Voidifier");
 laraImport("clava.code.ArrayFlattener");
-laraImport("clava.code.ConstantPropagator");
+laraImport("clava.code.FoldingPropagationCombiner");
 laraImport("clava.code.SwitchToIf");
 laraImport("util/ClavaUtils")
 laraImport("UPTStage");
@@ -60,11 +60,9 @@ class SubsetReducer extends UPTStage {
         flattener.flattenAll();
         this.log("Flattened all arrays into 1D");
 
-        const propagator = new ConstantPropagator();
-        for (const fun of Query.search("function", { "isImplementation": true })) {
-            propagator.propagate(fun);
-        }
-        this.log("Applied constant propagation to all functions");
+        const foldProg = new FoldingPropagationCombiner();
+        const nPasses = foldProg.doPassesUntilStop();
+        this.log("Applied constant propagation in " + nPasses + " pass(es)");
 
         let count = 0;
         const switchToIf = new SwitchToIf();

@@ -23,7 +23,7 @@ class Clava:
         if isinstance(input_data, str):
             return input_data
         elif isinstance(input_data, (list, tuple)):
-            return ";".join(str(item) for item in input_data)
+            return "\\;".join(str(item) for item in input_data)
         else:
             raise TypeError("Input must be a string or a list/tuple of elements")
 
@@ -116,7 +116,6 @@ class Clava:
             includes.append(os.path.normpath(path))
 
         joined_includes = self._join_inputs(includes)
-        print(joined_includes)
         self._add("-i " + joined_includes, "--includes " + joined_includes)
 
     def set_dependencies(self, dependencies):
