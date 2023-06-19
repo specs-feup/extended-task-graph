@@ -15,22 +15,30 @@ class Preprocessor extends UPTStage {
     }
 
     preprocess() {
-        this.sanitizeCode();
+        this.sanitizeCodePreSubset();
         this.reduceToSubset();
+        this.sanitizeCodePostSubset();
         this.generateSubsetCode();
         this.outlineRegions();
     }
 
-    sanitizeCode() {
+    sanitizeCodePreSubset() {
         const sanitizer = new CodeSanitizer();
         sanitizer.sanitize();
-        this.log("Code sanitization finished successfully");
+        this.log("Sanitized code before subset reduction");
+    }
+
+    sanitizeCodePostSubset() {
+        const sanitizer = new CodeSanitizer();
+        sanitizer.removeSpuriousStatements();
+        sanitizer.removeDuplicatedDecls();
+        this.log("Sanitized code after subset reduction");
     }
 
     reduceToSubset() {
         const reducer = new SubsetReducer();
         reducer.reduce();
-        this.log("Subset reduction finished successfully");
+        this.log("Successfully reduced the application to a C/C++ subset");
     }
 
     generateSubsetCode() {
@@ -54,7 +62,7 @@ class Preprocessor extends UPTStage {
             outCount++;
         }
         this.log("Outlined " + outCount + " regions");
-        this.log("Region outlining finished successfully");
+        this.log("Finished outlining regions");
     }
 
 }

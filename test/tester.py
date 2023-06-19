@@ -11,11 +11,18 @@ INPUT_DIR = "../test/inputs/"
 TEMP_FOLDER = "../test/temp/"
 CONFIG = TEMP_FOLDER + "config.json"
 EXTRA_INCLUDES = [
-    os.path.abspath(os.path.join("..", "Experiments", "Clava", "FunctionVoidifier", "src")),
-    os.path.abspath(os.path.join("..", "Experiments", "Clava", "FunctionOutliner", "src")),
-
-    os.path.abspath(os.path.join("..", "Experiments", "Clava", "ArrayFlattener", "src")),
-    os.path.abspath(os.path.join("..", "Experiments", "Clava", "ConstantPropagator", "src")),
+    os.path.abspath(
+        os.path.join("..", "Experiments", "Clava", "FunctionVoidifier", "src")
+    ),
+    os.path.abspath(
+        os.path.join("..", "Experiments", "Clava", "FunctionOutliner", "src")
+    ),
+    os.path.abspath(
+        os.path.join("..", "Experiments", "Clava", "ArrayFlattener", "src")
+    ),
+    os.path.abspath(
+        os.path.join("..", "Experiments", "Clava", "ConstantPropagator", "src")
+    ),
     os.path.abspath(os.path.join("..", "Experiments", "Clava", "SwitchToIf", "src")),
 ]
 
@@ -112,7 +119,7 @@ def dispatch(appName, isBenchmark):
 
     res = clava.run()
     dashes = "-" * 34
-    #print(dashes + " (code = " + str(res) + ") " + dashes)
+    # print(dashes + " (code = " + str(res) + ") " + dashes)
 
 
 def ensure_temp_exists():
@@ -122,8 +129,8 @@ def ensure_temp_exists():
 
 def main():
     os.chdir("src")
-    run_apps()
-    # run_benchmarks()
+    # run_apps()
+    run_benchmarks()
 
 
 def run_apps():
@@ -133,8 +140,8 @@ def run_apps():
 
 
 def run_benchmarks():
-    run_chstone()
-    # run_rosetta()
+    # run_chstone()
+    run_rosetta()
     # run_hiflipvx()
 
 
@@ -158,9 +165,9 @@ def run_rosetta():
     # dispatch_bench("Rosetta-3drendering") # ok
     # dispatch_bench("Rosetta-digitrecog") # ok
     # dispatch_bench("Rosetta-facedetect")  # ok
-    dispatch_bench("Rosetta-opticalflow-curr")
+    # dispatch_bench("Rosetta-opticalflow-curr") # fails call graph generation
     # dispatch_bench("Rosetta-opticalflow-sintel")
-    # dispatch_bench("Rosetta-spamfilter") #default arg issue
+    dispatch_bench("Rosetta-spamfilter")  # default arg issue
 
 
 def run_hiflipvx():

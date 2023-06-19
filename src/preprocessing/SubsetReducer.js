@@ -25,7 +25,10 @@ class SubsetReducer extends UPTStage {
     }
 
     normalizeToSubset() {
-        NormalizeToSubset(Query.root(), { simplifyLoops: { forToWhile: false } });
+        for (const fun of Query.search("function", { "isImplementation": true })) {
+            const body = fun.body;
+            NormalizeToSubset(body, { simplifyLoops: { forToWhile: false } });
+        }
         this.log("Codebase normalized to subset");
     }
 
