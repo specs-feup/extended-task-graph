@@ -7,11 +7,11 @@ laraImport("preprocessing/CodeSanitizer");
 laraImport("UPTStage");
 
 class Preprocessor extends UPTStage {
-    #starterFunction;
+    #topFunction;
 
-    constructor(starterFunction, outputDir, appName) {
+    constructor(topFunction, outputDir, appName) {
         super("CTFlow-Preprocessor", outputDir, appName);
-        this.#starterFunction = starterFunction;
+        this.#topFunction = topFunction;
     }
 
     preprocess() {
@@ -36,7 +36,7 @@ class Preprocessor extends UPTStage {
     }
 
     reduceToSubset() {
-        const reducer = new SubsetReducer();
+        const reducer = new SubsetReducer(this.#topFunction);
         reducer.reduce();
         this.log("Successfully reduced the application to a C/C++ subset");
     }
@@ -47,7 +47,7 @@ class Preprocessor extends UPTStage {
     }
 
     outlineRegions() {
-        const annot = new OutlineRegionFinder(this.#starterFunction);
+        const annot = new OutlineRegionFinder(this.#topFunction);
         const regions = annot.annotate();
 
         let outCount = 0;

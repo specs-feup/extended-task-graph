@@ -57,4 +57,34 @@ class ClavaUtils {
         }
         return true;
     }
+
+    static getAllUniqueFunctions(topFunction) {
+        const funs = [];
+
+        funs.push(topFunction);
+        const childrenFuns = ClavaUtils.getEligibleFunctionsFrom(topFunction);
+        funs.push(...childrenFuns);
+
+        const uniqueFuns = [];
+        for (const fun of funs) {
+            if (!uniqueFuns.some(elem => elem.signature === fun.signature) && fun) {
+                uniqueFuns.push(fun);
+            }
+        }
+        return uniqueFuns;
+    }
+
+    static getEligibleFunctionsFrom(parent) {
+        const funs = [];
+
+        for (const call of Query.searchFrom(parent, "call")) {
+            const fun = call.function;
+            if (fun.hasDefinition && fun.isImplementation) {
+                funs.push(fun);
+                const children = ClavaUtils.getEligibleFunctionsFrom(fun);
+                funs.push(...children);
+            }
+        }
+        return funs;
+    }
 }

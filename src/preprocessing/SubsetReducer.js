@@ -13,8 +13,11 @@ laraImport("util/ClavaUtils")
 laraImport("UPTStage");
 
 class SubsetReducer extends UPTStage {
-    constructor() {
+    #topFunction;
+
+    constructor(topFunction) {
         super("CTFlow-Preprocessor-SubsetReducer");
+        this.#topFunction = topFunction;
     }
 
     reduce() {
@@ -25,7 +28,8 @@ class SubsetReducer extends UPTStage {
     }
 
     normalizeToSubset() {
-        for (const fun of Query.search("function", { "isImplementation": true })) {
+        const funs = ClavaUtils.getAllUniqueFunctions(this.#topFunction);
+        for (const fun of funs) {
             const body = fun.body;
             NormalizeToSubset(body, { simplifyLoops: { forToWhile: false } });
         }
@@ -36,21 +40,24 @@ class SubsetReducer extends UPTStage {
         const decomp = new StatementDecomposer();
         let hasChanged = true;
         let nPasses = 0;
+        const funs = ClavaUtils.getAllUniqueFunctions(this.#topFunction);
 
         while (hasChanged && nPasses < maxPasses) {
             hasChanged = false;
 
-            for (const stmt of Query.search("statement", { isInsideHeader: false })) {
-                if (stmt.instanceOf(["body", "scope", "if", "loop"])) {
-                    continue;
-                }
+            for (const fun of funs) {
+                for (const stmt of Query.searchFrom(fun, "statement", { isInsideHeader: false })) {
+                    if (stmt.instanceOf(["body", "scope", "if", "loop"])) {
+                        continue;
+                    }
 
-                const hasMatchedTemp = this.#matchesATemplate(stmt);
-                const hasMatchedUnique = this.#matchesUniqueCircumstance(stmt);
+                    const hasMatchedTemp = this.#matchesATemplate(stmt);
+                    const hasMatchedUnique = this.#matchesUniqueCircumstance(stmt);
 
-                if (hasMatchedTemp || hasMatchedUnique) {
-                    decomp.decomposeAndReplace(stmt);
-                    hasChanged = true;
+                    if (hasMatchedTemp || hasMatchedUnique) {
+                        decomp.decomposeAndReplace(stmt);
+                        hasChanged = true;
+                    }
                 }
             }
             nPasses++;

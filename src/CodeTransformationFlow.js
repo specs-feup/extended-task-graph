@@ -7,10 +7,14 @@ laraImport("util/ClavaUtils");
 
 class CodeTransformationFlow extends UPTStage {
     #config;
+    #topFunction;
 
     constructor(config) {
         super("CTFlow", config["outputDir"], config["appName"]);
         this.#config = config;
+
+        const topFun = config["starterFunction"];
+        this.#topFunction = Query.search("function", { name: topFun }).first();
     }
 
     run() {
@@ -43,18 +47,17 @@ class CodeTransformationFlow extends UPTStage {
         this.log("Running initial analysis step");
         const outDir = this.getOutputDir() + "/app_stats_init"
         const appName = this.getAppName();
-        const analyser = new ApplicationAnalyser(outDir, appName);
+        const analyser = new ApplicationAnalyser(this.#topFunction, outDir, appName);
         analyser.dumpAST();
         analyser.dumpCallGraph();
     }
 
     preprocessing() {
         this.log("Running preprocessing step");
-        const starterFunction = this.#config["starterFunction"];
         const outDir = this.getOutputDir();
         const appName = this.getAppName();
 
-        const prepropcessor = new Preprocessor(starterFunction, outDir, appName);
+        const prepropcessor = new Preprocessor(this.#topFunction, outDir, appName);
         prepropcessor.preprocess();
 
         const res = ClavaUtils.verifySyntax();
@@ -67,7 +70,7 @@ class CodeTransformationFlow extends UPTStage {
         const outDir = this.getOutputDir() + "/app_stats_inter"
         const appName = this.getAppName();
 
-        const analyser = new ApplicationAnalyser(outDir, appName);
+        const analyser = new ApplicationAnalyser(this.#topFunction, outDir, appName);
         analyser.runAllTasks();
 
         ClavaUtils.generateCode(this.getOutputDir(), "src_inter_tasks");

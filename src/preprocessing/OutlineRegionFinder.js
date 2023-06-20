@@ -5,23 +5,23 @@ laraImport("clava.code.Outliner");
 laraImport("weaver.Query");
 laraImport("UPTStage");
 laraImport("util/ExternalFunctionsMatcher");
+laraImport("util/ClavaUtils");
 
 class OutlineRegionFinder extends UPTStage {
-    #startFunction;
+    #topFunction;
 
-    constructor(startFunction) {
+    constructor(topFunction) {
         super("CTFlow-Preprocessor-AppOutliner");
-        this.#startFunction = startFunction;
+        this.#topFunction = topFunction;
     }
 
     annotate() {
         this.log("Beginning the annotation of outlining regions");
 
-        const funs = this.#getEligibleFunctions();
+        const funs = ClavaUtils.getAllUniqueFunctions(this.#topFunction);
         const regions = [];
 
         for (const fun of funs) {
-            //const nCalls = Query.searchFrom(fun, "call").chain().length;
             const nCalls = this.#getEffectiveCallsInFunction(fun).length;
 
             // if the function has no calls, there is no need to outline it
@@ -170,38 +170,37 @@ class OutlineRegionFinder extends UPTStage {
         }
         return false;
     }
-
-    #getEligibleFunctions() {
-        const funs = [];
-        const start = Query.search("function", { name: this.#startFunction }).getFirst();
-
-        funs.push(start);
-        const childrenFuns = this.#getEligibleFunctionsFrom(start);
-        funs.push(...childrenFuns);
-
-        const uniqueFuns = [];
-        for (const fun of funs) {
-            if (!uniqueFuns.some(elem => elem.signature === fun.signature) && fun) {
-                uniqueFuns.push(fun);
+    /*
+        #getEligibleFunctions() {
+            const funs = [];
+    
+            funs.push(this.#topFunction);
+            const childrenFuns = this.#getEligibleFunctionsFrom(this.#topFunction);
+            funs.push(...childrenFuns);
+    
+            const uniqueFuns = [];
+            for (const fun of funs) {
+                if (!uniqueFuns.some(elem => elem.signature === fun.signature) && fun) {
+                    uniqueFuns.push(fun);
+                }
             }
+            return uniqueFuns;
         }
-        return uniqueFuns;
-    }
-
-    // returns all the functions that are valid for outlining
-    #getEligibleFunctionsFrom(parent) {
-        const funs = [];
-
-        for (const call of Query.searchFrom(parent, "call")) {
-            const fun = call.function;
-            if (fun.hasDefinition && fun.isImplementation) {
-                funs.push(fun);
-                const children = this.#getEligibleFunctionsFrom(fun);
-                funs.push(...children);
+    
+        // returns all the functions that are valid for outlining
+        #getEligibleFunctionsFrom(parent) {
+            const funs = [];
+    
+            for (const call of Query.searchFrom(parent, "call")) {
+                const fun = call.function;
+                if (fun.hasDefinition && fun.isImplementation) {
+                    funs.push(fun);
+                    const children = this.#getEligibleFunctionsFrom(fun);
+                    funs.push(...children);
+                }
             }
-        }
-        return funs;
-    }
+            return funs;
+        }*/
 
     // returns the calls in a function that are not to external functions
     #getEffectiveCallsInFunction(fun) {

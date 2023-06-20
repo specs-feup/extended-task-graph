@@ -7,8 +7,11 @@ laraImport("analysis/SourceCodeStats");
 laraImport("UPTStage");
 
 class ApplicationAnalyser extends UPTStage {
-    constructor(outputDir, appName) {
+    #topFunction;
+
+    constructor(topFunction, outputDir, appName) {
         super("CTFlow-ApplicationAnalyser", outputDir, appName);
+        this.#topFunction = topFunction;
     }
 
     runAllTasks() {
@@ -26,7 +29,7 @@ class ApplicationAnalyser extends UPTStage {
 
     dumpCallGraph() {
         const dumper = new CallGraphDumper();
-        const str = dumper.dump();
+        const str = dumper.dump(this.#topFunction);
         this.saveToFile(str, "callgraph.dot");
         this.log("Call graph dumped to file callgraph.dot")
     }

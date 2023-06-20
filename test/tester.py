@@ -150,24 +150,23 @@ def run_chstone():
     dispatch_bench("CHStone-aes")
     dispatch_bench("CHStone-blowfish")
     dispatch_bench("CHStone-dfdiv")
-    # dispatch_bench("CHStone-dfmul")
-    # dispatch_bench("CHStone-gsm")
-    # dispatch_bench("CHStone-mips")
-    # dispatch_bench("CHStone-sha")
-
-    # dispatch_bench("CHStone-jpeg")  # switch/break issue
-    # dispatch_bench("CHStone-motion")  # decomposer can't decompose very weird stmt
-    # dispatch_bench("CHStone-dfadd")  # label issue
+    dispatch_bench("CHStone-dfmul")
+    dispatch_bench("CHStone-gsm")
+    dispatch_bench("CHStone-mips")
+    dispatch_bench("CHStone-sha")
+    dispatch_bench("CHStone-motion")
+    dispatch_bench("CHStone-dfadd")
+    # dispatch_bench("CHStone-jpeg")  # bunch of issues
     # dispatch_bench("CHStone-dfsin")  # label issue
 
 
 def run_rosetta():
-    # dispatch_bench("Rosetta-3drendering") # ok
-    # dispatch_bench("Rosetta-digitrecog") # ok
-    # dispatch_bench("Rosetta-facedetect")  # ok
-    dispatch_bench("Rosetta-spamfilter")  # ok
-    # dispatch_bench("Rosetta-opticalflow-curr") # fails call graph generation
-    # dispatch_bench("Rosetta-opticalflow-sintel")
+    dispatch_bench("Rosetta-3drendering")
+    dispatch_bench("Rosetta-digitrecog")
+    dispatch_bench("Rosetta-spamfilter")
+    dispatch_bench("Rosetta-opticalflow-curr")
+    dispatch_bench("Rosetta-opticalflow-sintel")
+    dispatch_bench("Rosetta-facedetect")
 
 
 def run_hiflipvx():
