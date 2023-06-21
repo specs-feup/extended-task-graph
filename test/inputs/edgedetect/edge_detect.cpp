@@ -86,8 +86,8 @@ void combthreshold(int image_gray[H * W], int temp_buf[H * W], int output[H * W]
     {
         for (j = 0; j < W; ++j)
         {
-            temp1 = fabs(image_gray[i * W + j]);
-            temp2 = fabs(temp_buf[i * W + j]);
+            temp1 = abs(image_gray[i * W + j]);
+            temp2 = abs(temp_buf[i * W + j]);
             temp3 = (temp1 > temp2) ? temp1 : temp2;
             output[i * W + j] = (temp3 > T) ? 255 : 0;
         }

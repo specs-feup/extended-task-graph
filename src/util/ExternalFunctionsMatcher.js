@@ -465,13 +465,33 @@ class ExternalFunctionsMatcher {
             "long double"
         ]
     }
+    static stdlibHFuns = {
+        "abs": ["int"],
+    }
+    static cmathFuns = {
+        "floor": ["float"],
+    }
 
     static isFromMathH(funOrCall) {
         return ExternalFunctionsMatcher.#isFromGeneric(funOrCall, ExternalFunctionsMatcher.mathHFuns);
     }
 
+    static isFromStdlibH(funOrCall) {
+        return ExternalFunctionsMatcher.#isFromGeneric(funOrCall, ExternalFunctionsMatcher.stdlibHFuns);
+    }
+
+    static isFromCmath(funOrCall) {
+        return ExternalFunctionsMatcher.#isFromGeneric(funOrCall, ExternalFunctionsMatcher.cmathFuns);
+    }
+
     static isValidExternal(funOrCall) {
         if (ExternalFunctionsMatcher.isFromMathH(funOrCall)) {
+            return true;
+        }
+        else if (ExternalFunctionsMatcher.isFromStdlibH(funOrCall)) {
+            return true;
+        }
+        else if (ExternalFunctionsMatcher.isFromCmath(funOrCall)) {
             return true;
         }
         return false;
