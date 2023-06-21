@@ -119,7 +119,7 @@ def dispatch(appName, isBenchmark):
 
     res = clava.run()
     dashes = "-" * 34
-    # print(dashes + " (code = " + str(res) + ") " + dashes)
+    print(dashes + " (code = " + str(res) + ") " + dashes)
 
 
 def ensure_temp_exists():
@@ -129,24 +129,26 @@ def ensure_temp_exists():
 
 def main():
     os.chdir("src")
-    # run_apps()
-    run_benchmarks()
+    run_apps()
+    # run_benchmarks()
 
 
 def run_apps():
+    dispatch_app("edgedetect")
     # dispatch_app("scenarioA")
-    dispatch_app("scenarioB")
+    # dispatch_app("scenarioB")
     pass
 
 
 def run_benchmarks():
-    # run_chstone()
-    run_rosetta()
+    run_chstone()
+    # run_rosetta()
     # run_hiflipvx()
 
 
 def run_chstone():
     dispatch_bench("CHStone-adpcm")
+    """
     dispatch_bench("CHStone-aes")
     dispatch_bench("CHStone-blowfish")
     dispatch_bench("CHStone-dfdiv")
@@ -156,8 +158,9 @@ def run_chstone():
     dispatch_bench("CHStone-sha")
     dispatch_bench("CHStone-motion")
     dispatch_bench("CHStone-dfadd")
-    # dispatch_bench("CHStone-jpeg")  # bunch of issues
+    """
     # dispatch_bench("CHStone-dfsin")  # label issue
+    # dispatch_bench("CHStone-jpeg")  # bunch of issues
 
 
 def run_rosetta():

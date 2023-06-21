@@ -1,5 +1,11 @@
 # appName: (inputFolderName, outputFolderName, standard, toolConfig)
 apps = {
+    "edgedetect": (
+        "edgedetect",
+        ".",
+        "c++11",
+        {"clock": 10, "starterFunction": "edge_detect"},
+    ),
     "scenarioA": ("scenarioA", ".", "c11", {"clock": 10, "starterFunction": "main"}),
     "scenarioB": ("scenarioB", ".", "c11", {"clock": 10, "starterFunction": "main"}),
 }
