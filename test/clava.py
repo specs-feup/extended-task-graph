@@ -82,6 +82,9 @@ class Clava:
     def set_no_code_generation(self):
         self._add("-ncg", "--no-code-gen")
 
+    def set_allow_custom_resources(self):
+        self._add("-cr", "--custom-resources")
+
     def set_standard(self, standard):
         self._remove_from_set(self.cmd_simple, "-std")
         self._remove_from_set(self.cmd_verbose, "-std")

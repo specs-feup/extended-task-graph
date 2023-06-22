@@ -3,8 +3,13 @@
 laraImport("taskgraph/Task");
 class TaskGraph {
     #tasks = [];
+    #source = null;
+    #sink = null;
 
-    constructor() { }
+    constructor() {
+        this.#source = new Task(null, "START");
+        this.#sink = new Task(null, "END");
+    }
 
     addTasks(tasks) {
         this.#tasks.push(...tasks);
@@ -27,8 +32,22 @@ class TaskGraph {
         return null;
     }
 
+    getSource() {
+        return this.#source;
+    }
+
+    getSink() {
+        return this.#sink;
+    }
+
     toDot() {
         let dot = "digraph G {\n";
+        dot += "    rankdir=TB;\n";
+        dot += "    node [shape=box];\n";
+
+        dot += "    TStart [label=\"main_begin\"];\n";
+        dot += "    TEnd [label=\"main_begin\"];\n";
+
         for (const task of this.#tasks) {
             dot += `    ${task.getId()} [label="${task.getFunction().name}"];\n`;
         }

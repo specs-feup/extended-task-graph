@@ -84,6 +84,19 @@ class OutlineRegionFinder extends UPTStage {
         return filteredRegions;
     }
 
+    #isTrivialIf(scope) {
+        if (scope.children.length == 2 && scope.children[1].instanceOf("returnStmt")) {
+            const isTrivialReturn = Query.searchFrom(scope.children[0], "varref", { name: "rtr_val" }).chain().length > 0;
+            if (isTrivialReturn) {
+                println("trivial return found");
+                println(scope.children[0].code);
+                println(scope.children[1].code);
+            }
+            return isTrivialReturn;
+        }
+        return false;
+    }
+
     #findRegionsInScope(scope) {
         const regions = [];
         const extraScopes = [];
@@ -100,7 +113,7 @@ class OutlineRegionFinder extends UPTStage {
 
                 let atLeastOne = false;
                 for (const body of bodies) {
-                    if (this.#hasFunctionCalls(body)) {
+                    if (this.#hasFunctionCalls(body) || this.#isTrivialIf(body)) {
                         atLeastOne = true;
                         break;
                     }

@@ -31,6 +31,7 @@ def set_default_args(clava):
     # clava.set_no_clava_info()
     clava.set_clean_intermediate_files()
     clava.set_copy_files_in_sources()
+    clava.set_allow_custom_resources()
     clava.set_custom_resources()
     clava.set_parallel_parsing()
     clava.set_parse_includes()
@@ -129,8 +130,8 @@ def ensure_temp_exists():
 
 def main():
     os.chdir("src")
-    run_apps()
-    # run_benchmarks()
+    # run_apps()
+    run_benchmarks()
 
 
 def run_apps():
@@ -141,8 +142,8 @@ def run_apps():
 
 
 def run_benchmarks():
-    run_chstone()
-    # run_rosetta()
+    # run_chstone()
+    run_rosetta()
     # run_hiflipvx()
 
 
@@ -164,11 +165,11 @@ def run_chstone():
 
 
 def run_rosetta():
-    dispatch_bench("Rosetta-3drendering")
-    dispatch_bench("Rosetta-digitrecog")
-    dispatch_bench("Rosetta-spamfilter")
-    dispatch_bench("Rosetta-opticalflow-curr")
-    dispatch_bench("Rosetta-opticalflow-sintel")
+    # dispatch_bench("Rosetta-3drendering")
+    # dispatch_bench("Rosetta-digitrecog")
+    # dispatch_bench("Rosetta-spamfilter")
+    # dispatch_bench("Rosetta-opticalflow-curr")
+    # dispatch_bench("Rosetta-opticalflow-sintel")
     dispatch_bench("Rosetta-facedetect")
 
 

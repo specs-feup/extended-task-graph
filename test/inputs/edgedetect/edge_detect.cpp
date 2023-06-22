@@ -116,7 +116,7 @@ void edge_detect(int image_rgb[H * W * 3],
     convolve2d(image_gray, filter, output);
 
 #ifdef FORCE_EXTERNAL
-    printf("This is just here to force an external call, don't mind me\n");
+    printf("This is just here to force an external call, don't mind me. Here's a number: %d\n", filter[4]);
 #endif
 
     filter[0] = 1;
