@@ -4,6 +4,7 @@ laraImport("clava.code.Outliner");
 laraImport("preprocessing/SubsetReducer");
 laraImport("preprocessing/OutlineRegionFinder");
 laraImport("preprocessing/CodeSanitizer");
+laraImport("preprocessing/AppTimerInserter");
 laraImport("UPTStage");
 
 class Preprocessor extends UPTStage {
@@ -20,6 +21,7 @@ class Preprocessor extends UPTStage {
         this.sanitizeCodePostSubset();
         this.generateSubsetCode();
         this.outlineRegions();
+        this.insertTimer();
     }
 
     sanitizeCodePreSubset() {
@@ -65,4 +67,14 @@ class Preprocessor extends UPTStage {
         this.log("Finished outlining regions");
     }
 
+    insertTimer() {
+        const timerInserter = new AppTimerInserter();
+        const couldInsert = timerInserter.insertTimer(this.#topFunction);
+        if (!couldInsert) {
+            this.log(`Could not insert timer around application starting point "${this.#topFunction.name}"`);
+        }
+        else {
+            this.log(`Inserted timer around application starting point "${this.#topFunction.name}"`);
+        }
+    }
 }

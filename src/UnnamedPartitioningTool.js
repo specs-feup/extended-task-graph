@@ -1,5 +1,6 @@
 "use strict";
 
+laraImport("lara.Platforms");
 laraImport("UPTStage");
 laraImport("CodeTransformationFlow");
 laraImport("HolisticPartitioningFlow");
@@ -16,6 +17,8 @@ class UnnamedPartitioningTool extends UPTStage {
         this.#applyInitialConfig();
         this.setAppName(this.#config["appName"]);
         this.setOutputDir(this.#config["outputDir"]);
+
+        Platforms.setLinux();
     }
 
     runBothFlows() {

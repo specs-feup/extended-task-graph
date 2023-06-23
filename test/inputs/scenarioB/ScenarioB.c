@@ -50,7 +50,7 @@ unsigned int custom_sqrt(unsigned int n)
     return n;
 }
 
-int main()
+int scenario(int something)
 {
     int A[N] = {[0 ... N - 1] = 10};
     int B[N] = {[0 ... N - 1] = 20};
@@ -75,16 +75,12 @@ int main()
     // Scenario B: extract a set of statements with function calls
     // into their own function
 
-#pragma clava begin_outline
-
     bar(B, C);
     int var2 = fizz(C, D);
     A[0] = var1;
     A[1] = var2;
     int var3 = foo(A, B);
     buzz(B, D);
-
-#pragma clava end_outline
 
     // force a use of some variables
     printf("%d\n", var3);
@@ -106,4 +102,12 @@ int main()
     printf("C - Ex: %d, Ac: %d (%s)\n", 122880, sC, 122880 == sC ? "SUCCESS" : "FAILURE");
     printf("D - Ex: %d, Ac: %d (%s)\n", 163840, sD, 163840 == sD ? "SUCCESS" : "FAILURE");
     return 0;
+}
+
+int main()
+{
+    int x = 1 + 2;
+    scenario(x);
+    x += 3;
+    return x;
 }

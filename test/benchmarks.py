@@ -7,7 +7,12 @@ apps = {
         {"clock": 10, "starterFunction": "edge_detect"},
     ),
     "scenarioA": ("scenarioA", ".", "c11", {"clock": 10, "starterFunction": "main"}),
-    "scenarioB": ("scenarioB", ".", "c11", {"clock": 10, "starterFunction": "main"}),
+    "scenarioB": (
+        "scenarioB",
+        ".",
+        "c11",
+        {"clock": 10, "starterFunction": "scenario"},
+    ),
 }
 
 # appName: (canonicalName, inputSize, suite, standard, config)

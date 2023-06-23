@@ -135,9 +135,9 @@ def main():
 
 
 def run_apps():
-    dispatch_app("edgedetect")
+    # dispatch_app("edgedetect")
     # dispatch_app("scenarioA")
-    # dispatch_app("scenarioB")
+    dispatch_app("scenarioB")
     pass
 
 
@@ -165,12 +165,12 @@ def run_chstone():
 
 
 def run_rosetta():
-    # dispatch_bench("Rosetta-3drendering")
+    dispatch_bench("Rosetta-3drendering")
     # dispatch_bench("Rosetta-digitrecog")
     # dispatch_bench("Rosetta-spamfilter")
     # dispatch_bench("Rosetta-opticalflow-curr")
     # dispatch_bench("Rosetta-opticalflow-sintel")
-    dispatch_bench("Rosetta-facedetect")
+    # dispatch_bench("Rosetta-facedetect")
 
 
 def run_hiflipvx():
