@@ -12,6 +12,7 @@ class HolisticPartitioningFlow extends UPTStage {
             config["starterFunction"],
             config["outputDir"],
             config["appName"]);
+        this.#config = config;
     }
 
     run() {

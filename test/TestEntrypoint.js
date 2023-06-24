@@ -21,16 +21,20 @@ function handleBenchmarkCodeFlow(config) {
     for (var bench of benches) {
         bench.load();
         const upt = new UnnamedPartitioningTool(config);
-        upt.runBothFlows();
+        upt.runCodeTransformationFlow();
     }
 }
 
 function handleAppCodeFlow(config) {
     const upt = new UnnamedPartitioningTool(config);
     upt.runCodeTransformationFlow();
-
-
 }
+
+function handleAnyHolisticFlow(config) {
+    const upt = new UnnamedPartitioningTool(config);
+    upt.runHolisticFlow();
+}
+
 
 function codeFlow(config) {
     if (laraArgs["inputType"] === "bench") {
@@ -47,7 +51,14 @@ function codeFlow(config) {
 }
 
 function holisticFlow(config) {
-
+    if (laraArgs["inputType"] === "bench" || laraArgs["inputType"] === "app") {
+        handleAnyHolisticFlow(config);
+    }
+    else {
+        println("Invalid application input type");
+        return -1;
+    }
+    return 0;
 }
 
 function main() {

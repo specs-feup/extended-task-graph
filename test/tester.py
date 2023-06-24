@@ -57,8 +57,12 @@ def set_default_args(clava):
 
 def prepare_command_and_file_app(appName, flow):
     standard, config = apps[appName]
-    inputPath = INPUT_DIR + appName
     outputPath = OUTPUT_DIR + appName
+    inputPath = ""
+    if flow == "code":
+        inputPath = INPUT_DIR + appName
+    if flow == "holistic":
+        inputPath = outputPath + "/src_inter_tasks"
 
     # UPT config
     config["appName"] = appName
@@ -83,7 +87,6 @@ def prepare_command_and_file_app(appName, flow):
 def prepare_command_and_file_bench(appName, flow):
     standard, config = benchmarks[appName]
     suite = appName.split("-")[0]
-    dep = "https://github.com/specs-feup/clava-benchmarks.git?folder=" + suite
     output_path = OUTPUT_DIR + appName
 
     # UPT config
@@ -100,17 +103,24 @@ def prepare_command_and_file_bench(appName, flow):
     clava.set_standard(standard)
     clava.set_flat_output_folder()
     clava.set_output_folder_name(OUTPUT_DIR)
-    clava.set_dependencies(dep)
     clava.set_args({"inputType": "bench", "flow": flow})
+
+    if flow == "code":
+        dep = "https://github.com/specs-feup/clava-benchmarks.git?folder=" + suite
+        clava.set_dependencies(dep)
+    if flow == "holistic":
+        inputPath = output_path + "/src_inter_tasks"
+        clava.set_workspace(inputPath)
+
     return clava
 
 
-def dispatch_flow_code(appName, isBenchmark):
-    print("-" * 15 + " Running code flow for  " + appName + " " + "-" * 15)
+def test_flow(appName, isBenchmark, flow):
+    print("-" * 15 + " Running " + flow + " flow for  " + appName + " " + "-" * 15)
     if isBenchmark:
-        clava = prepare_command_and_file_bench(appName, "code")
+        clava = prepare_command_and_file_bench(appName, flow)
     else:
-        clava = prepare_command_and_file_app(appName, "code")
+        clava = prepare_command_and_file_app(appName, flow)
 
     commands = clava.get_current_command()
     info = Template("Running Clava with the following command:\n\t$cmd\n")
@@ -121,23 +131,20 @@ def dispatch_flow_code(appName, isBenchmark):
     print(dashes + " (code = " + str(res) + ") " + dashes)
 
 
-def dispatch_flow_holistic(appName, isBenchmark):
-    pass
+def test_bench_flows(appName, flowCode, flowHolistic):
+    test_flows(appName, True, flowCode, flowHolistic)
 
 
-def dispatch_bench(appName):
-    dispatch(appName, True)
+def test_app_flows(appName, flowCode, flowHolistic):
+    test_flows(appName, False, flowCode, flowHolistic)
 
 
-def dispatch_app(appName):
-    dispatch(appName, False)
-
-
-def dispatch(appName, isBenchmark):
+def test_flows(appName, isBenchmark, flowCode, flowHolistic):
     # -----------------------------------
     # Flow code
     # -----------------------------------
-    dispatch_flow_code(appName, isBenchmark)
+    if flowCode:
+        test_flow(appName, isBenchmark, "code")
 
     # -----------------------------------
     # Inter-flow stage: get profiling info
@@ -147,42 +154,5 @@ def dispatch(appName, isBenchmark):
     # -----------------------------------
     # Flow Holistic
     # -----------------------------------
-    dispatch_flow_holistic(appName, isBenchmark)
-
-
-def main():
-    os.chdir("src")
-
-    dispatch_app("edgedetect")
-    # dispatch_app("scenarioA")
-    # dispatch_app("scenarioB")
-
-    ### CHStone
-    # dispatch_bench("CHStone-aes-N")
-    # dispatch_bench("CHStone-blowfish-N")
-    # dispatch_bench("CHStone-dfdiv-N")
-    # dispatch_bench("CHStone-dfmul-N")
-    # dispatch_bench("CHStone-gsm-N")
-    # dispatch_bench("CHStone-mips-N")
-    # dispatch_bench("CHStone-sha-N")
-    # dispatch_bench("CHStone-motion-N")
-    # dispatch_bench("CHStone-dfadd-N")
-    # -----------------------------------
-    # dispatch_bench("CHStone-adpcm-N")   # abs issue
-    # dispatch_bench("CHStone-dfsin-N")  # label issue
-    # dispatch_bench("CHStone-jpeg-N")  # bunch of issues
-
-    ### HiFlipVX
-    # dispatch_bench("HiFlipVX-v2-N")
-
-    ### Rosetta
-    # dispatch_bench("Rosetta-3d-rendering-N")
-    # dispatch_bench("Rosetta-digit-recognition-N")
-    # dispatch_bench("Rosetta-face-detection-N")
-    # dispatch_bench("Rosetta-optical-flow-current")
-    # dispatch_bench("Rosetta-optical-flow-sintel")
-    # dispatch_bench("Rosetta-spam-filter-N")
-
-
-if __name__ == "__main__":
-    main()
+    if flowHolistic:
+        test_flow(appName, isBenchmark, "holistic")

@@ -1,1 +1,1 @@
-python test/tester.py
+python test/main.py
