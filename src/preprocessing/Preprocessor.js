@@ -8,11 +8,8 @@ laraImport("preprocessing/AppTimerInserter");
 laraImport("UPTStage");
 
 class Preprocessor extends UPTStage {
-    #topFunction;
-
     constructor(topFunction, outputDir, appName) {
-        super("CTFlow-Preprocessor", outputDir, appName);
-        this.#topFunction = topFunction;
+        super("CTFlow-Preprocessor", topFunction, outputDir, appName);
     }
 
     preprocess() {
@@ -25,20 +22,20 @@ class Preprocessor extends UPTStage {
     }
 
     sanitizeCodePreSubset() {
-        const sanitizer = new CodeSanitizer();
+        const sanitizer = new CodeSanitizer(this.getTopFunction());
         sanitizer.sanitize();
         this.log("Sanitized code before subset reduction");
     }
 
     sanitizeCodePostSubset() {
-        const sanitizer = new CodeSanitizer();
+        const sanitizer = new CodeSanitizer(this.getTopFunction());
         sanitizer.removeSpuriousStatements();
         sanitizer.removeDuplicatedDecls();
         this.log("Sanitized code after subset reduction");
     }
 
     reduceToSubset() {
-        const reducer = new SubsetReducer(this.#topFunction);
+        const reducer = new SubsetReducer(this.getTopFunction());
         reducer.reduce();
         this.log("Successfully reduced the application to a C/C++ subset");
     }
@@ -49,7 +46,7 @@ class Preprocessor extends UPTStage {
     }
 
     outlineRegions() {
-        const annot = new OutlineRegionFinder(this.#topFunction);
+        const annot = new OutlineRegionFinder(this.getTopFunction());
         const regions = annot.annotate();
 
         let outCount = 0;
@@ -69,12 +66,14 @@ class Preprocessor extends UPTStage {
 
     insertTimer() {
         const timerInserter = new AppTimerInserter();
-        const couldInsert = timerInserter.insertTimer(this.#topFunction);
+        const couldInsert = timerInserter.insertTimer(this.getTopFunction());
+        const topFunName = this.getTopFunction().name;
+
         if (!couldInsert) {
-            this.log(`Could not insert timer around application starting point "${this.#topFunction.name}"`);
+            this.log(`Could not insert timer around application starting point "${topFunName}"`);
         }
         else {
-            this.log(`Inserted timer around application starting point "${this.#topFunction.name}"`);
+            this.log(`Inserted timer around application starting point "${topFunName}"`);
         }
     }
 }

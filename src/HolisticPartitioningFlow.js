@@ -6,13 +6,12 @@ laraImport("util/ClavaUtils");
 
 class HolisticPartitioningFlow extends UPTStage {
     #config;
-    #topFunction;
 
     constructor(config) {
-        super("HPFlow", config["outputDir"], config["appName"]);
-
-        const topFun = config["starterFunction"];
-        this.#topFunction = Query.search("function", { name: topFun }).first();
+        super("HPFlow",
+            config["starterFunction"],
+            config["outputDir"],
+            config["appName"]);
     }
 
     run() {
@@ -27,7 +26,7 @@ class HolisticPartitioningFlow extends UPTStage {
         this.log("Running task graph building process");
         const outDir = this.getOutputDir() + "/taskgraph";
 
-        const tgBuilder = new TaskGraphBuilder(this.#topFunction, outDir, this.getAppName());
+        const tgBuilder = new TaskGraphBuilder(this.getTopFunction(), outDir, this.getAppName());
         const tg = tgBuilder.buildTaskGraph();
         tgBuilder.dumpTaskGraph(tg);
 

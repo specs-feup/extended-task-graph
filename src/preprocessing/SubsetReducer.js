@@ -13,11 +13,8 @@ laraImport("util/ClavaUtils")
 laraImport("UPTStage");
 
 class SubsetReducer extends UPTStage {
-    #topFunction;
-
     constructor(topFunction) {
-        super("CTFlow-Preprocessor-SubsetReducer");
-        this.#topFunction = topFunction;
+        super("CTFlow-Preprocessor-SubsetReducer", topFunction);
     }
 
     reduce() {
@@ -28,7 +25,7 @@ class SubsetReducer extends UPTStage {
     }
 
     normalizeToSubset() {
-        const funs = ClavaUtils.getAllUniqueFunctions(this.#topFunction);
+        const funs = ClavaUtils.getAllUniqueFunctions(this.getTopFunction());
         for (const fun of funs) {
             const body = fun.body;
             NormalizeToSubset(body, { simplifyLoops: { forToWhile: false } });
@@ -40,7 +37,7 @@ class SubsetReducer extends UPTStage {
         const decomp = new StatementDecomposer();
         let hasChanged = true;
         let nPasses = 0;
-        const funs = ClavaUtils.getAllUniqueFunctions(this.#topFunction);
+        const funs = ClavaUtils.getAllUniqueFunctions(this.getTopFunction());
 
         while (hasChanged && nPasses < maxPasses) {
             hasChanged = false;

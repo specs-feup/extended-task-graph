@@ -8,17 +8,14 @@ laraImport("util/ExternalFunctionsMatcher");
 laraImport("util/ClavaUtils");
 
 class OutlineRegionFinder extends UPTStage {
-    #topFunction;
-
     constructor(topFunction) {
-        super("CTFlow-Preprocessor-AppOutliner");
-        this.#topFunction = topFunction;
+        super("CTFlow-Preprocessor-AppOutliner", topFunction);
     }
 
     annotate() {
         this.log("Beginning the annotation of outlining regions");
 
-        const funs = ClavaUtils.getAllUniqueFunctions(this.#topFunction);
+        const funs = ClavaUtils.getAllUniqueFunctions(this.getTopFunction());
         const regions = [];
 
         for (const fun of funs) {
@@ -183,37 +180,6 @@ class OutlineRegionFinder extends UPTStage {
         }
         return false;
     }
-    /*
-        #getEligibleFunctions() {
-            const funs = [];
-    
-            funs.push(this.#topFunction);
-            const childrenFuns = this.#getEligibleFunctionsFrom(this.#topFunction);
-            funs.push(...childrenFuns);
-    
-            const uniqueFuns = [];
-            for (const fun of funs) {
-                if (!uniqueFuns.some(elem => elem.signature === fun.signature) && fun) {
-                    uniqueFuns.push(fun);
-                }
-            }
-            return uniqueFuns;
-        }
-    
-        // returns all the functions that are valid for outlining
-        #getEligibleFunctionsFrom(parent) {
-            const funs = [];
-    
-            for (const call of Query.searchFrom(parent, "call")) {
-                const fun = call.function;
-                if (fun.hasDefinition && fun.isImplementation) {
-                    funs.push(fun);
-                    const children = this.#getEligibleFunctionsFrom(fun);
-                    funs.push(...children);
-                }
-            }
-            return funs;
-        }*/
 
     // returns the calls in a function that are not to external functions
     #getEffectiveCallsInFunction(fun) {

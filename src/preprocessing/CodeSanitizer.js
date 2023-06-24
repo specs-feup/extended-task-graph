@@ -5,8 +5,8 @@ laraImport("weaver.Query");
 laraImport("UPTStage");
 
 class CodeSanitizer extends UPTStage {
-    constructor() {
-        super("CTFlow-Preprocessor-CodeSanitizer");
+    constructor(topFunction) {
+        super("CTFlow-Preprocessor-CodeSanitizer", topFunction);
     }
 
     sanitize() {

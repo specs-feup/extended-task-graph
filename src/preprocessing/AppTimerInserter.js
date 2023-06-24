@@ -16,12 +16,10 @@ class AppTimerInserter {
             }
             return true;
         }
-        return false;
     }
 
     #insertTimerAroundCall(call, filename) {
         const timer = new Timer("MICROSECONDS", filename);
-        //const msg = `Effective execution time of '${call.name}': `;
         timer.time(call);
     }
 }

@@ -1,152 +1,91 @@
-# appName: (inputFolderName, outputFolderName, standard, toolConfig)
+# appName: (standard, config)
 apps = {
     "edgedetect": (
-        "edgedetect",
-        ".",
         "c++11",
         {"clock": 10, "starterFunction": "edge_detect"},
     ),
-    "scenarioA": ("scenarioA", ".", "c11", {"clock": 10, "starterFunction": "main"}),
+    "scenarioA": ("c11", {"clock": 10, "starterFunction": "main"}),
     "scenarioB": (
-        "scenarioB",
-        ".",
         "c11",
         {"clock": 10, "starterFunction": "scenario"},
     ),
 }
 
-# appName: (canonicalName, inputSize, suite, standard, config)
+# appName: (standard, config)
 benchmarks = {
-    "CHStone-adpcm": (
-        "adpcm",
-        "N",
-        "CHStone",
+    "CHStone-adpcm-N": (
         "c11",
         {"clock": 10, "starterFunction": "adpcm_main"},
     ),
-    "CHStone-aes": (
-        "aes",
-        "N",
-        "CHStone",
+    "CHStone-aes-N": (
         "c11",
         {"clock": 10, "starterFunction": "aes_main"},
     ),
-    "CHStone-blowfish": (
-        "blowfish",
-        "N",
-        "CHStone",
+    "CHStone-blowfish-N": (
         "c11",
         {"clock": 10, "starterFunction": "blowfish_main"},
     ),
-    "CHStone-dfadd": (
-        "dfadd",
-        "N",
-        "CHStone",
+    "CHStone-dfadd-N": (
         "c11",
         {"clock": 10, "starterFunction": "float64_add"},
     ),
-    "CHStone-dfdiv": (
-        "dfdiv",
-        "N",
-        "CHStone",
+    "CHStone-dfdiv-N": (
         "c11",
         {"clock": 10, "starterFunction": "float64_div"},
     ),
-    "CHStone-dfmul": (
-        "dfmul",
-        "N",
-        "CHStone",
+    "CHStone-dfmul-N": (
         "c11",
         {"clock": 10, "starterFunction": "float64_mul"},
     ),
-    "CHStone-dfsin": (
-        "dfsin",
-        "N",
-        "CHStone",
+    "CHStone-dfsin-N": (
         "c11",
         {"clock": 10, "starterFunction": "_sin"},
     ),
-    "CHStone-gsm": (
-        "gsm",
-        "N",
-        "CHStone",
+    "CHStone-gsm-N": (
         "c11",
         {"clock": 10, "starterFunction": "Gsm_LPC_Analysis"},
     ),
-    "CHStone-jpeg": (
-        "jpeg",
-        "N",
-        "CHStone",
+    "CHStone-jpeg-N": (
         "c11",
         {"clock": 10, "starterFunction": "jpeg2bmp_main"},
     ),
-    "CHStone-mips": (
-        "mips",
-        "N",
-        "CHStone",
+    "CHStone-mips-N": (
         "c11",
         {"clock": 10, "starterFunction": "mips"},
     ),
-    "CHStone-motion": (
-        "motion",
-        "N",
-        "CHStone",
+    "CHStone-motion-N": (
         "c11",
         {"clock": 10, "starterFunction": "main"},
     ),
-    "CHStone-sha": (
-        "sha",
-        "N",
-        "CHStone",
+    "CHStone-sha-N": (
         "c11",
         {"clock": 10, "starterFunction": "sha_stream"},
     ),
-    "HiFlipVX": (
-        "v2",
-        "N",
-        "HiFlipVX",
+    "HiFlipVX-v2-N": (
         "c++11",
         {"clock": 10, "starterFunction": "main"},
     ),
-    "Rosetta-3drendering": (
-        "3d-rendering",
-        "N",
-        "Rosetta",
+    "Rosetta-3d-rendering-N": (
         "c++11",
         {"clock": 10, "starterFunction": "rendering_sw"},
     ),
-    "Rosetta-digitrecog": (
-        "digit-recognition",
-        "N",
-        "Rosetta",
+    "Rosetta-digit-recognition-N": (
         "c++11",
         {"clock": 10, "starterFunction": "DigitRec_sw"},
     ),
-    "Rosetta-facedetect": (
-        "face-detection",
-        "N",
-        "Rosetta",
+    "Rosetta-face-detection-N": (
         "c++11",
         {"clock": 10, "starterFunction": "face_detect_sw"},
     ),
-    "Rosetta-opticalflow-curr": (
-        "optical-flow",
-        "current",
-        "Rosetta",
+    "Rosetta-optical-flow-current": (
         "c++11",
         {"clock": 10, "starterFunction": "optical_flow_sw"},
     ),
-    "Rosetta-opticalflow-sintel": (
-        "optical-flow",
-        "sintel",
-        "Rosetta",
+    "Rosetta-optical-flow-sintel": (
         "c++11",
         {"clock": 10, "starterFunction": "optical_flow_sw"},
     ),
-    "Rosetta-spamfilter": (
-        "spam-filter",
-        "N",
-        "Rosetta",
+    "Rosetta-spam-filter-N": (
         "c++11",
         {"clock": 10, "starterFunction": "SgdLR_sw"},
     ),

@@ -1,5 +1,6 @@
 import os
 import json
+import shutil
 from string import Template
 from benchmarks import benchmarks, apps
 from clava import Clava
@@ -42,14 +43,13 @@ def set_default_args(clava):
 
 
 def prepare_command_and_file_app(appName):
-    inputPath, outputPath, standard, config = apps[appName]
-    inputPath = INPUT_DIR + inputPath
-    outputPath = OUTPUT_DIR + outputPath
+    standard, config = apps[appName]
+    inputPath = INPUT_DIR + appName
+    outputPath = OUTPUT_DIR + appName
 
     # UPT config
     config["appName"] = appName
-    config["inputDir"] = inputPath + "/" + appName
-    config["outputDir"] = outputPath + "/" + appName
+    config["outputDir"] = outputPath
 
     if not os.path.exists(TEMP_FOLDER):
         os.makedirs(TEMP_FOLDER)
@@ -68,13 +68,13 @@ def prepare_command_and_file_app(appName):
 
 
 def prepare_command_and_file_bench(appName):
-    canonical_name, input_size, suite, standard, config = benchmarks[appName]
+    standard, config = benchmarks[appName]
+    suite = appName.split("-")[0]
     dep = "https://github.com/specs-feup/clava-benchmarks.git?folder=" + suite
-    full_name = suite + "-" + canonical_name + "-" + input_size
-    output_path = OUTPUT_DIR + full_name
+    output_path = OUTPUT_DIR + appName
 
     # UPT config
-    config["appName"] = full_name
+    config["appName"] = appName
     config["outputDir"] = output_path
 
     if not os.path.exists(TEMP_FOLDER):
@@ -82,20 +82,13 @@ def prepare_command_and_file_bench(appName):
     with open(CONFIG, "w+") as f:
         json.dump(config, f, indent=4)
 
-    # Clava command line arguments
-    args = {
-        "inputType": "bench",
-        "benchName": canonical_name,
-        "inputSize": input_size,
-        "suite": suite,
-    }
-
     clava = Clava(ENTRYPOINT)
     set_default_args(clava)
     clava.set_standard(standard)
+    clava.set_flat_output_folder()
     clava.set_output_folder_name(OUTPUT_DIR)
     clava.set_dependencies(dep)
-    clava.set_args(args)
+    clava.set_args({"inputType": "bench"})
     return clava
 
 
@@ -122,6 +115,16 @@ def dispatch(appName, isBenchmark):
     dashes = "-" * 34
     print(dashes + " (code = " + str(res) + ") " + dashes)
 
+    create_estim_folder(appName)
+
+
+def create_estim_folder(appName):
+    estim_path = "../test/outputs/" + appName + "/estim_cpu"
+    if not os.path.exists(estim_path):
+        os.makedirs(estim_path)
+    profiler = "../tools/profiler/profiler.sh"
+    shutil.copy(profiler, estim_path)
+
 
 def ensure_temp_exists():
     if not os.path.exists("../test/temp"):
@@ -135,46 +138,46 @@ def main():
 
 
 def run_apps():
-    # dispatch_app("edgedetect")
+    dispatch_app("edgedetect")
     # dispatch_app("scenarioA")
-    dispatch_app("scenarioB")
+    # dispatch_app("scenarioB")
     pass
 
 
 def run_benchmarks():
-    # run_chstone()
-    run_rosetta()
+    run_chstone()
+    # run_rosetta()
     # run_hiflipvx()
 
 
 def run_chstone():
-    dispatch_bench("CHStone-adpcm")
+    # dispatch_bench("CHStone-adpcm-N")   # abs issue
+    dispatch_bench("CHStone-aes-N")
     """
-    dispatch_bench("CHStone-aes")
-    dispatch_bench("CHStone-blowfish")
-    dispatch_bench("CHStone-dfdiv")
-    dispatch_bench("CHStone-dfmul")
-    dispatch_bench("CHStone-gsm")
-    dispatch_bench("CHStone-mips")
-    dispatch_bench("CHStone-sha")
-    dispatch_bench("CHStone-motion")
-    dispatch_bench("CHStone-dfadd")
+    dispatch_bench("CHStone-blowfish-N")
+    dispatch_bench("CHStone-dfdiv-N")
+    dispatch_bench("CHStone-dfmul-N")
+    dispatch_bench("CHStone-gsm-N")
+    dispatch_bench("CHStone-mips-N")
+    dispatch_bench("CHStone-sha-N")
+    dispatch_bench("CHStone-motion-N")
+    dispatch_bench("CHStone-dfadd-N")
     """
-    # dispatch_bench("CHStone-dfsin")  # label issue
-    # dispatch_bench("CHStone-jpeg")  # bunch of issues
+    # dispatch_bench("CHStone-dfsin-N")  # label issue
+    # dispatch_bench("CHStone-jpeg-N")  # bunch of issues
 
 
 def run_rosetta():
-    dispatch_bench("Rosetta-3drendering")
-    # dispatch_bench("Rosetta-digitrecog")
-    # dispatch_bench("Rosetta-spamfilter")
-    # dispatch_bench("Rosetta-opticalflow-curr")
-    # dispatch_bench("Rosetta-opticalflow-sintel")
-    # dispatch_bench("Rosetta-facedetect")
+    # dispatch_bench("Rosetta-3d-rendering-N")
+    # dispatch_bench("Rosetta-digit-recognition-N")
+    # dispatch_bench("Rosetta-face-detection-N")
+    dispatch_bench("Rosetta-optical-flow-current")
+    # dispatch_bench("Rosetta-optical-flow-sintel")
+    # dispatch_bench("Rosetta-spam-filter-N")
 
 
 def run_hiflipvx():
-    dispatch_bench("HiFlipVX")
+    dispatch_bench("HiFlipVX-v2-N")
 
 
 if __name__ == "__main__":

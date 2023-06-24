@@ -4,11 +4,14 @@ laraImport("clava.Clava");
 laraImport("UnnamedPartitioningTool");
 
 function handleBenchmark(config) {
-    const benchmarkName = laraArgs["benchName"];
-    const suite = laraArgs["suite"];
-    const benchmarkSize = laraArgs["inputSize"];
-    const importPath = `lara.benchmark.${suite}BenchmarkSet`;
+    const appName = config["appName"];
+    const splitName = appName.split("-");
 
+    const suite = splitName[0];
+    const benchmarkName = splitName.slice(1, -1).join("-");
+    const benchmarkSize = splitName[splitName.length - 1];
+
+    const importPath = `lara.benchmark.${suite}BenchmarkSet`;
     laraImport(importPath);
     const benches = eval(`new ${suite}BenchmarkSet();`);
 
@@ -35,8 +38,10 @@ function main() {
     } else if (laraArgs["inputType"] === "app") {
         handleApp(json);
     } else {
-        throw "Invalid input type";
+        println("Invalid application input type");
+        return -1;
     }
+    return 0;
 }
 
 main();

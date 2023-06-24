@@ -1,15 +1,20 @@
 #!/bin/sh
 
 if [ -z "$1" ]; then
-  echo "Argument 1 (program name) is missing. Exiting the script."
+  echo "Argument 1 (source code dir) is missing. Exiting the script."
+  exit 1
+fi
+if [ -z "$2" ]; then
+  echo "Argument 2 (program name) is missing. Exiting the script."
   exit 1
 fi
 
-APP=$1
+SOURCEDIR=$1
+APP=$2
 DASHES="--------------------------------------------------------------------------------"
 
 echo $DASHES
-echo "Input application: $1"
+echo "Input application: $APP"
 
 echo $DASHES
 echo "Checking prerequisites:"
@@ -34,10 +39,11 @@ echo "All prerequisites met"
 
 echo $DASHES
 echo "Compiling..."
-cd ../src_inter_tasks
+ORIGINALDIR=$(pwd)
+cd $SOURCEDIR
 g++ -g -fno-inline -O0 -o $APP *.cpp
-mv $APP ../estim_cpu
-cd ../estim_cpu
+mv $APP $ORIGINALDIR
+cd $ORIGINALDIR
 echo "Compilation successful"
 
 echo $DASHES

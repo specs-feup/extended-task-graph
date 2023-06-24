@@ -5,8 +5,9 @@ class UPTStage {
     #padding = 40;
     #appName;
     #outputDir;
+    #topFunction;
 
-    constructor(stageName, outputDir = "output", appName = "default_app_name") {
+    constructor(stageName, topFunction, outputDir = "output", appName = "default_app_name") {
         if (new.target === UPTStage) {
             throw new Error("Can't instantiate abstract class.");
         }
@@ -14,6 +15,17 @@ class UPTStage {
         this.#stageName = stageName;
         this.#appName = appName;
         this.#outputDir = outputDir;
+
+        if (typeof topFunction === "string") {
+            this.#topFunction = this.findTopFunctionFromName(topFunction);
+        }
+        else {
+            this.#topFunction = topFunction;
+        }
+    }
+
+    findTopFunctionFromName(topFun) {
+        return Query.search("function", { name: topFun }).first();
     }
 
     setAppName(appName) {
@@ -24,12 +36,20 @@ class UPTStage {
         this.#outputDir = outputDir;
     }
 
+    setTopFunction(topFunction) {
+        this.#topFunction = topFunction;
+    }
+
     getAppName() {
         return this.#appName;
     }
 
     getOutputDir() {
         return this.#outputDir;
+    }
+
+    getTopFunction() {
+        return this.#topFunction;
     }
 
     log(message) {

@@ -7,14 +7,13 @@ laraImport("util/ClavaUtils");
 
 class CodeTransformationFlow extends UPTStage {
     #config;
-    #topFunction;
 
     constructor(config) {
-        super("CTFlow", config["outputDir"], config["appName"]);
+        super("CTFlow",
+            config["starterFunction"],
+            config["outputDir"],
+            config["appName"]);
         this.#config = config;
-
-        const topFun = config["starterFunction"];
-        this.#topFunction = Query.search("function", { name: topFun }).first();
     }
 
     run() {
@@ -47,7 +46,9 @@ class CodeTransformationFlow extends UPTStage {
         this.log("Running initial analysis step");
         const outDir = this.getOutputDir() + "/app_stats_init"
         const appName = this.getAppName();
-        const analyser = new ApplicationAnalyser(this.#topFunction, outDir, appName);
+        const topFun = this.getTopFunction();
+
+        const analyser = new ApplicationAnalyser(topFun, outDir, appName);
         analyser.dumpAST();
         analyser.dumpCallGraph();
     }
@@ -56,8 +57,9 @@ class CodeTransformationFlow extends UPTStage {
         this.log("Running preprocessing step");
         const outDir = this.getOutputDir();
         const appName = this.getAppName();
+        const topFun = this.getTopFunction();
 
-        const prepropcessor = new Preprocessor(this.#topFunction, outDir, appName);
+        const prepropcessor = new Preprocessor(topFun, outDir, appName);
         prepropcessor.preprocess();
 
         const res = ClavaUtils.verifySyntax();
@@ -69,8 +71,9 @@ class CodeTransformationFlow extends UPTStage {
         this.log("Running intermediate analysis step");
         const outDir = this.getOutputDir() + "/app_stats_inter"
         const appName = this.getAppName();
+        const topFun = this.getTopFunction();
 
-        const analyser = new ApplicationAnalyser(this.#topFunction, outDir, appName);
+        const analyser = new ApplicationAnalyser(topFun, outDir, appName);
         analyser.runAllTasks();
 
         ClavaUtils.generateCode(this.getOutputDir(), "src_inter_tasks");

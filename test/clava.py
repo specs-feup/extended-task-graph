@@ -85,6 +85,9 @@ class Clava:
     def set_allow_custom_resources(self):
         self._add("-cr", "--custom-resources")
 
+    def set_flat_output_folder(self):
+        self._add("-flo", "--flat-output-folder")
+
     def set_standard(self, standard):
         self._remove_from_set(self.cmd_simple, "-std")
         self._remove_from_set(self.cmd_verbose, "-std")
