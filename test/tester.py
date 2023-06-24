@@ -28,6 +28,19 @@ EXTRA_INCLUDES = [
 ]
 
 
+def create_estim_folder(appName):
+    estim_path = "../test/outputs/" + appName + "/estim_cpu"
+    if not os.path.exists(estim_path):
+        os.makedirs(estim_path)
+    profiler = "../tools/profiler/profiler.sh"
+    shutil.copy(profiler, estim_path)
+
+
+def ensure_temp_exists():
+    if not os.path.exists("../test/temp"):
+        os.mkdir("../test/temp")
+
+
 def set_default_args(clava):
     # clava.set_no_clava_info()
     clava.set_clean_intermediate_files()
@@ -42,7 +55,7 @@ def set_default_args(clava):
     clava.set_extra_includes_folder(EXTRA_INCLUDES)
 
 
-def prepare_command_and_file_app(appName):
+def prepare_command_and_file_app(appName, flow):
     standard, config = apps[appName]
     inputPath = INPUT_DIR + appName
     outputPath = OUTPUT_DIR + appName
@@ -62,12 +75,12 @@ def prepare_command_and_file_app(appName):
     clava.set_standard(standard)
     clava.set_workspace(inputPath)
     clava.set_output_folder_name(outputPath)
-    clava.set_args({"inputType": "app"})
+    clava.set_args({"inputType": "app", "flow": flow})
 
     return clava
 
 
-def prepare_command_and_file_bench(appName):
+def prepare_command_and_file_bench(appName, flow):
     standard, config = benchmarks[appName]
     suite = appName.split("-")[0]
     dep = "https://github.com/specs-feup/clava-benchmarks.git?folder=" + suite
@@ -88,8 +101,28 @@ def prepare_command_and_file_bench(appName):
     clava.set_flat_output_folder()
     clava.set_output_folder_name(OUTPUT_DIR)
     clava.set_dependencies(dep)
-    clava.set_args({"inputType": "bench"})
+    clava.set_args({"inputType": "bench", "flow": flow})
     return clava
+
+
+def dispatch_flow_code(appName, isBenchmark):
+    print("-" * 15 + " Running code flow for  " + appName + " " + "-" * 15)
+    if isBenchmark:
+        clava = prepare_command_and_file_bench(appName, "code")
+    else:
+        clava = prepare_command_and_file_app(appName, "code")
+
+    commands = clava.get_current_command()
+    info = Template("Running Clava with the following command:\n\t$cmd\n")
+    print(info.substitute(cmd=commands))
+
+    res = clava.run()
+    dashes = "-" * 34
+    print(dashes + " (code = " + str(res) + ") " + dashes)
+
+
+def dispatch_flow_holistic(appName, isBenchmark):
+    pass
 
 
 def dispatch_bench(appName):
@@ -101,83 +134,54 @@ def dispatch_app(appName):
 
 
 def dispatch(appName, isBenchmark):
-    print("-" * 30 + " Running " + appName + " " + "-" * 30)
-    if isBenchmark:
-        clava = prepare_command_and_file_bench(appName)
-    else:
-        clava = prepare_command_and_file_app(appName)
+    # -----------------------------------
+    # Flow code
+    # -----------------------------------
+    dispatch_flow_code(appName, isBenchmark)
 
-    commands = clava.get_current_command()
-    info = Template("Running Clava with the following command:\n\t$cmd\n")
-    print(info.substitute(cmd=commands))
-
-    res = clava.run()
-    dashes = "-" * 34
-    print(dashes + " (code = " + str(res) + ") " + dashes)
-
+    # -----------------------------------
+    # Inter-flow stage: get profiling info
+    # -----------------------------------
     create_estim_folder(appName)
 
-
-def create_estim_folder(appName):
-    estim_path = "../test/outputs/" + appName + "/estim_cpu"
-    if not os.path.exists(estim_path):
-        os.makedirs(estim_path)
-    profiler = "../tools/profiler/profiler.sh"
-    shutil.copy(profiler, estim_path)
-
-
-def ensure_temp_exists():
-    if not os.path.exists("../test/temp"):
-        os.mkdir("../test/temp")
+    # -----------------------------------
+    # Flow Holistic
+    # -----------------------------------
+    dispatch_flow_holistic(appName, isBenchmark)
 
 
 def main():
     os.chdir("src")
-    # run_apps()
-    run_benchmarks()
 
-
-def run_apps():
     dispatch_app("edgedetect")
     # dispatch_app("scenarioA")
     # dispatch_app("scenarioB")
-    pass
 
-
-def run_benchmarks():
-    run_chstone()
-    # run_rosetta()
-    # run_hiflipvx()
-
-
-def run_chstone():
+    ### CHStone
+    # dispatch_bench("CHStone-aes-N")
+    # dispatch_bench("CHStone-blowfish-N")
+    # dispatch_bench("CHStone-dfdiv-N")
+    # dispatch_bench("CHStone-dfmul-N")
+    # dispatch_bench("CHStone-gsm-N")
+    # dispatch_bench("CHStone-mips-N")
+    # dispatch_bench("CHStone-sha-N")
+    # dispatch_bench("CHStone-motion-N")
+    # dispatch_bench("CHStone-dfadd-N")
+    # -----------------------------------
     # dispatch_bench("CHStone-adpcm-N")   # abs issue
-    dispatch_bench("CHStone-aes-N")
-    """
-    dispatch_bench("CHStone-blowfish-N")
-    dispatch_bench("CHStone-dfdiv-N")
-    dispatch_bench("CHStone-dfmul-N")
-    dispatch_bench("CHStone-gsm-N")
-    dispatch_bench("CHStone-mips-N")
-    dispatch_bench("CHStone-sha-N")
-    dispatch_bench("CHStone-motion-N")
-    dispatch_bench("CHStone-dfadd-N")
-    """
     # dispatch_bench("CHStone-dfsin-N")  # label issue
     # dispatch_bench("CHStone-jpeg-N")  # bunch of issues
 
+    ### HiFlipVX
+    # dispatch_bench("HiFlipVX-v2-N")
 
-def run_rosetta():
+    ### Rosetta
     # dispatch_bench("Rosetta-3d-rendering-N")
     # dispatch_bench("Rosetta-digit-recognition-N")
     # dispatch_bench("Rosetta-face-detection-N")
-    dispatch_bench("Rosetta-optical-flow-current")
+    # dispatch_bench("Rosetta-optical-flow-current")
     # dispatch_bench("Rosetta-optical-flow-sintel")
     # dispatch_bench("Rosetta-spam-filter-N")
-
-
-def run_hiflipvx():
-    dispatch_bench("HiFlipVX-v2-N")
 
 
 if __name__ == "__main__":

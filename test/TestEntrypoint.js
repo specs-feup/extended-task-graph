@@ -3,7 +3,7 @@
 laraImport("clava.Clava");
 laraImport("UnnamedPartitioningTool");
 
-function handleBenchmark(config) {
+function handleBenchmarkCodeFlow(config) {
     const appName = config["appName"];
     const splitName = appName.split("-");
 
@@ -25,20 +25,42 @@ function handleBenchmark(config) {
     }
 }
 
-function handleApp(config) {
+function handleAppCodeFlow(config) {
     const upt = new UnnamedPartitioningTool(config);
-    upt.runBothFlows();
+    upt.runCodeTransformationFlow();
+
+
+}
+
+function codeFlow(config) {
+    if (laraArgs["inputType"] === "bench") {
+        handleBenchmarkCodeFlow(config);
+    }
+    else if (laraArgs["inputType"] === "app") {
+        handleAppCodeFlow(config);
+    }
+    else {
+        println("Invalid application input type");
+        return -1;
+    }
+    return 0;
+}
+
+function holisticFlow(config) {
+
 }
 
 function main() {
-    const json = Io.readJson("../test/temp/config.json");
+    const config = Io.readJson("../test/temp/config.json");
 
-    if (laraArgs["inputType"] === "bench") {
-        handleBenchmark(json);
-    } else if (laraArgs["inputType"] === "app") {
-        handleApp(json);
-    } else {
-        println("Invalid application input type");
+    if (laraArgs["flow"] === "code") {
+        codeFlow(config);
+    }
+    else if (laraArgs["flow"] === "holistic") {
+        holisticFlow(config);
+    }
+    else {
+        println("Invalid flow");
         return -1;
     }
     return 0;
