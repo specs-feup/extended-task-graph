@@ -4,32 +4,23 @@ laraImport("UPTStage");
 laraImport("taskgraph/TaskGraph");
 laraImport("taskgraph/Task");
 laraImport("taskgraph/Communication");
+laraImport("taskgraph/TaskGraphDumper");
 
 class TaskGraphBuilder extends UPTStage {
-    #topFunction;
 
     constructor(topFunction, outputDir, appName) {
-        super("HPFlow-TaskGraphBuilder", outputDir, appName);
-        this.#topFunction = topFunction;
+        super("HPFlow-TaskGraphBuilder", topFunction, outputDir, appName);
     }
 
     buildTaskGraph() {
-        const tg = new TaskGraph();
-
-        const allFunctions = ClavaUtils.getAllUniqueFunctions(this.#topFunction);
-        const tasks = [];
-        for (const fun of allFunctions) {
-            const task = new Task(fun);
-            tasks.push(task);
-        }
-        tg.addTasks(tasks);
-
-        this.log("Finished building the task graph");
-        return tg;
+        const taskGraph = new TaskGraph(this.getTopFunction());
+        this.log("Successfully built the task graph");
+        return taskGraph;
     }
 
-    dumpTaskGraph(tg) {
-        const dot = tg.toDot();
+    dumpTaskGraph(taskGraph) {
+        const dumper = new TaskGraphDumper();
+        const dot = dumper.dump(taskGraph);
         this.saveToFile(dot, "taskgraph.dot");
         this.log("Dumped task graph to file taskgraph.dot");
     }

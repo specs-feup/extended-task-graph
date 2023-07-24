@@ -58,11 +58,11 @@ class ClavaUtils {
         return true;
     }
 
-    static getAllUniqueFunctions(topFunction) {
+    static getAllUniqueFunctions(topFunction, includeExternals = false) {
         const funs = [];
 
         funs.push(topFunction);
-        const childrenFuns = ClavaUtils.getEligibleFunctionsFrom(topFunction);
+        const childrenFuns = ClavaUtils.getEligibleFunctionsFrom(topFunction, includeExternals);
         funs.push(...childrenFuns);
 
         const uniqueFuns = [];
@@ -74,14 +74,16 @@ class ClavaUtils {
         return uniqueFuns;
     }
 
-    static getEligibleFunctionsFrom(parent) {
+    static getEligibleFunctionsFrom(parent, includeExternals = false) {
         const funs = [];
 
         for (const call of Query.searchFrom(parent, "call")) {
             const fun = call.function;
-            if (fun.hasDefinition && fun.isImplementation) {
+            const valid = includeExternals ? fun : fun.hasDefinition && fun.isImplementation;
+
+            if (valid) {
                 funs.push(fun);
-                const children = ClavaUtils.getEligibleFunctionsFrom(fun);
+                const children = ClavaUtils.getEligibleFunctionsFrom(fun, includeExternals);
                 funs.push(...children);
             }
         }

@@ -18,7 +18,7 @@ class HolisticPartitioningFlow extends UPTStage {
     run() {
         this.log("Running holistic HW/SW partitioning flow");
 
-        //const tg = this.buildTaskGraph();
+        const tg = this.buildTaskGraph();
 
         this.log("Holistic HW/SW partitioning flow finished successfully!");
     }

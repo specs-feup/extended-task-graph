@@ -1,15 +1,23 @@
 "use strict";
 
 laraImport("taskgraph/Task");
+laraImport("util/ClavaUtils");
 class TaskGraph {
     #tasks = [];
     #source = null;
     #sink = null;
+    #topFunction = null;
 
-    constructor() {
+    constructor(topFunction) {
         this.#source = new Task(null, "START");
         this.#sink = new Task(null, "END");
+        this.#topFunction = topFunction;
+        this.build(topFunction);
     }
+
+    //---------------------
+    // Getters/setters
+    //---------------------
 
     addTasks(tasks) {
         this.#tasks.push(...tasks);
@@ -40,19 +48,26 @@ class TaskGraph {
         return this.#sink;
     }
 
-    toDot() {
-        let dot = "digraph G {\n";
-        dot += "    rankdir=TB;\n";
-        dot += "    node [shape=box];\n";
+    //---------------------
+    // Builder methods
+    //---------------------
 
-        dot += "    TStart [label=\"main_begin\"];\n";
-        dot += "    TEnd [label=\"main_begin\"];\n";
+    build(topFunction) {
+        const allFunctions = ClavaUtils.getAllUniqueFunctions(topFunction, true);
+        const filteredFuns = [];
 
-        for (const task of this.#tasks) {
-            dot += `    ${task.getId()} [label="${task.getFunction().name}"];\n`;
+        for (const fun of allFunctions) {
+            if (!ExternalFunctionsMatcher.isValidExternal(fun)) {
+                filteredFuns.push(fun);
+            }
         }
-        dot += "}\n";
 
-        return dot;
+        const tasks = [];
+        for (const fun of filteredFuns) {
+            const type = fun.isInSystemHeader ? "EXTERNAL" : "REGULAR";
+            const task = new Task(fun, type);
+            tasks.push(task);
+        }
+        this.addTasks(tasks);
     }
 }

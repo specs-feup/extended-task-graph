@@ -7,22 +7,25 @@ class Task {
     #function = null;
     #type = null;
 
-    constructor(fun, type) {
+    constructor(fun, type = "REGULAR") {
         this.#type = type;
 
         if (type == "REGULAR") {
             this.#id = IdGenerator.next("T");
             this.#function = fun;
         }
-        if (type == "START") {
+        else if (type == "START") {
             this.#id = "TStart";
         }
-        if (type == "END") {
+        else if (type == "END") {
             this.#id = "TEnd";
         }
-        if (type == "EXTERNAL") {
+        else if (type == "EXTERNAL") {
             this.#id = IdGenerator.next("TEx");
             this.#function = fun;
+        }
+        else {
+            throw new Error(`Unknown task type '${type}'`);
         }
     }
 
