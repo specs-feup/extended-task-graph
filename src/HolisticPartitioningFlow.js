@@ -1,7 +1,7 @@
 "use strict";
 
 laraImport("UPTStage");
-laraImport("taskgraph/TaskGraphBuilder");
+laraImport("taskgraph/TaskGraphManager");
 laraImport("util/ClavaUtils");
 
 class HolisticPartitioningFlow extends UPTStage {
@@ -27,9 +27,10 @@ class HolisticPartitioningFlow extends UPTStage {
         this.log("Running task graph building process");
         const outDir = this.getOutputDir() + "/taskgraph";
 
-        const tgBuilder = new TaskGraphBuilder(this.getTopFunction(), outDir, this.getAppName());
-        const tg = tgBuilder.buildTaskGraph();
-        tgBuilder.dumpTaskGraph(tg);
+        const tgMan = new TaskGraphManager(this.getTopFunction(), outDir, this.getAppName());
+        const tg = tgMan.buildTaskGraph();
+        tgMan.dumpTaskGraph(tg);
+        tgMan.saveMetrics(tg);
 
         return tg;
     }

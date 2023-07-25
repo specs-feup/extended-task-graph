@@ -6,22 +6,14 @@ laraImport("taskgraph/Task");
 laraImport("taskgraph/Communication");
 laraImport("taskgraph/TaskGraphDumper");
 
-class TaskGraphBuilder extends UPTStage {
+class TaskGraphBuilder {
 
-    constructor(topFunction, outputDir, appName) {
-        super("HPFlow-TaskGraphBuilder", topFunction, outputDir, appName);
-    }
+    constructor() { }
 
-    buildTaskGraph() {
-        const taskGraph = new TaskGraph(this.getTopFunction());
-        this.log("Successfully built the task graph");
+    build(topFunction) {
+        const taskGraph = new TaskGraph(topFunction);
+        //...
         return taskGraph;
     }
 
-    dumpTaskGraph(taskGraph) {
-        const dumper = new TaskGraphDumper();
-        const dot = dumper.dump(taskGraph);
-        this.saveToFile(dot, "taskgraph.dot");
-        this.log("Dumped task graph to file taskgraph.dot");
-    }
 }
