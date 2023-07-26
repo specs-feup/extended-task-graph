@@ -8,20 +8,34 @@ class TaskGraphDumper {
     constructor() { }
 
     dump(taskGraph) {
-        const tasks = taskGraph.getTasks();
-
         let dot = "digraph G {\n";
-        dot += "    rankdir=TB;\n";
-        dot += "    node [shape=box];\n";
+        dot += "\trankdir=TB;\n";
+        dot += "\tnode [shape=box];\n";
 
-        dot += "    TStart [label=\"main_begin\"];\n";
-        dot += "    TEnd [label=\"main_begin\"];\n";
+        dot += "\tTStart [label=\"main_begin\"];\n";
+        dot += "\tTEnd [label=\"main_begin\"];\n";
 
-        for (const task of tasks) {
-            dot += `    ${task.getId()} [label="${task.getFunction().name}"];\n`;
+        const topHierTask = taskGraph.getTopHierarchicalTask();
+        dot += this.#getDotOfTask(topHierTask);
+
+        dot += "}";
+        return dot;
+    }
+
+    #getDotOfTask(task) {
+        let dot = "";
+        if (task.getHierarchicalChildren().length > 0) {
+            dot += "\tsubgraph cluster_" + task.getId() + " {\n";
+            dot += "\tlabel = \"" + task.getFunction().name + "\";\n";
+
+            for (const child of task.getHierarchicalChildren()) {
+                dot += this.#getDotOfTask(child);
+            }
+            dot += "\t}\n";
         }
-        dot += "}\n";
-
+        else {
+            dot += `\t${task.getId()} [label="${task.getFunction().name}"];\n`;
+        }
         return dot;
     }
 }

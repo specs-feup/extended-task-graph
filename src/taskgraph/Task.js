@@ -7,6 +7,7 @@ class Task {
     #function = null;
     #type = null;
     #hierParent = null;
+    #hierChildren = new Set();
 
     constructor(fun, hierParent, type = "REGULAR") {
         this.#type = type;
@@ -45,5 +46,17 @@ class Task {
 
     getHierarchicalParent() {
         return this.#hierParent;
+    }
+
+    getHierarchicalChildren() {
+        return [...this.#hierChildren];
+    }
+
+    addHierarchicalChild(child) {
+        this.#hierChildren.add(child);
+    }
+
+    removeHierarchicalChild(child) {
+        this.#hierChildren.delete(child);
     }
 }

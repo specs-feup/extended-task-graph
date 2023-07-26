@@ -7,7 +7,7 @@ class TaskGraph {
     #source = null;
     #sink = null;
 
-    constructor(topFunction) {
+    constructor() {
         this.#source = new Task(null, "START");
         this.#sink = new Task(null, "END");
     }
@@ -39,5 +39,14 @@ class TaskGraph {
 
     getSink() {
         return this.#sink;
+    }
+
+    getTopHierarchicalTask() {
+        for (const task of this.#tasks) {
+            if (task.getHierarchicalParent() == null) {
+                return task;
+            }
+        }
+        return null;
     }
 }

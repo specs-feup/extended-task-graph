@@ -12,7 +12,7 @@ class TaskGraphBuilder {
     constructor() { }
 
     build(topFunction) {
-        const taskGraph = new TaskGraph(topFunction);
+        const taskGraph = new TaskGraph();
 
         this.#buildLevel(taskGraph, topFunction, null);
 
@@ -28,19 +28,21 @@ class TaskGraphBuilder {
 
             // Is of type "REGULAR", handle recursively
             if (ClavaUtils.functionHasImplementation(callee)) {
-                this.#buildLevel(taskGraph, callee, task);
+                const regularTask = this.#buildLevel(taskGraph, callee, task);
+                task.addHierarchicalChild(regularTask);
             }
             // Is of type "EXTERNAL", create it on the spot
             else if (!ExternalFunctionsMatcher.isValidExternal(callee)) {
                 const externalTask = new Task(callee, task, "EXTERNAL");
                 taskGraph.addTask(externalTask);
+                task.addHierarchicalChild(externalTask);
             }
             // Should only happen for inlinable functions (e.g., math.h)
             else {
                 println("Found an inlinable function: " + callee.signature);
             }
-
         }
+        return task;
     }
 
 }
