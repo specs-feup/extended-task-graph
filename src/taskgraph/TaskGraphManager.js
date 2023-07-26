@@ -28,8 +28,10 @@ class TaskGraphManager extends UPTStage {
 
     saveMetrics(taskGraph) {
         const agg = new TaskGraphMetricsAggregator(this.getAppName(), taskGraph);
-        const metrics = agg.getMetricsAsJson();
-        this.saveToFile(metrics, "metrics.json");
+        agg.updateMetrics();
+        const jsonMetrics = agg.getMetricsAsJson();
+
+        this.saveToFile(jsonMetrics, "metrics.json");
         this.log("Saved metrics to file metrics.json");
     }
 }

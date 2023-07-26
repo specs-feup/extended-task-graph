@@ -12,16 +12,38 @@ class TaskGraphMetricsAggregator {
         this.#taskGraph = taskGraph;
     }
 
-    updateMetrics() {
-
-    }
-
-
     getMetrics() {
         return this.#metrics;
     }
 
     getMetricsAsJson() {
-        return JSON.stringify(this.#metrics);
+        return JSON.stringify(this.#metrics, null, 4);
+    }
+
+    updateMetrics() {
+        this.#calculateTaskStats();
+        return this.#metrics;
+    }
+
+    #calculateTaskStats() {
+        const taskTypes = {};
+        let externalCnt = 0;
+        let regularCnt = 0;
+
+        const tasks = this.#taskGraph.getTasks();
+        for (const task of tasks) {
+            const taskName = task.getFunction().name;
+            const taskType = task.getType();
+            taskTypes[taskName] = taskType;
+
+            if (taskType === "EXTERNAL") {
+                externalCnt++;
+            }
+            if (taskType === "REGULAR") {
+                regularCnt++;
+            }
+        }
+        this.#metrics["taskTypes"] = taskTypes;
+        this.#metrics["counts"] = { "externalTasks": externalCnt, "regularTasks": regularCnt };
     }
 }
