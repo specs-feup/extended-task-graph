@@ -6,9 +6,11 @@ class Task {
     #id = "TNull";
     #function = null;
     #type = null;
+    #hierParent = null;
 
-    constructor(fun, type = "REGULAR") {
+    constructor(fun, hierParent, type = "REGULAR") {
         this.#type = type;
+        this.#hierParent = hierParent;
 
         if (type == "REGULAR") {
             this.#id = IdGenerator.next("T");
@@ -39,5 +41,9 @@ class Task {
 
     getFunction() {
         return this.#function;
+    }
+
+    getHierarchicalParent() {
+        return this.#hierParent;
     }
 }

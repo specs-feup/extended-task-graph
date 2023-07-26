@@ -466,7 +466,7 @@ class ExternalFunctionsMatcher {
         ]
     }
     static stdlibHFuns = {
-        "abs": ["int"],
+        "abs": [["int"], ["long"], ["long long"]],
     }
     static cmathFuns = {
         "floor": ["float"],
@@ -500,18 +500,33 @@ class ExternalFunctionsMatcher {
     static #isFromGeneric(funOrCall, funList) {
         const fun = ExternalFunctionsMatcher.#sanitize(funOrCall);
 
+
+
         if (funList.hasOwnProperty(fun.name)) {
             const funParams = fun.params;
-            const builtinParams = funList[fun.name];
 
-            for (let i = 0; i < funParams.length; i++) {
-                const funParam = funParams[i].type.code;
-                const builtinParam = builtinParams[i];
-                if (funParam !== builtinParam) {
-                    return false;
+            const overloading = Array.isArray(funList[fun.name][0]);
+            const builtinParams = [];
+            if (!overloading) {
+                builtinParams.push(funList[fun.name]);
+            }
+            else {
+                builtinParams.push(...funList[fun.name]);
+            }
+
+            for (const builtinParamOption of builtinParams) {
+                let valid = true;
+                for (let i = 0; i < funParams.length; i++) {
+                    const funParam = funParams[i].type.code;
+                    const builtinParam = builtinParamOption[i];
+                    if (funParam !== builtinParam) {
+                        valid = false;
+                    }
+                }
+                if (valid) {
+                    return true;
                 }
             }
-            return true;
         }
         return false;
     }

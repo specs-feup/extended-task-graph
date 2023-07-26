@@ -89,4 +89,8 @@ class ClavaUtils {
         }
         return funs;
     }
+
+    static functionHasImplementation(fun) {
+        return fun.hasDefinition && fun.isImplementation && fun.body.children.length > 0;
+    }
 }
