@@ -93,4 +93,23 @@ class ClavaUtils {
     static functionHasImplementation(fun) {
         return fun.hasDefinition && fun.isImplementation && fun.body.children.length > 0;
     }
+
+    static isDef(varref) {
+        if (varref.parent.instanceOf("binaryOp")) {
+            const binOp = varref.parent;
+            return binOp.kind == "assign" && binOp.left.code == varref.code;
+        }
+        if (varref.parent.instanceOf("arrayAccess")) {
+            const arrAccess = varref.parent;
+
+            if (arrAccess.parent.instanceOf("binaryOp")) {
+                const binOp = arrAccess.parent;
+                return binOp.kind == "assign" && binOp.left.code == arrAccess.code;
+            }
+            if (arrAccess.parent.instanceOf("vardecl")) {
+                return arrAccess.numChildren > 1;
+            }
+        }
+        return false;
+    }
 }

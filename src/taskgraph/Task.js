@@ -174,11 +174,13 @@ class Task {
             return;
         }
 
-        let foundRead = false;
-        let foundWrite = false;
         for (const varref of Query.searchFrom(body, "varref", { name: data.getDecl().name })) {
-            println("Found varref: " + varref.name);
-
+            if (ClavaUtils.isDef(varref)) {
+                data.setWritten();
+            }
+            else {
+                data.setRead();
+            }
         }
     }
 }

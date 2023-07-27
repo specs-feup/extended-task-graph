@@ -40,8 +40,9 @@ class TaskGraphDumper {
     }
 
     #getLabelOfTask(task) {
-        let label = task.getId() + "\nRef: ";
+        let label = `${task.getId()}: ${task.getFunction().name}\n`;
 
+        label += "Ref: ";
         const refData = [];
         for (const data of task.getReferencedData()) {
             refData.push(data.toString());
