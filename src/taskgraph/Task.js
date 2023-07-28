@@ -11,6 +11,8 @@ class Task {
     #hierParent = null;
     #hierChildren = new Set();
     #data = [];
+    #incomingComm = [];
+    #outgoingComm = [];
 
     constructor(fun, hierParent, type = "REGULAR") {
         this.#type = type;
@@ -109,6 +111,22 @@ class Task {
             }
         }
         return dataReferenced;
+    }
+
+    addOutgoingComm(communication) {
+        this.#outgoingComm.push(communication);
+    }
+
+    addIncomingComm(communication) {
+        this.#incomingComm.push(communication);
+    }
+
+    getOutgoingComm() {
+        return this.#outgoingComm;
+    }
+
+    getIncomingComm() {
+        return this.#incomingComm;
     }
 
     #populateData() {

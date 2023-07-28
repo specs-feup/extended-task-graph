@@ -13,6 +13,10 @@ class Data {
         this.#origin = origin;
     }
 
+    getName() {
+        return this.#decl.name;
+    }
+
     getDecl() {
         return this.#decl;
     }

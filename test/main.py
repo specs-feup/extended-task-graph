@@ -28,7 +28,7 @@ def main():
     # test_bench_flows("HiFlipVX-v2-N", True, True)
 
     ### Rosetta
-    #test_bench_flows("Rosetta-3d-rendering-N", False, True)
+    # test_bench_flows("Rosetta-3d-rendering-N", False, True)
     # test_bench_flows("Rosetta-digit-recognition-N", True, True)
     # test_bench_flows("Rosetta-face-detection-N", True, True)
     # test_bench_flows("Rosetta-optical-flow-current", True, True)

@@ -6,8 +6,6 @@
 #include "config.h"
 #include "util.h"
 
-#define FORCE_EXTERNAL
-
 using namespace std;
 using namespace std::chrono;
 
