@@ -110,6 +110,19 @@ class ClavaUtils {
                 return arrAccess.numChildren > 1;
             }
         }
+        if (varref.type.instanceOf("pointerType")) {
+            const parent = varref.parent;
+            const grandparent = parent.parent;
+
+            const cond1 = parent.instanceOf("unaryOp") && parent.kind == "deref";
+            if (cond1) {
+                const cond2 = grandparent.instanceOf("binaryOp") && grandparent.kind == "assign";
+                if (cond2) {
+                    return grandparent.left.code == parent.code;
+                }
+            }
+        }
+
         return false;
     }
 }
