@@ -10,7 +10,9 @@ class Task {
     #type = null;
     #hierParent = null;
     #hierChildren = new Set();
-    #data = [];
+    #dataParams = [];
+    #dataGlobals = [];
+    #dataNew = [];
     #incomingComm = [];
     #outgoingComm = [];
 
@@ -70,47 +72,58 @@ class Task {
     }
 
     getData() {
-        return this.#data;
+        return [...this.#dataParams, ...this.#dataGlobals, ...this.#dataNew];
     }
 
-    getDataRead() {
-        const dataRead = [];
-        for (const data of this.#data) {
-            if (data.isRead()) {
-                dataRead.push(data);
+    #getDataBasedOnAccess(access, type = "ALL") {
+        let data = [];
+        if (type == "ALL") {
+            data.push(...this.#dataParams, ...this.#dataGlobals, ...this.#dataNew);
+        }
+        else if (type == "PARAM") {
+            data = this.#dataParams;
+        }
+        else if (type == "GLOBAL") {
+            data = this.#dataGlobals;
+        }
+        else if (type == "NEW") {
+            data = this.#dataNew;
+        }
+
+        const dataAccessed = [];
+        for (const datum of data) {
+            if (access === "READ") {
+                if (datum.isWritten()) {
+                    dataAccessed.push(data);
+                }
+            }
+            else if (access === "WRITE") {
+                if (datum.isWritten()) {
+                    dataAccessed.push(data);
+                }
             }
         }
-        return dataRead;
+        return dataAccessed;
+    }
+
+    getDataRead(type = "ALL") {
+        return this.#getDataBasedOnAccess("READ", type);
     }
 
     getDataWritten() {
-        const dataWritten = [];
-        for (const data of this.#data) {
-            if (data.isWritten()) {
-                dataWritten.push(data);
-            }
-        }
-        return dataWritten;
+        return this.#getDataBasedOnAccess("WRITE", type);
     }
 
-    getDataCreatedHere() {
-        const dataCreated = [];
-        for (const data of this.#data) {
-            if (data.isNewlyCreated()) {
-                dataCreated.push(data);
-            }
-        }
-        return dataCreated;
+    getParamData() {
+        return this.#dataParams;
     }
 
-    getReferencedData() {
-        const dataReferenced = [];
-        for (const data of this.#data) {
-            if (!data.isNewlyCreated()) {
-                dataReferenced.push(data);
-            }
-        }
-        return dataReferenced;
+    getGlobalData() {
+        return this.#dataGlobals;
+    }
+
+    getNewData() {
+        return this.#dataNew;
     }
 
     addOutgoingComm(communication) {
@@ -180,7 +193,15 @@ class Task {
 
             this.#setReadWrites(data);
 
-            this.#data.push(data);
+            if (originType == "PARAM") {
+                this.#dataParams.push(data);
+            }
+            else if (originType == "GLOBAL") {
+                this.#dataGlobals.push(data);
+            }
+            else if (originType == "NEW") {
+                this.#dataNew.push(data);
+            }
         }
     }
 

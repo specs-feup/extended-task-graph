@@ -48,18 +48,35 @@ class TaskGraphDumper {
     #getLabelOfTask(task) {
         let label = `${task.getId()}: ${task.getFunction().name}\n`;
 
-        label += "Ref:\n";
-        const refData = [];
-        for (const data of task.getReferencedData()) {
-            refData.push(data.toString());
+        if (task.getParamData().length > 0) {
+            label += "-------------------\n";
+            label += "Param data:\n";
+            const refData = [];
+            for (const data of task.getParamData()) {
+                refData.push(data.toString());
+            }
+            label += refData.join("\n");
         }
-        label += refData.join("\n");
 
-        const newData = [];
-        for (const data of task.getDataCreatedHere()) {
-            newData.push(data.toString());
+        if (task.getGlobalData().length > 0) {
+            label += "\n-------------------\n";
+            label += "Global data:\n";
+            const globalData = [];
+            for (const data of task.getGlobalData()) {
+                globalData.push(data.toString());
+            }
+            label += globalData.join("\n");
         }
-        label += "\nNew: " + newData.join("\n");
+
+        if (task.getNewData().length > 0) {
+            label += "\n-------------------\n";
+            label += "\nNew data: ";
+            const newData = [];
+            for (const data of task.getNewData()) {
+                newData.push(data.toString());
+            }
+            label += newData.join("\n");
+        }
 
         return label;
     }
