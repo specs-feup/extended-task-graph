@@ -7,11 +7,13 @@ class TaskGraph {
     #comms = [];
     #source = null;
     #sink = null;
+    #globals = null;
     #inlinables = [];
 
     constructor() {
-        this.#source = new Task(null, "START");
-        this.#sink = new Task(null, "END");
+        this.#source = new Task(null, null, "START");
+        this.#sink = new Task(null, null, "END");
+        this.#globals = new Task(null, null, "GLOBAL");
     }
 
     addTasks(tasks) {
@@ -55,6 +57,10 @@ class TaskGraph {
 
     getSink() {
         return this.#sink;
+    }
+
+    getGlobals() {
+        return this.#globals;
     }
 
     getCommunications() {

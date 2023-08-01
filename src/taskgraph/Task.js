@@ -7,6 +7,7 @@ laraImport("taskgraph/Data");
 class Task {
     #id = "TNull";
     #function = null;
+    #name = "<anonymous>"
     #type = null;
     #hierParent = null;
     #hierChildren = new Set();
@@ -23,23 +24,36 @@ class Task {
         if (type == "REGULAR") {
             this.#id = IdGenerator.next("T");
             this.#function = fun;
+            if (fun != null) {
+                this.#name = fun.name;
+            }
         }
         else if (type == "START") {
             this.#id = "TStart";
+            this.#name = "main_begin";
         }
         else if (type == "END") {
             this.#id = "TEnd";
+            this.#name = "main_end";
+        }
+        else if (type == "GLOBAL") {
+            this.#id = "TGlob";
+            this.#name = "Global variables";
         }
         else if (type == "EXTERNAL") {
             this.#id = IdGenerator.next("TEx");
             this.#function = fun;
+            this.#name = fun.name;
         }
         else {
             throw new Error(`Unknown task type '${type}'`);
         }
 
-        if (type != "START" && type != "END" && fun != null) {
+        if (type != "START" && type != "END" && type != "GLOBAL" && fun != null) {
             this.#populateData();
+        }
+        if (type == "GLOBAL") {
+            this.#populateGlobalData();
         }
     }
 
@@ -56,15 +70,7 @@ class Task {
     }
 
     getName() {
-        if (this.#type == "START") {
-            return "main_begin";
-        }
-        else if (this.#type == "END") {
-            return "main_end";
-        }
-        else {
-            return this.#function.name;
-        }
+        return this.#name;
     }
 
     getHierarchicalParent() {
@@ -188,7 +194,7 @@ class Task {
         this.#findDataFromParams();
 
         // handle data comm'd through global variables
-        //this.#findDataFromGlobals();
+        this.#findDataFromGlobals();
 
         // handle data created in this function, and comm'd to others
         this.#findDataFromNewDecls();
@@ -204,9 +210,9 @@ class Task {
 
     #findDataFromGlobals() {
         const globalVars = new Set();
-        for (const varref of Query.searchFrom(this.#function, "varref")) {
+        for (const varref of Query.searchFrom(this.#function.body, "varref")) {
             const decl = varref.vardecl;
-            if (decl != null && decl.isGlobal()) {
+            if (decl != null && decl.isGlobal) {
                 globalVars.add(decl);
             }
         }
@@ -234,7 +240,7 @@ class Task {
         for (const vardecl of vars) {
             const data = new Data(vardecl, originType);
 
-            this.#setReadWrites(data);
+            this.#setReadWritesFunction(data);
 
             if (originType == "PARAM") {
                 this.#dataParams.push(data);
@@ -248,9 +254,8 @@ class Task {
         }
     }
 
-    #setReadWrites(data) {
+    #setReadWritesFunction(data) {
         const body = this.#function.body;
-
         if (body == null) {
             return;
         }
@@ -261,12 +266,24 @@ class Task {
         }
 
         for (const varref of Query.searchFrom(body, "varref", { name: data.getDecl().name })) {
-            if (ClavaUtils.isDef(varref)) {
-                data.setWritten();
-            }
-            else {
-                data.setRead();
-            }
+            this.#setReadWritesVar(varref, data);
+        }
+    }
+
+    #setReadWritesVar(varref, data) {
+        if (ClavaUtils.isDef(varref)) {
+            data.setWritten();
+        }
+        else {
+            data.setRead();
+        }
+    }
+
+    #populateGlobalData() {
+        for (const global of Query.search("vardecl", { isGlobal: true })) {
+            const data = new Data(global, "GLOBAL");
+            this.#dataGlobals.push(data);
+            this.#setReadWritesVar(global, data);
         }
     }
 }

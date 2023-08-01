@@ -2,6 +2,7 @@
 
 class Data {
     #decl = null;
+    #isInit = false;
     #isWritten = false;
     #isRead = false;
     #isScalar = false;
@@ -35,11 +36,17 @@ class Data {
     }
 
     setWritten() {
+        this.#isInit = true;
         this.#isWritten = true;
     }
 
     setRead() {
+        this.#isInit = true;
         this.#isRead = true;
+    }
+
+    setInitialized() {
+        this.#isInit = true;
     }
 
     isWritten() {
@@ -48,6 +55,10 @@ class Data {
 
     isRead() {
         return this.#isRead;
+    }
+
+    isInitialized() {
+        return this.#isInit;
     }
 
     isOnlyRead() {
@@ -79,7 +90,7 @@ class Data {
     }
 
     toString() {
-        const readWrite = (this.#isRead ? "R" : "") + (this.#isWritten ? "W" : "");
-        return `${this.#decl.name} {${this.#sizeInBytes}} ${readWrite}`;
+        const status = !this.#isInit ? "U" : (this.#isRead ? "R" : "") + (this.#isWritten ? "W" : "");
+        return `${this.#decl.name} {${this.#sizeInBytes}} ${status}`;
     }
 }

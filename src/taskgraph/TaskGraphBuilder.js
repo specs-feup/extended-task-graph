@@ -8,7 +8,6 @@ laraImport("taskgraph/Communication");
 laraImport("taskgraph/TaskGraphDumper");
 
 class TaskGraphBuilder {
-
     constructor() { }
 
     build(topFunction) {
@@ -100,15 +99,18 @@ class TaskGraphBuilder {
                 const lastUsedTask = lastUsed.get(dataAlt);
 
                 //println(dataAlt + " |" + Array.from(dataMap.keys()) + "| " + parent.getName());
+                if (lastUsedTask != null) {
+                    taskGraph.addCommunication(lastUsedTask, child, parentData, rank);
 
-                taskGraph.addCommunication(lastUsedTask, child, parentData, rank);
-
-                // now inside the task itself, we check if the data is written to,
-                // and if it is, set this task as the last one to use that data    
-                if (data.isWritten()) {
-                    lastUsed.set(dataAlt, child);
+                    // now inside the task itself, we check if the data is written to,
+                    // and if it is, set this task as the last one to use that data    
+                    if (data.isWritten()) {
+                        lastUsed.set(dataAlt, child);
+                    }
                 }
-
+                else {
+                    println("WARNING: " + dataAlt + " not found in " + parent.getName());
+                }
                 // finally, we increment the rank. It is very important
                 rank++;
             }

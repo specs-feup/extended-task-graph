@@ -23,8 +23,13 @@ class TaskGraphDumper {
         dot += "\trankdir=TB;\n";
         dot += "\tnode [shape=box];\n";
 
-        dot += `\t${taskGraph.getSource().getId()} [label=\"main_begin\"];\n`;
-        dot += `\t${taskGraph.getSink().getId()} [label=\"main_end\"];\n`;
+        const source = taskGraph.getSource();
+        const sink = taskGraph.getSink();
+        const globals = taskGraph.getGlobals();
+
+        dot += `\t${source.getId()} [label=main_begin, fillcolor=lightgray];\n`;
+        dot += `\t${sink.getId()} [label=main_end, fillcolor=lightgray];\n`;
+        dot += `\t${globals.getId()} [label="${this.#getLabelOfTask(globals)}", fillcolor=lightgray];\n`;
 
         const topHierTask = taskGraph.getTopHierarchicalTask();
         dot += this.#getDotOfCluster(topHierTask, 0);
@@ -66,7 +71,7 @@ class TaskGraphDumper {
     }
 
     #getLabelOfTask(task) {
-        let label = `${task.getId()}: ${task.getFunction().name}`;
+        let label = `${task.getId()}: ${task.getName()}`;
 
         if (task.getParamData().length > 0) {
             label += "\n-------------------\n";
