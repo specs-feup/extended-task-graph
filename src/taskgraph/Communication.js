@@ -4,10 +4,13 @@ class Communication {
     #source = null;
     #target = null;
     #data = [];
+    #rank = -1;
 
-    constructor(source, target, data) {
+    constructor(source, target, data, rank) {
         this.#source = source;
         this.#target = target;
+        this.#rank = rank;
+
         if (Array.isArray(data)) {
             this.#data.push(...data);
         }
@@ -33,7 +36,8 @@ class Communication {
     }
 
     toString() {
-        const str = this.#data.map(d => d.getName()).join(", ");
+        let str = this.#data.map(d => d.getName()).join(", ");
+        str += ` (${this.#rank})`;
         return str;
     }
 }

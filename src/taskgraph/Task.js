@@ -7,6 +7,7 @@ laraImport("taskgraph/Data");
 class Task {
     #id = "TNull";
     #function = null;
+    #call = null;
     #type = null;
     #hierParent = null;
     #hierChildren = new Set();
@@ -43,6 +44,10 @@ class Task {
         }
     }
 
+    setCall(call) {
+        this.#call = call;
+    }
+
     getType() {
         return this.#type;
     }
@@ -53,6 +58,20 @@ class Task {
 
     getFunction() {
         return this.#function;
+    }
+
+    getCall() {
+        return this.#call;
+    }
+
+    getCallArgs() {
+        const args = [];
+        for (let i = 1; i < this.#call.children.length; i++) {
+            const child = this.#call.children[i];
+            const varref = Query.searchFromInclusive(child, "varref").first();
+            args.push(varref.name);
+        }
+        return args;
     }
 
     getHierarchicalParent() {
@@ -69,10 +88,6 @@ class Task {
 
     removeHierarchicalChild(child) {
         this.#hierChildren.delete(child);
-    }
-
-    getData() {
-        return [...this.#dataParams, ...this.#dataGlobals, ...this.#dataNew];
     }
 
     #getDataBasedOnAccess(access, type = "ALL") {
@@ -110,8 +125,12 @@ class Task {
         return this.#getDataBasedOnAccess("READ", type);
     }
 
-    getDataWritten() {
+    getDataWritten(type = "ALL") {
         return this.#getDataBasedOnAccess("WRITE", type);
+    }
+
+    getData() {
+        return [...this.#dataParams, ...this.#dataGlobals, ...this.#dataNew];
     }
 
     getParamData() {
@@ -124,6 +143,10 @@ class Task {
 
     getNewData() {
         return this.#dataNew;
+    }
+
+    getReferencedData() {
+        return [...this.#dataParams, ...this.#dataGlobals];
     }
 
     addOutgoingComm(communication) {

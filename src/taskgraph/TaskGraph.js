@@ -86,4 +86,11 @@ class TaskGraph {
         }
         return null;
     }
+
+    addCommunication(source, target, data, rank) {
+        const comm = new Communication(source, target, data, rank);
+        this.#comms.push(comm);
+        source.addOutgoingComm(comm);
+        target.addIncomingComm(comm);
+    }
 }
