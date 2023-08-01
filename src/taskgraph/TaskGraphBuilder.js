@@ -8,10 +8,14 @@ laraImport("taskgraph/Communication");
 laraImport("taskgraph/TaskGraphDumper");
 
 class TaskGraphBuilder {
+    #lastUsedGlobal = new Map();
+
     constructor() { }
 
     build(topFunction) {
         const taskGraph = new TaskGraph();
+
+        this.#populateGlobalMap(taskGraph);
 
         const topTask = this.#buildLevel(taskGraph, topFunction, null, null);
 
@@ -28,6 +32,19 @@ class TaskGraphBuilder {
         }
 
         return taskGraph;
+    }
+
+    #populateGlobalMap(taskGraph) {
+        const globalTask = taskGraph.getGlobalTask();
+
+        for (const datum of globalTask.getData()) {
+            if (datum.isInitialized()) {
+                this.#lastUsedGlobal.set(datum.getName(), globalTask);
+            }
+            else {
+                this.#lastUsedGlobal.set(datum.getName(), null);
+            }
+        }
     }
 
     #buildLevel(taskGraph, fun, parent, call) {
@@ -84,34 +101,38 @@ class TaskGraphBuilder {
         }
 
         for (const child of children) {
-            const childData = child.getParamData();
+            const childData = child.getData();
 
-            // Extremely mindbending code to handle the mismatch between the name
-            // of the data when in the caller and in the callee
             let rank = 1;
             for (const data of childData) {
-                const dataAlt = data.getAlternateName();
+                if (data.isFromParam()) {
+                    const dataAlt = data.getAlternateName();
 
-                // create edge from source to current task
-                // we need to use the alternate name for this, because it's the name
-                // the parent task knows
-                const parentData = dataMap.get(dataAlt);
-                const lastUsedTask = lastUsed.get(dataAlt);
+                    const parentData = dataMap.get(dataAlt);
+                    const lastUsedTask = lastUsed.get(dataAlt);
 
-                //println(dataAlt + " |" + Array.from(dataMap.keys()) + "| " + parent.getName());
-                if (lastUsedTask != null) {
-                    taskGraph.addCommunication(lastUsedTask, child, parentData, rank);
+                    if (lastUsedTask != null) {
+                        taskGraph.addCommunication(lastUsedTask, child, parentData, rank);
 
-                    // now inside the task itself, we check if the data is written to,
-                    // and if it is, set this task as the last one to use that data    
+                        if (data.isWritten()) {
+                            lastUsed.set(dataAlt, child);
+                        }
+                    }
+                    else {
+                        println("WARNING: " + dataAlt + " not found in " + parent.getName());
+                    }
+
+                }
+                if (data.isFromGlobal()) {
+                    const dataName = data.getName();
+                    const lastUsedTask = this.#lastUsedGlobal.get(dataName);
+                    if (lastUsedTask != null) {
+                        taskGraph.addCommunication(lastUsedTask, child, data, rank);
+                    }
                     if (data.isWritten()) {
-                        lastUsed.set(dataAlt, child);
+                        this.#lastUsedGlobal.set(dataName, child);
                     }
                 }
-                else {
-                    println("WARNING: " + dataAlt + " not found in " + parent.getName());
-                }
-                // finally, we increment the rank. It is very important
                 rank++;
             }
         }

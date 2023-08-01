@@ -25,7 +25,7 @@ class TaskGraphDumper {
 
         const source = taskGraph.getSource();
         const sink = taskGraph.getSink();
-        const globals = taskGraph.getGlobals();
+        const globals = taskGraph.getGlobalTask();
 
         dot += `\t${source.getId()} [label=main_begin, fillcolor=lightgray];\n`;
         dot += `\t${sink.getId()} [label=main_end, fillcolor=lightgray];\n`;

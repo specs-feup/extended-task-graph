@@ -59,7 +59,7 @@ class TaskGraph {
         return this.#sink;
     }
 
-    getGlobals() {
+    getGlobalTask() {
         return this.#globals;
     }
 
