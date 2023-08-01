@@ -55,6 +55,18 @@ class Task {
         return this.#function;
     }
 
+    getName() {
+        if (this.#type == "START") {
+            return "main_begin";
+        }
+        else if (this.#type == "END") {
+            return "main_end";
+        }
+        else {
+            return this.#function.name;
+        }
+    }
+
     getHierarchicalParent() {
         return this.#hierParent;
     }
@@ -203,7 +215,8 @@ class Task {
 
     #findDataFromNewDecls() {
         const newVars = new Set();
-        for (const vardecl of Query.searchFrom(this.#function, "vardecl")) {
+        for (const vardecl of Query.searchFrom(this.#function.body, "vardecl")) {
+            /*
             for (const call of Query.searchFrom(vardecl, "call")) {
                 for (const varref of Query.searchFrom(call, "varref")) {
                     const paramDecl = varref.decl;
@@ -211,7 +224,8 @@ class Task {
                         newVars.add(vardecl);
                     }
                 }
-            }
+            }*/
+            newVars.add(vardecl);
         }
         this.#createDataObjects([...newVars], "NEW");
     }

@@ -7,6 +7,17 @@ laraImport("taskgraph/Communication");
 class TaskGraphDumper {
     constructor() { }
 
+    static hierarchicalColors = [
+        "bisque",
+        "lightpink",
+        "lightgreen",
+        "lightgrey",
+        "violet",
+        "lightskyblue",
+        "yellowgreen",
+        "aquamarine2",
+    ];
+
     dump(taskGraph) {
         let dot = "digraph G {\n";
         dot += "\trankdir=TB;\n";
@@ -16,7 +27,7 @@ class TaskGraphDumper {
         dot += `\t${taskGraph.getSink().getId()} [label=\"main_end\"];\n`;
 
         const topHierTask = taskGraph.getTopHierarchicalTask();
-        dot += this.#getDotOfCluster(topHierTask);
+        dot += this.#getDotOfCluster(topHierTask, 0);
 
         dot += "\n";
         dot += this.#getDotOfCommunications(taskGraph);
@@ -25,33 +36,40 @@ class TaskGraphDumper {
         return dot;
     }
 
-    #getDotOfCluster(task) {
+    #getColor(index) {
+        const len = TaskGraphDumper.hierarchicalColors.length;
+        const color = TaskGraphDumper.hierarchicalColors[index % len];
+        return color;
+    }
+
+    #getDotOfCluster(task, colorIndex = 0) {
         let dot = "";
         if (task.getHierarchicalChildren().length > 0) {
             dot += `\tsubgraph cluster_${task.getId()} {\n`;
             dot += `\tlabel = "${this.#getLabelOfTask(task)}";\n`;
+            dot += `\tbgcolor = ${this.#getColor(colorIndex)};\n`;
 
             dot += `\t${task.getId()}_src [shape=circle, label=""];\n`;
             dot += `\t${task.getId()}_target [shape=circle, label=""];\n`;
             dot += `\t${task.getId()}_src -> ${task.getId()}_target [style=invis];\n`;
 
             for (const child of task.getHierarchicalChildren()) {
-                dot += this.#getDotOfCluster(child);
+                dot += this.#getDotOfCluster(child, colorIndex + 1);
                 dot += `\t${child.getId()} -> ${task.getId()}_target [style=invis];\n`;
             }
             dot += "\t}\n";
         }
         else {
-            dot += `\t${task.getId()} [label="${this.#getLabelOfTask(task)}"];\n`;
+            dot += `\t${task.getId()} [label="${this.#getLabelOfTask(task)}", fillcolor=${this.#getColor(colorIndex + 1)}];\n`;
         }
         return dot;
     }
 
     #getLabelOfTask(task) {
-        let label = `${task.getId()}: ${task.getFunction().name}\n`;
+        let label = `${task.getId()}: ${task.getFunction().name}`;
 
         if (task.getParamData().length > 0) {
-            label += "-------------------\n";
+            label += "\n-------------------\n";
             label += "Param data:\n";
             const refData = [];
             for (const data of task.getParamData()) {
@@ -72,7 +90,7 @@ class TaskGraphDumper {
 
         if (task.getNewData().length > 0) {
             label += "\n-------------------\n";
-            label += "\nNew data: ";
+            label += "New data:\n";
             const newData = [];
             for (const data of task.getNewData()) {
                 newData.push(data.toString());

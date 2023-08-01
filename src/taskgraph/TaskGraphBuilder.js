@@ -15,13 +15,13 @@ class TaskGraphBuilder {
         const taskGraph = new TaskGraph();
 
         const topTask = this.#buildLevel(taskGraph, topFunction, null, null);
-        let rank = 1;
 
+        // main_begin and main_end are special, and outside of the hierarchy
+        let rank = 1;
         for (const data of topTask.getReferencedData()) {
             taskGraph.addCommunication(taskGraph.getSource(), topTask, data, rank);
             rank++;
         }
-
         rank = 1;
         for (const data of topTask.getDataWritten()) {
             taskGraph.addCommunication(topTask, taskGraph.getSink(), data, rank);
@@ -98,6 +98,9 @@ class TaskGraphBuilder {
                 // the parent task knows
                 const parentData = dataMap.get(dataAlt);
                 const lastUsedTask = lastUsed.get(dataAlt);
+
+                //println(dataAlt + " |" + Array.from(dataMap.keys()) + "| " + parent.getName());
+
                 taskGraph.addCommunication(lastUsedTask, child, parentData, rank);
 
                 // now inside the task itself, we check if the data is written to,
