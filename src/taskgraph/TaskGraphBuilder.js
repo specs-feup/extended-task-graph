@@ -51,6 +51,7 @@ class TaskGraphBuilder {
             // Should only happen for inlinable functions (e.g., math.h)
             else {
                 println("Found an inlinable function: " + callee.signature);
+                taskGraph.addInlinable(call)
             }
         }
 

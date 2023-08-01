@@ -43,7 +43,9 @@ class TaskGraphMetricsAggregator {
                 regularCnt++;
             }
         }
+        const nInlinables = this.#taskGraph.getInlinables().length;
+
         this.#metrics["taskTypes"] = taskTypes;
-        this.#metrics["counts"] = { "externalTasks": externalCnt, "regularTasks": regularCnt };
+        this.#metrics["counts"] = { "externalTasks": externalCnt, "regularTasks": regularCnt, "inlinableCalls": nInlinables };
     }
 }

@@ -7,6 +7,7 @@ class TaskGraph {
     #comms = [];
     #source = null;
     #sink = null;
+    #inlinables = [];
 
     constructor() {
         this.#source = new Task(null, "START");
@@ -32,6 +33,10 @@ class TaskGraph {
         source.addOutgoingComm(communication);
         target.addIncomingComm(communication);
         this.#comms.push(communication);
+    }
+
+    addInlinable(call) {
+        this.#inlinables.push(call);
     }
 
     getTasks() {
@@ -67,6 +72,10 @@ class TaskGraph {
 
     getCommunications() {
         return this.#comms;
+    }
+
+    getInlinables() {
+        return this.#inlinables;
     }
 
     getTopHierarchicalTask() {
