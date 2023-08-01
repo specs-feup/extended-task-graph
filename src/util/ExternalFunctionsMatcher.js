@@ -472,6 +472,8 @@ class ExternalFunctionsMatcher {
         "floor": ["float"],
     }
 
+    static cppBuiltins = ["__builtin_memcpy", "operator"];
+
     static isFromMathH(funOrCall) {
         return ExternalFunctionsMatcher.#isFromGeneric(funOrCall, ExternalFunctionsMatcher.mathHFuns);
     }
@@ -484,6 +486,12 @@ class ExternalFunctionsMatcher {
         return ExternalFunctionsMatcher.#isFromGeneric(funOrCall, ExternalFunctionsMatcher.cmathFuns);
     }
 
+    static isCppBuiltin(funOrCall) {
+        const name = funOrCall.name;
+        const builtins = ExternalFunctionsMatcher.cppBuiltins;
+        return builtins.some(builtin => name.startsWith(builtin));
+    }
+
     static isValidExternal(funOrCall) {
         if (ExternalFunctionsMatcher.isFromMathH(funOrCall)) {
             return true;
@@ -494,13 +502,14 @@ class ExternalFunctionsMatcher {
         else if (ExternalFunctionsMatcher.isFromCmath(funOrCall)) {
             return true;
         }
+        else if (ExternalFunctionsMatcher.isCppBuiltin(funOrCall)) {
+            return true;
+        }
         return false;
     }
 
     static #isFromGeneric(funOrCall, funList) {
         const fun = ExternalFunctionsMatcher.#sanitize(funOrCall);
-
-
 
         if (funList.hasOwnProperty(fun.name)) {
             const funParams = fun.params;

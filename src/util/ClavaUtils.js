@@ -91,6 +91,9 @@ class ClavaUtils {
     }
 
     static functionHasImplementation(fun) {
+        if (fun.name.startsWith("operator")) {
+            return false;
+        }
         return fun.hasDefinition && fun.isImplementation && fun.body.children.length > 0;
     }
 

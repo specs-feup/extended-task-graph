@@ -208,6 +208,10 @@ class Task {
     #setReadWrites(data) {
         const body = this.#function.body;
 
+        if (body == null) {
+            return;
+        }
+
         if (body.children.length == 0) {
             data.setRead();
             return;
