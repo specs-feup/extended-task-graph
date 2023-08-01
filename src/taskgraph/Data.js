@@ -7,6 +7,7 @@ class Data {
     #isScalar = false;
     #sizeInBytes = 0;
     #origin = "UNKNOWN"
+    #alternateName = "none";
 
     constructor(decl, origin) {
         this.#decl = decl;
@@ -19,6 +20,14 @@ class Data {
 
     getDecl() {
         return this.#decl;
+    }
+
+    getAlternateName() {
+        return this.#alternateName;
+    }
+
+    setAlternateName(name) {
+        this.#alternateName = name;
     }
 
     setWritten() {

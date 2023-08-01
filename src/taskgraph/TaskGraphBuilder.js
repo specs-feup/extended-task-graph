@@ -33,8 +33,10 @@ class TaskGraphBuilder {
 
     #buildLevel(taskGraph, fun, parent, call) {
         const task = new Task(fun, parent, "REGULAR");
+        // if task was called by another, add the argument names
+        // as alternate names for the task param data
         if (call != null) {
-            task.setCall(call);
+            task.updateWithAlternateNames(call);
         }
         taskGraph.addTask(task);
 
@@ -80,21 +82,29 @@ class TaskGraphBuilder {
         }
 
         for (const child of children) {
-            const childArgs = child.getCallArgs();
             const childData = child.getParamData();
 
             // Extremely mindbending code to handle the mismatch between the name
             // of the data when in the caller and in the callee
-            for (let i = 0; i < childArgs.length; i++) {
-                const arg = childArgs[i];
-                const parentData = dataMap.get(arg);
-                const lastUsedTask = lastUsed.get(arg);
-                taskGraph.addCommunication(lastUsedTask, child, parentData, i + 1);
+            let rank = 1;
+            for (const data of childData) {
+                const dataAlt = data.getAlternateName();
 
-                const dataMatchingArg = childData[i];
-                if (dataMatchingArg.isWritten()) {
-                    lastUsed.set(arg, child);
+                // create edge from source to current task
+                // we need to use the alternate name for this, because it's the name
+                // the parent task knows
+                const parentData = dataMap.get(dataAlt);
+                const lastUsedTask = lastUsed.get(dataAlt);
+                taskGraph.addCommunication(lastUsedTask, child, parentData, rank);
+
+                // now inside the task itself, we check if the data is written to,
+                // and if it is, set this task as the last one to use that data    
+                if (data.isWritten()) {
+                    lastUsed.set(dataAlt, child);
                 }
+
+                // finally, we increment the rank. It is very important
+                rank++;
             }
         }
     }

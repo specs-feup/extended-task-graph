@@ -7,7 +7,6 @@ laraImport("taskgraph/Data");
 class Task {
     #id = "TNull";
     #function = null;
-    #call = null;
     #type = null;
     #hierParent = null;
     #hierChildren = new Set();
@@ -44,10 +43,6 @@ class Task {
         }
     }
 
-    setCall(call) {
-        this.#call = call;
-    }
-
     getType() {
         return this.#type;
     }
@@ -58,20 +53,6 @@ class Task {
 
     getFunction() {
         return this.#function;
-    }
-
-    getCall() {
-        return this.#call;
-    }
-
-    getCallArgs() {
-        const args = [];
-        for (let i = 1; i < this.#call.children.length; i++) {
-            const child = this.#call.children[i];
-            const varref = Query.searchFromInclusive(child, "varref").first();
-            args.push(varref.name);
-        }
-        return args;
     }
 
     getHierarchicalParent() {
@@ -163,6 +144,23 @@ class Task {
 
     getIncomingComm() {
         return this.#incomingComm;
+    }
+
+    updateWithAlternateNames(call) {
+        const args = [];
+        for (let i = 1; i < call.children.length; i++) {
+            const child = call.children[i];
+            const varref = Query.searchFromInclusive(child, "varref").first();
+            args.push(varref.name);
+        }
+
+        const dataParams = this.#dataParams;
+        if (dataParams.length != args.length) {
+            throw new Error(`Mismatch between number of arguments and parameters when setting alternate names for Task data`);
+        }
+        for (let i = 0; i < dataParams.length; i++) {
+            dataParams[i].setAlternateName(args[i]);
+        }
     }
 
     #populateData() {
