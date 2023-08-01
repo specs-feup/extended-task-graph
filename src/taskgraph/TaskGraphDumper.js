@@ -33,9 +33,11 @@ class TaskGraphDumper {
 
             dot += `\t${task.getId()}_src [shape=circle, label=""];\n`;
             dot += `\t${task.getId()}_target [shape=circle, label=""];\n`;
+            dot += `\t${task.getId()}_src -> ${task.getId()}_target [style=invis];\n`;
 
             for (const child of task.getHierarchicalChildren()) {
                 dot += this.#getDotOfCluster(child);
+                dot += `\t${child.getId()} -> ${task.getId()}_target [style=invis];\n`;
             }
             dot += "\t}\n";
         }

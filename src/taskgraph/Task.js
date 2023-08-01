@@ -90,12 +90,12 @@ class Task {
         for (const datum of data) {
             if (access === "READ") {
                 if (datum.isWritten()) {
-                    dataAccessed.push(data);
+                    dataAccessed.push(datum);
                 }
             }
             else if (access === "WRITE") {
                 if (datum.isWritten()) {
-                    dataAccessed.push(data);
+                    dataAccessed.push(datum);
                 }
             }
         }
@@ -112,6 +112,14 @@ class Task {
 
     getData() {
         return [...this.#dataParams, ...this.#dataGlobals, ...this.#dataNew];
+    }
+
+    getDataAsMap() {
+        const data = new Map();
+        for (const datum of this.getData()) {
+            data.set(datum.getName(), datum);
+        }
+        return data;
     }
 
     getParamData() {

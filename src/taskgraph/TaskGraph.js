@@ -22,19 +22,6 @@ class TaskGraph {
         this.#tasks.push(task);
     }
 
-    addCommunication(source, target, data) {
-        for (const comm of this.#comms) {
-            if (comm.getSource().getId() === source.getId() && comm.getTarget().getId() === target.getId()) {
-                comm.addData(data);
-                return;
-            }
-        }
-        const communication = new Communication(source, target, data);
-        source.addOutgoingComm(communication);
-        target.addIncomingComm(communication);
-        this.#comms.push(communication);
-    }
-
     addInlinable(call) {
         this.#inlinables.push(call);
     }

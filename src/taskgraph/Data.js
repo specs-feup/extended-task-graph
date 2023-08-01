@@ -26,6 +26,10 @@ class Data {
         return this.#alternateName;
     }
 
+    getSizeInBytes() {
+        return this.#sizeInBytes;
+    }
+
     setAlternateName(name) {
         this.#alternateName = name;
     }

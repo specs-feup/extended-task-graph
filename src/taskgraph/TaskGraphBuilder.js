@@ -67,11 +67,14 @@ class TaskGraphBuilder {
         }
 
         // Add communications
-        this.#addCommunication(taskGraph, task, childTasks);
+        this.#addParentChildrenComm(taskGraph, task, childTasks);
+
+        // update task with R/W data from the children
+        this.#updateTaskWithChildrenData(task, childTasks);
         return task;
     }
 
-    #addCommunication(taskGraph, parent, children) {
+    #addParentChildrenComm(taskGraph, parent, children) {
         const parentData = parent.getData();
         const lastUsed = new Map();
         const dataMap = new Map();
@@ -105,6 +108,20 @@ class TaskGraphBuilder {
 
                 // finally, we increment the rank. It is very important
                 rank++;
+            }
+        }
+    }
+
+    #updateTaskWithChildrenData(task, children) {
+        const dataMap = task.getDataAsMap();
+
+        for (const child of children) {
+            for (const data of child.getParamData()) {
+                const altName = data.getAlternateName();
+
+                if (data.isWritten()) {
+                    dataMap.get(altName).setWritten();
+                }
             }
         }
     }
