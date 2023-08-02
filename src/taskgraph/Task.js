@@ -179,7 +179,8 @@ class Task {
     getOutgoingOfData(datum) {
         const comm = [];
         for (const communication of this.#outgoingComm) {
-            if (communication.getSourceData().getName() == datum.getName()) {
+            if (communication.getSourceData().getName() == datum.getName() ||
+                communication.getSourceData().getAlternateName() == datum.getName()) {
                 comm.push(communication);
             }
         }
