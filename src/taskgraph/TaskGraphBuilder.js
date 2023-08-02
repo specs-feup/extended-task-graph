@@ -91,50 +91,68 @@ class TaskGraphBuilder {
     }
 
     #addParentChildrenComm(taskGraph, parent, children) {
-        const parentData = parent.getData();
-        const lastUsed = new Map();
-        const dataMap = new Map();
-
-        for (const data of parentData) {
-            lastUsed.set(data.getName(), parent);
-            dataMap.set(data.getName(), data);
-        }
 
         for (const child of children) {
             const childData = child.getData();
 
             let rank = 1;
-            for (const data of childData) {
-                if (data.isFromParam()) {
-                    const dataAlt = data.getAlternateName();
-
-                    const parentData = dataMap.get(dataAlt);
-                    const lastUsedTask = lastUsed.get(dataAlt);
-
-                    if (lastUsedTask != null) {
-                        taskGraph.addCommunication(lastUsedTask, child, parentData, rank);
-
-                        if (data.isWritten()) {
-                            lastUsed.set(dataAlt, child);
-                        }
-                    }
-                    else {
-                        println("WARNING: " + dataAlt + " not found in " + parent.getName());
-                    }
+            for (const childDatum of childData) {
+                if (childDatum.isFromParam()) {
+                    this.#buildCommParam(parent, child, childDatum, taskGraph, rank);
 
                 }
-                if (data.isFromGlobal()) {
-                    const dataName = data.getName();
-                    const lastUsedTask = this.#lastUsedGlobal.get(dataName);
-                    if (lastUsedTask != null && lastUsedTask != child) {
-                        taskGraph.addCommunication(lastUsedTask, child, data, rank);
-                    }
-                    if (data.isWritten()) {
-                        this.#lastUsedGlobal.set(dataName, child);
-                    }
+                if (childDatum.isFromGlobal()) {
+                    this.#buildCommGlobal(childDatum, child, taskGraph, rank);
                 }
                 rank++;
             }
+        }
+    }
+
+    #buildCommParam(parent, child, childDatum, taskGraph, rank) {
+        const parentData = parent.getData();
+        const lastUsed = new Map();
+        const dataMap = new Map();
+
+        for (const datum of parentData) {
+            lastUsed.set(datum.getName(), parent);
+            dataMap.set(datum.getName(), datum);
+        }
+
+        const dataAlt = childDatum.getAlternateName();
+
+        const parentDatum = dataMap.get(dataAlt);
+        const lastUsedTask = lastUsed.get(dataAlt);
+
+        if (lastUsedTask != null) {
+            taskGraph.addCommunication(lastUsedTask, child, parentDatum, childDatum, rank);
+
+            if (childDatum.isWritten()) {
+                lastUsed.set(dataAlt, child);
+            }
+        }
+        else {
+            println("WARNING: " + dataAlt + " not found in " + parent.getName());
+        }
+    }
+
+    #buildCommGlobal(childDatum, child, taskGraph, rank) {
+        const dataName = childDatum.getName();
+        const lastUsedTask = this.#lastUsedGlobal.get(dataName);
+
+        let parentDatum = childDatum;
+        for (const datum of lastUsedTask.getData()) {
+            if (datum.getName() == dataName) {
+                parentDatum = datum;
+                break;
+            }
+        }
+
+        if (lastUsedTask != null && lastUsedTask != child) {
+            taskGraph.addCommunication(lastUsedTask, child, parentDatum, childDatum, rank);
+        }
+        if (childDatum.isWritten()) {
+            this.#lastUsedGlobal.set(dataName, child);
         }
     }
 

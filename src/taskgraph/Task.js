@@ -176,6 +176,25 @@ class Task {
         return this.#incomingComm;
     }
 
+    getOutgoingOfData(datum) {
+        const comm = [];
+        for (const communication of this.#outgoingComm) {
+            if (communication.getSourceData().getName() == datum.getName()) {
+                comm.push(communication);
+            }
+        }
+        return comm;
+    }
+
+    getIncomingOfData(datum) {
+        for (const communication of this.#incomingComm) {
+            if (communication.getTargetData().getName() == datum.getName()) {
+                return communication;
+            }
+        }
+        return null;
+    }
+
     updateWithAlternateNames(call) {
         const args = [];
         for (let i = 1; i < call.children.length; i++) {
