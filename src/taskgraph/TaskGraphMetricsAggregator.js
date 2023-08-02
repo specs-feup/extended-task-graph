@@ -107,7 +107,7 @@ class TaskGraphMetricsAggregator {
             const datumProps = {
                 "origin": datum.getOriginType(),
                 "sizeInBytes": datum.getSizeInBytes(),
-                "cxxType": datum.getType(),
+                "cxxType": datum.getDatatype(),
                 "isScalar": datum.isScalar(),
                 "alternateName": datum.getAlternateName(),
                 "stateChanges": {

@@ -36,6 +36,14 @@ def main():
 
     # test_bench_flows("Rosetta-optical-flow-sintel", False, True)
 
+    """
+    TODO:
+    - Refactor Task class into subclasses
+    - Implement loop iterations
+    - Improve R/W and Uninitialized detection
+    - Implement the other metrics
+    """
+
 
 if __name__ == "__main__":
     main()

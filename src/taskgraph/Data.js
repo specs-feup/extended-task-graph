@@ -120,7 +120,7 @@ class Data {
             this.#demangleArray(typeCode);
         }
         else if (type.isPointer) {
-            println("Pointer: " + typeCode);
+            this.#demanglePointer(typeCode);
         }
         else {
             this.#demangleScalar(typeCode);
@@ -134,21 +134,36 @@ class Data {
         this.#isScalar = true;
     }
 
-    #demangleArray(typeCode) {
-        const datatype = typeCode.substring(0, typeCode.indexOf("["));
-        const dimsStr = typeCode.substring(typeCode.indexOf("[") + 1);
-        const dims = dimsStr.match(/\d+/g).map(Number);
+    #demanglePointer(typeCode) {
+        const datatype = typeCode.substring(0, typeCode.indexOf("*"));
         const datatypeSize = ClavaUtils.getDatatypeSize(datatype);
 
-        let size = 0;
-        for (const dim of dims) {
-            size += dim * datatypeSize;
+        const refCount = typeCode.match(/\*/g).length;
+        const dims = Array.from({ length: refCount }, () => -1);
+
+        this.#dims = dims;
+        this.#datatype = datatype;
+        this.#datatypeSize = datatypeSize;
+        this.#isScalar = false;
+    }
+
+    #demangleArray(typeCode) {
+        const datatype = typeCode.substring(0, typeCode.indexOf("["));
+        const datatypeSize = ClavaUtils.getDatatypeSize(datatype);
+
+        const dimsStr = typeCode.substring(typeCode.indexOf("[") + 1);
+        if (!dimsStr.startsWith("]")) {
+            const dims = dimsStr.match(/\d+/g).map(Number);
+            let size = 0;
+            for (const dim of dims) {
+                size += dim * datatypeSize;
+            }
+            this.#dims = dims;
+            this.#sizeInBytes = size;
         }
 
         this.#datatype = datatype;
         this.#datatypeSize = datatypeSize;
-        this.#sizeInBytes = size;
         this.#isScalar = false;
-        this.#dims = dims;
     }
 }

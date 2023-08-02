@@ -152,7 +152,7 @@ class ClavaUtils {
 
         const size = cDataTypes.get(formattedType);
         if (size === undefined) {
-            println("Unknown datatype " + datatype + "; returning 4");
+            //println("Unknown datatype " + datatype + "; returning 4");
             return 4;
         }
         return size;
