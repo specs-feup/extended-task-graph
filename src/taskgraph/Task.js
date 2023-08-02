@@ -188,7 +188,8 @@ class Task {
 
     getIncomingOfData(datum) {
         for (const communication of this.#incomingComm) {
-            if (communication.getTargetData().getName() == datum.getName()) {
+            if (communication.getTargetData().getName() == datum.getName() ||
+                communication.getTargetData().getAlternateName() == datum.getName()) {
                 return communication;
             }
         }

@@ -107,12 +107,13 @@ class Data {
         //println(type.code + ", " + type.kind);
 
         if (type.isArray) {
-
+            println("Array: " + typeCode);
         }
         else if (type.isPointer) {
-
+            println("Pointer: " + typeCode);
         }
         else {
+            println("Scalar: " + typeCode);
             this.#isScalar = true;
             this.#type = typeCode;
             this.#sizeInBytes = 0;

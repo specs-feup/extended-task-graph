@@ -40,7 +40,7 @@ class Communication {
     }
 
     toString() {
-        const str = `${this.#sourceData.getName()} (${this.#rank})\n{${this.#sourceData.getSizeInBytes()}}`;
+        const str = `${this.#sourceData.getName()}/${this.#targetData.getName()} (${this.#rank})\n{${this.#sourceData.getSizeInBytes()}}`;
         return str;
     }
 }

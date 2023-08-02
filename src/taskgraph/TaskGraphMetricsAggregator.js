@@ -93,7 +93,7 @@ class TaskGraphMetricsAggregator {
                 }
                 taskData[datum.getName()] = datumProps;
             }
-            const taskName = task.getId() + "-" + task.getName();
+            const taskName = task.getUniqueName();
             dataPerTask[taskName] = taskData;
         }
         this.#metrics["dataPerTask"] = dataPerTask;
@@ -129,10 +129,12 @@ class TaskGraphMetricsAggregator {
             const commOfTask = {};
 
             for (const datum of task.getData()) {
-                const path = this.#calculateDistanceToOrigin(datum, task);
-                commOfTask[datum.getName()] = { "pathToOrigin": path, "distanceToOrigin": path.length };
+                const pathAndEvo = this.#calculateDistanceToOrigin(datum, task);
+                const path = pathAndEvo[0];
+                const dataEvo = pathAndEvo[1];
+                commOfTask[datum.getName()] = { "pathToOrigin": path, "dataEvolution": dataEvo, "distanceToOrigin": path.length };
             }
-            const taskName = task.getName();
+            const taskName = task.getUniqueName();
             dataSourceDistance[taskName] = commOfTask;
         }
         this.#metrics["dataSourceDistance"] = dataSourceDistance;
@@ -140,25 +142,31 @@ class TaskGraphMetricsAggregator {
 
     #calculateDistanceToOrigin(datum, task) {
         const path = [task.getUniqueName()];
+        const dataEvo = [datum.getName()];
 
         if (task.getType() === "GLOBAL" || task.getType() === "START") {
-            return path;
+            return [path, dataEvo];
         }
         if (datum.isNewlyCreated()) {
-            return path;
+            return [path, dataEvo];
         }
         else {
             const comm = task.getIncomingOfData(datum);
             if (comm == null) {
-                println("ERROR: No incoming communication found for data " + datum.getName() + " of task " + task.getName());
-                return path;
+                println("ERROR: No incoming communication found for data " + datum.getName() + " of task " + task.getUniqueName());
+                return [path, dataEvo];
             }
             else {
                 const srcTask = comm.getSource();
                 const srcDatum = comm.getSourceData();
-                const remainingPath = this.#calculateDistanceToOrigin(srcDatum, srcTask);
+
+                const remaining = this.#calculateDistanceToOrigin(srcDatum, srcTask);
+                const remainingPath = remaining[0];
+                const remainingDataEvo = remaining[1];
+
                 path.push(...remainingPath);
-                return path;
+                dataEvo.push(...remainingDataEvo);
+                return [path, dataEvo];
             }
         }
     }
