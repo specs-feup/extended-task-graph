@@ -6,13 +6,16 @@ class Data {
     #isWritten = false;
     #isRead = false;
     #isScalar = false;
+    #dims = [];
     #sizeInBytes = 0;
+    #type = null;
     #origin = "UNKNOWN"
     #alternateName = "<none>";
 
     constructor(decl, origin) {
         this.#decl = decl;
         this.#origin = origin;
+        this.#demangleDatatype(decl);
     }
 
     getName() {
@@ -24,7 +27,7 @@ class Data {
     }
 
     getType() {
-        return this.#decl.type.code;
+        return this.#type;
     }
 
     getAlternateName() {
@@ -96,5 +99,23 @@ class Data {
     toString() {
         const status = !this.#isInit ? "U" : (this.#isRead ? "R" : "") + (this.#isWritten ? "W" : "");
         return `${this.#decl.name} {${this.#sizeInBytes}} ${status}`;
+    }
+
+    #demangleDatatype(decl) {
+        const type = decl.type;
+        const typeCode = type.code;
+        //println(type.code + ", " + type.kind);
+
+        if (type.isArray) {
+
+        }
+        else if (type.isPointer) {
+
+        }
+        else {
+            this.#isScalar = true;
+            this.#type = typeCode;
+            this.#sizeInBytes = 0;
+        }
     }
 }

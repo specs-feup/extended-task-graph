@@ -91,6 +91,10 @@ class TaskGraphBuilder {
     }
 
     #addParentChildrenComm(taskGraph, parent, children) {
+        const lastUsed = new Map();
+        for (const datum of parent.getData()) {
+            lastUsed.set(datum.getName(), parent);
+        }
 
         for (const child of children) {
             const childData = child.getData();
@@ -98,7 +102,7 @@ class TaskGraphBuilder {
             let rank = 1;
             for (const childDatum of childData) {
                 if (childDatum.isFromParam()) {
-                    this.#buildCommParam(parent, child, childDatum, taskGraph, rank);
+                    this.#buildCommParam(parent, child, childDatum, taskGraph, rank, lastUsed);
 
                 }
                 if (childDatum.isFromGlobal()) {
@@ -109,18 +113,14 @@ class TaskGraphBuilder {
         }
     }
 
-    #buildCommParam(parent, child, childDatum, taskGraph, rank) {
+    #buildCommParam(parent, child, childDatum, taskGraph, rank, lastUsed) {
         const parentData = parent.getData();
-        const lastUsed = new Map();
         const dataMap = new Map();
-
         for (const datum of parentData) {
-            lastUsed.set(datum.getName(), parent);
             dataMap.set(datum.getName(), datum);
         }
 
         const dataAlt = childDatum.getAlternateName();
-
         const parentDatum = dataMap.get(dataAlt);
         const lastUsedTask = lastUsed.get(dataAlt);
 
