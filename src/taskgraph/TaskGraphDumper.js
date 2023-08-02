@@ -10,12 +10,11 @@ class TaskGraphDumper {
     static hierarchicalColors = [
         "bisque",
         "lightpink",
-        "lightgreen",
+        "aquamarine2",
         "lightgrey",
         "violet",
         "lightskyblue",
-        "yellowgreen",
-        "aquamarine2",
+        "yellowgreen"
     ];
 
     dump(taskGraph) {
@@ -55,12 +54,12 @@ class TaskGraphDumper {
             dot += `\tbgcolor = ${this.#getColor(colorIndex)};\n`;
 
             dot += `\t${task.getId()}_src [shape=circle, label=""];\n`;
-            dot += `\t${task.getId()}_target [shape=circle, label=""];\n`;
+            dot += `\t${task.getId()}_target [shape=circle, label="", style=invis];\n`;
             dot += `\t${task.getId()}_src -> ${task.getId()}_target [style=invis];\n`;
 
             for (const child of task.getHierarchicalChildren()) {
                 dot += this.#getDotOfCluster(child, colorIndex + 1);
-                dot += `\t${child.getId()} -> ${task.getId()}_target [style=invis];\n`;
+                //dot += `\t${child.getId()} -> ${task.getId()}_target [style=invis];\n`;
             }
             dot += "\t}\n";
         }

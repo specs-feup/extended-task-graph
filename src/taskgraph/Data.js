@@ -8,7 +8,7 @@ class Data {
     #isScalar = false;
     #sizeInBytes = 0;
     #origin = "UNKNOWN"
-    #alternateName = "none";
+    #alternateName = "<none>";
 
     constructor(decl, origin) {
         this.#decl = decl;
@@ -21,6 +21,10 @@ class Data {
 
     getDecl() {
         return this.#decl;
+    }
+
+    getType() {
+        return this.#decl.type.code;
     }
 
     getAlternateName() {

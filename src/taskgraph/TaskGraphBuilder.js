@@ -126,7 +126,7 @@ class TaskGraphBuilder {
                 if (data.isFromGlobal()) {
                     const dataName = data.getName();
                     const lastUsedTask = this.#lastUsedGlobal.get(dataName);
-                    if (lastUsedTask != null) {
+                    if (lastUsedTask != null && lastUsedTask != child) {
                         taskGraph.addCommunication(lastUsedTask, child, data, rank);
                     }
                     if (data.isWritten()) {

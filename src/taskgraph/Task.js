@@ -65,12 +65,16 @@ class Task {
         return this.#id;
     }
 
-    getFunction() {
-        return this.#function;
-    }
-
     getName() {
         return this.#name;
+    }
+
+    getUniqueName() {
+        return `${this.#id}-${this.#name}`;
+    }
+
+    getFunction() {
+        return this.#function;
     }
 
     getHierarchicalParent() {

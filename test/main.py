@@ -28,11 +28,11 @@ def main():
     # test_bench_flows("HiFlipVX-v2-N", True, True)
 
     ### Rosetta
-    # test_bench_flows("Rosetta-3d-rendering-N", False, True)   # dangling tasks in output
+    test_bench_flows("Rosetta-3d-rendering-N", False, True)
     # test_bench_flows("Rosetta-digit-recognition-N", False, True)
-    # test_bench_flows("Rosetta-face-detection-N", False, True)  # globals
-    test_bench_flows("Rosetta-optical-flow-current", False, True)  # globals
-    # test_bench_flows("Rosetta-spam-filter-N", False, True)  # globals
+    # test_bench_flows("Rosetta-face-detection-N", False, True)
+    # test_bench_flows("Rosetta-optical-flow-current", False, True)
+    # test_bench_flows("Rosetta-spam-filter-N", False, True)
 
     # test_bench_flows("Rosetta-optical-flow-sintel", False, True)
 
