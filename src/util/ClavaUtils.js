@@ -128,4 +128,8 @@ class ClavaUtils {
 
         return false;
     }
+
+    static getDatatypeSize(datatype) {
+        return 4;
+    }
 }

@@ -5,10 +5,13 @@ class Data {
     #isInit = false;
     #isWritten = false;
     #isRead = false;
+
     #isScalar = false;
     #dims = [];
-    #sizeInBytes = 0;
-    #type = null;
+    #sizeInBytes = -1;
+    #datatype = null;
+    #datatypeSize = 4;
+
     #origin = "UNKNOWN"
     #alternateName = "<none>";
 
@@ -26,8 +29,12 @@ class Data {
         return this.#decl;
     }
 
-    getType() {
-        return this.#type;
+    getDatatype() {
+        return this.#datatype;
+    }
+
+    getDimensions() {
+        return this.#dims;
     }
 
     getAlternateName() {
@@ -80,6 +87,10 @@ class Data {
         return this.#origin;
     }
 
+    getDatatypeSize() {
+        return this.#datatypeSize;
+    }
+
     isNewlyCreated() {
         return this.#origin === "NEW";
     }
@@ -104,19 +115,40 @@ class Data {
     #demangleDatatype(decl) {
         const type = decl.type;
         const typeCode = type.code;
-        //println(type.code + ", " + type.kind);
 
         if (type.isArray) {
-            println("Array: " + typeCode);
+            this.#demangleArray(typeCode);
         }
         else if (type.isPointer) {
             println("Pointer: " + typeCode);
         }
         else {
-            println("Scalar: " + typeCode);
-            this.#isScalar = true;
-            this.#type = typeCode;
-            this.#sizeInBytes = 0;
+            this.#demangleScalar(typeCode);
         }
+    }
+
+    #demangleScalar(typeCode) {
+        this.#datatype = typeCode;
+        this.#datatypeSize = ClavaUtils.getDatatypeSize(typeCode);
+        this.#sizeInBytes = this.#datatypeSize;
+        this.#isScalar = true;
+    }
+
+    #demangleArray(typeCode) {
+        const datatype = typeCode.substring(0, typeCode.indexOf("["));
+        const dimsStr = typeCode.substring(typeCode.indexOf("[") + 1);
+        const dims = dimsStr.match(/\d+/g).map(Number);
+        const datatypeSize = ClavaUtils.getDatatypeSize(datatype);
+
+        let size = 0;
+        for (const dim of dims) {
+            size += dim * datatypeSize;
+        }
+
+        this.#datatype = datatype;
+        this.#datatypeSize = datatypeSize;
+        this.#sizeInBytes = size;
+        this.#isScalar = false;
+        this.#dims = dims;
     }
 }
