@@ -130,6 +130,31 @@ class ClavaUtils {
     }
 
     static getDatatypeSize(datatype) {
-        return 4;
+        const cDataTypes = new Map([
+            ['char', 1],
+            ['unsigned char', 1],
+            ['signed char', 1],
+            ['short', 2],
+            ['unsigned short', 2],
+            ['int', 4],
+            ['unsigned int', 4],
+            ['long', 4], // Size may vary on different platforms
+            ['unsigned long', 4], // Size may vary on different platforms
+            ['long long', 8],
+            ['unsigned long long', 8],
+            ['float', 4],
+            ['double', 8],
+            ['long double', 16], // Size may vary on different platforms
+        ]);
+
+        const trimmedType = datatype.trim();
+        const formattedType = trimmedType.replace(/\s+/g, ' ');
+
+        const size = cDataTypes.get(formattedType);
+        if (size === undefined) {
+            println("Unknown datatype " + datatype + "; returning 4");
+            return 4;
+        }
+        return size;
     }
 }
