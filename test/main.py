@@ -38,7 +38,6 @@ def main():
 
     """
     TODO:
-    - Refactor Task class into subclasses
     - Implement loop iterations
     - Improve R/W and Uninitialized detection
     - Implement the other metrics
