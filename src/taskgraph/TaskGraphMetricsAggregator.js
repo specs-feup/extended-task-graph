@@ -138,8 +138,8 @@ class TaskGraphMetricsAggregator {
         this.#metrics["dataSourceDistance"] = dataSourceDistance;
     }
 
-    #calculateDistanceToOrigin(datum, task, path = []) {
-        path.push(task.getUniqueName());
+    #calculateDistanceToOrigin(datum, task) {
+        const path = [task.getUniqueName()];
 
         if (task.getType() === "GLOBAL" || task.getType() === "START") {
             return path;
@@ -147,8 +147,19 @@ class TaskGraphMetricsAggregator {
         if (datum.isNewlyCreated()) {
             return path;
         }
-        return path;
-
-
+        else {
+            const comm = task.getIncomingOfData(datum);
+            if (comm == null) {
+                println("ERROR: No incoming communication found for data " + datum.getName() + " of task " + task.getName());
+                return path;
+            }
+            else {
+                const srcTask = comm.getSource();
+                const srcDatum = comm.getSourceData();
+                const remainingPath = this.#calculateDistanceToOrigin(srcDatum, srcTask);
+                path.push(...remainingPath);
+                return path;
+            }
+        }
     }
 }
