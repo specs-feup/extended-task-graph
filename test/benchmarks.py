@@ -4,6 +4,10 @@ apps = {
         "c++11",
         {"clock": 10, "starterFunction": "edge_detect"},
     ),
+    "stresstest": (
+        "c++11",
+        {"clock": 10, "starterFunction": "app_start"},
+    ),
     "scenarioA": ("c11", {"clock": 10, "starterFunction": "main"}),
     "scenarioB": (
         "c11",
