@@ -12,8 +12,8 @@ class OutlineRegionFinder extends UPTStage {
         super("CTFlow-Preprocessor-AppOutliner", topFunction);
     }
 
-    annotate() {
-        this.log("Beginning the annotation of outlining regions");
+    annotateGenericPass() {
+        this.log("Beginning the annotation of generic outlining regions");
 
         const funs = ClavaUtils.getAllUniqueFunctions(this.getTopFunction());
         const regions = [];
@@ -42,7 +42,35 @@ class OutlineRegionFinder extends UPTStage {
             wrappedRegions.push(wrappedRegion);
         }
 
-        this.log("Finished annotating outlining regions")
+        this.log("Finished annotating generic outlining regions")
+        return wrappedRegions;
+    }
+
+    annotateLoopPass() {
+        this.log("Beginning the annotation of loop outlining regions");
+
+        const funs = ClavaUtils.getAllUniqueFunctions(this.getTopFunction());
+        const wrappedRegions = [];
+
+        for (const fun of funs) {
+            for (const loop of Query.searchFrom(fun, "loop")) {
+                const body = loop.body;
+                const calls = [];
+
+                for (const stmt of body.children) {
+                    if (stmt.instanceOf("exprStmt") && stmt.children[0].instanceOf("call")) {
+                        calls.push(stmt);
+                    }
+                }
+
+                if (calls.length > 1) {
+                    const region = this.#wrapRegion(body.children);
+                    wrappedRegions.push(region);
+                }
+            }
+        }
+
+        this.log("Finished annotating loop outlining regions");
         return wrappedRegions;
     }
 

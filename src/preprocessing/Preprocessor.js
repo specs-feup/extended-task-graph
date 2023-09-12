@@ -17,7 +17,8 @@ class Preprocessor extends UPTStage {
         this.reduceToSubset();
         this.sanitizeCodePostSubset();
         this.generateSubsetCode();
-        this.outlineRegions();
+        this.outlineGenericRegions();
+        this.outlineLoopRegions();
         this.insertTimer();
     }
 
@@ -45,9 +46,9 @@ class Preprocessor extends UPTStage {
         this.log("Intermediate subset-reduced source code written to \"src_inter_subset\"");
     }
 
-    outlineRegions() {
-        const annot = new OutlineRegionFinder(this.getTopFunction());
-        const regions = annot.annotate();
+    outlineGenericRegions() {
+        const annotator = new OutlineRegionFinder(this.getTopFunction());
+        const regions = annotator.annotateGenericPass();
 
         let outCount = 0;
         for (const region of regions) {
@@ -60,8 +61,36 @@ class Preprocessor extends UPTStage {
             region[region.length - 1].detach();
             outCount++;
         }
-        this.log("Outlined " + outCount + " regions");
-        this.log("Finished outlining regions");
+        this.log("Outlined " + outCount + " generic regions");
+        this.log("Finished outlining generic regions");
+    }
+
+    outlineLoopRegions() {
+        const outliner = new Outliner();
+        outliner.setVerbosity(false);
+        outliner.setDefaultPrefix("outlined_loop_fun_");
+
+        const annotator = new OutlineRegionFinder(this.getTopFunction());
+        let hasOutlined = true;
+        let nPasses = 0;
+        let outCount = 0;
+
+        do {
+            const regions = annotator.annotateLoopPass();
+            hasOutlined = regions.length > 0;
+
+            for (const region of regions) {
+                outliner.outline(region[0], region[region.length - 1]);
+                region[0].detach();
+                region[region.length - 1].detach();
+                outCount++;
+            }
+
+            nPasses++;
+        } while (hasOutlined);
+
+        this.log("Outlined " + outCount + " loop regions in " + nPasses + " passes");
+        this.log("Finished outlining loop regions");
     }
 
     insertTimer() {
