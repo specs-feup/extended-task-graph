@@ -130,6 +130,22 @@ def test_flow(appName, isBenchmark, flow):
     dashes = "-" * 34
     print(dashes + " (code = " + str(res) + ") " + dashes)
 
+    if flow == "holistic":
+        output_path = OUTPUT_DIR + appName
+        dot1 = f"{output_path}/taskgraph/{appName}_taskgraph.dot"
+        dot2 = f"{output_path}/taskgraph/{appName}_taskgraph_min.dot"
+        generate_image_from_dot(dot1)
+        generate_image_from_dot(dot2)
+
+
+def generate_image_from_dot(dot):
+    if not os.path.exists(dot):
+        return
+
+    png = dot.replace(".dot", ".png")
+    cmd = f"dot -Tpng {dot} -o {png} -Gmemory=2GB"
+    os.system(cmd)
+
 
 def test_bench_flows(appName, flowCode, flowHolistic):
     test_flows(appName, True, flowCode, flowHolistic)

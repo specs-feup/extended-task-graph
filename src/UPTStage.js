@@ -59,6 +59,8 @@ class UPTStage {
     }
 
     saveToFile(str, filename) {
-        Io.writeFile(this.#outputDir + "/" + this.#appName + "_" + filename, str);
+        const fullName = this.#outputDir + "/" + this.#appName + "_" + filename;
+        Io.writeFile(fullName, str);
+        return fullName;
     }
 }

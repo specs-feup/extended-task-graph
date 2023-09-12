@@ -17,7 +17,7 @@ class TaskGraphDumper {
         "yellowgreen"
     ];
 
-    dump(taskGraph) {
+    dump(taskGraph, isMinimal = false) {
         let dot = "digraph G {\n";
         dot += "\trankdir=TB;\n";
         dot += "\tnode [shape=box];\n";
@@ -28,10 +28,10 @@ class TaskGraphDumper {
 
         dot += `\t${source.getId()} [label=main_begin, fillcolor=lightgray];\n`;
         dot += `\t${sink.getId()} [label=main_end, fillcolor=lightgray];\n`;
-        dot += `\t${globals.getId()} [label="${this.#getLabelOfTask(globals)}", fillcolor=lightgray];\n`;
+        dot += `\t${globals.getId()} [label="${this.#getLabelOfTask(globals, isMinimal)}", fillcolor=lightgray];\n`;
 
         const topHierTask = taskGraph.getTopHierarchicalTask();
-        dot += this.#getDotOfCluster(topHierTask, 0);
+        dot += this.#getDotOfCluster(topHierTask, isMinimal);
 
         dot += "\n";
         dot += this.#getDotOfCommunications(taskGraph);
@@ -40,17 +40,21 @@ class TaskGraphDumper {
         return dot;
     }
 
+    dumpMinimal(taskGraph) {
+        return this.dump(taskGraph, true);
+    }
+
     #getColor(index) {
         const len = TaskGraphDumper.hierarchicalColors.length;
         const color = TaskGraphDumper.hierarchicalColors[index % len];
         return color;
     }
 
-    #getDotOfCluster(task, colorIndex = 0) {
+    #getDotOfCluster(task, isMinimal = false, colorIndex = 0) {
         let dot = "";
         if (task.getHierarchicalChildren().length > 0) {
             dot += `\tsubgraph cluster_${task.getId()} {\n`;
-            dot += `\tlabel = "${this.#getLabelOfTask(task)}";\n`;
+            dot += `\tlabel = "${this.#getLabelOfTask(task, isMinimal)}";\n`;
             dot += `\tbgcolor = ${this.#getColor(colorIndex)};\n`;
 
             dot += `\t${task.getId()}_src [shape=circle, label=""];\n`;
@@ -58,19 +62,23 @@ class TaskGraphDumper {
             dot += `\t${task.getId()}_src -> ${task.getId()}_target [style=invis];\n`;
 
             for (const child of task.getHierarchicalChildren()) {
-                dot += this.#getDotOfCluster(child, colorIndex + 1);
+                dot += this.#getDotOfCluster(child, isMinimal, colorIndex + 1);
                 //dot += `\t${child.getId()} -> ${task.getId()}_target [style=invis];\n`;
             }
             dot += "\t}\n";
         }
         else {
-            dot += `\t${task.getId()} [label="${this.#getLabelOfTask(task)}", fillcolor=${this.#getColor(colorIndex + 1)}];\n`;
+            dot += `\t${task.getId()} [label="${this.#getLabelOfTask(task, isMinimal)}", fillcolor=${this.#getColor(colorIndex + 1)}];\n`;
         }
         return dot;
     }
 
-    #getLabelOfTask(task) {
+    #getLabelOfTask(task, isMminimal = false) {
         let label = `${task.getId()}: ${task.getName()}`;
+
+        if (isMminimal) {
+            return label;
+        }
 
         if (task.getParamData().length > 0) {
             label += "\n-------------------\n";

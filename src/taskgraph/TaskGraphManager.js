@@ -21,9 +21,13 @@ class TaskGraphManager extends UPTStage {
 
     dumpTaskGraph(taskGraph) {
         const dumper = new TaskGraphDumper();
-        const dot = dumper.dump(taskGraph);
-        this.saveToFile(dot, "taskgraph.dot");
-        this.log("Dumped task graph to file taskgraph.dot");
+        const dotVerbose = dumper.dump(taskGraph);
+        const dotMinimal = dumper.dumpMinimal(taskGraph);
+
+        const fname1 = this.saveToFile(dotVerbose, "taskgraph.dot");
+        const fname2 = this.saveToFile(dotMinimal, "taskgraph_min.dot");
+
+        this.log(`Dumped task graph to files "${fname1}" and "${fname2}"`);
     }
 
     saveMetrics(taskGraph) {
@@ -31,7 +35,7 @@ class TaskGraphManager extends UPTStage {
         agg.updateMetrics();
         const jsonMetrics = agg.getMetricsAsJson();
 
-        this.saveToFile(jsonMetrics, "metrics.json");
-        this.log("Saved metrics to file metrics.json");
+        const fname = this.saveToFile(jsonMetrics, "metrics.json");
+        this.log(`Saved metrics to file "${fname}"`);
     }
 }
