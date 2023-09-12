@@ -54,23 +54,42 @@ class OutlineRegionFinder extends UPTStage {
 
         for (const fun of funs) {
             for (const loop of Query.searchFrom(fun, "loop")) {
-                const body = loop.body;
-                const calls = [];
+                wrappedRegions.push(...this.#handleLoopRegion(loop));
+            }
+        }
+        this.log("Finished annotating loop outlining regions");
+        return wrappedRegions;
+    }
 
-                for (const stmt of body.children) {
-                    if (stmt.instanceOf("exprStmt") && stmt.children[0].instanceOf("call")) {
-                        calls.push(stmt);
-                    }
-                }
+    #handleLoopRegion(loop) {
+        const body = loop.body;
+        const calls = [];
+        const childLoops = [];
+        const wrappedRegions = [];
 
-                if (calls.length > 1) {
-                    const region = this.#wrapRegion(body.children);
-                    wrappedRegions.push(region);
+        for (const stmt of body.children) {
+            if (stmt.instanceOf("loop")) {
+                childLoops.push(stmt);
+            }
+            if (stmt.instanceOf("exprStmt") && stmt.children[0].instanceOf("call")) {
+                const call = stmt.children[0];
+                if (this.#hasFunctionCalls(call)) {
+                    calls.push(call);
                 }
             }
         }
 
-        this.log("Finished annotating loop outlining regions");
+        for (const childLoop of childLoops) {
+            const regions = this.#handleLoopRegion(childLoop);
+            wrappedRegions.push(...regions);
+        }
+
+        if (calls.length > 1 || (calls.length <= 1 && childLoops.length > 0)) {
+            const start = body.children[0];
+            const end = body.children[body.children.length - 1];
+            const wrappedRegion = this.#wrapRegion([start, end]);
+            wrappedRegions.push(wrappedRegion);
+        }
         return wrappedRegions;
     }
 

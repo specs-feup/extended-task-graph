@@ -69,6 +69,27 @@ void app_start(int A[N], int B[M], int C[N])
     }
     useAB_defineC(A, B, C);
 
+    // Case L4: loop nesting, but worse
+    for (int i = 0; i < N; i++)
+    {
+        useA_defineB(A, B);
+        // L1 repeated
+        for (int j = 0; j < M; j++)
+        {
+            useB_defineA(A, B);
+            useA_defineB(A, B);
+            useAB_defineC(A, B, C);
+            for (int k = 0; k < N; k++)
+            {
+                useB_defineA(A, B);
+                useA_defineB(A, B);
+            }
+            useAB_defineC(A, B, C);
+        }
+        useA_defineB(A, B);
+    }
+    useAB_defineC(A, B, C);
+
     // Case C1: single conditional
     if (A[0] == 1)
     {
