@@ -76,6 +76,14 @@ class TaskGraphDumper {
     #getLabelOfTask(task, isMminimal = false) {
         let label = `${task.getId()}: ${task.getName()}`;
 
+        const reps = task.getRepetitions();
+        if (reps > 1) {
+            label += ` (x${reps})`;
+        }
+        if (reps == -1) {
+            label += ` (x*)`;
+        }
+
         if (isMminimal) {
             return label;
         }

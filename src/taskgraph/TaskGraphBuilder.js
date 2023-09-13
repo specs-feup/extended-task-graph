@@ -1,6 +1,7 @@
 "use strict";
 
 laraImport("weaver.Query");
+laraImport("clava.code.TripCountCalculator");
 laraImport("UPTStage");
 laraImport("taskgraph/TaskGraph");
 laraImport("taskgraph/Task");
@@ -52,7 +53,9 @@ class TaskGraphBuilder {
         // if task was called by another, add the argument names
         // as alternate names for the task param data
         if (call != null) {
+            task.setCall(call);
             task.updateWithAlternateNames(call);
+            this.#updateWithRepetitions(task, call);
         }
         taskGraph.addTask(task);
 
@@ -71,6 +74,7 @@ class TaskGraphBuilder {
             else if (!ExternalFunctionsMatcher.isValidExternal(callee)) {
                 const externalTask = new Task(callee, task, "EXTERNAL");
                 externalTask.setCall(call);
+                this.#updateWithRepetitions(task, call);
                 taskGraph.addTask(externalTask);
                 task.addHierarchicalChild(externalTask);
                 childTasks.push(externalTask);
@@ -88,6 +92,17 @@ class TaskGraphBuilder {
         // update task with R/W data from the children
         this.#updateTaskWithChildrenData(task, childTasks);
         return task;
+    }
+
+    #updateWithRepetitions(task, call) {
+        const body = call.parent.parent;
+        if (body.parent.instanceOf("loop")) {
+            const loop = body.parent;
+            const count = TripCountCalculator.calculate(loop);
+
+            task.setRepetitions(count);
+            task.getLoopReference(loop);
+        }
     }
 
     #addParentChildrenComm(taskGraph, parent, children) {

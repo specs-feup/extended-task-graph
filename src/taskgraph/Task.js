@@ -5,15 +5,23 @@ laraImport("weaver.Query");
 laraImport("taskgraph/Data");
 
 class Task {
+    // Basic task details
     #id = "TNull";
     #function = null;
+    #call = null;
     #name = "<anonymous>"
     #type = null;
+    // Repetition properties
+    #repetitions = 1;
+    #loopRef = null;
+    // Hierarchical properties
     #hierParent = null;
     #hierChildren = new Set();
+    // Data properties
     #dataParams = [];
     #dataGlobals = [];
     #dataNew = [];
+    // Data communication properties
     #incomingComm = [];
     #outgoingComm = [];
 
@@ -75,6 +83,27 @@ class Task {
 
     getFunction() {
         return this.#function;
+    }
+
+    getCall() {
+        return this.#call;
+    }
+
+    setCall(call) {
+        this.#call = call;
+    }
+
+    setRepetitions(reps, loopRef) {
+        this.#repetitions = reps;
+        this.#loopRef = loopRef;
+    }
+
+    getRepetitions() {
+        return this.#repetitions;
+    }
+
+    getLoopReference() {
+        return this.#loopRef;
     }
 
     getHierarchicalParent() {

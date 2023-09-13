@@ -5,6 +5,8 @@
 
 using namespace std;
 
+void externalMcExternalface(int A[N], int B[M]);
+
 void useB_defineA(int A[N], int B[M])
 {
     for (int i = 0; i < N; i++)
