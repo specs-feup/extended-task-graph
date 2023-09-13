@@ -39,7 +39,6 @@ def main():
 
     """
     TODO:
-    - Implement loop iterations
     - Improve R/W and Uninitialized detection
     - Implement the other metrics
     """
