@@ -1,5 +1,6 @@
 "use strict";
 
+laraImport("lara.util.IdGenerator");
 laraImport("clava.ClavaJoinPoints");
 laraImport("clava.code.Outliner");
 laraImport("weaver.Query");
@@ -62,34 +63,37 @@ class OutlineRegionFinder extends UPTStage {
     }
 
     #handleLoopRegion(loop) {
-        const body = loop.body;
-        const calls = [];
-        const childLoops = [];
         const wrappedRegions = [];
+        const scope = loop.body;
 
-        for (const stmt of body.children) {
+        const callsInScope = [];
+        const loopsInScope = [];
+
+        for (const stmt of scope.children) {
             if (stmt.instanceOf("loop")) {
-                childLoops.push(stmt);
+                loopsInScope.push(stmt);
             }
             if (stmt.instanceOf("exprStmt") && stmt.children[0].instanceOf("call")) {
                 const call = stmt.children[0];
                 if (this.#hasFunctionCalls(call)) {
-                    calls.push(call);
+                    callsInScope.push(call);
                 }
             }
         }
 
-        for (const childLoop of childLoops) {
+        for (const childLoop of loopsInScope) {
             const regions = this.#handleLoopRegion(childLoop);
             wrappedRegions.push(...regions);
         }
 
-        if (calls.length > 1 || (calls.length <= 1 && childLoops.length > 0)) {
-            const start = body.children[0];
-            const end = body.children[body.children.length - 1];
-            const wrappedRegion = this.#wrapRegion([start, end]);
+        if (callsInScope <= 1) {
+            return wrappedRegions;
+        }
+        else {
+            const wrappedRegion = this.#wrapRegion(scope);
             wrappedRegions.push(wrappedRegion);
         }
+
         return wrappedRegions;
     }
 
@@ -202,8 +206,9 @@ class OutlineRegionFinder extends UPTStage {
         const start = region[0];
         const end = region[region.length - 1];
 
-        const beginWrapper = ClavaJoinPoints.stmtLiteral("#pragma clava_outline_begin\n");
-        const endWrapper = ClavaJoinPoints.stmtLiteral("#pragma clava_outline_end\n");
+        const id = IdGenerator.next("OL");
+        const beginWrapper = ClavaJoinPoints.stmtLiteral(`#pragma clava_outline_begin ${id}\n`);
+        const endWrapper = ClavaJoinPoints.stmtLiteral(`#pragma clava_outline_end ${id}\n`);
 
         start.insertBefore(beginWrapper);
         end.insertAfter(endWrapper);

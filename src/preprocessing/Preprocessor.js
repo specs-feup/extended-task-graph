@@ -17,8 +17,7 @@ class Preprocessor extends UPTStage {
         this.reduceToSubset();
         this.sanitizeCodePostSubset();
         this.generateSubsetCode();
-        this.outlineGenericRegions();
-        this.outlineLoopRegions();
+        this.outlineAll();
         this.insertTimer();
     }
 
@@ -46,51 +45,41 @@ class Preprocessor extends UPTStage {
         this.log("Intermediate subset-reduced source code written to \"src_inter_subset\"");
     }
 
-    outlineGenericRegions() {
+    outlineAll() {
         const annotator = new OutlineRegionFinder(this.getTopFunction());
-        const regions = annotator.annotateGenericPass();
+
+        const genericRegions = annotator.annotateGenericPass();
+        const loopRegions = annotator.annotateLoopPass();
+
+        const genCnt = this.#applyOutlining(genericRegions, "outlined_fun_");
+        this.log(`Outlined ${genCnt} generic regions`);
+
+        const loopCnt = this.#applyOutlining(loopRegions, "outlined_loop_fun_");
+        this.log(`Outlined ${loopCnt} loop regions`);
+
+        this.log("Finished outlining regions");
+    }
+
+    #applyOutlining(regions, prefix) {
+        const outliner = new Outliner();
+        outliner.setVerbosity(false);
+        outliner.setDefaultPrefix(prefix);
 
         let outCount = 0;
         for (const region of regions) {
-            const outliner = new Outliner();
-            outliner.setVerbosity(false);
-            outliner.setDefaultPrefix("outlined_fun_");
             outliner.outline(region[0], region[region.length - 1]);
+
+            // for debug purposes
+            const pragmaStart = region[0].code.replace(/\n/g, '');
+            const pragmaEnd = region[region.length - 1].code.replace(/\n/g, '');
+            println(`${pragmaStart} --- ${pragmaEnd}`);
+            // end debug
 
             region[0].detach();
             region[region.length - 1].detach();
             outCount++;
         }
-        this.log("Outlined " + outCount + " generic regions");
-        this.log("Finished outlining generic regions");
-    }
-
-    outlineLoopRegions() {
-        const outliner = new Outliner();
-        outliner.setVerbosity(false);
-        outliner.setDefaultPrefix("outlined_loop_fun_");
-
-        const annotator = new OutlineRegionFinder(this.getTopFunction());
-        let hasOutlined = true;
-        let nPasses = 0;
-        let outCount = 0;
-
-        do {
-            const regions = annotator.annotateLoopPass();
-            hasOutlined = regions.length > 0;
-
-            for (const region of regions) {
-                outliner.outline(region[0], region[region.length - 1]);
-                region[0].detach();
-                region[region.length - 1].detach();
-                outCount++;
-            }
-
-            nPasses++;
-        } while (hasOutlined);
-
-        this.log("Outlined " + outCount + " loop regions in " + nPasses + " passes");
-        this.log("Finished outlining loop regions");
+        return outCount;
     }
 
     insertTimer() {
