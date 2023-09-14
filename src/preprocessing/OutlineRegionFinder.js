@@ -51,19 +51,19 @@ class OutlineRegionFinder extends UPTStage {
         this.log("Beginning the annotation of loop outlining regions");
 
         const funs = ClavaUtils.getAllUniqueFunctions(this.getTopFunction());
-        const wrappedRegions = [];
+        let outlinedCount = 0;
 
         for (const fun of funs) {
             for (const loop of Query.searchFrom(fun, "loop")) {
-                wrappedRegions.push(...this.#handleLoopRegion(loop));
+                outlinedCount += this.#handleLoopRegion(loop);
             }
         }
         this.log("Finished annotating loop outlining regions");
-        return wrappedRegions;
+        return outlinedCount;
     }
 
     #handleLoopRegion(loop) {
-        const wrappedRegions = [];
+        let outlinedCount = 0;
         const scope = loop.body;
 
         const callsInScope = [];
@@ -82,19 +82,35 @@ class OutlineRegionFinder extends UPTStage {
         }
 
         for (const childLoop of loopsInScope) {
-            const regions = this.#handleLoopRegion(childLoop);
-            wrappedRegions.push(...regions);
+            outlinedCount += this.#handleLoopRegion(childLoop);
         }
 
-        if (callsInScope <= 1) {
-            return wrappedRegions;
+        const cond1 = callsInScope.length == 0 && loopsInScope.length == 0;
+        const cond2 = callsInScope.length == 1 && loopsInScope.length == 0;
+        const cond3 = callsInScope.length == 0 && loopsInScope.length == 1;
+
+        if (cond1 || cond2 || cond3) {
+            return outlinedCount;
         }
         else {
-            const wrappedRegion = this.#wrapRegion(scope);
-            wrappedRegions.push(wrappedRegion);
-        }
+            const wrappedRegion = this.#wrapRegion(scope.children);
+            this.#outlineRegion(wrappedRegion, "outlined_loop_");
 
-        return wrappedRegions;
+            return outlinedCount + 1;
+        }
+    }
+
+    #outlineRegion(wrappedRegion, prefix) {
+        const start = wrappedRegion[0];
+        const end = wrappedRegion[wrappedRegion.length - 1];
+
+        const outliner = new Outliner();
+        outliner.setVerbosity(false);
+        const fname = prefix + IdGenerator.next();
+
+        outliner.outlineWithName(start, end, fname);
+        start.detach();
+        end.detach();
     }
 
     #validateRegion(region) {
@@ -205,6 +221,24 @@ class OutlineRegionFinder extends UPTStage {
     #wrapRegion(region) {
         const start = region[0];
         const end = region[region.length - 1];
+
+        // ensure that wrapping outline regions is idempotent, that is,
+        // if a region is already wrapped, we don't wrap it again
+        // this compensates for a bug in the loop outlining algorithm
+        // where the same region was getting outlined multiple times,
+        // with as many outlinings as the depth of its scope in a loop nest
+        // that's an interesting pattern to look into, but for now we just
+        // make sure that we don't outline the same region multiple times
+        if (start.instanceOf("wrapperStmt") && end.instanceOf("wrapperStmt")) {
+            const pragmaStart = start.children[0].code;
+            const pragmaEnd = end.children[0].code;
+            const idStart = pragmaStart.match(/#pragma clava_outline_begin (.*)/)[1];
+            const idEnd = pragmaEnd.match(/#pragma clava_outline_end (.*)/)[1];
+
+            if (idStart == idEnd) {
+                return region;
+            }
+        }
 
         const id = IdGenerator.next("OL");
         const beginWrapper = ClavaJoinPoints.stmtLiteral(`#pragma clava_outline_begin ${id}\n`);

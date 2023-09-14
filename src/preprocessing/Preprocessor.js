@@ -49,12 +49,13 @@ class Preprocessor extends UPTStage {
         const annotator = new OutlineRegionFinder(this.getTopFunction());
 
         const genericRegions = annotator.annotateGenericPass();
-        const loopRegions = annotator.annotateLoopPass();
-
         const genCnt = this.#applyOutlining(genericRegions, "outlined_fun_");
         this.log(`Outlined ${genCnt} generic regions`);
 
-        const loopCnt = this.#applyOutlining(loopRegions, "outlined_loop_fun_");
+
+        // annotator also does the outlining
+        // probably need to change the generic annotator to do the same
+        const loopCnt = annotator.annotateLoopPass();
         this.log(`Outlined ${loopCnt} loop regions`);
 
         this.log("Finished outlining regions");
@@ -67,16 +68,13 @@ class Preprocessor extends UPTStage {
 
         let outCount = 0;
         for (const region of regions) {
-            outliner.outline(region[0], region[region.length - 1]);
+            const start = region[0];
+            const end = region[region.length - 1];
 
-            // for debug purposes
-            const pragmaStart = region[0].code.replace(/\n/g, '');
-            const pragmaEnd = region[region.length - 1].code.replace(/\n/g, '');
-            println(`${pragmaStart} --- ${pragmaEnd}`);
-            // end debug
+            outliner.outline(start, end);
 
-            region[0].detach();
-            region[region.length - 1].detach();
+            start.detach();
+            end.detach();
             outCount++;
         }
         return outCount;
