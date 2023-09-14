@@ -126,12 +126,26 @@ def test_flow(appName, isBenchmark, flow):
         generate_image_from_dot(dot2)
 
 
+def lengthy_exec(message):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            print(f"Tester: {message}", end="", flush=True)
+            func(*args, **kwargs)
+            print(" [DONE]")
+
+        return wrapper
+
+    return decorator
+
+
+@lengthy_exec("generating image from dot file")
 def generate_image_from_dot(dot):
     if not os.path.exists(dot):
         return
 
     png = dot.replace(".dot", ".png")
     cmd = f"dot -Tpng {dot} -o {png} -Gmemory=2GB"
+
     os.system(cmd)
 
 
