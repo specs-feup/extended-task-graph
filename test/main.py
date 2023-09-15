@@ -6,7 +6,7 @@ def main():
     os.chdir("src")
 
     # test_app_flows("edgedetect", True, True)
-    test_app_flows("stresstest", False, True)
+    test_app_flows("stresstest", True, True)
     # test_app_flows("scenarioA", True, True)
     # test_app_flows("scenarioB", True, True)
 

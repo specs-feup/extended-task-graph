@@ -254,16 +254,17 @@ class Task {
             const child = call.children[i];
 
             // Two types of parameter: varrefs and literals (int/float)
-            const varref = Query.searchFromInclusive(child, "varref").first();
+            // we use .get()[0] because .first() emits an annoying warning when it doesn't find anything
+            const varref = Query.searchFromInclusive(child, "varref").get()[0];
             if (varref != null) {
                 args.push(varref.name);
             }
-            const intLit = Query.searchFromInclusive(child, "intLiteral").first(); {
+            const intLit = Query.searchFromInclusive(child, "intLiteral").get()[0]; {
                 if (intLit != null) {
                     args.push(String(intLit.value));
                 }
             }
-            const floatLit = Query.searchFromInclusive(child, "floatLiteral").first(); {
+            const floatLit = Query.searchFromInclusive(child, "floatLiteral").get()[0]; {
                 if (floatLit != null) {
                     args.push(String(floatLit.value));
                 }

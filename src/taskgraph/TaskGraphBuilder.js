@@ -191,13 +191,18 @@ class TaskGraphBuilder {
 
             if (childDatum.isWritten()) {
                 if (child.getIncomingControl().length > 0) {
-                    // possibly dangerous to check with the first task only
-                    // I don't know if we can even have more than 2 last used tasks
-                    if (lastUsedTasks[0].getIncomingControl().length > 0) {
-                        lastUsed.set(dataAlt, [child, lastUsedTasks[0]]);
+                    if (lastUsedTasks.length == 1) {
+                        lastUsed.set(dataAlt, [lastUsedTasks[0], child]);
                     }
                     else {
-                        lastUsed.set(dataAlt, [child]);
+                        const newLastUsed = [];
+                        for (const lastUsed of lastUsedTasks) {
+                            if (lastUsed.getIncomingControl().length > 0) {
+                                newLastUsed.push(lastUsed);
+                            }
+                        }
+                        newLastUsed.push(child);
+                        lastUsed.set(dataAlt, newLastUsed);
                     }
                 }
                 else {

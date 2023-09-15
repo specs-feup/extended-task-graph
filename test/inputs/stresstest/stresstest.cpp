@@ -120,9 +120,11 @@ void app_start(int A[N], int B[M], int C[N])
     }
     useAB_defineC(A, B, C);
 
-    clean_conditional_test_1(A, B, C, 1);
+    int x = 1;
 
-    clean_conditional_test_2(A, B, C, 1);
+    clean_conditional_test_1(A, B, C, x);
+
+    clean_conditional_test_2(A, B, C, x);
 }
 
 int main()
