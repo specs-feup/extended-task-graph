@@ -24,6 +24,9 @@ class Task {
     // Data communication properties
     #incomingComm = [];
     #outgoingComm = [];
+    // Control properties
+    #incomingControl = [];
+    #outgoingControl = [];
 
     constructor(fun, hierParent, type = "REGULAR") {
         this.#type = type;
@@ -189,6 +192,7 @@ class Task {
         return [...this.#dataParams, ...this.#dataGlobals];
     }
 
+    // Communication methods
     addOutgoingComm(communication) {
         this.#outgoingComm.push(communication);
     }
@@ -226,6 +230,24 @@ class Task {
         return null;
     }
 
+    // Control methods
+    getOutgoingControl() {
+        return this.#outgoingControl;
+    }
+
+    getIncomingControl() {
+        return this.#incomingControl;
+    }
+
+    addOutgoingControl(control) {
+        this.#outgoingControl.push(control);
+    }
+
+    addIncomingControl(control) {
+        this.#incomingControl.push(control);
+    }
+
+    // Misc methods
     updateWithAlternateNames(call) {
         const args = [];
         for (let i = 1; i < call.children.length; i++) {

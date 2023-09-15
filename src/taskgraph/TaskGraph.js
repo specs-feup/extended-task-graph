@@ -5,6 +5,7 @@ laraImport("util/ClavaUtils");
 class TaskGraph {
     #tasks = [];
     #comms = [];
+    #control = [];
     #source = null;
     #sink = null;
     #globals = null;
@@ -67,6 +68,10 @@ class TaskGraph {
         return this.#comms;
     }
 
+    getControlEdges() {
+        return this.#control;
+    }
+
     getInlinables() {
         return this.#inlinables;
     }
@@ -85,5 +90,12 @@ class TaskGraph {
         this.#comms.push(comm);
         source.addOutgoingComm(comm);
         target.addIncomingComm(comm);
+    }
+
+    addControlEdge(source, target, controlVar, controlValue) {
+        const control = new ControlEdge(source, target, controlVar, controlValue);
+        this.#control.push(control);
+        source.addOutgoingControl(control);
+        target.addIncomingControl(control);
     }
 }

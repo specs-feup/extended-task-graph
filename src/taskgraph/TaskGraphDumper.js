@@ -36,6 +36,9 @@ class TaskGraphDumper {
         dot += "\n";
         dot += this.#getDotOfCommunications(taskGraph);
 
+        dot += "\n";
+        dot += this.#getDotOfControl(taskGraph);
+
         dot += "}";
         return dot;
     }
@@ -159,5 +162,28 @@ class TaskGraphDumper {
             }
         }
         return dot;
+    }
+
+    #getDotOfControl(taskGraph) {
+        let dot = "";
+        for (const controlEdge of taskGraph.getControlEdges()) {
+            const source = controlEdge.getSource();
+            const target = controlEdge.getTarget();
+            const sourceHasHierChildren = source.getHierarchicalChildren().length > 0;
+            const targetHasHierChildren = target.getHierarchicalChildren().length > 0;
+
+            if (sourceHasHierChildren && targetHasHierChildren) {
+                dot += `\t${source.getId()}_target -> ${target.getId()}_src [label="${controlEdge.toString()}"];\n`;
+            }
+            if (sourceHasHierChildren && !targetHasHierChildren) {
+                dot += `\t${source.getId()}_target -> ${target.getId()} [label="${controlEdge.toString()}"];\n`;
+            }
+            if (!sourceHasHierChildren && targetHasHierChildren) {
+                dot += `\t${source.getId()} -> ${target.getId()}_src [label="${controlEdge.toString()}"];\n`;
+            }
+            if (!sourceHasHierChildren && !targetHasHierChildren) {
+                dot += `\t${source.getId()} -> ${target.getId()} [label="${controlEdge.toString()}"];\n`;
+            }
+        }
     }
 }
