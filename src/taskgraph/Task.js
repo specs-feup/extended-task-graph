@@ -252,8 +252,22 @@ class Task {
         const args = [];
         for (let i = 1; i < call.children.length; i++) {
             const child = call.children[i];
+
+            // Two types of parameter: varrefs and literals (int/float)
             const varref = Query.searchFromInclusive(child, "varref").first();
-            args.push(varref.name);
+            if (varref != null) {
+                args.push(varref.name);
+            }
+            const intLit = Query.searchFromInclusive(child, "intLiteral").first(); {
+                if (intLit != null) {
+                    args.push(String(intLit.value));
+                }
+            }
+            const floatLit = Query.searchFromInclusive(child, "floatLiteral").first(); {
+                if (floatLit != null) {
+                    args.push(String(floatLit.value));
+                }
+            }
         }
 
         const dataParams = this.#dataParams;

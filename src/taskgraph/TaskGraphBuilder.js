@@ -153,7 +153,7 @@ class TaskGraphBuilder {
     #addParentChildrenComm(taskGraph, parent, children) {
         const lastUsed = new Map();
         for (const datum of parent.getData()) {
-            lastUsed.set(datum.getName(), parent);
+            lastUsed.set(datum.getName(), [parent]);
         }
 
         for (const child of children) {
@@ -182,13 +182,27 @@ class TaskGraphBuilder {
 
         const dataAlt = childDatum.getAlternateName();
         const parentDatum = dataMap.get(dataAlt);
-        const lastUsedTask = lastUsed.get(dataAlt);
+        const lastUsedTasks = lastUsed.get(dataAlt);
 
-        if (lastUsedTask != null) {
-            taskGraph.addCommunication(lastUsedTask, child, parentDatum, childDatum, rank);
+        if (lastUsedTasks != null) {
+            for (const lastUsedTask of lastUsedTasks) {
+                taskGraph.addCommunication(lastUsedTask, child, parentDatum, childDatum, rank);
+            }
 
             if (childDatum.isWritten()) {
-                lastUsed.set(dataAlt, child);
+                if (child.getIncomingControl().length > 0) {
+                    // possibly dangerous to check with the first task only
+                    // I don't know if we can even have more than 2 last used tasks
+                    if (lastUsedTasks[0].getIncomingControl().length > 0) {
+                        lastUsed.set(dataAlt, [child, lastUsedTasks[0]]);
+                    }
+                    else {
+                        lastUsed.set(dataAlt, [child]);
+                    }
+                }
+                else {
+                    lastUsed.set(dataAlt, [child]);
+                }
             }
         }
         else {
@@ -196,6 +210,7 @@ class TaskGraphBuilder {
         }
     }
 
+    // TODO: implement conditionals for this as well
     #buildCommGlobal(childDatum, child, taskGraph, rank) {
         const dataName = childDatum.getName();
         const lastUsedTask = this.#lastUsedGlobal.get(dataName);

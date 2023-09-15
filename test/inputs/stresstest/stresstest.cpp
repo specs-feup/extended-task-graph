@@ -35,6 +35,34 @@ void useAB_defineC(int A[N], int B[M], int C[N])
     }
 }
 
+void clean_conditional_test_1(int A[N], int B[M], int C[N], int x)
+{
+    useAB_defineC(A, B, C);
+
+    if (x == 1)
+    {
+        useB_defineA(A, B);
+    }
+
+    useAB_defineC(A, B, C);
+}
+
+void clean_conditional_test_2(int A[N], int B[M], int C[N], int x)
+{
+    useAB_defineC(A, B, C);
+
+    if (x == 1)
+    {
+        useB_defineA(A, B);
+    }
+    else
+    {
+        useA_defineB(A, B);
+    }
+
+    useAB_defineC(A, B, C);
+}
+
 void app_start(int A[N], int B[M], int C[N])
 {
     int D[N * M] = {0};
@@ -92,34 +120,9 @@ void app_start(int A[N], int B[M], int C[N])
     }
     useAB_defineC(A, B, C);
 
-    // Case C1: single conditional
-    if (A[0] == 1)
-    {
-        useB_defineA(A, B);
-    }
-    useAB_defineC(A, B, C);
+    clean_conditional_test_1(A, B, C, 1);
 
-    // Case C2: if/else, both modifying the same data
-    if (A[1] == 2)
-    {
-        useB_defineA(A, B);
-    }
-    else
-    {
-        useB_defineA(A, B);
-    }
-    useAB_defineC(A, B, C);
-
-    // Case C3: if/else, both modifying different data
-    if (A[2] == 3)
-    {
-        useB_defineA(A, B);
-    }
-    else
-    {
-        useA_defineB(A, B);
-    }
-    useAB_defineC(A, B, C);
+    clean_conditional_test_2(A, B, C, 1);
 }
 
 int main()
