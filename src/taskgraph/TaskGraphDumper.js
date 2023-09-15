@@ -61,7 +61,7 @@ class TaskGraphDumper {
             dot += `\tbgcolor = ${this.#getColor(colorIndex)};\n`;
 
             dot += `\t${task.getId()}_src [shape=circle, label=""];\n`;
-            dot += `\t${task.getId()}_target [shape=circle, label="", style=invis];\n`;
+            dot += `\t${task.getId()}_target [shape=diamond, label=""];\n`;
             dot += `\t${task.getId()}_src -> ${task.getId()}_target [style=invis];\n`;
 
             for (const child of task.getHierarchicalChildren()) {
@@ -173,16 +173,16 @@ class TaskGraphDumper {
             const targetHasHierChildren = target.getHierarchicalChildren().length > 0;
 
             if (sourceHasHierChildren && targetHasHierChildren) {
-                dot += `\t${source.getId()}_target -> ${target.getId()}_src [label="${controlEdge.toString()}" color="red"];\n`;
+                dot += `\t${source.getId()}_target -> ${target.getId()}_src [label="${controlEdge.toString()}", color="red", fontcolor=red];\n`;
             }
             if (sourceHasHierChildren && !targetHasHierChildren) {
-                dot += `\t${source.getId()}_target -> ${target.getId()} [label="${controlEdge.toString()}" color="red"];\n`;
+                dot += `\t${source.getId()}_target -> ${target.getId()} [label="${controlEdge.toString()}", color="red", fontcolor=red];\n`;
             }
             if (!sourceHasHierChildren && targetHasHierChildren) {
-                dot += `\t${source.getId()} -> ${target.getId()}_src [label="${controlEdge.toString()}" color="red"];\n`;
+                dot += `\t${source.getId()} -> ${target.getId()}_src [label="${controlEdge.toString()}", color="red", fontcolor=red];\n`;
             }
             if (!sourceHasHierChildren && !targetHasHierChildren) {
-                dot += `\t${source.getId()} -> ${target.getId()} [label="${controlEdge.toString()}" color="red"];\n`;
+                dot += `\t${source.getId()} -> ${target.getId()} [label="${controlEdge.toString()}", color="red", fontcolor=red];\n`;
             }
         }
         return dot;
