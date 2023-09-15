@@ -71,7 +71,7 @@ class TaskGraphDumper {
             dot += "\t}\n";
         }
         else {
-            dot += `\t${task.getId()} [label="${this.#getLabelOfTask(task, isMinimal)}", fillcolor=${this.#getColor(colorIndex + 1)}];\n`;
+            dot += `\t${task.getId()} [label="${this.#getLabelOfTask(task, isMinimal)}", style="filled", fillcolor=${this.#getColor(colorIndex)}];\n`;
         }
         return dot;
     }
