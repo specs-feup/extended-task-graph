@@ -63,6 +63,22 @@ void clean_conditional_test_2(int A[N], int B[M], int C[N], int x)
     useAB_defineC(A, B, C);
 }
 
+void clean_conditional_test_3(int A[N], int B[M], int C[N], int x)
+{
+    useAB_defineC(A, B, C);
+
+    if (x == 1)
+    {
+        useB_defineA(A, B);
+    }
+    else
+    {
+        useB_defineA(A, B);
+    }
+
+    useAB_defineC(A, B, C);
+}
+
 void app_start(int A[N], int B[M], int C[N])
 {
     int D[N * M] = {0};
@@ -125,6 +141,8 @@ void app_start(int A[N], int B[M], int C[N])
     clean_conditional_test_1(A, B, C, x);
 
     clean_conditional_test_2(A, B, C, x);
+
+    clean_conditional_test_3(A, B, C, x);
 }
 
 int main()
