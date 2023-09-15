@@ -259,14 +259,16 @@ class Task {
             if (varref != null) {
                 args.push(varref.name);
             }
-            const intLit = Query.searchFromInclusive(child, "intLiteral").get()[0]; {
+            else {
+                const intLit = Query.searchFromInclusive(child, "intLiteral").get()[0];
                 if (intLit != null) {
                     args.push(String(intLit.value));
                 }
-            }
-            const floatLit = Query.searchFromInclusive(child, "floatLiteral").get()[0]; {
-                if (floatLit != null) {
-                    args.push(String(floatLit.value));
+                else {
+                    const floatLit = Query.searchFromInclusive(child, "floatLiteral").get()[0];
+                    if (floatLit != null) {
+                        args.push(String(floatLit.value));
+                    }
                 }
             }
         }
