@@ -56,6 +56,7 @@ class TaskGraphBuilder {
             task.setCall(call);
             task.updateWithAlternateNames(call);
             this.#updateWithRepetitions(task, call);
+            this.#addControlEdges(task, call, taskGraph);
         }
         taskGraph.addTask(task);
 
@@ -75,7 +76,9 @@ class TaskGraphBuilder {
                 const externalTask = new Task(callee, task, "EXTERNAL");
                 externalTask.setCall(call);
                 this.#updateWithRepetitions(task, call);
+                this.#addControlEdges(externalTask, call, taskGraph);
                 taskGraph.addTask(externalTask);
+
                 task.addHierarchicalChild(externalTask);
                 childTasks.push(externalTask);
             }
@@ -92,6 +95,48 @@ class TaskGraphBuilder {
         // update task with R/W data from the children
         this.#updateTaskWithChildrenData(task, childTasks);
         return task;
+    }
+
+    #addControlEdges(task, call, taskGraph) {
+        const ifStmts = [];
+        const conditions = [];
+        let child = call;
+        let parent = call.parent;
+
+        do {
+            if (parent.instanceOf("if")) {
+                ifStmts.push(parent);
+                // true if child is the "then" branch (children[1])
+                // false if child is the "else" branch (children[2])
+                conditions.push(parent.children[1].astId == child.astId);
+            }
+            child = parent;
+            parent = child.parent;
+        } while (!parent.instanceOf("function"));
+
+        for (let i = 0; i < ifStmts.length; i++) {
+            const ifStmt = ifStmts[i];
+            const condition = conditions[i];
+
+            const varref = ifStmt.children[0];
+            const varrefName = varref.name;
+
+            // horrible hack: we need to find the last task
+            // that defines the control variable, but we 
+            // are not exactly keeping track of that
+            // so we just go through every task and find the 
+            // last one to use the variable
+            let condTask = null;
+            for (const task of taskGraph.getTasks()) {
+                for (const data of task.getData()) {
+                    if (data.getName() == varrefName) {
+                        condTask = task;
+                    }
+                }
+            }
+            // end of horrible hack
+            taskGraph.addControlEdge(condTask, task, varref, condition);
+        }
     }
 
     #updateWithRepetitions(task, call) {

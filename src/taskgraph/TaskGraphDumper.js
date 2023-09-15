@@ -173,17 +173,18 @@ class TaskGraphDumper {
             const targetHasHierChildren = target.getHierarchicalChildren().length > 0;
 
             if (sourceHasHierChildren && targetHasHierChildren) {
-                dot += `\t${source.getId()}_target -> ${target.getId()}_src [label="${controlEdge.toString()}"];\n`;
+                dot += `\t${source.getId()}_target -> ${target.getId()}_src [label="${controlEdge.toString()}" color="red"];\n`;
             }
             if (sourceHasHierChildren && !targetHasHierChildren) {
-                dot += `\t${source.getId()}_target -> ${target.getId()} [label="${controlEdge.toString()}"];\n`;
+                dot += `\t${source.getId()}_target -> ${target.getId()} [label="${controlEdge.toString()}" color="red"];\n`;
             }
             if (!sourceHasHierChildren && targetHasHierChildren) {
-                dot += `\t${source.getId()} -> ${target.getId()}_src [label="${controlEdge.toString()}"];\n`;
+                dot += `\t${source.getId()} -> ${target.getId()}_src [label="${controlEdge.toString()}" color="red"];\n`;
             }
             if (!sourceHasHierChildren && !targetHasHierChildren) {
-                dot += `\t${source.getId()} -> ${target.getId()} [label="${controlEdge.toString()}"];\n`;
+                dot += `\t${source.getId()} -> ${target.getId()} [label="${controlEdge.toString()}" color="red"];\n`;
             }
         }
+        return dot;
     }
 }

@@ -34,7 +34,7 @@ class ControlEdge {
     }
 
     toString() {
-        const str = `${this.controlVar} = ${this.controlValue ? "T" : "F"}`;
+        const str = `${this.controlVar.name} = ${this.controlValue ? "T" : "F"}`;
         return str;
     }
 }

@@ -1,6 +1,8 @@
 "use strict";
 
 laraImport("taskgraph/Task");
+laraImport("taskgraph/Communication");
+laraImport("taskgraph/ControlEdge");
 laraImport("util/ClavaUtils");
 class TaskGraph {
     #tasks = [];
