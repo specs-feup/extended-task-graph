@@ -65,8 +65,15 @@ class TaskGraphDumper {
             dot += `\t${task.getId()}_src -> ${task.getId()}_target [style=invis];\n`;
 
             for (const child of task.getHierarchicalChildren()) {
-                dot += this.#getDotOfCluster(child, isMinimal, colorIndex + 1);
-                //dot += `\t${child.getId()} -> ${task.getId()}_target [style=invis];\n`;
+                const next = this.#getDotOfCluster(child, isMinimal, colorIndex + 1);
+                dot += next;
+
+                if (next.startsWith("\tsubgraph")) {
+                    dot += `\t${child.getId()}_target -> ${task.getId()}_target [style=invis];\n`;
+                }
+                else {
+                    dot += `\t${child.getId()} -> ${task.getId()}_target [style=invis];\n`;
+                }
             }
             dot += "\t}\n";
         }
