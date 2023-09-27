@@ -91,7 +91,7 @@ class TaskGraphDumper {
             label += ` (x${reps})`;
         }
         if (reps == -1) {
-            label += ` (x*)`;
+            label += ` (xANY)`;
         }
 
         if (isMminimal) {
