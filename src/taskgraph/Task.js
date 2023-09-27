@@ -5,6 +5,8 @@ laraImport("weaver.Query");
 laraImport("taskgraph/Data");
 
 class Task {
+    // Constants
+    #DEFAULT_DELIMITER = ".";
     // Basic task details
     #id = "TNull";
     #function = null;
@@ -32,32 +34,38 @@ class Task {
         this.#type = type;
         this.#hierParent = hierParent;
 
-        if (type == "REGULAR") {
-            this.#id = IdGenerator.next("T");
-            this.#function = fun;
-            if (fun != null) {
-                this.#name = fun.name;
+        switch (type) {
+            case "REGULAR":
+            case "EXTERNAL": {
+                const idPrefix = (hierParent != null && hierParent.getType() == "REGULAR") ?
+                    `${hierParent.getId()}${this.#DEFAULT_DELIMITER}`
+                    : (type == "REGULAR" ? "T" : "TEx");
+
+                this.#id = IdGenerator.next(idPrefix);
+                this.#function = fun;
+                if (fun != null) {
+                    this.#name = fun.name;
+                }
+                break;
             }
-        }
-        else if (type == "START") {
-            this.#id = "TStart";
-            this.#name = "main_begin";
-        }
-        else if (type == "END") {
-            this.#id = "TEnd";
-            this.#name = "main_end";
-        }
-        else if (type == "GLOBAL") {
-            this.#id = "TGlob";
-            this.#name = "Global variables";
-        }
-        else if (type == "EXTERNAL") {
-            this.#id = IdGenerator.next("TEx");
-            this.#function = fun;
-            this.#name = fun.name;
-        }
-        else {
-            throw new Error(`Unknown task type '${type}'`);
+            case "START": {
+                this.#id = "TStart";
+                this.#name = "main_begin";
+                break;
+            }
+            case "END": {
+                this.#id = "TEnd";
+                this.#name = "main_end";
+                break;
+            }
+            case "GLOBAL": {
+                this.#id = "TGlob";
+                this.#name = "Global variables";
+                break;
+            }
+            default: {
+                throw new Error(`Unknown task type '${type}'`);
+            }
         }
 
         if (type != "START" && type != "END" && type != "GLOBAL" && fun != null) {

@@ -29,11 +29,11 @@ def main():
     # test_bench_flows("HiFlipVX-v2-N", True, True)
 
     ### Rosetta
-    # test_bench_flows("Rosetta-3d-rendering-N", False, True)
+    test_bench_flows("Rosetta-3d-rendering-N", False, True)
     # test_bench_flows("Rosetta-digit-recognition-N", False, True)
     # test_bench_flows("Rosetta-face-detection-N", False, True)
     # test_bench_flows("Rosetta-optical-flow-current", False, True)
-    test_bench_flows("Rosetta-spam-filter-N", False, True)
+    # test_bench_flows("Rosetta-spam-filter-N", False, True)
 
     # test_bench_flows("Rosetta-optical-flow-sintel", False, True)
 
@@ -41,6 +41,10 @@ def main():
     TODO:
     - Improve R/W and Uninitialized detection
     - Implement the other metrics
+    - rendering_sw.cpp:195:7: warning: expression result unused [-Wunused-value]
+      *i++;
+      ^~~~
+      I think this may need some parenthesis or even an expansion to *i = *i + 1
     """
 
 
