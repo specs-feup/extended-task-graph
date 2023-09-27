@@ -5,7 +5,7 @@ class ACpuEstimator extends AEstimator {
         super();
     }
 
-    updateTaskWithCpuInfo(task, cpuTime) {
-        task.setProperty("cpuTime", cpuTime);
+    callHlsTool(task) {
+        throw new Error("Abstract method must be overridden.");
     }
 }

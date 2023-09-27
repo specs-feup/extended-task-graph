@@ -29,6 +29,8 @@ class Task {
     // Control properties
     #incomingControl = [];
     #outgoingControl = [];
+    // Task performance properties
+    #perfProperties = {};
 
     constructor(fun, hierParent, type = "REGULAR") {
         this.#type = type;
@@ -290,6 +292,19 @@ class Task {
         }
     }
 
+    // Performance properties
+    getProperty(key) {
+        if (key in this.#perfProperties) {
+            return this.#perfProperties[key];
+        }
+        return null;
+    }
+
+    setProperty(key, value) {
+        this.#perfProperties[key] = value;
+    }
+
+    // ---------------------------------------------------------------------
     #populateData() {
         // handle data comm'd through function params
         this.#findDataFromParams();

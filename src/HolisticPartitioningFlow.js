@@ -19,6 +19,7 @@ class HolisticPartitioningFlow extends UPTStage {
         this.log("Running holistic HW/SW partitioning flow");
 
         const tg = this.buildTaskGraph();
+        this.annotateTaskGraph(tg);
 
         this.log("Holistic HW/SW partitioning flow finished successfully!");
     }
@@ -32,8 +33,14 @@ class HolisticPartitioningFlow extends UPTStage {
         tgMan.dumpTaskGraph(tg);
         tgMan.saveMetrics(tg);
 
+        this.log("Task graph successfully built!");
         return tg;
     }
 
+    annotateTaskGraph(tg) {
+        this.log("Running task graph annotation");
 
+
+        this.log("Task graph successfully annotated!");
+    }
 }
