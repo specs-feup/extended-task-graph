@@ -1,11 +1,23 @@
 "use strict";
 
-class VitisHlsRealtimeFpgaEstimator extends ARealtimeFpgaEstimator {
-    constructor() {
-        super();
+class VitisHlsRealtimeEstimator extends AEstimator {
+    constructor(estimationFolder, targetPart, period) {
+        super(estimationFolder, "vitishls_realtime");
     }
 
-    callHlsTool(topFunction) {
+    estimate(task) {
+        const name = task.getName();
+        const synthReport = this.#callVitisHls(name);
+        const estim = this.#parseReport(synthReport);
+
+        if (estim === undefined) {
+            println(`[VitisHlsPrecalcEstimator] No estimation for task ${name}!`);
+            return EstimationTemplateFactory.buildFpgaTemplate();
+        }
+        return estim;
+    }
+
+    #callVitisHls(topFunction) {
         return {
             "platform": "xcvu5p-flva2104-1-e",      // target platform
             "topFun": "foo",                        // top function
@@ -34,17 +46,18 @@ class VitisHlsRealtimeFpgaEstimator extends ARealtimeFpgaEstimator {
         }
     }
 
-    estimateTask(task) {
-        const topFunction = task.getName();
-        const report = this.callHlsTool(topFunction);
+    #parseReport(report) {
+        const template = EstimationTemplateFactory.buildFpgaTemplate();
 
-        const time = report["latencyWorst"];
-        const resources = {
-            "FF": report["perFF"],
-            "LUT": report["perLUT"],
-            "BRAM": report["perBRAM"],
-            "DSP": report["perDSP"]
-        };
-        this.updateTaskWithFpgaInfo(task, time, resources);
+        template.fpgaTime = report.execTimeAvg;
+        template.resources.FF = report.FF;
+        template.resources.LUT = report.LUT;
+        template.resources.BRAM = report.BRAM;
+        template.resources.DSP = report.DSP;
+        template.target = report.platform;
+        template.period = 1 / report.clockEstim;
+
+        return template;
     }
+
 }
