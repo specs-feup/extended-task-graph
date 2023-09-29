@@ -304,6 +304,12 @@ class Task {
         this.#perfProperties[key] = value;
     }
 
+    setProperties(properties) {
+        for (const key in properties) {
+            this.setProperty(key, properties[key]);
+        }
+    }
+
     // ---------------------------------------------------------------------
     #populateData() {
         // handle data comm'd through function params

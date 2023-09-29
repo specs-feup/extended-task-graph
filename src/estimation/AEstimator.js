@@ -45,16 +45,16 @@ class AEstimator {
     saveToFile() {
         const fname = `estim_${this.#estimatorName}.json`;
         Io.writeJson(this.#estimationFolder + "/" + fname, this.#estimationCache);
+        println(`[${this.constructor.name}] Estimations saved to ${fname}`);
     }
 
     readFromFile(pathToEstimation) {
-        try {
-            const json = Io.readJson(pathToEstimation);
-            return json;
-        } catch (e) {
-            println(`[AEstimator] Could not read estimation file ${pathToEstimation}!`);
-            return {};
+        let json = {};
+
+        if (Io.isFile(pathToEstimation)) {
+            json = Io.readJson(pathToEstimation);
         }
+        return json;
     }
 
     estimate(task) {

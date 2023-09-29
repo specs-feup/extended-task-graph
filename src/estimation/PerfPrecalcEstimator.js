@@ -1,7 +1,7 @@
 "use strict";
 
-laraImport("estimation/AEstimator.js");
-laraImport("estimation/EstimationTemplateFactory.js");
+laraImport("estimation/AEstimator");
+laraImport("estimation/EstimationTemplateFactory");
 
 class PerfPrecalcEstimator extends AEstimator {
     #precalcEstimations = {};

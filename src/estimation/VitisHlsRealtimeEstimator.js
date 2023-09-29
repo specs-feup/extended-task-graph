@@ -1,5 +1,8 @@
 "use strict";
 
+laraImport("estimation/AEstimator");
+laraImport("estimation/EstimationTemplateFactory");
+
 class VitisHlsRealtimeEstimator extends AEstimator {
     constructor(estimationFolder, targetPart, period) {
         super(estimationFolder, "vitishls_realtime");

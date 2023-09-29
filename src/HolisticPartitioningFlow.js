@@ -2,6 +2,7 @@
 
 laraImport("UPTStage");
 laraImport("taskgraph/TaskGraphManager");
+laraImport("estimation/TaskGraphAnnotator");
 laraImport("util/ClavaUtils");
 
 class HolisticPartitioningFlow extends UPTStage {
@@ -38,9 +39,13 @@ class HolisticPartitioningFlow extends UPTStage {
     }
 
     annotateTaskGraph(tg) {
-        this.log("Running task graph annotation");
+        this.log("Running task graph annotation process");
+        const estimDir = this.getOutputDir() + "/estimations";
 
+        const annotator = new TaskGraphAnnotator(this.getTopFunction(), estimDir, this.getAppName());
+        annotator.annotateCpuEstimations(tg, "none");
+        annotator.annotateFpgaEstimations(tg, "none");
 
-        this.log("Task graph successfully annotated!");
+        this.log("Task graph successfully annotated with CPU/FPGA estimations!");
     }
 }
