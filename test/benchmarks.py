@@ -2,16 +2,43 @@
 apps = {
     "edgedetect": (
         "c++11",
-        {"clock": 10, "starterFunction": "edge_detect"},
+        {
+            "starterFunction": "edge_detect",
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
+        },
     ),
     "stresstest": (
         "c++11",
-        {"clock": 10, "starterFunction": "app_start"},
+        {
+            "starterFunction": "app_start",
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
+        },
     ),
-    "scenarioA": ("c11", {"clock": 10, "starterFunction": "main"}),
+    "scenarioA": (
+        "c11",
+        {
+            "starterFunction": "main",
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
+        },
+    ),
     "scenarioB": (
         "c11",
-        {"clock": 10, "starterFunction": "scenario"},
+        {
+            "starterFunction": "scenario",
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
+        },
     ),
 }
 
@@ -71,26 +98,62 @@ benchmarks = {
     ),
     "Rosetta-3d-rendering-N": (
         "c++11",
-        {"clock": 10, "starterFunction": "rendering_sw"},
+        {
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "starterFunction": "rendering_sw",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
+        },
     ),
     "Rosetta-digit-recognition-N": (
         "c++11",
-        {"clock": 10, "starterFunction": "DigitRec_sw"},
+        {
+            "starterFunction": "DigitRec_sw",
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
+        },
     ),
     "Rosetta-face-detection-N": (
         "c++11",
-        {"clock": 10, "starterFunction": "face_detect_sw"},
+        {
+            "starterFunction": "face_detect_sw",
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
+        },
     ),
     "Rosetta-optical-flow-current": (
         "c++11",
-        {"clock": 10, "starterFunction": "optical_flow_sw"},
+        {
+            "starterFunction": "optical_flow_sw",
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstimPrecalc": "estim_vitishls_precalc.json",
+        },
     ),
     "Rosetta-optical-flow-sintel": (
         "c++11",
-        {"clock": 10, "starterFunction": "optical_flow_sw"},
+        {
+            "starterFunction": "optical_flow_sw",
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
+        },
     ),
     "Rosetta-spam-filter-N": (
         "c++11",
-        {"clock": 10, "starterFunction": "SgdLR_sw"},
+        {
+            "starterFunction": "SgdLR_sw",
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
+        },
     ),
 }

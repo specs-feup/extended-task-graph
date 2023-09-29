@@ -17,7 +17,7 @@ EXTRA_INCLUDES = [
 
 
 def create_estim_folder(appName):
-    estim_path = "../test/outputs/" + appName + "/estim_cpu"
+    estim_path = "../test/outputs/" + appName + "/cpu_profiler"
     if not os.path.exists(estim_path):
         os.makedirs(estim_path)
     profiler = "../tools/profiler/profiler.sh"
@@ -43,7 +43,7 @@ def set_default_args(clava):
     clava.set_extra_includes_folder(EXTRA_INCLUDES)
 
 
-def prepare_command_and_file_app(appName, flow):
+def prepare_command_and_file_app(appName, flow, useHls=False):
     standard, config = apps[appName]
     outputPath = OUTPUT_DIR + appName
     inputPath = ""
@@ -55,6 +55,9 @@ def prepare_command_and_file_app(appName, flow):
     # UPT config
     config["appName"] = appName
     config["outputDir"] = outputPath
+    config["useHls"] = useHls
+    config["cpuEstim"] = outputPath + "/estimations/" + config["cpuEstim"]
+    config["fpgaEstim"] = outputPath + "/estimations/" + config["fpgaEstim"]
 
     if not os.path.exists(TEMP_FOLDER):
         os.makedirs(TEMP_FOLDER)
@@ -72,7 +75,7 @@ def prepare_command_and_file_app(appName, flow):
     return clava
 
 
-def prepare_command_and_file_bench(appName, flow):
+def prepare_command_and_file_bench(appName, flow, useHls=False):
     standard, config = benchmarks[appName]
     suite = appName.split("-")[0]
     output_path = OUTPUT_DIR + appName
@@ -80,6 +83,9 @@ def prepare_command_and_file_bench(appName, flow):
     # UPT config
     config["appName"] = appName
     config["outputDir"] = output_path
+    config["useHls"] = useHls
+    config["cpuEstim"] = output_path + "/estimations/" + config["cpuEstim"]
+    config["fpgaEstim"] = output_path + "/estimations/" + config["fpgaEstim"]
 
     if not os.path.exists(TEMP_FOLDER):
         os.makedirs(TEMP_FOLDER)
@@ -103,12 +109,12 @@ def prepare_command_and_file_bench(appName, flow):
     return clava
 
 
-def test_flow(appName, isBenchmark, flow):
+def test_flow(appName, isBenchmark, flow, useHls=False):
     print("-" * 15 + " Running " + flow + " flow for  " + appName + " " + "-" * 15)
     if isBenchmark:
-        clava = prepare_command_and_file_bench(appName, flow)
+        clava = prepare_command_and_file_bench(appName, flow, useHls)
     else:
-        clava = prepare_command_and_file_app(appName, flow)
+        clava = prepare_command_and_file_app(appName, flow, useHls)
 
     commands = clava.get_current_command()
     info = Template("Running Clava with the following command:\n\t$cmd\n")
@@ -149,15 +155,15 @@ def generate_image_from_dot(dot):
     os.system(cmd)
 
 
-def test_bench_flows(appName, flowCode, flowHolistic):
-    test_flows(appName, True, flowCode, flowHolistic)
+def test_bench_flows(appName, flowCode, flowHolistic, useHls=False):
+    test_flows(appName, True, flowCode, flowHolistic, useHls)
 
 
-def test_app_flows(appName, flowCode, flowHolistic):
-    test_flows(appName, False, flowCode, flowHolistic)
+def test_app_flows(appName, flowCode, flowHolistic, useHls=False):
+    test_flows(appName, False, flowCode, flowHolistic, useHls)
 
 
-def test_flows(appName, isBenchmark, flowCode, flowHolistic):
+def test_flows(appName, isBenchmark, flowCode, flowHolistic, useHls=False):
     # -----------------------------------
     # Flow code
     # -----------------------------------
@@ -173,4 +179,4 @@ def test_flows(appName, isBenchmark, flowCode, flowHolistic):
     # Flow Holistic
     # -----------------------------------
     if flowHolistic:
-        test_flow(appName, isBenchmark, "holistic")
+        test_flow(appName, isBenchmark, "holistic", useHls)
