@@ -11,14 +11,14 @@ class TaskGraphAnnotator extends UPTStage {
         super("HPFlow-TaskGraphAnnotator", topFunction, outputDir, appName);
     }
 
-    annotateAll(taskGraph, config) {
+    annotateAll(taskGraph, config, inputCode) {
         const cpuEstim = config["cpuEstim"];
         this.annotateCpuEstimations(taskGraph, cpuEstim);
 
         if (config["useHls"]) {
             const targetPart = config["targetPart"];
-            const period = config["period"];
-            this.annotateFpgaEstimationsRealtime(taskGraph, targetPart, period);
+            const period = config["clock"];
+            this.annotateFpgaEstimationsRealtime(taskGraph, targetPart, period, inputCode);
         }
         else {
             const fpgaEstim = config["fpgaEstim"];
@@ -36,8 +36,8 @@ class TaskGraphAnnotator extends UPTStage {
         estimator.estimateTaskGraph(taskGraph, true);
     }
 
-    annotateFpgaEstimationsRealtime(taskGraph, targetPart, period) {
-        const estimator = new VitisHlsRealtimeEstimator(this.getOutputDir(), targetPart, period);
+    annotateFpgaEstimationsRealtime(taskGraph, targetPart, period, inputCode) {
+        const estimator = new VitisHlsRealtimeEstimator(this.getOutputDir(), targetPart, period, inputCode);
         estimator.estimateTaskGraph(taskGraph, true);
     }
 }

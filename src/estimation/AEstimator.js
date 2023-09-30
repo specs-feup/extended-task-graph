@@ -4,14 +4,20 @@ class AEstimator {
     #estimationCache = {};
     #estimationFolder = "";
     #estimatorName = "";
+    #prefix = "";
 
-    constructor(estimationFolder, estimatorName) {
+    constructor(estimationFolder, estimatorName, prefix) {
         if (new.target === AEstimator) {
             throw new Error("Cannot instantiate an abstract class.");
         }
 
         this.#estimationFolder = estimationFolder;
         this.#estimatorName = estimatorName;
+        this.#prefix = prefix;
+    }
+
+    getEstimationFolder() {
+        return this.#estimationFolder;
     }
 
     estimateTaskGraph(tg, saveToFile = false) {
@@ -38,7 +44,7 @@ class AEstimator {
             this.#estimationCache[name] = estim;
         }
 
-        task.setProperties(estim);
+        task.setProperty(this.#prefix, estim);
         return estim;
     }
 

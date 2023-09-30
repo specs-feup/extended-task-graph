@@ -7,7 +7,7 @@ class VitisHlsPrecalcEstimator extends AEstimator {
     #precalcEstimations = {};
 
     constructor(estimationFolder, synthesisResults) {
-        super(estimationFolder, "vitishls_precalc");
+        super(estimationFolder, "vitishls_precalc", "fpga");
 
         this.#precalcEstimations = this.readFromFile(synthesisResults);
     }

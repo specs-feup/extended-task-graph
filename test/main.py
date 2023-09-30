@@ -5,7 +5,7 @@ from tester import test_app_flows, test_bench_flows
 def main():
     os.chdir("src")
 
-    test_app_flows("edgedetect", False, True, useHls=False)
+    test_app_flows("edgedetect", False, True, useHls=True)
     # test_app_flows("stresstest", True, True, useHls=True)
     # test_app_flows("scenarioA", True, True, useHls=True)
     # test_app_flows("scenarioB", True, True, useHls=True)

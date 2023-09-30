@@ -7,7 +7,7 @@ class PerfPrecalcEstimator extends AEstimator {
     #precalcEstimations = {};
 
     constructor(estimationFolder, profilingResults) {
-        super(estimationFolder, "perf_precalc");
+        super(estimationFolder, "perf_precalc", "cpu");
 
         this.#precalcEstimations = this.readFromFile(profilingResults);
     }
