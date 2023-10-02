@@ -40,4 +40,10 @@ class TaskGraphAnnotator extends UPTStage {
         const estimator = new VitisHlsRealtimeEstimator(this.getOutputDir(), targetPart, period, inputCode);
         estimator.estimateTaskGraph(taskGraph, true);
     }
+
+    dumpTaskGraph(taskGraph) {
+        const dumper = new TaskGraphDumper();
+        const dot = dumper.dumpWithPerformance(taskGraph);
+        this.saveToFile(dot, "taskgraph_annotated.dot");
+    }
 }

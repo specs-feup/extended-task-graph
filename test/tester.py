@@ -128,8 +128,11 @@ def test_flow(appName, isBenchmark, flow, useHls=False):
         output_path = OUTPUT_DIR + appName
         dot1 = f"{output_path}/taskgraph/{appName}_taskgraph.dot"
         dot2 = f"{output_path}/taskgraph/{appName}_taskgraph_min.dot"
+        dot3 = f"{output_path}/estimations/{appName}_taskgraph_annotated.dot"
+
         generate_image_from_dot(dot1)
         generate_image_from_dot(dot2)
+        generate_image_from_dot(dot3)
 
 
 def lengthy_exec(message):

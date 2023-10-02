@@ -17,7 +17,7 @@ class TaskGraphDumper {
         "yellowgreen"
     ];
 
-    dump(taskGraph, isMinimal = false) {
+    dump(taskGraph, isMinimal = false, includePerf = false) {
         let dot = "digraph G {\n";
         dot += "\trankdir=TB;\n";
         dot += "\tnode [shape=box];\n";
@@ -45,6 +45,10 @@ class TaskGraphDumper {
 
     dumpMinimal(taskGraph) {
         return this.dump(taskGraph, true);
+    }
+
+    dumpWithPerformance(taskGraph) {
+        return this.dump(taskGraph, true, true);
     }
 
     #getColor(index) {

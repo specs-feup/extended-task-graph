@@ -133,7 +133,7 @@ benchmarks = {
             "clock": 10,
             "targetPart": "xcvu5p-flva2104-1-e",
             "cpuEstim": "estim_perf_precalc.json",
-            "fpgaEstimPrecalc": "estim_vitishls_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
         },
     ),
     "Rosetta-optical-flow-sintel": (

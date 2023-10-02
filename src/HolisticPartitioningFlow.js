@@ -45,6 +45,7 @@ class HolisticPartitioningFlow extends UPTStage {
 
         const annotator = new TaskGraphAnnotator(this.getTopFunction(), estimDir, this.getAppName());
         annotator.annotateAll(tg, this.#config, inputDir);
+        annotator.dumpTaskGraph(tg);
 
         this.log("Task graph successfully annotated with CPU/FPGA estimations!");
     }
