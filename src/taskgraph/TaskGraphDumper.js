@@ -28,10 +28,10 @@ class TaskGraphDumper {
 
         dot += `\t"${source.getId()}" [label=main_begin, fillcolor=lightgray];\n`;
         dot += `\t"${sink.getId()}" [label=main_end, fillcolor=lightgray];\n`;
-        dot += `\t"${globals.getId()}" [label="${this.#getLabelOfTask(globals, isMinimal)}", fillcolor=lightgray];\n`;
+        dot += `\t"${globals.getId()}" [label="${this.#getLabelOfTask(globals, isMinimal, includePerf)}", fillcolor=lightgray];\n`;
 
         const topHierTask = taskGraph.getTopHierarchicalTask();
-        dot += this.#getDotOfCluster(topHierTask, isMinimal);
+        dot += this.#getDotOfCluster(topHierTask, isMinimal, includePerf);
 
         dot += "\n";
         dot += this.#getDotOfCommunications(taskGraph);
@@ -57,11 +57,11 @@ class TaskGraphDumper {
         return color;
     }
 
-    #getDotOfCluster(task, isMinimal = false, colorIndex = 0) {
+    #getDotOfCluster(task, isMinimal = false, includePerf = false, colorIndex = 0) {
         let dot = "";
         if (task.getHierarchicalChildren().length > 0) {
             dot += `\tsubgraph "cluster_${task.getId()}" {\n`;
-            dot += `\tlabel = "${this.#getLabelOfTask(task, isMinimal)}";\n`;
+            dot += `\tlabel = "${this.#getLabelOfTask(task, isMinimal, includePerf)}";\n`;
             dot += `\tbgcolor = ${this.#getColor(colorIndex)};\n`;
 
             dot += `\t"${task.getId()}_src" [shape=circle, label=""];\n`;
@@ -69,7 +69,7 @@ class TaskGraphDumper {
             dot += `\t"${task.getId()}_src" -> "${task.getId()}_target" [style=invis];\n`;
 
             for (const child of task.getHierarchicalChildren()) {
-                const next = this.#getDotOfCluster(child, isMinimal, colorIndex + 1);
+                const next = this.#getDotOfCluster(child, isMinimal, includePerf, colorIndex + 1);
                 dot += next;
 
                 if (next.startsWith("\tsubgraph")) {
@@ -82,12 +82,23 @@ class TaskGraphDumper {
             dot += "\t}\n";
         }
         else {
-            dot += `\t"${task.getId()}" [label="${this.#getLabelOfTask(task, isMinimal)}", style="filled", fillcolor=${this.#getColor(colorIndex)}];\n`;
+            dot += `\t"${task.getId()}" [label="${this.#getLabelOfTask(task, isMinimal, includePerf)}", style="filled", fillcolor=${this.#getColor(colorIndex)}];\n`;
         }
         return dot;
     }
 
-    #getLabelOfTask(task, isMminimal = false) {
+    #toPercent(value, precision = 1) {
+        return `${(value * 100).toFixed(precision)}%`;
+    }
+
+    #secToUsec(seconds, precision = 1) {
+        if (seconds == -1 || seconds == null) {
+            return "N/A";
+        }
+        return `${(seconds * 1000000).toFixed(precision)}us`
+    }
+
+    #getLabelOfTask(task, isMinimal = false, includePerf = false) {
         let label = `${task.getId()}: ${task.getName()}`;
 
         const reps = task.getRepetitions();
@@ -98,7 +109,26 @@ class TaskGraphDumper {
             label += ` (xANY)`;
         }
 
-        if (isMminimal) {
+        if (includePerf) {
+            const cpuPerf = task.getAnnotation("cpu");
+            const fpgaPerf = task.getAnnotation("fpga");
+
+            if (cpuPerf == null || fpgaPerf == null) {
+                return label;
+            }
+
+            label += `\n-------------------\n`;
+            label += `CPU Time: ${this.#secToUsec(cpuPerf.cpuTime)}\n`;
+            label += `FPGA Time: ${this.#secToUsec(fpgaPerf.execBest)}\n`;
+            label += `\nFF | LUT | BRAM | DSP\n`;
+            label += `${this.#toPercent(fpgaPerf.resources.perFF)} |`;
+            label += `${this.#toPercent(fpgaPerf.resources.perLUT)} |`;
+            label += `${this.#toPercent(fpgaPerf.resources.perBRAM)} |`;
+            label += `${this.#toPercent(fpgaPerf.resources.perDSP)}`;
+            return label;
+        }
+
+        if (isMinimal) {
             return label;
         }
 

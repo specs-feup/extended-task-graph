@@ -44,7 +44,7 @@ class AEstimator {
             this.#estimationCache[name] = estim;
         }
 
-        task.setProperty(this.#prefix, estim);
+        task.setAnnotation(this.#prefix, estim);
         return estim;
     }
 

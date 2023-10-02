@@ -29,8 +29,8 @@ class Task {
     // Control properties
     #incomingControl = [];
     #outgoingControl = [];
-    // Task performance properties
-    #perfProperties = {};
+    // Task annotations (e.g., performance properties)
+    #annotations = {};
 
     constructor(fun, hierParent, type = "REGULAR") {
         this.#type = type;
@@ -293,21 +293,15 @@ class Task {
     }
 
     // Performance properties
-    getProperty(key) {
-        if (key in this.#perfProperties) {
-            return this.#perfProperties[key];
+    getAnnotation(key) {
+        if (key in this.#annotations) {
+            return this.#annotations[key];
         }
         return null;
     }
 
-    setProperty(key, value) {
-        this.#perfProperties[key] = value;
-    }
-
-    setProperties(properties) {
-        for (const key in properties) {
-            this.setProperty(key, properties[key]);
-        }
+    setAnnotation(key, value) {
+        this.#annotations[key] = value;
     }
 
     // ---------------------------------------------------------------------
