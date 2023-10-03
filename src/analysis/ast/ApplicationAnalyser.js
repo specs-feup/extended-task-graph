@@ -1,9 +1,9 @@
 "use strict";
 
 laraImport("lara.Io");
-laraImport("analysis/AstDumper");
-laraImport("analysis/CallGraphDumper");
-laraImport("analysis/SourceCodeStats");
+laraImport("analysis/ast/AstDumper");
+laraImport("analysis/ast/CallGraphDumper");
+laraImport("analysis/ast/SourceCodeStats");
 laraImport("UPTStage");
 
 class ApplicationAnalyser extends UPTStage {

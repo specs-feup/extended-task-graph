@@ -3,11 +3,13 @@
 laraImport("taskgraph/TaskGraph");
 laraImport("weaver.Query");
 
-class TaskGraphMetricsAggregator {
+class TaskGraphAnalyzer extends UPTStage {
     #taskGraph;
     #metrics = {};
 
-    constructor(appName, taskGraph) {
+    constructor(topFunction, outputDir, appName, taskGraph) {
+        super("HPFlow-TaskGraphAnalyzer", topFunction, outputDir, appName);
+
         this.#metrics["appName"] = appName;
         this.#taskGraph = taskGraph;
     }
@@ -18,6 +20,12 @@ class TaskGraphMetricsAggregator {
 
     getMetricsAsJson() {
         return JSON.stringify(this.#metrics, null, 4);
+    }
+
+    saveMetrics() {
+        const jsonMetrics = this.getMetricsAsJson();
+        const fname = this.saveToFile(jsonMetrics, "task_graph_metrics.json");
+        this.log(`Saved task graph metrics to file "${fname}"`);
     }
 
     updateMetrics() {

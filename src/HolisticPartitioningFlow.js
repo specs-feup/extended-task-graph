@@ -3,6 +3,7 @@
 laraImport("UPTStage");
 laraImport("taskgraph/TaskGraphManager");
 laraImport("estimation/TaskGraphAnnotator");
+laraImport("analysis/taskgraph/TaskGraphAnalyzer");
 laraImport("util/ClavaUtils");
 
 class HolisticPartitioningFlow extends UPTStage {
@@ -29,24 +30,34 @@ class HolisticPartitioningFlow extends UPTStage {
         this.log("Running task graph building process");
         const outDir = this.getOutputDir() + "/taskgraph";
 
-        const tgMan = new TaskGraphManager(this.getTopFunction(), outDir, this.getAppName());
-        const tg = tgMan.buildTaskGraph();
-        tgMan.dumpTaskGraph(tg);
-        tgMan.saveMetrics(tg);
+        const taskGraphMan = new TaskGraphManager(this.getTopFunction(), outDir, this.getAppName());
+        const taskGraph = taskGraphMan.buildTaskGraph();
+        taskGraphMan.dumpTaskGraph(taskGraph);
 
         this.log("Task graph successfully built!");
-        return tg;
+        return taskGraph;
     }
 
-    annotateTaskGraph(tg) {
+    annotateTaskGraph(taskGraph) {
         this.log("Running task graph annotation process");
         const estimDir = this.getOutputDir() + "/estimations";
         const inputDir = this.getOutputDir() + "/src_inter_tasks";
 
         const annotator = new TaskGraphAnnotator(this.getTopFunction(), estimDir, this.getAppName());
-        annotator.annotateAll(tg, this.#config, inputDir);
-        annotator.dumpTaskGraph(tg);
+        annotator.annotateAll(taskGraph, this.#config, inputDir);
+        annotator.dumpTaskGraph(taskGraph);
 
         this.log("Task graph successfully annotated with CPU/FPGA estimations!");
+    }
+
+    analyzeTaskGraph(taskGraph) {
+        this.log("Running task graph analysis process");
+        const outDir = this.getOutputDir() + "/taskgraph";
+
+        const analyzer = new TaskGraphAnalyzer(this.getTopFunction(), outDir, this.getAppName(), taskGraph);
+        analyzer.updateMetrics();
+        analyzer.saveMetrics();
+
+        this.log(`Saved task graph metrics to file "${fname}"`);
     }
 }

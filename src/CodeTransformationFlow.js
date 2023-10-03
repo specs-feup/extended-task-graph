@@ -1,7 +1,7 @@
 "use strict";
 
 laraImport("UPTStage");
-laraImport("analysis/ApplicationAnalyser");
+laraImport("analysis/ast/ApplicationAnalyser");
 laraImport("preprocessing/Preprocessor");
 laraImport("util/ClavaUtils");
 
