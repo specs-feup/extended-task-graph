@@ -12,12 +12,16 @@ UPT requires several programs to be available on the system's path:
 
 * `java`: any modern-ish version should do, e.g., `sudo apt install openjdk-21-jre-headless`
 
-* `perf`: this is only needed if you want to run the profiling step. Install it with `sudo apt install linux-tools-common`.
+* `perf`: this is only needed if you want to run the profiling step. Install it with `sudo apt install linux-tools-common`
 
 * `vitis_hls` and `v++`: you need to have Vitis and Vitis HLS in the path if you want to target Xilinx FPGAs. Considering this is the only HLS target supported at this point, this is in practice mandatory. We recommend you to use the most recent versions possible, as we always use those to develop UPT.
 
-Finally, UPT should have network access, as it may need to download additional files at runtime (e.g., system libraries).
+Finally, UPT should have network access, as it may need to download additional files at runtime (e.g., system libraries, builtin benchmark suites, etc).
 
 ## Testing infrastructure requirements
 
-Besides the above requirements, our testing infrastructure expects `python` to be available in the system. More specifically, it expects `python`, and not `python3`. If this is an issue, you can get around it by running `sudo apt install python-is-python3`.
+Besides the above requirements, our testing infrastructure expects the following:
+
+* `python` should be available in the system. More specifically, it expects `python`, and not `python3`. If this is an issue, you can get around it by running `sudo apt install python-is-python3`
+
+* `dot`: the testing infrastructure expects Graphviz to be available in the system, so that it can generate task graphs as images. Install it with `sudo apt install graphviz`
