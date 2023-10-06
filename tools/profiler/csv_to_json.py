@@ -2,13 +2,18 @@ import csv
 import json
 import sys
 
+def remove_us_suffix(value):
+    # Remove "us" from the end of the value
+    return value[:-2] if value.endswith("us") else value
+
 def calculate_average(data):
     averages = {}
     counts = {}
 
     for name, value in data:
         try:
-            value = int(value)
+            value = int(remove_us_suffix(value))
+      
         except ValueError:
             # Skip lines where the value is missing or not an integer
             continue
@@ -22,19 +27,20 @@ def calculate_average(data):
 
     for name in averages:
         if counts[name] > 0:
-            averages[name]['cpuTime'] //= counts[name]
+            avg = averages[name]['cpuTime'] / counts[name]
+            averages[name]['cpuTime'] = float(avg) / 1e6  # Convert to seconds
         else:
-            averages[name]['cpuTime'] = -1
+            averages[name]['cpuTime'] = -1.0
 
     return averages
 
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: python script.py <output_json_file>")
+    if len(sys.argv) != 3:
+        print("Usage: python script.py <input_csv_file> <output_json_file>")
         sys.exit(1)
 
-    input_csv_file = 'input.csv'
-    output_json_file = sys.argv[1]
+    input_csv_file = sys.argv[1]
+    output_json_file = sys.argv[2]
 
     with open(input_csv_file, 'r') as csv_file:
         csv_reader = csv.reader(csv_file)
