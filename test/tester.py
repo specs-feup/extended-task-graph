@@ -17,11 +17,13 @@ EXTRA_INCLUDES = [
 
 
 def create_estim_folder(appName):
-    estim_path = "../test/outputs/" + appName + "/cpu_profiler"
+    estim_path = "../test/outputs/" + appName + "/cpu_profiling"
     if not os.path.exists(estim_path):
         os.makedirs(estim_path)
     profiler = "../tools/profiler/profiler.sh"
     shutil.copy(profiler, estim_path)
+    agg = "../tools/profiler/csv_to_json.py"
+    shutil.copy(agg, estim_path)
 
 
 def ensure_temp_exists():
@@ -50,7 +52,7 @@ def prepare_command_and_file_app(appName, flow, useHls=False):
     if flow == "code":
         inputPath = INPUT_DIR + appName
     if flow == "holistic":
-        inputPath = outputPath + "/src_inter_tasks"
+        inputPath = outputPath + "/src_tasks"
 
     # UPT config
     config["appName"] = appName
@@ -103,7 +105,7 @@ def prepare_command_and_file_bench(appName, flow, useHls=False):
         dep = "https://github.com/specs-feup/clava-benchmarks.git?folder=" + suite
         clava.set_dependencies(dep)
     if flow == "holistic":
-        inputPath = output_path + "/src_inter_tasks"
+        inputPath = output_path + "/src_tasks"
         clava.set_workspace(inputPath)
 
     return clava
@@ -176,7 +178,7 @@ def test_flows(appName, isBenchmark, flowCode, flowHolistic, useHls=False):
     # -----------------------------------
     # Inter-flow stage: get profiling info
     # -----------------------------------
-    # create_estim_folder(appName)
+    create_estim_folder(appName)
 
     # -----------------------------------
     # Flow Holistic

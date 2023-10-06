@@ -1,6 +1,7 @@
 "use strict";
 
 laraImport("UPTStage");
+laraImport("OutputDirectories");
 laraImport("taskgraph/TaskGraphManager");
 laraImport("estimation/TaskGraphAnnotator");
 laraImport("analysis/taskgraph/TaskGraphAnalyzer");
@@ -28,7 +29,7 @@ class HolisticPartitioningFlow extends UPTStage {
 
     buildTaskGraph() {
         this.log("Running task graph building process");
-        const outDir = this.getOutputDir() + "/taskgraph";
+        const outDir = this.getOutputDir() + "/" + OutputDirectories.TASKGRAPH;
 
         const taskGraphMan = new TaskGraphManager(this.getTopFunction(), outDir, this.getAppName());
         const taskGraph = taskGraphMan.buildTaskGraph();
@@ -40,8 +41,8 @@ class HolisticPartitioningFlow extends UPTStage {
 
     annotateTaskGraph(taskGraph) {
         this.log("Running task graph annotation process");
-        const estimDir = this.getOutputDir() + "/estimations";
-        const inputDir = this.getOutputDir() + "/src_inter_tasks";
+        const estimDir = this.getOutputDir() + "/" + OutputDirectories.ESTIMATIONS;
+        const inputDir = this.getOutputDir() + "/" + OutputDirectories.SRC_TASKS;
 
         const annotator = new TaskGraphAnnotator(this.getTopFunction(), estimDir, this.getAppName());
         annotator.annotateAll(taskGraph, this.#config, inputDir);
@@ -52,7 +53,7 @@ class HolisticPartitioningFlow extends UPTStage {
 
     analyzeTaskGraph(taskGraph) {
         this.log("Running task graph analysis process");
-        const outDir = this.getOutputDir() + "/taskgraph";
+        const outDir = this.getOutputDir() + "/" + OutputDirectories.TASKGRAPH;
 
         const analyzer = new TaskGraphAnalyzer(this.getTopFunction(), outDir, this.getAppName(), taskGraph);
         analyzer.updateMetrics();

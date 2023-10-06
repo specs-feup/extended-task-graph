@@ -1,6 +1,7 @@
 "use strict";
 
 laraImport("UPTStage");
+laraImport("OutputDirectories");
 laraImport("analysis/ast/ApplicationAnalyser");
 laraImport("preprocessing/SubsetPreprocessor");
 laraImport("preprocessing/TaskPreprocessor");
@@ -47,13 +48,13 @@ class CodeTransformationFlow extends UPTStage {
     }
 
     generateOriginalCode() {
-        ClavaUtils.generateCode(this.getOutputDir(), "src_original");
-        this.log("Original source code with resolved #defines written to \"src_original\"");
+        ClavaUtils.generateCode(this.getOutputDir(), OutputDirectories.SRC_ORIGINAL);
+        this.log(`Original source code with resolved #defines written to ${OutputDirectories.SRC_ORIGINAL}`);
     }
 
     initialAnalysis() {
         this.log("Running initial analysis step");
-        const outDir = this.getOutputDir() + "/app_stats_original"
+        const outDir = this.getOutputDir() + "/" + OutputDirectories.APP_STATS_ORIGINAL;
         const appName = this.getAppName();
         const topFun = this.getTopFunction();
 
@@ -77,8 +78,8 @@ class CodeTransformationFlow extends UPTStage {
     }
 
     generateSubsetCode() {
-        ClavaUtils.generateCode(this.getOutputDir(), "src_subset");
-        this.log("Intermediate subset-reduced source code written to \"src_subset\"");
+        ClavaUtils.generateCode(this.getOutputDir(), OutputDirectories.SRC_SUBSET);
+        this.log(`Intermediate subset-reduced source code written to ${OutputDirectories.SRC_SUBSET}`)
     }
 
     taskPreprocessing() {
@@ -92,13 +93,13 @@ class CodeTransformationFlow extends UPTStage {
         preprocessor.insertTimer();
         const symbols = preprocessor.insertInstrumentation();
 
-        this.saveToFileInSubfolder(symbols, "symbols.txt", "src_tasks");
-        this.log("Symbols for profiling written to \"src_tasks/symbols.txt\"");
+        this.saveToFileInSubfolder(symbols, "symbols.txt", OutputDirectories.PROFILING);
+        this.log(`Symbols for profiling written to "${OutputDirectories.PROFILING}/symbols.txt"`);
     }
 
     intermediateAnalysis() {
         this.log("Running intermediate analysis step");
-        const outDir = this.getOutputDir() + "/app_stats_tasks"
+        const outDir = this.getOutputDir() + "/" + OutputDirectories.APP_STATS_TASKS;
         const appName = this.getAppName();
         const topFun = this.getTopFunction();
 
@@ -107,7 +108,7 @@ class CodeTransformationFlow extends UPTStage {
     }
 
     generateTaskCode() {
-        ClavaUtils.generateCode(this.getOutputDir(), "src_tasks");
-        this.log("Intermediate task-based source code written to \"src_tasks\"");
+        ClavaUtils.generateCode(this.getOutputDir(), OutputDirectories.SRC_TASKS);
+        this.log(`Intermediate task-based source code written to "${OutputDirectories.SRC_TASKS}"`);
     }
 }
