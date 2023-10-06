@@ -2,7 +2,7 @@
 
 laraImport("estimation/AEstimator");
 laraImport("estimation/EstimationTemplateFactory");
-laraImport("clava.vitishls.VitisHls");
+laraImport("clava.xilinx.VitisHls");
 
 class VitisHlsRealtimeEstimator extends AEstimator {
     targetPart = "";
@@ -31,7 +31,7 @@ class VitisHlsRealtimeEstimator extends AEstimator {
 
     #callVitisHls(topFunction) {
         const vitis = new VitisHls();
-        vitis.setOutputDirectory(this.getEstimationFolder() + "/vitis_hls_working_dir");
+        vitis.setWorkingDir(this.getEstimationFolder() + "/vitis_hls_working_dir");
         vitis.setProjectName("vitis_hls_estimation_proj");
 
         vitis.setTopFunction(topFunction);

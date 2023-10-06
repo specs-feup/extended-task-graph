@@ -58,9 +58,15 @@ class UPTStage {
         println(prefix + "-".repeat(padding) + " " + message);
     }
 
-    saveToFile(str, filename) {
+    saveToFile(content, filename) {
         const fullName = `${this.#outputDir}/${this.#appName}_${filename}`;
-        Io.writeFile(fullName, str);
+        Io.writeFile(fullName, content);
+        return fullName;
+    }
+
+    saveToFileInSubfolder(content, filename, subfolder) {
+        const fullName = `${this.#outputDir}/${subfolder}/${this.#appName}_${filename}`;
+        Io.writeFile(fullName, content);
         return fullName;
     }
 }

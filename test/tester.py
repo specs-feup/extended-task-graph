@@ -176,7 +176,7 @@ def test_flows(appName, isBenchmark, flowCode, flowHolistic, useHls=False):
     # -----------------------------------
     # Inter-flow stage: get profiling info
     # -----------------------------------
-    create_estim_folder(appName)
+    # create_estim_folder(appName)
 
     # -----------------------------------
     # Flow Holistic

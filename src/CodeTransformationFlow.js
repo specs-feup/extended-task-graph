@@ -2,7 +2,8 @@
 
 laraImport("UPTStage");
 laraImport("analysis/ast/ApplicationAnalyser");
-laraImport("preprocessing/Preprocessor");
+laraImport("preprocessing/SubsetPreprocessor");
+laraImport("preprocessing/TaskPreprocessor");
 laraImport("util/ClavaUtils");
 
 class CodeTransformationFlow extends UPTStage {
@@ -16,23 +17,6 @@ class CodeTransformationFlow extends UPTStage {
         this.#config = config;
     }
 
-    run() {
-        this.log("Running code transformation flow");
-
-        this.initialAnalysis();
-
-        const valid = this.preprocessing();
-
-        if (!valid) {
-            this.log("Aborting...");
-            return;
-        }
-
-        this.intermediateAnalysis();
-
-        this.log("Code transformation flow finished successfully!");
-    }
-
     applyInitialConfig() {
         if (!this.#config.hasOwnProperty("appName")) {
             UPTConfig.set("appName", "default_app_name");
@@ -42,9 +26,34 @@ class CodeTransformationFlow extends UPTStage {
         }
     }
 
+    run() {
+        this.log("Running code transformation flow");
+
+        this.generateOriginalCode();
+        this.initialAnalysis();
+
+        const valid = this.subsetPreprocessing();
+        if (!valid) {
+            this.log("Aborting...");
+            return;
+        }
+        this.generateSubsetCode();
+
+        this.taskPreprocessing();
+        this.intermediateAnalysis();
+        this.generateTaskCode();
+
+        this.log("Code transformation flow finished successfully!");
+    }
+
+    generateOriginalCode() {
+        ClavaUtils.generateCode(this.getOutputDir(), "src_original");
+        this.log("Original source code with resolved #defines written to \"src_original\"");
+    }
+
     initialAnalysis() {
         this.log("Running initial analysis step");
-        const outDir = this.getOutputDir() + "/app_stats_init"
+        const outDir = this.getOutputDir() + "/app_stats_original"
         const appName = this.getAppName();
         const topFun = this.getTopFunction();
 
@@ -53,30 +62,52 @@ class CodeTransformationFlow extends UPTStage {
         analyser.dumpCallGraph();
     }
 
-    preprocessing() {
-        this.log("Running preprocessing step");
+    subsetPreprocessing() {
+        this.log("Running subset preprocessing step");
         const outDir = this.getOutputDir();
         const appName = this.getAppName();
         const topFun = this.getTopFunction();
 
-        const prepropcessor = new Preprocessor(topFun, outDir, appName);
-        prepropcessor.preprocess();
+        const preprocessor = new SubsetPreprocessor(topFun, outDir, appName);
+        preprocessor.preprocess();
 
         const res = ClavaUtils.verifySyntax();
         this.log(res ? "Syntax verified" : "Syntax verification failed");
         return res;
     }
 
+    generateSubsetCode() {
+        ClavaUtils.generateCode(this.getOutputDir(), "src_subset");
+        this.log("Intermediate subset-reduced source code written to \"src_subset\"");
+    }
+
+    taskPreprocessing() {
+        this.log("Running task preprocessing step");
+        const outDir = this.getOutputDir();
+        const appName = this.getAppName();
+        const topFun = this.getTopFunction();
+
+        const preprocessor = new TaskPreprocessor(topFun, outDir, appName);
+        preprocessor.outlineAll();
+        preprocessor.insertTimer();
+        const symbols = preprocessor.insertInstrumentation();
+
+        this.saveToFileInSubfolder(symbols, "symbols.txt", "src_tasks");
+        this.log("Symbols for profiling written to \"src_tasks/symbols.txt\"");
+    }
+
     intermediateAnalysis() {
         this.log("Running intermediate analysis step");
-        const outDir = this.getOutputDir() + "/app_stats_inter"
+        const outDir = this.getOutputDir() + "/app_stats_tasks"
         const appName = this.getAppName();
         const topFun = this.getTopFunction();
 
         const analyser = new ApplicationAnalyser(topFun, outDir, appName);
         analyser.runAllTasks();
+    }
 
-        ClavaUtils.generateCode(this.getOutputDir(), "src_inter_tasks");
-        this.log("Intermediate task-based source code written to \"src_inter_tasks\"");
+    generateTaskCode() {
+        ClavaUtils.generateCode(this.getOutputDir(), "src_tasks");
+        this.log("Intermediate task-based source code written to \"src_tasks\"");
     }
 }

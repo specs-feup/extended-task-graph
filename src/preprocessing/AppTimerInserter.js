@@ -6,7 +6,7 @@ laraImport("lara.code.Timer");
 class AppTimerInserter {
     constructor() { }
 
-    insertTimer(topFunction, filename = "timing_results.csv") {
+    insertTimer(topFunction, filename = "app_exec_time.csv") {
         if (topFunction.name == "main") {
             return false;
         }
