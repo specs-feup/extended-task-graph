@@ -2,6 +2,7 @@ import os
 import json
 import shutil
 from string import Template
+from collections.abc import Iterable
 from benchmarks import benchmarks, apps
 from clava import Clava
 
@@ -131,10 +132,10 @@ def test_flow(appName, isBenchmark, flow, useHls=False):
         dot1 = f"{output_path}/taskgraph/{appName}_taskgraph.dot"
         dot2 = f"{output_path}/taskgraph/{appName}_taskgraph_min.dot"
         dot3 = f"{output_path}/estimations/{appName}_taskgraph_annotated.dot"
+        dot4 = f"{output_path}/app_stats_original/{appName}_callgraph.dot"
+        dot5 = f"{output_path}/app_stats_tasks/{appName}_callgraph.dot"
 
-        generate_image_from_dot(dot1)
-        generate_image_from_dot(dot2)
-        generate_image_from_dot(dot3)
+        generate_image_from_dot([dot1, dot2, dot3, dot4, dot5])
 
 
 def lengthy_exec(message):
@@ -150,12 +151,16 @@ def lengthy_exec(message):
 
 
 @lengthy_exec("generating image from dot file")
-def generate_image_from_dot(dot):
-    if not os.path.exists(dot):
-        return
+def generate_image_from_dot(dotfiles):
+    if not isinstance(dotfiles, Iterable):
+        dotfiles = [dotfiles]
 
-    png = dot.replace(".dot", ".png")
-    cmd = f"dot -Tpng {dot} -o {png} -Gmemory=2GB"
+    for dot in dotfiles:
+        if not os.path.exists(dot):
+            continue
+
+        png = dot.replace(".dot", ".png")
+        cmd = f"dot -Tpng {dot} -o {png} -Gmemory=2GB"
 
     os.system(cmd)
 
