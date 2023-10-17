@@ -46,7 +46,7 @@ class TaskGraphAnalyzer extends UPTStage {
     #calculateParallelTasks() {
         const ptf = new ParallelTaskFinder();
         const taskPairs = ptf.findTaskPairs(this.#taskGraph);
-        const parallelTasks = ptf.getPairToParallelMap(taskPairs, this.#taskGraph);
+        const parallelTasks = ptf.getPairToParallelMap(taskPairs);
 
         this.#metrics["parallelTasks"] = parallelTasks;
     }

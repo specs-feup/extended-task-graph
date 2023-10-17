@@ -26,8 +26,35 @@ class ParallelTaskFinder {
         return pairs;
     }
 
-    areParallel(task1, task2, taskGraph) {
-        return false;
+    areParallel(task1, task2) {
+        for (const datum of task1.getReferencedData()) {
+            const isInPath = this.datumIntesectsTask(datum, task1, task2);
+            if (isInPath) {
+                return false;
+            }
+        }
+        for (const datum of task2.getReferencedData()) {
+            const isInPath = this.datumIntesectsTask(datum, task2, task1);
+            if (isInPath) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    datumIntesectsTask(datum, task, taskIntersect) {
+        // I don't like the while(true) here, but it works
+        while (true) {
+            const comm = task.getIncomingOfData(datum);
+            if (comm === null) {
+                return false;
+            }
+            const taskSrc = comm.getSource();
+            if (taskSrc.getId() == taskIntersect.getId()) {
+                return true;
+            }
+            task = taskSrc;
+        }
     }
 
     getPairToParallelMap(taskPairs, taskGraph) {
