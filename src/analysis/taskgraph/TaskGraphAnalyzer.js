@@ -1,6 +1,7 @@
 "use strict";
 
 laraImport("taskgraph/TaskGraph");
+laraImport("analysis/taskgraph/ParallelTaskFinder");
 laraImport("weaver.Query");
 
 class TaskGraphAnalyzer extends UPTStage {
@@ -29,12 +30,25 @@ class TaskGraphAnalyzer extends UPTStage {
     }
 
     updateMetrics() {
+        // need to break this apart!
         this.#calculateTaskStats();
         this.#calculateUniqueTasks();
         this.#calculateDataPerTask();
         this.#calculateGlobalData();
         this.#calculateDataSourceDistance();
+
+        // paralllel tasks
+        this.#calculateParallelTasks();
+
         return this.#metrics;
+    }
+
+    #calculateParallelTasks() {
+        const ptf = new ParallelTaskFinder();
+        const taskPairs = ptf.findTaskPairs(this.#taskGraph);
+        const parallelTasks = ptf.getPairToParallelMap(taskPairs, this.#taskGraph);
+
+        this.#metrics["parallelTasks"] = parallelTasks;
     }
 
     #calculateTaskStats() {
