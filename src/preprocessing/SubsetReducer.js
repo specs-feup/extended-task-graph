@@ -17,6 +17,10 @@ class SubsetReducer extends UPTStage {
         super("CTFlow-Preprocessor-SubsetReducer", topFunction);
     }
 
+    #getValidFunctions() {
+        return ClavaUtils.getAllUniqueFunctions(this.getTopFunction());
+    }
+
     reduce() {
         this.normalizeToSubset();
         this.decomposeStatements();
@@ -25,7 +29,7 @@ class SubsetReducer extends UPTStage {
     }
 
     normalizeToSubset() {
-        const funs = ClavaUtils.getAllUniqueFunctions(this.getTopFunction());
+        const funs = this.#getValidFunctions();
         for (const fun of funs) {
             const body = fun.body;
             NormalizeToSubset(body, { simplifyLoops: { forToWhile: false } });
@@ -37,7 +41,7 @@ class SubsetReducer extends UPTStage {
         const decomp = new StatementDecomposer();
         let hasChanged = true;
         let nPasses = 0;
-        const funs = ClavaUtils.getAllUniqueFunctions(this.getTopFunction());
+        const funs = this.#getValidFunctions();
 
         while (hasChanged && nPasses < maxPasses) {
             hasChanged = false;
@@ -82,11 +86,15 @@ class SubsetReducer extends UPTStage {
     }
 
     ensureVoidReturns() {
+        const funs = this.#getValidFunctions();
         const vf = new Voidifier();
 
         let count = 0;
-        for (var fun of Query.search("function", { "isImplementation": true })) {
-            if (fun.name != "main") {
+        for (const fun of funs) {
+            if (fun.name == "main") {
+                this.log("Skipping voidification of main(), which is part of the valid call graph for subset reduction");
+            }
+            else {
                 const turnedVoid = vf.voidify(fun, "rtr_val");
                 count += turnedVoid ? 1 : 0;
             }

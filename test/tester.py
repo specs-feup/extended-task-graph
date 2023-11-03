@@ -14,6 +14,7 @@ TEMP_FOLDER = "../test/temp/"
 CONFIG = TEMP_FOLDER + "config.json"
 EXTRA_INCLUDES = [
     os.path.abspath(os.path.join("..", "clava-code-transformations", "src")),
+    os.path.abspath(os.path.join("..", "clava-benchmarks", "MachSuite")),
 ]
 
 
@@ -103,8 +104,9 @@ def prepare_command_and_file_bench(appName, flow, useHls=False):
     clava.set_args({"inputType": "bench", "flow": flow})
 
     if flow == "code":
-        dep = "https://github.com/specs-feup/clava-benchmarks.git?folder=" + suite
-        clava.set_dependencies(dep)
+        #dep = "https://github.com/specs-feup/clava-benchmarks.git?folder=" + suite
+        #clava.set_dependencies(dep)
+        pass
     if flow == "holistic":
         inputPath = output_path + "/src_tasks"
         clava.set_workspace(inputPath)

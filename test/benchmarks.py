@@ -156,4 +156,24 @@ benchmarks = {
             "fpgaEstim": "estim_vitishls_precalc.json",
         },
     ),
+    "MachSuite-aes-D": (
+        "c11",
+        {
+            "starterFunction": "aes256_encrypt_ecb",
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
+        },
+    ),
+    "MachSuite-backprop-D": (
+        "c11",
+        {
+            "starterFunction": "backprop",
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
+        },
+    ),
 }

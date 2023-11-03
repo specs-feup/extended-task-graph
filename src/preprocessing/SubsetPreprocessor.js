@@ -21,16 +21,16 @@ class SubsetPreprocessor extends UPTStage {
         this.log("Sanitized code before subset reduction");
     }
 
+    reduceToSubset() {
+        const reducer = new SubsetReducer(this.getTopFunction());
+        reducer.reduce();
+        this.log("Successfully reduced the application to a C/C++ subset");
+    }
+
     sanitizeCodePostSubset() {
         const sanitizer = new CodeSanitizer(this.getTopFunction());
         sanitizer.removeSpuriousStatements();
         sanitizer.removeDuplicatedDecls();
         this.log("Sanitized code after subset reduction");
-    }
-
-    reduceToSubset() {
-        const reducer = new SubsetReducer(this.getTopFunction());
-        reducer.reduce();
-        this.log("Successfully reduced the application to a C/C++ subset");
     }
 }
