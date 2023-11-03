@@ -140,19 +140,6 @@ def test_flow(appName, isBenchmark, flow, useHls=False):
         generate_image_from_dot([dot1, dot2, dot3, dot4, dot5])
 
 
-def lengthy_exec(message):
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            print(f"Tester: {message}", end="", flush=True)
-            func(*args, **kwargs)
-            print(" [DONE]")
-
-        return wrapper
-
-    return decorator
-
-
-@lengthy_exec("generating image from dot file")
 def generate_image_from_dot(dotfiles):
     if not isinstance(dotfiles, Iterable):
         dotfiles = [dotfiles]
@@ -164,7 +151,9 @@ def generate_image_from_dot(dotfiles):
         png = dot.replace(".dot", ".png")
         cmd = f"dot -Tpng {dot} -o {png} -Gmemory=2GB"
 
-    os.system(cmd)
+        print(f"Generating image from {dot}...", end="")
+        os.system(cmd)
+        print(f"Done!")
 
 
 def test_bench_flows(appName, flowCode, flowHolistic, useHls=False):

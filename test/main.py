@@ -36,8 +36,8 @@ def main():
     # test_bench_flows("Rosetta-spam-filter-N", False, True, useHls=False)
 
     ### MachSuite
-    # test_bench_flows("MachSuite-aes-D", True, True, useHls=False)
-    test_bench_flows("MachSuite-backprop-D", True, True, useHls=False)
+    test_bench_flows("MachSuite-aes-D", True, True, useHls=False)
+    # test_bench_flows("MachSuite-backprop-D", True, True, useHls=False)
 
 
     """

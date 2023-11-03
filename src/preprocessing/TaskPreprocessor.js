@@ -66,9 +66,10 @@ class TaskPreprocessor extends UPTStage {
     }
 
     insertInstrumentation() {
-        const inst = new FunctionLevelInstrumentator();
-        const flags = inst.instrument();
-        const joinedFlags = flags.join("\n");
-        return joinedFlags;
+        //const inst = new FunctionLevelInstrumentator();
+        //const flags = inst.instrument();
+        //const joinedFlags = flags.join("\n");
+        //return joinedFlags;
+        return "";
     }
 }
