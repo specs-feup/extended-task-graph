@@ -37,8 +37,24 @@ def main():
 
     ### MachSuite
     test_bench_flows("MachSuite-aes-D", True, True, useHls=False)
-    # test_bench_flows("MachSuite-backprop-D", True, True, useHls=False)
-
+    test_bench_flows("MachSuite-backprop-D", True, True, useHls=False)
+    test_bench_flows("MachSuite-bfs-bulk-D", True, True, useHls=False)
+    test_bench_flows("MachSuite-bfs-queue-D", True, True, useHls=False)
+    test_bench_flows("MachSuite-fft-strided-D", True, True, useHls=False)
+    test_bench_flows("MachSuite-fft-strided-D", True, True, useHls=False)
+    test_bench_flows("MachSuite-gemm-blocked-D", True, True, useHls=False)
+    test_bench_flows("MachSuite-gemm-ncubed-D", True, True, useHls=False)
+    test_bench_flows("MachSuite-kmp-D", True, True, useHls=False)
+    test_bench_flows("MachSuite-md-grid-D", True, True, useHls=False)
+    test_bench_flows("MachSuite-md-knn-D", True, True, useHls=False)
+    test_bench_flows("MachSuite-nw-D", True, True, useHls=False)
+    test_bench_flows("MachSuite-sort-merge-D", True, True, useHls=False)
+    test_bench_flows("MachSuite-sort-radix-D", True, True, useHls=False)
+    test_bench_flows("MachSuite-spmv-crs-D", True, True, useHls=False)
+    test_bench_flows("MachSuite-spmv-ellpack-D", True, True, useHls=False)
+    test_bench_flows("MachSuite-stencil-2d-D", True, True, useHls=False)
+    test_bench_flows("MachSuite-stencil-3d-D", True, True, useHls=False)
+    test_bench_flows("MachSuite-viterbi-D", True, True, useHls=False)
 
     """
     TODO:

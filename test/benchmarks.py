@@ -176,4 +176,183 @@ benchmarks = {
             "fpgaEstim": "estim_vitishls_precalc.json",
         },
     ),
+    "MachSuite-bfs-bulk-D": (
+        "c11",
+        {
+            "starterFunction": "bfs",
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
+        },
+    ),
+    "MachSuite-bfs-queue-D": (
+        "c11",
+        {
+            "starterFunction": "bfs",
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
+        },
+    ),
+    "MachSuite-fft-strided-D": (
+        "c11",
+        {
+            "starterFunction": "fft",
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
+        },
+    ),
+    "MachSuite-fft-strided-D": (
+        "c11",
+        {
+            "starterFunction": "fft1D_512",
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
+        },
+    ),
+    "MachSuite-gemm-blocked-D": (
+        "c11",
+        {
+            "starterFunction": "bbgemm",
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
+        },
+    ),
+    "MachSuite-gemm-ncubed-D": (
+        "c11",
+        {
+            "starterFunction": "gemm",
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
+        },
+    ),  
+    "MachSuite-kmp-D": (
+        "c11",
+        {
+            "starterFunction": "gemm",
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
+        },
+    ),    "MachSuite-gemm-ncubed-D": (
+        "c11",
+        {
+            "starterFunction": "kmp",
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
+        },
+    ),    
+    "MachSuite-md-grid-D": (
+        "c11",
+        {
+            "starterFunction": "md",
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
+        },
+    ),    
+    "MachSuite-md-knn-D": (
+        "c11",
+        {
+            "starterFunction": "md_kernel",
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
+        },
+    ),    
+    "MachSuite-nw-D": (
+        "c11",
+        {
+            "starterFunction": "needwun",
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
+        },
+    ),    
+    "MachSuite-sort-merge-D": (
+        "c11",
+        {
+            "starterFunction": "ms_mergesort",
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
+        },
+    ),    
+    "MachSuite-sort-radix-D": (
+        "c11",
+        {
+            "starterFunction": "ss_sort",
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
+        },
+    ),    
+    "MachSuite-spmv-crs-D": (
+        "c11",
+        {
+            "starterFunction": "spmv",
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
+        },
+    ),    
+    "MachSuite-spmv-ellpack-D": (
+        "c11",
+        {
+            "starterFunction": "ellpack",
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
+        },
+    ),    
+    "MachSuite-stencil-2d-D": (
+        "c11",
+        {
+            "starterFunction": "stencil",
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
+        },
+    ),    
+    "MachSuite-stencil-3d-D": (
+        "c11",
+        {
+            "starterFunction": "stencil3d",
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
+        },
+    ),
+    "MachSuite-viterbi-D": (
+        "c11",
+        {
+            "starterFunction": "viterbi",
+            "clock": 10,
+            "targetPart": "xcvu5p-flva2104-1-e",
+            "cpuEstim": "estim_perf_precalc.json",
+            "fpgaEstim": "estim_vitishls_precalc.json",
+        },
+    ),
 }
