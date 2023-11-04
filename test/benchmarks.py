@@ -206,7 +206,7 @@ benchmarks = {
             "fpgaEstim": "estim_vitishls_precalc.json",
         },
     ),
-    "MachSuite-fft-strided-D": (
+    "MachSuite-fft-transpose-D": (
         "c11",
         {
             "starterFunction": "fft1D_512",
@@ -237,15 +237,6 @@ benchmarks = {
         },
     ),  
     "MachSuite-kmp-D": (
-        "c11",
-        {
-            "starterFunction": "gemm",
-            "clock": 10,
-            "targetPart": "xcvu5p-flva2104-1-e",
-            "cpuEstim": "estim_perf_precalc.json",
-            "fpgaEstim": "estim_vitishls_precalc.json",
-        },
-    ),    "MachSuite-gemm-ncubed-D": (
         "c11",
         {
             "starterFunction": "kmp",
