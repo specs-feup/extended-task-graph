@@ -19,8 +19,8 @@ def main():
 
     data_aggregator = DataAggregator(folder_path, valid_subfolders)
 
-    result = data_aggregator.index_jsons()
-    data_aggregator.output_combined_json('output_combined.json')
+    data_aggregator.output_combined_json()
+    data_aggregator.output_combined_csv()
 
 if __name__ == '__main__':
     main()
