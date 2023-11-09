@@ -1,65 +1,34 @@
 import os
-import pandas as pd
 import json
-from datetime import datetime
-
 
 class DataAggregator:
-    def __init__(self, folder_path, acceptable_subfolders=None):
+    def __init__(self, folder_path, valid_subfolders=None):
         self.folder_path = folder_path
-        self.acceptable_subfolders = acceptable_subfolders
-        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-        self.output_excel_path = os.path.join(folder_path, f"combined_{timestamp}.xlsx")
+        self.valid_subfolders = valid_subfolders
 
-    def convert_to_excel(self):
-        subfolders = [
-            subfolder
-            for subfolder in os.listdir(self.folder_path)
-            if os.path.isdir(os.path.join(self.folder_path, subfolder))
-        ]
+    def index_jsons(self):
+        json_map = {}
 
-        if not subfolders:
-            print("No subfolders found in the main folder.")
-            return
+        for subfolder in os.listdir(self.folder_path):
+            subfolder_path = os.path.join(self.folder_path, subfolder, "taskgraph")
 
-        combined_data = pd.DataFrame()
+            if self.valid_subfolders is None or (os.path.isdir(subfolder_path) and subfolder in self.valid_subfolders):
+                json_name = subfolder + '_task_graph_metrics.json'
+                json_file_path = os.path.join(subfolder_path, json_name)
 
-        for subfolder in subfolders:
-            if (
-                self.acceptable_subfolders
-                and subfolder not in self.acceptable_subfolders
-            ):
-                continue
+                if os.path.exists(json_file_path):
+                    with open(json_file_path, 'r') as json_file:
+                        data = json.load(json_file)
 
-            subfolder_path = os.path.join(self.folder_path, subfolder)
-            json_files = [
-                file for file in os.listdir(subfolder_path) if file.endswith(".json")
-            ]
+                        if 'appName' in data:
+                            app_name = data['appName']
+                            json_map[app_name] = data
 
-            for json_file in json_files:
-                file_path = os.path.join(subfolder_path, json_file)
+        return json_map
 
-                with open(file_path, "r") as f:
-                    data = json.load(f)
+    def output_combined_json(self, output_file_path='combined.json'):
+        json_map = self.index_jsons()
 
-                data["Key"] = subfolder
-                combined_data = pd.concat(
-                    [combined_data, pd.json_normalize(data)], ignore_index=True
-                )
+        with open(output_file_path, 'w') as output_file:
+            json.dump(json_map, output_file, indent=2)
 
-        combined_data.to_excel(self.output_excel_path, index=False)
-
-        print(
-            f"JSON files in subfolders of '{self.folder_path}' successfully combined into '{self.output_excel_path}'."
-        )
-
-
-# Example usage
-folder_path = "/path/to/your/folder"
-acceptable_subfolders = [
-    "subfolder1",
-    "subfolder2",
-    "subfolder3",
-]  # Specify acceptable subfolders or set to None
-aggregator = DataAggregator(folder_path, acceptable_subfolders)
-aggregator.convert_to_excel()
