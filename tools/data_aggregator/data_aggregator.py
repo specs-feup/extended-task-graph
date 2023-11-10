@@ -1,6 +1,7 @@
 import os
 import json
 import csv
+import openpyxl
 
 class DataAggregator:
     def __init__(self, folder_path, valid_subfolders=None):
@@ -38,7 +39,27 @@ class DataAggregator:
         with open(output_file_path, 'w') as output_file:
             json.dump(json_map, output_file, indent=4)
 
-    def output_combined_csv(self, csv_file_path='combined_output.csv'):
+
+    def output_excel_from_csv_list(self, csv_files, excel_filename='combined_output.xlsx', delete_csv=False):
+        workbook = openpyxl.Workbook()
+
+        for csv_file in csv_files:
+            sheet_name = csv_file.split('.')[0]
+            sheet = workbook.create_sheet(title=sheet_name)
+
+            with open(csv_file, 'r') as file:
+                csv_reader = csv.reader(file)
+                for row_index, row in enumerate(csv_reader, start=1):
+                    for col_index, value in enumerate(row, start=1):
+                        sheet.cell(row=row_index, column=col_index, value=value)
+            if delete_csv:
+                os.remove(csv_file)
+
+        workbook.remove(workbook['Sheet'])
+        workbook.save(excel_filename)
+
+
+    def output_general_stats(self, csv_file_path='general_stats.csv'):
         json_map = self.get_indexed_jsons()
 
         with open(csv_file_path, 'w', newline='') as csv_file:
@@ -66,4 +87,127 @@ class DataAggregator:
                     data.get('counts', {}).get('globalVars', 'N/A'),
                 ]
                 csv_writer.writerow(row_data)
+        return csv_file_path    
+        
 
+    def output_unique_task_data(self, csv_file_path='unique_task_data.csv'):
+        json_map = self.get_indexed_jsons()
+
+        with open(csv_file_path, 'w', newline='') as csv_file:
+            csv_writer = csv.writer(csv_file)
+
+            header = [
+                "Suite",
+                "Benchmark", 
+                "regularTasks",
+                "externalTasks",
+                "inlinableCalls",
+                "globalVariables",
+            ]
+            csv_writer.writerow(header)
+
+            # Write rows
+            for app_name, data in json_map.items():
+                row_data = [
+                    app_name.split('-')[0],
+                    '-'.join(app_name.split('-')[1:-1]),
+
+                    data.get('counts', {}).get('regularTasks', 'N/A'),
+                    data.get('counts', {}).get('externalTasks', 'N/A'),
+                    data.get('counts', {}).get('inlinableCalls', 'N/A'),
+                    data.get('counts', {}).get('globalVars', 'N/A'),
+                ]
+                csv_writer.writerow(row_data)
+        return csv_file_path
+
+    
+    def output_data_per_task(self, csv_file_path='data_per_task.csv'):
+        json_map = self.get_indexed_jsons()
+
+        with open(csv_file_path, 'w', newline='') as csv_file:
+            csv_writer = csv.writer(csv_file)
+
+            header = [
+                "Suite",
+                "Benchmark", 
+            ]
+            csv_writer.writerow(header)
+
+            # Write rows
+            for app_name, data in json_map.items():
+                row_data = [
+                    app_name.split('-')[0],
+                    '-'.join(app_name.split('-')[1:-1]),
+
+                ]
+                csv_writer.writerow(row_data)
+        return csv_file_path
+    
+
+    def output_global_var_data(self, csv_file_path='global_var_data.csv'):
+        json_map = self.get_indexed_jsons()
+
+        with open(csv_file_path, 'w', newline='') as csv_file:
+            csv_writer = csv.writer(csv_file)
+
+            header = [
+                "Suite",
+                "Benchmark", 
+            ]
+            csv_writer.writerow(header)
+
+            # Write rows
+            for app_name, data in json_map.items():
+                row_data = [
+                    app_name.split('-')[0],
+                    '-'.join(app_name.split('-')[1:-1]),
+
+                ]
+                csv_writer.writerow(row_data)
+        return csv_file_path
+    
+
+    def output_data_source_distance(self, csv_file_path='data_source_distance.csv'):
+        json_map = self.get_indexed_jsons()
+
+        with open(csv_file_path, 'w', newline='') as csv_file:
+            csv_writer = csv.writer(csv_file)
+
+            header = [
+                "Suite",
+                "Benchmark", 
+            ]
+            csv_writer.writerow(header)
+
+            # Write rows
+            for app_name, data in json_map.items():
+                row_data = [
+                    app_name.split('-')[0],
+                    '-'.join(app_name.split('-')[1:-1]),
+
+                ]
+                csv_writer.writerow(row_data)
+        return csv_file_path
+    
+
+    def output_parallel_tasks(self, csv_file_path='parallel_tasks.csv'):
+        json_map = self.get_indexed_jsons()
+
+        with open(csv_file_path, 'w', newline='') as csv_file:
+            csv_writer = csv.writer(csv_file)
+
+            header = [
+                "Suite",
+                "Benchmark", 
+            ]
+            csv_writer.writerow(header)
+
+            # Write rows
+            for app_name, data in json_map.items():
+                row_data = [
+                    app_name.split('-')[0],
+                    '-'.join(app_name.split('-')[1:-1]),
+
+                ]
+                csv_writer.writerow(row_data)
+        return csv_file_path
