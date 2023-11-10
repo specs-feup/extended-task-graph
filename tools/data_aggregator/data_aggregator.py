@@ -1,7 +1,7 @@
 import os
 import json
 import csv
-import openpyxl
+from excel_converter import ExcelConverter
 
 class DataAggregator:
     def __init__(self, folder_path, valid_subfolders=None):
@@ -40,23 +40,9 @@ class DataAggregator:
             json.dump(json_map, output_file, indent=4)
 
 
-    def output_excel_from_csv_list(self, csv_files, excel_filename='combined_output.xlsx', delete_csv=False):
-        workbook = openpyxl.Workbook()
-
-        for csv_file in csv_files:
-            sheet_name = csv_file.split('.')[0]
-            sheet = workbook.create_sheet(title=sheet_name)
-
-            with open(csv_file, 'r') as file:
-                csv_reader = csv.reader(file)
-                for row_index, row in enumerate(csv_reader, start=1):
-                    for col_index, value in enumerate(row, start=1):
-                        sheet.cell(row=row_index, column=col_index, value=value)
-            if delete_csv:
-                os.remove(csv_file)
-
-        workbook.remove(workbook['Sheet'])
-        workbook.save(excel_filename)
+    def output_excel_from_csv_list(self, csv_files, excel_filename='combined_output.xlsx'):
+        converter = ExcelConverter()
+        converter.csv_files_to_excel(csv_files, excel_filename, delete_csv=True)
 
 
     def output_general_stats(self, csv_file_path='general_stats.csv'):
@@ -99,25 +85,27 @@ class DataAggregator:
             header = [
                 "Suite",
                 "Benchmark", 
-                "regularTasks",
-                "externalTasks",
-                "inlinableCalls",
-                "globalVariables",
+                "Task Name",
+                "Task Type",
+                "Instances"
             ]
             csv_writer.writerow(header)
 
             # Write rows
             for app_name, data in json_map.items():
-                row_data = [
-                    app_name.split('-')[0],
-                    '-'.join(app_name.split('-')[1:-1]),
+                types = data.get('uniqueTaskTypes', {})
+                instances = data.get('uniqueTaskTypes', {})
 
-                    data.get('counts', {}).get('regularTasks', 'N/A'),
-                    data.get('counts', {}).get('externalTasks', 'N/A'),
-                    data.get('counts', {}).get('inlinableCalls', 'N/A'),
-                    data.get('counts', {}).get('globalVars', 'N/A'),
-                ]
-                csv_writer.writerow(row_data)
+                for task_name, task_type in types.items():
+                    row_data = [
+                        app_name.split('-')[0],
+                        '-'.join(app_name.split('-')[1:-1]),
+                        task_name,
+                        task_type,
+                        instances.get(task_name, 'N/A'),
+                    ]
+                    csv_writer.writerow(row_data)
+
         return csv_file_path
 
     

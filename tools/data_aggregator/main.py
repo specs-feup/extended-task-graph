@@ -28,7 +28,7 @@ def main():
         data_aggregator.output_data_source_distance(),
         data_aggregator.output_parallel_tasks(),
     ]
-    data_aggregator.output_excel_from_csv_list(csv_files, delete_csv=True)
+    data_aggregator.output_excel_from_csv_list(csv_files)
 
 if __name__ == '__main__':
     main()
