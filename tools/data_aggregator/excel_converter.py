@@ -5,11 +5,11 @@ import openpyxl
 
 class ExcelConverter:
 
-    def csv_files_to_excel(self, csv_files, excel_filename='combined_output.xlsx', delete_csv=False):
+    def csv_files_to_excel(self, csv_files, excel_filename='combined_output.xlsx', delete_csv=False, ranges_for_merging = {}):
         workbook = openpyxl.Workbook()
 
         for csv_file in csv_files:
-            sheet_name = csv_file.split('.')[0]
+            sheet_name = csv_file.split('.')[0].split('/')[-1].split('\\')[-1]
             sheet = workbook.create_sheet(title=sheet_name)
 
             with open(csv_file, 'r') as file:
@@ -19,7 +19,9 @@ class ExcelConverter:
                         sheet.cell(row=row_index, column=col_index, value=value)
             if delete_csv:
                 os.remove(csv_file)
-            self.merge_and_center(sheet)
+            
+            merge_range = ranges_for_merging.get(sheet_name, range(1, 3))
+            self.merge_and_center(sheet, merge_range)
             self.center_and_auto_size(sheet)
 
 
