@@ -2,6 +2,7 @@ import os
 import json
 import csv
 import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
 class ExcelConverter:
 
@@ -23,10 +24,19 @@ class ExcelConverter:
             merge_range = ranges_for_merging.get(sheet_name, range(1, 3))
             self.merge_and_center(sheet, merge_range)
             self.center_and_auto_size(sheet)
-
+            self.set_header_format(sheet)
 
         workbook.remove(workbook['Sheet'])
         workbook.save(excel_filename)
+
+    
+    def set_header_format(self, sheet):
+        sheet.freeze_panes = 'A2'
+
+        for cell in sheet[1]:
+            cell.font = Font(bold=True)
+            cell.fill = PatternFill(start_color="B7DEE8", end_color="B7DEE8", fill_type="solid")
+            cell.border = Border(top=Side(style='thin'))
 
     def merge_and_center(self, sheet, column_range=range(1, 3)):
         max_row = sheet.max_row
