@@ -1,12 +1,14 @@
 import os
 import json
 import csv
+import time
+from datetime import datetime
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
 class ExcelConverter:
 
-    def csv_files_to_excel(self, csv_files, excel_filename='combined_output.xlsx', delete_csv=False, ranges_for_merging = {}):
+    def csv_files_to_excel(self, csv_files, excel_filename='combined_output', delete_csv=False, ranges_for_merging = {}):
         workbook = openpyxl.Workbook()
 
         for csv_file in csv_files:
@@ -27,8 +29,17 @@ class ExcelConverter:
             self.set_header_format(sheet)
 
         workbook.remove(workbook['Sheet'])
-        workbook.save(excel_filename)
+        actual_filename = self.generate_filename(excel_filename)
+        workbook.save(actual_filename)
 
+
+    def generate_filename(self, filename):
+        if filename.endswith('.xlsx'):
+            filename = filename[:-5]
+
+        timestamp = int(time.time())
+        filename = f'{filename}_{timestamp}.xlsx'
+        return filename
     
     def set_header_format(self, sheet):
         sheet.freeze_panes = 'A2'
