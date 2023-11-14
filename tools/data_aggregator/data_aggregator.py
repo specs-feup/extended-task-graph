@@ -329,3 +329,48 @@ class DataAggregator:
                     csv_writer.writerow(row_data)
 
         return csv_file_path
+    
+
+    def output_producer_consumer_relationship(self, csv_file_path='producer_consumer_relationship.csv'):
+        json_map = self.get_indexed_jsons()
+        csv_file_path = self.get_full_path(csv_file_path)
+
+        with open(csv_file_path, 'w', newline='') as csv_file:
+            csv_writer = csv.writer(csv_file)
+
+            header = [
+                "Suite",
+                "Benchmark",
+                "Task ID 1",
+                "Task ID 2",
+                "Common Parent ID",
+                "Data",
+                "Task Name 1",
+                "Task Name 2",
+                "Common Parent Name",
+            ]
+            csv_writer.writerow(header)
+
+            # Write rows
+            for app_name, data in json_map.items():
+                parallel_tasks = data.get('producerConsumer', {})
+
+                for pair_info in parallel_tasks:
+                    row_data = [
+                        self.get_suite_benchmark(app_name)[0],
+                        self.get_suite_benchmark(app_name)[1],
+
+                        pair_info.get('pair', {})[0].split(' : ')[0],
+                        pair_info.get('pair', {})[1].split(' : ')[0],
+                        pair_info.get('hierarchicalParent', {}).split(' : ')[0],
+
+                        " | ".join(pair_info.get('commonData', 'N/A')),
+
+                        pair_info.get('pair', {})[1].split(' : ')[1],
+                        pair_info.get('pair', {})[1].split(' : ')[1],
+                        pair_info.get('hierarchicalParent', {}).split(' : ')[1],
+
+                    ]
+                    csv_writer.writerow(row_data)
+
+        return csv_file_path

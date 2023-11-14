@@ -2,6 +2,7 @@
 
 laraImport("taskgraph/TaskGraph");
 laraImport("analysis/taskgraph/ParallelTaskFinder");
+laraImport("analysis/taskgraph/ProducerConsumerFinder");
 laraImport("weaver.Query");
 
 class TaskGraphAnalyzer extends UPTStage {
@@ -37,8 +38,11 @@ class TaskGraphAnalyzer extends UPTStage {
         this.#calculateGlobalData();
         this.#calculateDataSourceDistance();
 
-        // paralllel tasks
+        // parallel tasks
         this.#calculateParallelTasks();
+
+        // producer-consumer
+        this.#calculateProducerConsumer();
 
         return this.#metrics;
     }
@@ -49,6 +53,14 @@ class TaskGraphAnalyzer extends UPTStage {
         const parallelTasks = ptf.getPairToParallelMap(taskPairs);
 
         this.#metrics["parallelTasks"] = parallelTasks;
+    }
+
+    #calculateProducerConsumer() {
+        const pcf = new ProducerConsumerFinder();
+        const taskPairs = pcf.findTaskPairs(this.#taskGraph);
+        const producerConsumer = pcf.getPairToProducerConsumerMap(taskPairs);
+
+        this.#metrics["producerConsumer"] = producerConsumer;
     }
 
     #calculateTaskStats() {
