@@ -79,6 +79,27 @@ void clean_conditional_test_3(int A[N], int B[M], int C[N], int x)
     useAB_defineC(A, B, C);
 }
 
+void constant_argument_test_2(int A[N], int x, int y)
+{
+    for (int i = 0; i < N; i++)
+    {
+        A[i] = x;
+    }
+}
+
+void constant_argument_test(int A[N], int x, int C[N], int y)
+{
+    for (int i = 0; i < N; i++)
+    {
+        A[i] = x;
+    }
+    for (int i = 0; i < N; i++)
+    {
+        C[i] = y;
+    }
+    constant_argument_test_2(A, x, 14);
+}
+
 void app_start(int A[N], int B[M], int C[N])
 {
     int D[N * M] = {0};
@@ -143,6 +164,8 @@ void app_start(int A[N], int B[M], int C[N])
     clean_conditional_test_2(A, B, C, x);
 
     clean_conditional_test_3(A, B, C, x);
+
+    constant_argument_test(A, 1, C, 2);
 }
 
 int main()
