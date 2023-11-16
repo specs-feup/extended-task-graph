@@ -1,5 +1,7 @@
 "use strict";
 
+laraImport("taskgraph/DataOrigins");
+
 class Data {
     #decl = null;
     #isInit = false;
@@ -12,7 +14,7 @@ class Data {
     #datatype = null;
     #datatypeSize = 4;
 
-    #origin = "UNKNOWN"
+    #origin = DataOrigins.UNKNOWN;
     #alternateName = "<none>";
 
     constructor(decl, origin) {
@@ -92,15 +94,19 @@ class Data {
     }
 
     isNewlyCreated() {
-        return this.#origin === "NEW";
+        return this.#origin === DataOrigins.NEW;
     }
 
     isFromParam() {
-        return this.#origin === "PARAM";
+        return this.#origin === DataOrigins.PARAM;
     }
 
     isFromGlobal() {
-        return this.#origin === "GLOBAL";
+        return this.#origin === DataOrigins.GLOBAL;
+    }
+
+    isConstant() {
+        return this.#origin === DataOrigins.CONSTANT;
     }
 
     isScalar() {
