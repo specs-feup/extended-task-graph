@@ -34,6 +34,7 @@ class TaskGraphAnalyzer extends UPTStage {
         // need to break this apart!
         this.#calculateTaskStats();
         this.#calculateUniqueTasks();
+        this.#calculateInlinableHistogram();
         this.#calculateDataPerTask();
         this.#calculateGlobalData();
         this.#calculateDataSourceDistance();
@@ -81,10 +82,21 @@ class TaskGraphAnalyzer extends UPTStage {
                 regularCnt++;
             }
         }
+
+        const nTasks = regularCnt + externalCnt;
+        const nEdges = this.#taskGraph.getCommunications().length;
         const nInlinables = this.#taskGraph.getInlinables().length;
         const nGlobals = this.#taskGraph.getGlobalTask().getData().length;
 
-        this.#metrics["counts"] = { "externalTasks": externalCnt, "regularTasks": regularCnt, "inlinableCalls": nInlinables, "globalVars": nGlobals };
+        this.#metrics["counts"] = {
+            "#tasks": nTasks,
+            "#edges": nEdges,
+            "externalTasks": externalCnt,
+            "regularTasks": regularCnt,
+            "inlinableCalls": nInlinables,
+            "globalVars": nGlobals,
+
+        };
         this.#metrics["uniqueTaskTypes"] = taskTypes;
     }
 
@@ -103,6 +115,22 @@ class TaskGraphAnalyzer extends UPTStage {
             }
         }
         this.#metrics["uniqueTaskInstances"] = uniqueTasks;
+    }
+
+    #calculateInlinableHistogram() {
+        const hist = {};
+        for (const inlinable of this.#taskGraph.getInlinables()) {
+            const inlinableName = inlinable.name;
+            println(inlinableName);
+
+            if (inlinableName in hist) {
+                hist[inlinableName]++;
+            }
+            else {
+                hist[inlinableName] = 1;
+            }
+        }
+        this.#metrics["noTaskCallsHistogram"] = hist;
     }
 
     #calculateDataPerTask() {

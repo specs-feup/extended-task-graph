@@ -70,7 +70,9 @@ class DataAggregator:
 
             header = [
                 "Suite",
-                "Benchmark", 
+                "Benchmark",
+                "#Tasks",
+                "#Edges",
                 "regularTasks",
                 "externalTasks",
                 "inlinableCalls",
@@ -83,6 +85,8 @@ class DataAggregator:
                 row_data = [
                     self.get_suite_benchmark(app_name)[0],
                     self.get_suite_benchmark(app_name)[1],
+                    data.get('counts', {}).get('#tasks', 'N/A'),
+                    data.get('counts', {}).get('#edges', 'N/A'),
                     data.get('counts', {}).get('regularTasks', 'N/A'),
                     data.get('counts', {}).get('externalTasks', 'N/A'),
                     data.get('counts', {}).get('inlinableCalls', 'N/A'),
@@ -104,7 +108,7 @@ class DataAggregator:
                 "Benchmark", 
                 "Task Name",
                 "Task Type",
-                "Instances"
+                "Instances/Call Spots"
             ]
             csv_writer.writerow(header)
 
@@ -125,6 +129,36 @@ class DataAggregator:
 
         return csv_file_path
 
+
+    def output_no_task_calls_histogram(self, csv_file_path='no_task_calls_histogram.csv'):
+        json_map = self.get_indexed_jsons()
+        csv_file_path = self.get_full_path(csv_file_path)
+
+        with open(csv_file_path, 'w', newline='') as csv_file:
+            csv_writer = csv.writer(csv_file)
+
+            header = [
+                "Suite",
+                "Benchmark",
+                "No Task Function",
+                "Instances/Call Spots"
+            ]
+            csv_writer.writerow(header)
+
+            # Write rows
+            for app_name, data in json_map.items():
+                no_task_calls = data.get('noTaskCallsHistogram', {})
+
+                for func_name, call_count in no_task_calls.items():
+                    row_data = [
+                        self.get_suite_benchmark(app_name)[0],
+                        self.get_suite_benchmark(app_name)[1],
+                        func_name,
+                        call_count,
+                    ]
+                    csv_writer.writerow(row_data)
+
+        return csv_file_path
     
     def output_data_per_task(self, csv_file_path='data_per_task.csv'):
         json_map = self.get_indexed_jsons()

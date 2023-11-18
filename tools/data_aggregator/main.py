@@ -5,16 +5,17 @@ def main():
     valid_subfolders = [
         #"MachSuite-aes-D",
         "MachSuite-backprop-D",
-        "MachSuite-fft-transpose-D",
-        "MachSuite-kmp-D",
-        "MachSuite-sort-merge-D",
-        "MachSuite-sort-radix-D",
-        "Rosetta-3d-rendering-N",
-        "Rosetta-digit-recognition-N",
-        "Rosetta-face-detection-N",
-        "Rosetta-optical-flow-current",
-        "Rosetta-spam-filter-N",
-        "edgedetect",
+        #"MachSuite-fft-transpose-D",
+        #"MachSuite-kmp-D",
+        #"MachSuite-sort-merge-D",
+        #"MachSuite-sort-radix-D",
+        #"Rosetta-3d-rendering-N",
+        #"Rosetta-digit-recognition-N",
+        #"Rosetta-face-detection-N",
+        #"Rosetta-optical-flow-current",
+        #"Rosetta-spam-filter-N",
+        #"edgedetect",
+        #"stresstest",
     ]
 
     data_aggregator = DataAggregator(folder_path, valid_subfolders)
@@ -23,6 +24,7 @@ def main():
         
         data_aggregator.output_general_stats(),
         data_aggregator.output_unique_task_data(),
+        data_aggregator.output_no_task_calls_histogram(),
         data_aggregator.output_data_per_task(),
         data_aggregator.output_global_var_data(),
         data_aggregator.output_data_source_distance(),
@@ -32,6 +34,7 @@ def main():
     ranges_for_merging = {
         "general_stats": range(1, 3),
         "unique_task_data": range(1, 3),
+        "no_task_calls_histogram": range(1, 3),
         "data_per_task": range(1, 5),
         "global_var_data": range(1, 3),
         "data_source_distance": range(1, 5),
