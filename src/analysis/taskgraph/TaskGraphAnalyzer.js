@@ -3,6 +3,7 @@
 laraImport("taskgraph/TaskGraph");
 laraImport("analysis/taskgraph/ParallelTaskFinder");
 laraImport("analysis/taskgraph/ProducerConsumerFinder");
+laraImport("analysis/taskgraph/CriticalPathFinder");
 laraImport("weaver.Query");
 
 class TaskGraphAnalyzer extends UPTStage {
@@ -45,6 +46,9 @@ class TaskGraphAnalyzer extends UPTStage {
         // producer-consumer
         this.#calculateProducerConsumer();
 
+        // critical path / ILP measure
+        this.#calculateCriticalPath();
+
         return this.#metrics;
     }
 
@@ -62,6 +66,13 @@ class TaskGraphAnalyzer extends UPTStage {
         const producerConsumer = pcf.getPairToProducerConsumerMap(taskPairs);
 
         this.#metrics["producerConsumer"] = producerConsumer;
+    }
+
+    #calculateCriticalPath() {
+        const cpf = new CriticalPathFinder();
+        const criticalPaths = cpf.findCriticalPaths(this.#taskGraph);
+
+        this.#metrics["criticalPaths"] = criticalPaths;
     }
 
     #calculateTaskStats() {

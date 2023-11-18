@@ -156,6 +156,7 @@ class DataAggregator:
             # Write rows
             for app_name, data in json_map.items():
                 no_task_calls = data.get('noTaskCallsHistogram', {})
+                cnt = 0
 
                 for func_name, call_count in no_task_calls.items():
                     row_data = [
@@ -165,8 +166,18 @@ class DataAggregator:
                         call_count,
                     ]
                     csv_writer.writerow(row_data)
+                    cnt += 1
+                if cnt == 0:
+                    row_data = [
+                        self.get_suite_benchmark(app_name)[0],
+                        self.get_suite_benchmark(app_name)[1],
+                        'N/A',
+                        'N/A',
+                    ]
+                    csv_writer.writerow(row_data)
 
         return csv_file_path
+    
     
     def output_data_per_task(self, csv_file_path='data_per_task.csv'):
         json_map = self.get_indexed_jsons()
