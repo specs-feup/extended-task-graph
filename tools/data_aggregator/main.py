@@ -4,7 +4,7 @@ def main():
     folder_path = '../../test/outputs'
     valid_subfolders = [
         #"MachSuite-aes-D",
-        "MachSuite-backprop-D",
+        #"MachSuite-backprop-D",
         #"MachSuite-fft-transpose-D",
         #"MachSuite-kmp-D",
         #"MachSuite-sort-merge-D",
@@ -15,7 +15,7 @@ def main():
         #"Rosetta-optical-flow-current",
         #"Rosetta-spam-filter-N",
         #"edgedetect",
-        #"stresstest",
+        "stresstest",
     ]
 
     data_aggregator = DataAggregator(folder_path, valid_subfolders)

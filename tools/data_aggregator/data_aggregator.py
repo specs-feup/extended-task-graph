@@ -108,6 +108,7 @@ class DataAggregator:
                 "Benchmark", 
                 "Task Name",
                 "Task Type",
+                "#Statements",
                 "Instances/Call Spots"
             ]
             csv_writer.writerow(header)
@@ -118,13 +119,20 @@ class DataAggregator:
                 instances = data.get('uniqueTaskInstances', {})
 
                 for task_name, task_type in types.items():
+                    task_props = instances.get(task_name, 'N/A')
+
+                    instance_list = task_props.get('instances', [])
+                    n_statements = task_props.get('#statements', 'N/A')
+
                     row_data = [
                         self.get_suite_benchmark(app_name)[0],
                         self.get_suite_benchmark(app_name)[1],
                         task_name,
                         task_type,
-                        instances.get(task_name, 'N/A'),
+                        n_statements,
                     ]
+                    row_data.extend(instance_list)
+
                     csv_writer.writerow(row_data)
 
         return csv_file_path

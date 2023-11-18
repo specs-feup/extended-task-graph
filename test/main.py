@@ -13,7 +13,7 @@ def main():
 
 def test_apps():
     #test_app_flows("edgedetect", False, True, useHls=False)
-    #test_app_flows("stresstest", False, True, useHls=False)
+    test_app_flows("stresstest", False, True, useHls=False)
     # test_app_flows("scenarioA", True, True, useHls=True)
     # test_app_flows("scenarioB", True, True, useHls=True)
     pass
@@ -60,7 +60,7 @@ def test_machsuite():
     # Multi-task benchmarks
     # -----------------------------------
     # test_bench_flows("MachSuite-aes-D", False, True, useHls=False) # ERROR in creating decomps with void type
-    test_bench_flows("MachSuite-backprop-D", False, True, useHls=False) # some edge errors
+    # test_bench_flows("MachSuite-backprop-D", False, True, useHls=False) # some edge errors
     #test_bench_flows("MachSuite-fft-transpose-D", False, True, useHls=False) # some edge errors
     #test_bench_flows("MachSuite-kmp-D", True, False, useHls=False)
     #test_bench_flows("MachSuite-sort-merge-D", False, True, useHls=False)
@@ -93,7 +93,6 @@ TODO:
     I think this may need some parenthesis or even an expansion to *i = *i + 1
 
 - New metrics:
-* Task is in loop, and also count if possible (unique task data)
 * critical path stuff (number of tasks in subgraph, critical path length, and parallelism metric)
 * parallel sets, T2 -> {T3, T4}
 """

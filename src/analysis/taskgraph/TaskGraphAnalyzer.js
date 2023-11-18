@@ -106,15 +106,31 @@ class TaskGraphAnalyzer extends UPTStage {
 
         for (const task of tasks) {
             const taskName = task.getName();
+            const taskReps = task.getRepetitions();
 
             if (taskName in uniqueTasks) {
-                uniqueTasks[taskName]++;
+
+                uniqueTasks[taskName]["instances"].push(taskReps);
             }
             else {
-                uniqueTasks[taskName] = 1;
+                const uniqueTaskProps = {
+                    "instances": [taskReps],
+                    "#statements": this.#countStatements(task),
+                }
+                uniqueTasks[taskName] = uniqueTaskProps;
             }
         }
+
         this.#metrics["uniqueTaskInstances"] = uniqueTasks;
+    }
+
+    #countStatements(task) {
+        const func = task.getFunction();
+        if (func == null) {
+            return -1;
+        }
+        const cnt = Query.searchFrom(func, "statement").chain();
+        return cnt.length;
     }
 
     #calculateInlinableHistogram() {
