@@ -32,6 +32,7 @@ def main():
         data_aggregator.output_global_var_data(),
         data_aggregator.output_data_source_distance(),
         data_aggregator.output_parallel_tasks(),
+        data_aggregator.output_parallelism_metric(),
         data_aggregator.output_producer_consumer_relationship(),
     ]
     print("Created intermediary CSV files")
@@ -45,6 +46,7 @@ def main():
         "global_var_data": range(1, 3),
         "data_source_distance": range(1, 5),
         "parallel_tasks": range(1, 3),
+        "parallelism_metric": range(1, 3),
         "producer_consumer_relationship": range(1, 3),
     }
     data_aggregator.output_excel_from_csv_list(csv_files, ranges_for_merging=ranges_for_merging)

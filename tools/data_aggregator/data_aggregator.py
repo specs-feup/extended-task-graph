@@ -414,6 +414,44 @@ class DataAggregator:
         return csv_file_path
     
 
+    #output_parallelism_metric
+    def output_parallelism_metric(self, csv_file_path='output_parallelism_metric.csv'):
+        json_map = self.get_indexed_jsons()
+        csv_file_path = self.get_full_path(csv_file_path)
+
+        with open(csv_file_path, 'w', newline='') as csv_file:
+            csv_writer = csv.writer(csv_file)
+
+            header = [
+                "Suite",
+                "Benchmark",
+                "HierParent",
+                "#Tasks",
+                "CP Length",
+                "Parallelism Metric",
+                "Critical Path"
+            ]
+            csv_writer.writerow(header)
+
+            # Write rows
+            for app_name, data in json_map.items():
+                crit_paths = data.get('criticalPaths', {})
+
+                for hier_task, hier_info in crit_paths.items():
+                    row_data = [
+                        self.get_suite_benchmark(app_name)[0],
+                        self.get_suite_benchmark(app_name)[1],
+                        hier_info.get('hierachicalParent', 'N/A'),
+                        hier_info.get('#Tasks', 'N/A'),
+                        hier_info.get('criticalPathLength', 'N/A'),
+                        hier_info.get('parallelismMeasure', 'N/A'),
+                        " -> ".join(hier_info.get('criticalPath', {}))
+                    ]
+                    csv_writer.writerow(row_data)
+
+        return csv_file_path
+
+
     def output_producer_consumer_relationship(self, csv_file_path='producer_consumer_relationship.csv'):
         json_map = self.get_indexed_jsons()
         csv_file_path = self.get_full_path(csv_file_path)

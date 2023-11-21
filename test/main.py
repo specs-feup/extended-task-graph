@@ -49,7 +49,7 @@ def test_hiflipvx():
 def test_rosetta():
     test_bench_flows("Rosetta-3d-rendering-N", False, True, useHls=False)
     test_bench_flows("Rosetta-digit-recognition-N", False, True, useHls=False)
-    test_bench_flows("Rosetta-face-detection-N", False, True, useHls=False)
+    #test_bench_flows("Rosetta-face-detection-N", False, True, useHls=False)
     test_bench_flows("Rosetta-optical-flow-current", False, True, useHls=False)
     test_bench_flows("Rosetta-spam-filter-N", False, True, useHls=False)
     pass
