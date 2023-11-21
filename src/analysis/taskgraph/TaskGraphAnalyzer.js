@@ -82,7 +82,7 @@ class TaskGraphAnalyzer extends UPTStage {
 
         const tasks = this.#taskGraph.getTasks();
         for (const task of tasks) {
-            const taskName = task.getFunction().name;
+            const taskName = task.getName();
             const taskType = task.getType();
             taskTypes[taskName] = taskType;
 

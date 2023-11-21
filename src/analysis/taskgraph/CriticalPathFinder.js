@@ -21,8 +21,9 @@ class CriticalPathFinder {
 
     findPathInHierarchy(task) {
         const children = task.getHierarchicalChildren();
+        const nTasks = children.length;
 
-        if (children.length === 0) {
+        if (nTasks === 0) {
             const path = {
                 "#Tasks": 1,
                 "criticalPathLength": 1,
@@ -32,7 +33,7 @@ class CriticalPathFinder {
             };
             return path;
         }
-        if (children.length === 1) {
+        if (nTasks === 1) {
             const path = {
                 "#Tasks": 1,
                 "criticalPathLength": 1,
@@ -43,7 +44,6 @@ class CriticalPathFinder {
             return path;
         }
         else {
-            const nTasks = children.length;
             const criticalPath = this.#findCriticalPath(task);
             const criticalPathLength = criticalPath.length;
             const parallelismMeasure = nTasks / criticalPathLength;
@@ -61,6 +61,13 @@ class CriticalPathFinder {
 
     #findCriticalPath(parentTask) {
         const children = parentTask.getHierarchicalChildren();
+
+        // just to have this return something:
+        const replica = [];
+        for (const child of children) {
+            replica.push(child);
+        }
+        return replica;
 
         const sorter = new TopologicalSort(children);
         const sortedChildren = sorter.performSort();

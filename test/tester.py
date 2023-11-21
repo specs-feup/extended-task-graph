@@ -15,6 +15,7 @@ CONFIG = TEMP_FOLDER + "config.json"
 EXTRA_INCLUDES = [
     os.path.abspath(os.path.join("..", "clava-code-transformations", "src")),
     os.path.abspath(os.path.join("..", "clava-benchmarks", "MachSuite")),
+    os.path.abspath(os.path.join("..", "clava-benchmarks", "Rosetta")),
 ]
 
 

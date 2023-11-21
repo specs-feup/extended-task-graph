@@ -167,6 +167,7 @@ class DataAggregator:
                     ]
                     csv_writer.writerow(row_data)
                     cnt += 1
+
                 if cnt == 0:
                     row_data = [
                         self.get_suite_benchmark(app_name)[0],
@@ -175,6 +176,35 @@ class DataAggregator:
                         'N/A',
                     ]
                     csv_writer.writerow(row_data)
+
+        return csv_file_path
+    
+
+    def output_no_task_calls_hist_total(self, csv_file_path='no_task_calls_hist_total.csv'):
+        json_map = self.get_indexed_jsons()
+        csv_file_path = self.get_full_path(csv_file_path)
+        total_histogram = {}
+
+        with open(csv_file_path, 'w', newline='') as csv_file:
+            csv_writer = csv.writer(csv_file)
+
+            header = [
+                "No Task Function",
+                "Total Call Spots"
+            ]
+            csv_writer.writerow(header)
+
+            for app_name, data in json_map.items():
+                no_task_calls = data.get('noTaskCallsHistogram', {})
+
+                for func_name, call_count in no_task_calls.items():
+                    if func_name in total_histogram.keys():
+                        total_histogram[func_name] += call_count
+                    else:
+                        total_histogram[func_name] = call_count
+
+            for func, count in total_histogram.items():
+                csv_writer.writerow([func, count])
 
         return csv_file_path
     
