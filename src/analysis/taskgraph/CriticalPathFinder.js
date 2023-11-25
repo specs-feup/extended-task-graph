@@ -63,12 +63,11 @@ class CriticalPathFinder {
         const children = parentTask.getHierarchicalChildren();
 
         // just to have this return something:
-        /*
         const replica = [];
         for (const child of children) {
             replica.push(child);
         }
-        return replica;*/
+        return replica;
 
         const sorter = new TopologicalSort(children);
         const sortedChildren = sorter.performSort();

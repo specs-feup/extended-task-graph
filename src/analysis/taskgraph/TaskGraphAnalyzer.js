@@ -1,6 +1,12 @@
 "use strict";
 
 laraImport("taskgraph/TaskGraph");
+laraImport("analysis/taskgraph/TaskGraphStatFinder");
+laraImport("analysis/taskgraph/TaskPropertiesFinder");
+laraImport("analysis/taskgraph/DataPerTaskFinder");
+laraImport("analysis/taskgraph/NoTaskHistogramFinder");
+laraImport("analysis/taskgraph/GlobalDataFinder");
+laraImport("analysis/taskgraph/DataSourceFinder");
 laraImport("analysis/taskgraph/ParallelTaskFinder");
 laraImport("analysis/taskgraph/ProducerConsumerFinder");
 laraImport("analysis/taskgraph/CriticalPathFinder");
@@ -32,24 +38,77 @@ class TaskGraphAnalyzer extends UPTStage {
     }
 
     updateMetrics() {
-        // need to break this apart!
+        // Statistics of the task graph
         this.#calculateTaskStats();
+
+        // Code properties of each task
         this.#calculateUniqueTasks();
-        this.#calculateInlinableHistogram();
+
+        // Histogram of no-task function calls
+        this.#calculateNoTaskHistogram();
+
+        // Data per task
         this.#calculateDataPerTask();
+
+        // Information about global data
         this.#calculateGlobalData();
+
+        // Distance from a datum to its source
         this.#calculateDataSourceDistance();
 
-        // parallel tasks
+        // Parallel tasks
         this.#calculateParallelTasks();
 
-        // producer-consumer
+        // Producer-consumer relationships
         this.#calculateProducerConsumer();
 
-        // critical path / ILP measure
+        // Critical path / ILP measure
         this.#calculateCriticalPath();
 
         return this.#metrics;
+    }
+
+    #calculateTaskStats() {
+        const tgStatFinder = new TaskGraphStatFinder(this.#taskGraph);
+        const taskGraphStats = tgStatFinder.calculateTaskGraphStats();
+
+        this.#metrics["counts"] = taskGraphStats["counts"];
+        this.#metrics["uniqueTaskTypes"] = taskGraphStats["uniqueTaskTypes"];
+    }
+
+    #calculateUniqueTasks() {
+        const taskPropFinder = new TaskPropertiesFinder(this.#taskGraph);
+        const uniqueTasks = taskPropFinder.calculateUniqueTasks();
+
+        this.#metrics["uniqueTaskInstances"] = uniqueTasks;
+    }
+
+    #calculateNoTaskHistogram() {
+        const histFinder = new NoTaskHistogramFinder(this.#taskGraph);
+        const hist = histFinder.calculateNoTaskHistogram();
+
+        this.#metrics["noTaskCallsHistogram"] = hist;
+    }
+
+    #calculateDataPerTask() {
+        const dataPerTaskFinder = new DataPerTaskFinder(this.#taskGraph);
+        const dataPerTask = dataPerTaskFinder.calculateDataPerTask();
+
+        this.#metrics["dataPerTask"] = dataPerTask;
+    }
+
+    #calculateGlobalData() {
+        const globalDataFinder = new GlobalDataFinder(this.#taskGraph);
+        const globalData = globalDataFinder.calculateGlobalData();
+
+        this.#metrics["globalData"] = globalData;
+    }
+
+    #calculateDataSourceDistance() {
+        const dataSourceFinder = new DataSourceFinder(this.#taskGraph);
+        const dataSourceDistance = dataSourceFinder.calculateDataSourceDistance();
+
+        this.#metrics["dataSourceDistance"] = dataSourceDistance;
     }
 
     #calculateParallelTasks() {
@@ -75,188 +134,4 @@ class TaskGraphAnalyzer extends UPTStage {
         this.#metrics["criticalPaths"] = criticalPaths;
     }
 
-    #calculateTaskStats() {
-        const taskTypes = {};
-        let externalCnt = 0;
-        let regularCnt = 0;
-
-        const tasks = this.#taskGraph.getTasks();
-        for (const task of tasks) {
-            const taskName = task.getName();
-            const taskType = task.getType();
-            taskTypes[taskName] = taskType;
-
-            if (taskType === "EXTERNAL") {
-                externalCnt++;
-            }
-            if (taskType === "REGULAR") {
-                regularCnt++;
-            }
-        }
-
-        const nTasks = regularCnt + externalCnt;
-        const nEdges = this.#taskGraph.getCommunications().length;
-        const nInlinables = this.#taskGraph.getInlinables().length;
-        const nGlobals = this.#taskGraph.getGlobalTask().getData().length;
-
-        this.#metrics["counts"] = {
-            "#tasks": nTasks,
-            "#edges": nEdges,
-            "externalTasks": externalCnt,
-            "regularTasks": regularCnt,
-            "inlinableCalls": nInlinables,
-            "globalVars": nGlobals,
-
-        };
-        this.#metrics["uniqueTaskTypes"] = taskTypes;
-    }
-
-    #calculateUniqueTasks() {
-        const uniqueTasks = {};
-        const tasks = this.#taskGraph.getTasks();
-
-        for (const task of tasks) {
-            const taskName = task.getName();
-            const taskReps = task.getRepetitions();
-
-            if (taskName in uniqueTasks) {
-
-                uniqueTasks[taskName]["instances"].push(taskReps);
-            }
-            else {
-                const uniqueTaskProps = {
-                    "instances": [taskReps],
-                    "#statements": this.#countStatements(task),
-                }
-                uniqueTasks[taskName] = uniqueTaskProps;
-            }
-        }
-
-        this.#metrics["uniqueTaskInstances"] = uniqueTasks;
-    }
-
-    #countStatements(task) {
-        const func = task.getFunction();
-        if (func == null) {
-            return -1;
-        }
-        const cnt = Query.searchFrom(func, "statement").chain();
-        return cnt.length;
-    }
-
-    #calculateInlinableHistogram() {
-        const hist = {};
-        for (const inlinable of this.#taskGraph.getInlinables()) {
-            const inlinableName = inlinable.name;
-            println(inlinableName);
-
-            if (inlinableName in hist) {
-                hist[inlinableName]++;
-            }
-            else {
-                hist[inlinableName] = 1;
-            }
-        }
-        this.#metrics["noTaskCallsHistogram"] = hist;
-    }
-
-    #calculateDataPerTask() {
-        const dataPerTask = {};
-        const tasks = this.#taskGraph.getTasks();
-
-        for (const task of tasks) {
-            const taskData = {};
-
-            for (const datum of task.getData()) {
-                const datumProps = {
-                    "origin": datum.getOriginType(),
-                    "sizeInBytes": datum.getSizeInBytes(),
-                    "cxxType": datum.getDatatype(),
-                    "isScalar": datum.isScalar(),
-                    "alternateName": datum.getAlternateName(),
-                    "stateChanges": {
-                        "isInit": datum.isInitialized(),
-                        "isWritten": datum.isWritten(),
-                        "isRead": datum.isRead()
-                    }
-                }
-                taskData[datum.getName()] = datumProps;
-            }
-            const taskName = task.getUniqueName();
-            dataPerTask[taskName] = taskData;
-        }
-        this.#metrics["dataPerTask"] = dataPerTask;
-    }
-
-    #calculateGlobalData() {
-        const globalData = {};
-        const globalTask = this.#taskGraph.getGlobalTask();
-
-        for (const datum of globalTask.getData()) {
-            const datumProps = {
-                "origin": datum.getOriginType(),
-                "sizeInBytes": datum.getSizeInBytes(),
-                "cxxType": datum.getDatatype(),
-                "isScalar": datum.isScalar(),
-                "alternateName": datum.getAlternateName(),
-                "stateChanges": {
-                    "isInit": datum.isInitialized(),
-                    "isWritten": datum.isWritten(),
-                    "isRead": datum.isRead()
-                }
-            }
-            globalData[datum.getName()] = datumProps;
-        }
-        this.#metrics["globalData"] = globalData;
-    }
-
-    #calculateDataSourceDistance() {
-        const dataSourceDistance = {};
-        const tasks = this.#taskGraph.getTasks();
-
-        for (const task of tasks) {
-            const commOfTask = {};
-
-            for (const datum of task.getData()) {
-                const pathAndEvo = this.#calculateDistanceToOrigin(datum, task);
-                const path = pathAndEvo[0];
-                const dataEvo = pathAndEvo[1];
-                commOfTask[datum.getName()] = { "pathToOrigin": path, "dataEvolution": dataEvo, "distanceToOrigin": path.length };
-            }
-            const taskName = task.getUniqueName();
-            dataSourceDistance[taskName] = commOfTask;
-        }
-        this.#metrics["dataSourceDistance"] = dataSourceDistance;
-    }
-
-    #calculateDistanceToOrigin(datum, task) {
-        const path = [task.getUniqueName()];
-        const dataEvo = [datum.getName()];
-
-        if (task.getType() === "GLOBAL" || task.getType() === "START") {
-            return [path, dataEvo];
-        }
-        if (datum.isNewlyCreated() || datum.isConstant()) {
-            return [path, dataEvo];
-        }
-        else {
-            const comm = task.getIncomingOfData(datum);
-            if (comm == null) {
-                this.log("ERROR: No incoming communication found for data " + datum.getName() + " of task " + task.getUniqueName());
-                return [path, dataEvo];
-            }
-            else {
-                const srcTask = comm.getSource();
-                const srcDatum = comm.getSourceData();
-
-                const remaining = this.#calculateDistanceToOrigin(srcDatum, srcTask);
-                const remainingPath = remaining[0];
-                const remainingDataEvo = remaining[1];
-
-                path.push(...remainingPath);
-                dataEvo.push(...remainingDataEvo);
-                return [path, dataEvo];
-            }
-        }
-    }
 }
