@@ -1,10 +1,9 @@
 import os
-import json
 import csv
 import time
-from datetime import datetime
 import openpyxl
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.styles import NamedStyle
+from openpyxl.styles import Font, PatternFill, Border, Side
 
 class ExcelConverter:
 
@@ -24,6 +23,7 @@ class ExcelConverter:
                 os.remove(csv_file)
             
             merge_range = ranges_for_merging.get(sheet_name, range(1, 3))
+            self.convert_numbers(sheet)
             self.merge_and_center(sheet, merge_range)
             self.center_and_auto_size(sheet)
             self.set_header_format(sheet)
@@ -40,6 +40,20 @@ class ExcelConverter:
         timestamp = int(time.time())
         filename = f'{filename}_{timestamp}.xlsx'
         return filename
+
+
+    def convert_numbers(self, sheet):
+        numeric_style = NamedStyle(name='numeric', number_format='0')
+
+        for row in sheet.iter_rows(values_only=True):
+            for index, value in enumerate(row, start=1):
+                if isinstance(value, (int, float)):
+                    # Check if the value can be converted to int without loss of information
+                    if value == int(value):
+                        sheet.cell(row=row[0].row, column=index, value=int(value)).style = numeric_style
+                    else:
+                        sheet.cell(row=row[0].row, column=index, value=float(value)).style = numeric_style
+
     
     def set_header_format(self, sheet):
         sheet.freeze_panes = 'A2'

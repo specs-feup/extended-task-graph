@@ -23,6 +23,7 @@ class DataSourceFinder {
             const taskName = task.getUniqueName();
             dataSourceDistance[taskName] = commOfTask;
         }
+        return dataSourceDistance;
     }
 
     #calculateDistanceToOrigin(datum, task) {

@@ -8,30 +8,25 @@ class GlobalDataFinder {
     }
 
     calculateGlobalData() {
-        const dataPerTask = {};
-        const tasks = this.#taskGraph.getTasks();
+        const globalData = {};
+        const globalTask = this.#taskGraph.getGlobalTask();
 
-        for (const task of tasks) {
-            const taskData = {};
-
-            for (const datum of task.getData()) {
-                const datumProps = {
-                    "origin": datum.getOriginType(),
-                    "sizeInBytes": datum.getSizeInBytes(),
-                    "cxxType": datum.getDatatype(),
-                    "isScalar": datum.isScalar(),
-                    "alternateName": datum.getAlternateName(),
-                    "stateChanges": {
-                        "isInit": datum.isInitialized(),
-                        "isWritten": datum.isWritten(),
-                        "isRead": datum.isRead()
-                    }
+        for (const datum of globalTask.getData()) {
+            const datumProps = {
+                "origin": datum.getOriginType(),
+                "sizeInBytes": datum.getSizeInBytes(),
+                "cxxType": datum.getDatatype(),
+                "isScalar": datum.isScalar(),
+                "alternateName": datum.getAlternateName(),
+                "stateChanges": {
+                    "isInit": datum.isInitialized(),
+                    "isWritten": datum.isWritten(),
+                    "isRead": datum.isRead()
                 }
-                taskData[datum.getName()] = datumProps;
             }
-            const taskName = task.getUniqueName();
-            dataPerTask[taskName] = taskData;
+            globalData[datum.getName()] = datumProps;
         }
-        return dataPerTask;
+        return globalData;
     }
+
 }

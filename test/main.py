@@ -62,7 +62,7 @@ def test_machsuite():
     # test_bench_flows("MachSuite-aes-D", False, True, useHls=False) # ERROR in creating decomps with void type
     test_bench_flows("MachSuite-backprop-D", False, True, useHls=False) # some edge errors
     test_bench_flows("MachSuite-fft-transpose-D", False, True, useHls=False) # some edge errors
-    test_bench_flows("MachSuite-kmp-D", False, False, useHls=False)
+    test_bench_flows("MachSuite-kmp-D", False, True, useHls=False)
     test_bench_flows("MachSuite-sort-merge-D", False, True, useHls=False)
     test_bench_flows("MachSuite-sort-radix-D", False, True, useHls=False)
     # -----------------------------------

@@ -109,7 +109,7 @@ class DataAggregator:
                 "Task Name",
                 "Task Type",
                 "#Statements",
-                "Instances/Call Spots"
+                "Instances/Call Sites"
             ]
             csv_writer.writerow(header)
 
@@ -149,7 +149,7 @@ class DataAggregator:
                 "Suite",
                 "Benchmark",
                 "No Task Function",
-                "Instances/Call Spots"
+                "Instances/Call Sites"
             ]
             csv_writer.writerow(header)
 
@@ -190,7 +190,7 @@ class DataAggregator:
 
             header = [
                 "No Task Function",
-                "Total Call Spots"
+                "Total Call Sites"
             ]
             csv_writer.writerow(header)
 
@@ -286,7 +286,7 @@ class DataAggregator:
             header = [
                 "Suite",
                 "Benchmark",
-                "GlobalDataName",
+                "Global Data Name",
                 "Size (bytes)",
                 "Type",
                 "isScalar",
@@ -345,9 +345,9 @@ class DataAggregator:
                 "Task ID",
                 "Task Name",
                 "Data Name",
-                "DistanceToOrigin",
-                "PathToOrigin",
-                "NameEvolution"
+                "Distance To Origin",
+                "Path To Origin",
+                "Name Evolution"
             ]
             csv_writer.writerow(header)
 
@@ -384,11 +384,11 @@ class DataAggregator:
                 "Benchmark",
                 "Task ID 1",
                 "Task ID 2",
-                "Common Parent ID",
-                "pairIsParallel",
+                "Hier. Parent ID",
+                "isParallel",
                 "Task Name 1",
                 "Task Name 2",
-                "Common Parent Name"
+                "Hier. Parent Name"
             ]
             csv_writer.writerow(header)
 
@@ -425,7 +425,7 @@ class DataAggregator:
             header = [
                 "Suite",
                 "Benchmark",
-                "HierParent",
+                "Hier. Parent",
                 "#Tasks",
                 "CP Length",
                 "Parallelism Metric",
@@ -464,11 +464,11 @@ class DataAggregator:
                 "Benchmark",
                 "Task ID 1",
                 "Task ID 2",
-                "Common Parent ID",
+                "Hier. Parent ID",
                 "Data",
                 "Task Name 1",
                 "Task Name 2",
-                "Common Parent Name",
+                "Hier. Parent Name",
             ]
             csv_writer.writerow(header)
 
