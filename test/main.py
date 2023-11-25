@@ -12,7 +12,7 @@ def main():
 
 
 def test_apps():
-    # test_app_flows("edgedetect", False, True, useHls=False)
+    test_app_flows("edgedetect", False, True, useHls=False)
     # test_app_flows("stresstest", False, True, useHls=False)
     # test_app_flows("scenarioA", True, True, useHls=True)
     # test_app_flows("scenarioB", True, True, useHls=True)
@@ -47,11 +47,11 @@ def test_hiflipvx():
 
 
 def test_rosetta():
-    # test_bench_flows("Rosetta-3d-rendering-N", False, True, useHls=False)
-    # test_bench_flows("Rosetta-digit-recognition-N", False, True, useHls=False)
-    # test_bench_flows("Rosetta-face-detection-N", False, True, useHls=False)
-    # test_bench_flows("Rosetta-optical-flow-current", False, True, useHls=False)
-    # test_bench_flows("Rosetta-spam-filter-N", False, True, useHls=False)
+    test_bench_flows("Rosetta-3d-rendering-N", False, True, useHls=False)
+    test_bench_flows("Rosetta-digit-recognition-N", False, True, useHls=False)
+    test_bench_flows("Rosetta-face-detection-N", False, True, useHls=False)
+    test_bench_flows("Rosetta-optical-flow-current", False, True, useHls=False)
+    test_bench_flows("Rosetta-spam-filter-N", False, True, useHls=False)
     pass
 
 
@@ -61,10 +61,10 @@ def test_machsuite():
     # -----------------------------------
     # test_bench_flows("MachSuite-aes-D", False, True, useHls=False) # ERROR in creating decomps with void type
     test_bench_flows("MachSuite-backprop-D", False, True, useHls=False) # some edge errors
-    # test_bench_flows("MachSuite-fft-transpose-D", False, True, useHls=False) # some edge errors
-    # test_bench_flows("MachSuite-kmp-D", False, False, useHls=False)
-    # test_bench_flows("MachSuite-sort-merge-D", False, True, useHls=False)
-    # test_bench_flows("MachSuite-sort-radix-D", False, True, useHls=False)
+    test_bench_flows("MachSuite-fft-transpose-D", False, True, useHls=False) # some edge errors
+    test_bench_flows("MachSuite-kmp-D", False, False, useHls=False)
+    test_bench_flows("MachSuite-sort-merge-D", False, True, useHls=False)
+    test_bench_flows("MachSuite-sort-radix-D", False, True, useHls=False)
     # -----------------------------------
     # Single task benchmarks
     # -----------------------------------

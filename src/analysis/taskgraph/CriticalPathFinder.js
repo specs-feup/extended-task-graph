@@ -1,7 +1,7 @@
 "use strict";
 
 laraImport("taskgraph/TaskGraph");
-laraImport("analysis/taskgraph/TopologicalSort");
+laraImport("taskgraph/util/TopologicalSort");
 laraImport("weaver.Query");
 
 class CriticalPathFinder {
@@ -62,15 +62,8 @@ class CriticalPathFinder {
     #findCriticalPath(parentTask) {
         const children = parentTask.getHierarchicalChildren();
 
-        // just to have this return something:
-        const replica = [];
-        for (const child of children) {
-            replica.push(child);
-        }
-        return replica;
-
-        const sorter = new TopologicalSort(children);
-        const sortedChildren = sorter.performSort();
+        const sortedChildren = TopologicalSort.sort(children);
+        println(children.length + " | " + sortedChildren.length);
 
         const distances = {};
         const predecessors = {};
@@ -107,11 +100,12 @@ class CriticalPathFinder {
 
         const criticalPath = [];
         let currentTask = maxTask;
-        while (currentTask != null) {
+        while (currentTask != null && !criticalPath.includes(currentTask.getName())) {
             criticalPath.push(currentTask.getName());
             currentTask = predecessors[currentTask.getId()];
         }
 
+        println("NTasks: " + children.length + " | Critical Path Length: " + criticalPath.length + " | Parallelism Measure: " + children.length / criticalPath.length);
         return criticalPath.reverse();
     }
 }
