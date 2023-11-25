@@ -84,7 +84,7 @@ class TaskGraphBuilder {
             }
             // Should only happen for inlinable functions (e.g., math.h)
             else {
-                println("Found an inlinable function: " + callee.signature);
+                //println("[TaskGraphBuilder] Found an inlinable function: " + callee.signature);
                 taskGraph.addInlinable(call);
             }
         }
@@ -210,24 +210,8 @@ class TaskGraphBuilder {
                 }
             }
         }
-        else {/*
-            const parentConsts = parent.getConstantData();
-            let found = false;
-
-            for (const parentConst of parentConsts) {
-                const funCall = parentConst.getImmediateFunctionCall();
-
-                if (funCall.astId == child.getCall().astId) {
-                    taskGraph.addCommunication(parent, child, parentConst, childDatum, rank);
-                    found = true;
-                    println("rank: " + rank + " " + parentConst.getName() + " -> " + childDatum.getName());
-                    break;
-                }
-            }
-
-            if (!found) {
-                println("WARNING: " + dataAlt + " not found in " + parent.getName());
-            }*/
+        else {
+            println("[TaskGraphBuilder] WARNING: " + dataAlt + " not found in " + parent.getName());
         }
     }
 

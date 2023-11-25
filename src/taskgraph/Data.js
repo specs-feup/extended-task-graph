@@ -27,7 +27,11 @@ class Data {
     }
 
     getName() {
-        return this.#getNameFromRef(this.#ref);
+        return this.#name;
+    }
+
+    getOrigin() {
+        return this.#origin;
     }
 
     getDecl() {
@@ -149,7 +153,7 @@ class Data {
 
     #getNameFromRef(ref) {
         if (ref.instanceOf(["intLiteral", "floatLiteral"])) {
-            return "" + ref.value;
+            return "imm(" + ref.value + ")";
         }
         else {
             return ref.name;

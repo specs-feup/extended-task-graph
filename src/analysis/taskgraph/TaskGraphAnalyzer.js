@@ -236,13 +236,13 @@ class TaskGraphAnalyzer extends UPTStage {
         if (task.getType() === "GLOBAL" || task.getType() === "START") {
             return [path, dataEvo];
         }
-        if (datum.isNewlyCreated()) {
+        if (datum.isNewlyCreated() || datum.isConstant()) {
             return [path, dataEvo];
         }
         else {
             const comm = task.getIncomingOfData(datum);
             if (comm == null) {
-                println("ERROR: No incoming communication found for data " + datum.getName() + " of task " + task.getUniqueName());
+                this.log("ERROR: No incoming communication found for data " + datum.getName() + " of task " + task.getUniqueName());
                 return [path, dataEvo];
             }
             else {

@@ -285,12 +285,12 @@ class Task {
             else {
                 const intLit = Query.searchFromInclusive(child, "intLiteral").get()[0];
                 if (intLit != null) {
-                    args.push(String(intLit.value));
+                    args.push(`imm(${intLit.value})`);
                 }
                 else {
                     const floatLit = Query.searchFromInclusive(child, "floatLiteral").get()[0];
                     if (floatLit != null) {
-                        args.push(String(floatLit.value));
+                        args.push(`imm(${floatLit.value})`);
                     }
                 }
             }
