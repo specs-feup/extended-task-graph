@@ -1,5 +1,7 @@
 "use strict";
 
+laraImport("clava.code.TripCountCalculator");
+
 class TaskPropertiesFinder {
     #taskGraph;
 
@@ -22,7 +24,12 @@ class TaskPropertiesFinder {
             else {
                 const uniqueTaskProps = {
                     "instances": [taskReps],
-                    "#statements": this.#countStatements(task),
+                    "#statements": this.#countSyntacticFeature(task, "statement"),
+                    "#loops": this.#countSyntacticFeature(task, "loop"),
+                    "#whiles": this.#countSyntacticFeature(task, "while"),
+                    "#ifs": this.#countSyntacticFeature(task, "if"),
+                    "#switches": this.#countSyntacticFeature(task, "switch"),
+                    "perLoopsStaticCounts": this.#countStaticLoops(task)
                 }
                 uniqueTasks[taskName] = uniqueTaskProps;
             }
@@ -30,12 +37,54 @@ class TaskPropertiesFinder {
         return uniqueTasks;
     }
 
-    #countStatements(task) {
+    #countSyntacticFeature(task, feature) {
         const func = task.getFunction();
         if (func == null) {
             return -1;
         }
-        const cnt = Query.searchFrom(func, "statement").chain();
-        return cnt.length;
+
+        if (feature != "loop" && feature != "while") {
+            const cnt = Query.searchFrom(func, feature).chain();
+            return cnt.length;
+        }
+        else {
+            let cnt = 0;
+            for (const loop of Query.searchFrom(func, "loop")) {
+                if (feature == "loop") {
+                    if (loop.kind == "for" || loop.kind == "foreach") {
+                        cnt++;
+                    }
+                }
+                if (feature == "while") {
+                    if (loop.kind == "while" || loop.kind == "dowhile") {
+                        cnt++;
+                    }
+                }
+            }
+            return cnt;
+        }
+    }
+
+    #countStaticLoops(task) {
+        const func = task.getFunction();
+        if (func == null) {
+            return -1;
+        }
+
+        let staticCnt = 0;
+        let totalCnt = 0;
+
+        for (const loop of Query.searchFrom(func, "loop")) {
+            const tripCount = TripCountCalculator.calculate(loop);
+
+            if (tripCount != -1) {
+                staticCnt++;
+            }
+            totalCnt++;
+        }
+        if (totalCnt == 0) {
+            return "N/A";
+        }
+        return staticCnt / totalCnt;
     }
 }

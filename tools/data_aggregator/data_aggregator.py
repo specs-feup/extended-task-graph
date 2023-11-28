@@ -45,7 +45,18 @@ class DataAggregator:
             return "<No suite>", app_name
         else:
             return split[0], '-'.join(split[1:-1])
-    
+        
+
+    def to_percentage_str(self, input_str):
+        try:
+            number = float(input_str)
+            if 0 <= number <= 1:
+                return f"{number * 100:.2f}%"
+            else:
+                return input_str
+        except ValueError:
+            return input_str
+
 
     def output_combined_json(self, output_file_path='combined_output.json'):
         json_map = self.get_indexed_jsons()
@@ -109,7 +120,12 @@ class DataAggregator:
                 "Task Name",
                 "Task Type",
                 "#Statements",
-                "Instances/Call Sites"
+                "#forLoops",
+                "#whileLoops",
+                "#ifs",
+                "#switches",
+                "%loops with static number of iter.",
+                "Iterations per Call Sites"
             ]
             csv_writer.writerow(header)
 
@@ -123,6 +139,12 @@ class DataAggregator:
 
                     instance_list = task_props.get('instances', [])
                     n_statements = task_props.get('#statements', 'N/A')
+                    n_for_loops = task_props.get('#loops', 'N/A')
+                    n_while_loops = task_props.get('#whiles', 'N/A')
+                    n_ifs = task_props.get('#ifs', 'N/A')
+                    n_switches = task_props.get('#switches', 'N/A')
+                    n_static_loops = task_props.get('perLoopsStaticCounts', 'N/A')
+                    n_static_loops = self.to_percentage_str(n_static_loops)
 
                     row_data = [
                         self.get_suite_benchmark(app_name)[0],
@@ -130,6 +152,11 @@ class DataAggregator:
                         task_name,
                         task_type,
                         n_statements,
+                        n_for_loops,
+                        n_while_loops,
+                        n_ifs,
+                        n_switches,
+                        n_static_loops,
                     ]
                     row_data.extend(instance_list)
 
@@ -415,7 +442,7 @@ class DataAggregator:
     
 
     #output_parallelism_metric
-    def output_parallelism_metric(self, csv_file_path='output_parallelism_metric.csv'):
+    def output_parallelism_metric(self, csv_file_path='parallelism_level.csv'):
         json_map = self.get_indexed_jsons()
         csv_file_path = self.get_full_path(csv_file_path)
 
