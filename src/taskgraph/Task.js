@@ -3,6 +3,7 @@
 laraImport("lara.util.IdGenerator");
 laraImport("weaver.Query");
 laraImport("taskgraph/Data");
+laraImport("taskgraph/DataOrigins");
 
 class Task {
     // Constants
@@ -23,6 +24,7 @@ class Task {
     #dataParams = [];
     #dataGlobals = [];
     #dataNew = [];
+    #dataConstants = [];
     // Data communication properties
     #incomingComm = [];
     #outgoingComm = [];
@@ -135,29 +137,36 @@ class Task {
         this.#hierChildren.delete(child);
     }
 
-    #getDataBasedOnAccess(access, type = "ALL") {
+    #getDataByAccessType(accessType, origin = DataOrigins.ANY) {
         let data = [];
-        if (type == "ALL") {
-            data.push(...this.#dataParams, ...this.#dataGlobals, ...this.#dataNew);
+        if (origin == DataOrigins.ANY) {
+            data = [
+                ...this.#dataParams,
+                ...this.#dataGlobals,
+                ...this.#dataNew,
+                ...this.#dataConstants];
         }
-        else if (type == "PARAM") {
+        if (origin == DataOrigins.PARAM) {
             data = this.#dataParams;
         }
-        else if (type == "GLOBAL") {
+        if (origin == DataOrigins.GLOBAL) {
             data = this.#dataGlobals;
         }
-        else if (type == "NEW") {
+        if (origin == DataOrigins.NEW) {
             data = this.#dataNew;
+        }
+        if (origin == DataOrigins.CONSTANT) {
+            data = this.#dataConstants;
         }
 
         const dataAccessed = [];
         for (const datum of data) {
-            if (access === "READ") {
+            if (accessType === "READ") {
                 if (datum.isWritten()) {
                     dataAccessed.push(datum);
                 }
             }
-            else if (access === "WRITE") {
+            else if (accessType === "WRITE") {
                 if (datum.isWritten()) {
                     dataAccessed.push(datum);
                 }
@@ -166,16 +175,16 @@ class Task {
         return dataAccessed;
     }
 
-    getDataRead(type = "ALL") {
-        return this.#getDataBasedOnAccess("READ", type);
+    getDataRead(type = DataOrigins.ANY) {
+        return this.#getDataByAccessType("READ", type);
     }
 
-    getDataWritten(type = "ALL") {
-        return this.#getDataBasedOnAccess("WRITE", type);
+    getDataWritten(type = DataOrigins.ANY) {
+        return this.#getDataByAccessType("WRITE", type);
     }
 
     getData() {
-        return [...this.#dataParams, ...this.#dataGlobals, ...this.#dataNew];
+        return [...this.#dataParams, ...this.#dataGlobals, ...this.#dataNew, ...this.#dataConstants];
     }
 
     getDataAsMap() {
@@ -196,6 +205,10 @@ class Task {
 
     getNewData() {
         return this.#dataNew;
+    }
+
+    getConstantData() {
+        return this.#dataConstants;
     }
 
     getReferencedData() {
@@ -272,12 +285,12 @@ class Task {
             else {
                 const intLit = Query.searchFromInclusive(child, "intLiteral").get()[0];
                 if (intLit != null) {
-                    args.push(String(intLit.value));
+                    args.push(`imm(${intLit.value})`);
                 }
                 else {
                     const floatLit = Query.searchFromInclusive(child, "floatLiteral").get()[0];
                     if (floatLit != null) {
-                        args.push(String(floatLit.value));
+                        args.push(`imm(${floatLit.value})`);
                     }
                 }
             }
@@ -314,6 +327,9 @@ class Task {
 
         // handle data created in this function, and comm'd to others
         this.#findDataFromNewDecls();
+
+        // handle immediate constants in function calls
+        this.#findDataFromConstants();
     }
 
     #findDataFromParams() {
@@ -321,7 +337,7 @@ class Task {
         for (const param of Query.searchFrom(this.#function, "param")) {
             paramVars.add(param);
         }
-        this.#createDataObjects([...paramVars], "PARAM");
+        this.#createDataObjects([...paramVars], DataOrigins.PARAM);
     }
 
     #findDataFromGlobals() {
@@ -332,24 +348,15 @@ class Task {
                 globalVars.add(decl);
             }
         }
-        this.#createDataObjects([...globalVars], "GLOBAL");
+        this.#createDataObjects([...globalVars], DataOrigins.GLOBAL);
     }
 
     #findDataFromNewDecls() {
         const newVars = new Set();
         for (const vardecl of Query.searchFrom(this.#function.body, "vardecl")) {
-            /*
-            for (const call of Query.searchFrom(vardecl, "call")) {
-                for (const varref of Query.searchFrom(call, "varref")) {
-                    const paramDecl = varref.decl;
-                    if (paramDecl == vardecl) {
-                        newVars.add(vardecl);
-                    }
-                }
-            }*/
             newVars.add(vardecl);
         }
-        this.#createDataObjects([...newVars], "NEW");
+        this.#createDataObjects([...newVars], DataOrigins.NEW);
     }
 
     #createDataObjects(vars, originType) {
@@ -358,16 +365,34 @@ class Task {
 
             this.#setReadWritesFunction(data);
 
-            if (originType == "PARAM") {
-                this.#dataParams.push(data);
-            }
-            else if (originType == "GLOBAL") {
-                this.#dataGlobals.push(data);
-            }
-            else if (originType == "NEW") {
-                this.#dataNew.push(data);
+            switch (originType) {
+                case DataOrigins.PARAM:
+                    this.#dataParams.push(data);
+                    break;
+                case DataOrigins.GLOBAL:
+                    this.#dataGlobals.push(data);
+                    break;
+                case DataOrigins.NEW:
+                    this.#dataNew.push(data);
+                    break;
+                default:
+                    break;
             }
         }
+    }
+
+    #findDataFromConstants() {
+        for (const funCall of Query.searchFrom(this.#function.body, "call")) {
+            for (const immConst of Query.searchFrom(funCall, "literal")) {
+                this.#createConstantObject(immConst, funCall);
+            }
+        }
+    }
+
+    #createConstantObject(immConst, funCall) {
+        const datum = new Data(immConst, DataOrigins.CONSTANT);
+        datum.setImmediateFunctionCall(funCall);
+        this.#dataConstants.push(datum);
     }
 
     #setReadWritesFunction(data) {
@@ -397,7 +422,7 @@ class Task {
 
     #populateGlobalData() {
         for (const global of Query.search("vardecl", { isGlobal: true })) {
-            const data = new Data(global, "GLOBAL");
+            const data = new Data(global, DataOrigins.GLOBAL);
             this.#dataGlobals.push(data);
             this.#setReadWritesVar(global, data);
         }

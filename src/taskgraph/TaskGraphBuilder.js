@@ -84,7 +84,7 @@ class TaskGraphBuilder {
             }
             // Should only happen for inlinable functions (e.g., math.h)
             else {
-                println("Found an inlinable function: " + callee.signature);
+                //println("[TaskGraphBuilder] Found an inlinable function: " + callee.signature);
                 taskGraph.addInlinable(call);
             }
         }
@@ -211,7 +211,7 @@ class TaskGraphBuilder {
             }
         }
         else {
-            println("WARNING: " + dataAlt + " not found in " + parent.getName());
+            println("[TaskGraphBuilder] WARNING: " + dataAlt + " not found in " + parent.getName());
         }
     }
 

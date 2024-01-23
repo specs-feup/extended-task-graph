@@ -89,9 +89,13 @@ def test_machsuite():
 """
 TODO:
 - Improve R/W and Uninitialized detection
+- rendering_sw.cpp:195:7: warning: expression result unused [-Wunused-value]
+    *i++;
+    ^~~~
+    I think this may need some parenthesis or even an expansion to *i = *i + 1
+    Similar issue is observed in fft-transpose
 
 - New metrics:
-* critical path stuff (number of tasks in subgraph, critical path length, and parallelism metric)
 * parallel sets, T2 -> {T3, T4}
 """
 

@@ -45,7 +45,18 @@ class DataAggregator:
             return "<No suite>", app_name
         else:
             return split[0], '-'.join(split[1:-1])
-    
+        
+
+    def to_percentage_str(self, input_str):
+        try:
+            number = float(input_str)
+            if 0 <= number <= 1:
+                return f"{number * 100:.2f}%"
+            else:
+                return input_str
+        except ValueError:
+            return input_str
+
 
     def output_combined_json(self, output_file_path='combined_output.json'):
         json_map = self.get_indexed_jsons()
@@ -109,7 +120,12 @@ class DataAggregator:
                 "Task Name",
                 "Task Type",
                 "#Statements",
-                "Instances/Call Spots"
+                "#forLoops",
+                "#whileLoops",
+                "#ifs",
+                "#switches",
+                "%loops with static number of iter.",
+                "Iterations per Call Sites"
             ]
             csv_writer.writerow(header)
 
@@ -123,6 +139,12 @@ class DataAggregator:
 
                     instance_list = task_props.get('instances', [])
                     n_statements = task_props.get('#statements', 'N/A')
+                    n_for_loops = task_props.get('#loops', 'N/A')
+                    n_while_loops = task_props.get('#whiles', 'N/A')
+                    n_ifs = task_props.get('#ifs', 'N/A')
+                    n_switches = task_props.get('#switches', 'N/A')
+                    n_static_loops = task_props.get('perLoopsStaticCounts', 'N/A')
+                    n_static_loops = self.to_percentage_str(n_static_loops)
 
                     row_data = [
                         self.get_suite_benchmark(app_name)[0],
@@ -130,6 +152,11 @@ class DataAggregator:
                         task_name,
                         task_type,
                         n_statements,
+                        n_for_loops,
+                        n_while_loops,
+                        n_ifs,
+                        n_switches,
+                        n_static_loops,
                     ]
                     row_data.extend(instance_list)
 
@@ -149,7 +176,7 @@ class DataAggregator:
                 "Suite",
                 "Benchmark",
                 "No Task Function",
-                "Instances/Call Spots"
+                "Instances/Call Sites"
             ]
             csv_writer.writerow(header)
 
@@ -167,6 +194,7 @@ class DataAggregator:
                     ]
                     csv_writer.writerow(row_data)
                     cnt += 1
+
                 if cnt == 0:
                     row_data = [
                         self.get_suite_benchmark(app_name)[0],
@@ -175,6 +203,35 @@ class DataAggregator:
                         'N/A',
                     ]
                     csv_writer.writerow(row_data)
+
+        return csv_file_path
+    
+
+    def output_no_task_calls_hist_total(self, csv_file_path='no_task_calls_hist_total.csv'):
+        json_map = self.get_indexed_jsons()
+        csv_file_path = self.get_full_path(csv_file_path)
+        total_histogram = {}
+
+        with open(csv_file_path, 'w', newline='') as csv_file:
+            csv_writer = csv.writer(csv_file)
+
+            header = [
+                "No Task Function",
+                "Total Call Sites"
+            ]
+            csv_writer.writerow(header)
+
+            for app_name, data in json_map.items():
+                no_task_calls = data.get('noTaskCallsHistogram', {})
+
+                for func_name, call_count in no_task_calls.items():
+                    if func_name in total_histogram.keys():
+                        total_histogram[func_name] += call_count
+                    else:
+                        total_histogram[func_name] = call_count
+
+            for func, count in total_histogram.items():
+                csv_writer.writerow([func, count])
 
         return csv_file_path
     
@@ -256,7 +313,7 @@ class DataAggregator:
             header = [
                 "Suite",
                 "Benchmark",
-                "GlobalDataName",
+                "Global Data Name",
                 "Size (bytes)",
                 "Type",
                 "isScalar",
@@ -315,9 +372,9 @@ class DataAggregator:
                 "Task ID",
                 "Task Name",
                 "Data Name",
-                "DistanceToOrigin",
-                "PathToOrigin",
-                "NameEvolution"
+                "Distance To Origin",
+                "Path To Origin",
+                "Name Evolution"
             ]
             csv_writer.writerow(header)
 
@@ -354,11 +411,11 @@ class DataAggregator:
                 "Benchmark",
                 "Task ID 1",
                 "Task ID 2",
-                "Common Parent ID",
-                "pairIsParallel",
+                "Hier. Parent ID",
+                "isParallel",
                 "Task Name 1",
                 "Task Name 2",
-                "Common Parent Name"
+                "Hier. Parent Name"
             ]
             csv_writer.writerow(header)
 
@@ -384,6 +441,44 @@ class DataAggregator:
         return csv_file_path
     
 
+    #output_parallelism_metric
+    def output_parallelism_metric(self, csv_file_path='parallelism_level.csv'):
+        json_map = self.get_indexed_jsons()
+        csv_file_path = self.get_full_path(csv_file_path)
+
+        with open(csv_file_path, 'w', newline='') as csv_file:
+            csv_writer = csv.writer(csv_file)
+
+            header = [
+                "Suite",
+                "Benchmark",
+                "Hier. Parent",
+                "#Tasks",
+                "CP Length",
+                "Parallelism Metric",
+                "Critical Path"
+            ]
+            csv_writer.writerow(header)
+
+            # Write rows
+            for app_name, data in json_map.items():
+                crit_paths = data.get('criticalPaths', {})
+
+                for hier_task, hier_info in crit_paths.items():
+                    row_data = [
+                        self.get_suite_benchmark(app_name)[0],
+                        self.get_suite_benchmark(app_name)[1],
+                        hier_info.get('hierachicalParent', 'N/A'),
+                        hier_info.get('#Tasks', 'N/A'),
+                        hier_info.get('criticalPathLength', 'N/A'),
+                        hier_info.get('parallelismMeasure', 'N/A'),
+                        " -> ".join(hier_info.get('criticalPath', {}))
+                    ]
+                    csv_writer.writerow(row_data)
+
+        return csv_file_path
+
+
     def output_producer_consumer_relationship(self, csv_file_path='producer_consumer_relationship.csv'):
         json_map = self.get_indexed_jsons()
         csv_file_path = self.get_full_path(csv_file_path)
@@ -396,11 +491,11 @@ class DataAggregator:
                 "Benchmark",
                 "Task ID 1",
                 "Task ID 2",
-                "Common Parent ID",
+                "Hier. Parent ID",
                 "Data",
                 "Task Name 1",
                 "Task Name 2",
-                "Common Parent Name",
+                "Hier. Parent Name",
             ]
             csv_writer.writerow(header)
 

@@ -1,7 +1,7 @@
 "use strict";
 
 laraImport("taskgraph/TaskGraph");
-laraImport("analysis/taskgraph/TopologicalSort");
+laraImport("taskgraph/util/TopologicalSort");
 laraImport("weaver.Query");
 
 class CriticalPathFinder {
@@ -21,8 +21,9 @@ class CriticalPathFinder {
 
     findPathInHierarchy(task) {
         const children = task.getHierarchicalChildren();
+        const nTasks = children.length;
 
-        if (children.length === 0) {
+        if (nTasks === 0) {
             const path = {
                 "#Tasks": 1,
                 "criticalPathLength": 1,
@@ -32,7 +33,7 @@ class CriticalPathFinder {
             };
             return path;
         }
-        if (children.length === 1) {
+        if (nTasks === 1) {
             const path = {
                 "#Tasks": 1,
                 "criticalPathLength": 1,
@@ -43,7 +44,6 @@ class CriticalPathFinder {
             return path;
         }
         else {
-            const nTasks = children.length;
             const criticalPath = this.#findCriticalPath(task);
             const criticalPathLength = criticalPath.length;
             const parallelismMeasure = nTasks / criticalPathLength;
@@ -62,8 +62,8 @@ class CriticalPathFinder {
     #findCriticalPath(parentTask) {
         const children = parentTask.getHierarchicalChildren();
 
-        const sorter = new TopologicalSort(children);
-        const sortedChildren = sorter.performSort();
+        const sortedChildren = TopologicalSort.sort(children);
+        println(children.length + " | " + sortedChildren.length);
 
         const distances = {};
         const predecessors = {};
@@ -100,11 +100,12 @@ class CriticalPathFinder {
 
         const criticalPath = [];
         let currentTask = maxTask;
-        while (currentTask != null) {
+        while (currentTask != null && !criticalPath.includes(currentTask.getName())) {
             criticalPath.push(currentTask.getName());
             currentTask = predecessors[currentTask.getId()];
         }
 
+        println("NTasks: " + children.length + " | Critical Path Length: " + criticalPath.length + " | Parallelism Measure: " + children.length / criticalPath.length);
         return criticalPath.reverse();
     }
 }

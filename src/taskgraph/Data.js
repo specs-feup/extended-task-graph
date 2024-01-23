@@ -3,7 +3,8 @@
 laraImport("taskgraph/DataOrigins");
 
 class Data {
-    #decl = null;
+    #ref = null;
+    #name = "<noname>";
     #isInit = false;
     #isWritten = false;
     #isRead = false;
@@ -16,19 +17,25 @@ class Data {
 
     #origin = DataOrigins.UNKNOWN;
     #alternateName = "<none>";
+    #immediateFunctionCall = null;
 
-    constructor(decl, origin) {
-        this.#decl = decl;
+    constructor(ref, origin) {
+        this.#ref = ref;
         this.#origin = origin;
-        this.#demangleDatatype(decl);
+        this.#name = this.#getNameFromRef(ref);
+        this.#demangleDatatype(ref);
     }
 
     getName() {
-        return this.#decl.name;
+        return this.#name;
+    }
+
+    getOrigin() {
+        return this.#origin;
     }
 
     getDecl() {
-        return this.#decl;
+        return this.#ref;
     }
 
     getDatatype() {
@@ -93,6 +100,17 @@ class Data {
         return this.#datatypeSize;
     }
 
+    getImmediateFunctionCall() {
+        return this.#immediateFunctionCall;
+    }
+
+    setImmediateFunctionCall(call) {
+        if (this.#origin !== DataOrigins.CONSTANT) {
+            throw new Error("You can only specify an immediate function call for immediate constants!");
+        }
+        this.#immediateFunctionCall = call;
+    }
+
     isNewlyCreated() {
         return this.#origin === DataOrigins.NEW;
     }
@@ -115,7 +133,7 @@ class Data {
 
     toString() {
         const status = !this.#isInit ? "U" : (this.#isRead ? "R" : "") + (this.#isWritten ? "W" : "");
-        return `${this.#decl.name} {${this.#sizeInBytes}} ${status}`;
+        return `${this.#ref.name} {${this.#sizeInBytes}} ${status}`;
     }
 
     #demangleDatatype(decl) {
@@ -130,6 +148,15 @@ class Data {
         }
         else {
             this.#demangleScalar(typeCode);
+        }
+    }
+
+    #getNameFromRef(ref) {
+        if (ref.instanceOf(["intLiteral", "floatLiteral"])) {
+            return "imm(" + ref.value + ")";
+        }
+        else {
+            return ref.name;
         }
     }
 
