@@ -1,5 +1,4 @@
 import os
-from tester import test_app_flows, test_bench_flows
 
 
 def main():
@@ -9,11 +8,12 @@ def main():
     test_hiflipvx()
     test_rosetta()
     test_machsuite()
+    print("All tests done!")
 
 
 def test_apps():
-    #test_app_flows("edgedetect", False, True, useHls=False)
-    test_app_flows("stresstest", False, True, useHls=False)
+    # test_app_flows("edgedetect", True, True, useHls=False)
+    # test_app_flows("stresstest", False, True, useHls=False)
     # test_app_flows("scenarioA", True, True, useHls=True)
     # test_app_flows("scenarioB", True, True, useHls=True)
     pass
@@ -47,11 +47,13 @@ def test_hiflipvx():
 
 
 def test_rosetta():
-    #test_bench_flows("Rosetta-3d-rendering-N", False, True, useHls=False)
-    #test_bench_flows("Rosetta-digit-recognition-N", False, True, useHls=False)
-    #test_bench_flows("Rosetta-face-detection-N", False, True, useHls=False)
-    #test_bench_flows("Rosetta-optical-flow-current", False, True, useHls=False)
-    #test_bench_flows("Rosetta-spam-filter-N", False, True, useHls=False)
+    stage_1 = True
+    stage_2 = True
+    # test_bench_flows("Rosetta-3d-rendering-N", stage_1, stage_2, useHls=False)
+    # test_bench_flows("Rosetta-digit-recognition-N", stage_1, stage_2, useHls=False)
+    # test_bench_flows("Rosetta-face-detection-N", stage_1, stage_2, useHls=False)
+    # test_bench_flows("Rosetta-optical-flow-current", stage_1, stage_2, useHls=False)
+    # test_bench_flows("Rosetta-spam-filter-N", stage_1, stage_2, useHls=False)
     pass
 
 
@@ -61,10 +63,10 @@ def test_machsuite():
     # -----------------------------------
     # test_bench_flows("MachSuite-aes-D", False, True, useHls=False) # ERROR in creating decomps with void type
     # test_bench_flows("MachSuite-backprop-D", False, True, useHls=False) # some edge errors
-    #test_bench_flows("MachSuite-fft-transpose-D", False, True, useHls=False) # some edge errors
-    #test_bench_flows("MachSuite-kmp-D", True, False, useHls=False)
-    #test_bench_flows("MachSuite-sort-merge-D", False, True, useHls=False)
-    #test_bench_flows("MachSuite-sort-radix-D", False, True, useHls=False)
+    # test_bench_flows("MachSuite-fft-transpose-D", False, True, useHls=False) # some edge errors
+    # test_bench_flows("MachSuite-kmp-D", True, False, useHls=False)
+    # test_bench_flows("MachSuite-sort-merge-D", False, True, useHls=False)
+    # test_bench_flows("MachSuite-sort-radix-D", False, True, useHls=False)
     # -----------------------------------
     # Single task benchmarks
     # -----------------------------------
@@ -87,10 +89,6 @@ def test_machsuite():
 """
 TODO:
 - Improve R/W and Uninitialized detection
-- rendering_sw.cpp:195:7: warning: expression result unused [-Wunused-value]
-    *i++;
-    ^~~~
-    I think this may need some parenthesis or even an expansion to *i = *i + 1
 
 - New metrics:
 * critical path stuff (number of tasks in subgraph, critical path length, and parallelism metric)
@@ -99,4 +97,3 @@ TODO:
 
 if __name__ == "__main__":
     main()
-

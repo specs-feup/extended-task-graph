@@ -41,8 +41,10 @@ class Clava:
     def run(self, verbose=False):
         final_cmd = self.get_current_command(verbose)
 
-        # info = Template("Running Clava with the following command:\n\t$cmd\n")
-        # print(info.substitute(cmd=final_cmd))
+        if verbose:
+            info = Template("Running Clava with the following command:\n\t$cmd\n")
+            print(info.substitute(cmd=final_cmd))
+
         ret = os.system(final_cmd)
         return ret
 
@@ -51,6 +53,10 @@ class Clava:
         args = self._build_command_args(verbose)
         final_cmd = base_cmd.substitute(main_file=self.main_file, args=args)
         return final_cmd
+
+    def reset_command(self):
+        self.cmd_simple = set()
+        self.cmd_verbose = set()
 
     def set_main_file(self, main_file):
         self.main_file = main_file
