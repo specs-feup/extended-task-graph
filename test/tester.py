@@ -45,6 +45,7 @@ def set_default_args(clava):
     clava.set_show_stack()
     clava.set_no_code_generation()
     clava.set_verbosity(0)
+    # clava.set_libc_system_libs()
     clava.set_extra_includes_folder(EXTRA_INCLUDES)
 
 

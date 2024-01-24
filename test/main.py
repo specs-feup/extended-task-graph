@@ -1,4 +1,5 @@
 import os
+from tester import test_app_flows, test_bench_flows
 
 
 def main():
@@ -12,7 +13,7 @@ def main():
 
 
 def test_apps():
-    # test_app_flows("edgedetect", True, True, useHls=False)
+    test_app_flows("edgedetect", True, False, useHls=False)
     # test_app_flows("stresstest", False, True, useHls=False)
     # test_app_flows("scenarioA", True, True, useHls=True)
     # test_app_flows("scenarioB", True, True, useHls=True)

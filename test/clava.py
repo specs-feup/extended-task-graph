@@ -120,6 +120,34 @@ class Clava:
         self._remove_from_set(self.cmd_verbose, "--verbose")
         self._add("-b " + str(level), "--verbose " + str(level))
 
+    def set_libc_default(self):
+        self._remove_from_set(self.cmd_simple, "-lib")
+        self._remove_from_set(self.cmd_verbose, "--libc-cxx-mode")
+
+    def set_libc_clava_builtins(self):
+        self._remove_from_set(self.cmd_simple, "-lib")
+        self._remove_from_set(self.cmd_verbose, "--libc-cxx-mode")
+        self._add(
+            '-lib "Clava base built-ins"',
+            '--libc-cxx-mode "Clava base built-ins"',
+        )
+
+    def set_libc_clava_plus(self):
+        self._remove_from_set(self.cmd_simple, "-lib")
+        self._remove_from_set(self.cmd_verbose, "--libc-cxx-mode")
+        self._add(
+            '-lib "Clava base built-ins + libc/libc++"',
+            '--libc-cxx-mode "Clava base built-ins + libc/libc++"',
+        )
+
+    def set_libc_system_libs(self):
+        self._remove_from_set(self.cmd_simple, "-lib")
+        self._remove_from_set(self.cmd_verbose, "--libc-cxx-mode")
+        self._add(
+            '-lib "Nothing (i.e. use system libs)"',
+            '--libc-cxx-mode "Nothing (i.e. use system libs)"',
+        )
+
     def set_extra_includes_folder(self, paths):
         if len(paths) == 0:
             return
