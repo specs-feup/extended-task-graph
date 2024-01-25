@@ -8,6 +8,7 @@ const OutputDirectories = {
     SRC_ORIGINAL: "src_original",
     SRC_SUBSET: "src_subset",
     SRC_TASKS: "src_tasks",
+    SRC_TASKS_INSTRUMENTED: "src_tasks_instrumented",
     TASKGRAPH: "taskgraph",
     PROFILING: "cpu_profiling"
 }

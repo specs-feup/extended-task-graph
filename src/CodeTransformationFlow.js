@@ -5,6 +5,7 @@ laraImport("OutputDirectories");
 laraImport("analysis/ast/ApplicationAnalyser");
 laraImport("preprocessing/SubsetPreprocessor");
 laraImport("preprocessing/TaskPreprocessor");
+laraImport("preprocessing/CodeInstrumenter");
 laraImport("util/ClavaUtils");
 
 class CodeTransformationFlow extends UPTStage {
@@ -43,6 +44,11 @@ class CodeTransformationFlow extends UPTStage {
         this.taskPreprocessing();
         this.intermediateAnalysis();
         this.generateTaskCode();
+
+        // push AST
+        //this.instrumentCode();
+        this.generateInstrumentedTaskCode();
+        // pop AST
 
         this.log("Code transformation flow finished successfully!");
     }
@@ -91,10 +97,6 @@ class CodeTransformationFlow extends UPTStage {
         const preprocessor = new TaskPreprocessor(topFun, outDir, appName);
         preprocessor.outlineAll();
         preprocessor.insertTimer();
-        const symbols = preprocessor.insertInstrumentation();
-
-        this.saveToFileInSubfolder(symbols, "symbols.txt", OutputDirectories.PROFILING);
-        this.log(`Symbols for profiling written to "${OutputDirectories.PROFILING}/symbols.txt"`);
     }
 
     intermediateAnalysis() {
@@ -111,4 +113,17 @@ class CodeTransformationFlow extends UPTStage {
         ClavaUtils.generateCode(this.getOutputDir(), OutputDirectories.SRC_TASKS);
         this.log(`Intermediate task-based source code written to "${OutputDirectories.SRC_TASKS}"`);
     }
+
+    instrumentCode() {
+        this.log("Instrumenting code");
+        const instrumenter = new CodeInstrumenter(this.getTopFunction());
+        instrumenter.instrument();
+        this.log("Code successfully instrumented");
+    }
+
+    generateInstrumentedTaskCode() {
+        ClavaUtils.generateCode(this.getOutputDir(), OutputDirectories.SRC_TASKS_INSTRUMENTED);
+        this.log(`Instrumented task-based source code written to "${OutputDirectories.SRC_TASKS_INSTRUMENTED}"`);
+    }
+
 }

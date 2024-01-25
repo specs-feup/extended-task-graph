@@ -1,7 +1,6 @@
 "use strict";
 
 laraImport("clava.code.Outliner");
-laraImport("clava.profiling.FunctionLevelInstrumentator");
 laraImport("preprocessing/OutlineRegionFinder");
 laraImport("preprocessing/AppTimerInserter");
 laraImport("UPTStage");
@@ -14,7 +13,6 @@ class TaskPreprocessor extends UPTStage {
     preprocess() {
         this.outlineAll();
         this.insertTimer();
-        return this.insertInstrumentation();
     }
 
     outlineAll() {
@@ -63,13 +61,5 @@ class TaskPreprocessor extends UPTStage {
         else {
             this.log(`Inserted timer around application starting point "${topFunName}"`);
         }
-    }
-
-    insertInstrumentation() {
-        //const inst = new FunctionLevelInstrumentator();
-        //const flags = inst.instrument();
-        //const joinedFlags = flags.join("\n");
-        //return joinedFlags;
-        return "";
     }
 }
