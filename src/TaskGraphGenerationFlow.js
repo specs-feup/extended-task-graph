@@ -7,7 +7,7 @@ laraImport("estimation/TaskGraphAnnotator");
 laraImport("analysis/taskgraph/TaskGraphAnalyzer");
 laraImport("util/ClavaUtils");
 
-class HolisticPartitioningFlow extends UPTStage {
+class TaskGraphGenerationFlow extends UPTStage {
     #config;
 
     constructor(config) {
@@ -19,13 +19,13 @@ class HolisticPartitioningFlow extends UPTStage {
     }
 
     run() {
-        this.log("Running holistic HW/SW partitioning flow");
+        this.log("Running Task Graph Generation flow");
 
         const tg = this.buildTaskGraph();
-        this.annotateTaskGraph(tg);
+        //this.annotateTaskGraph(tg);
         this.analyzeTaskGraph(tg);
 
-        this.log("Holistic HW/SW partitioning flow finished successfully!");
+        this.log("Task Graph Generation flow finished successfully!");
     }
 
     buildTaskGraph() {
