@@ -1,0 +1,337 @@
+{
+    "edgedetect": {
+        "provenance": "inputs/edgedetect",
+        "standard": "c++11",
+        "starterFunction": "edge_detect",
+        "clock": 10,
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "stresstest": {
+        "provenance": "inputs/stresstest",
+        "standard": "c++11",
+        "starterFunction": "app_start",
+        "clock": 10,
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "scenarioA": {
+        "provenance": "inputs/scenarioA",
+        "standard": "c11",
+        "starterFunction": "main",
+        "clock": 10,
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "scenarioB": {
+        "provenance": "inputs/scenarioB",
+        "standard": "c11",
+        "starterFunction": "scenario",
+        "clock": 10,
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "CHStone-adpcm-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "clock": 10,
+        "starterFunction": "adpcm_main",
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "CHStone-aes-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "clock": 10,
+        "starterFunction": "aes_main",
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "CHStone-blowfish-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "clock": 10,
+        "starterFunction": "blowfish_main",
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "CHStone-dfadd-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "clock": 10,
+        "starterFunction": "float64_add",
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "CHStone-dfdiv-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "clock": 10,
+        "starterFunction": "float64_div",
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "CHStone-dfmul-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "clock": 10,
+        "starterFunction": "float64_mul",
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "CHStone-dfsin-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "clock": 10,
+        "starterFunction": "_sin",
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "CHStone-gsm-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "clock": 10,
+        "starterFunction": "Gsm_LPC_Analysis",
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "CHStone-jpeg-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "clock": 10,
+        "starterFunction": "jpeg2bmp_main",
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "CHStone-mips-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "clock": 10,
+        "starterFunction": "mips",
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "CHStone-motion-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "clock": 10,
+        "starterFunction": "main",
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "CHStone-sha-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "clock": 10,
+        "starterFunction": "sha_stream",
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "HiFlipVX-v2-N": {
+        "provenance": "BUILTIN",
+        "standard": "c++11",
+        "clock": 10,
+        "starterFunction": "main",
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "Rosetta-3d-rendering-N": {
+        "provenance": "BUILTIN",
+        "standard": "c++11",
+        "clock": 10,
+        "targetPart": "xcvu5p-flva2104-1-e",
+        "starterFunction": "rendering_sw"
+    },
+
+    "Rosetta-digit-recognition-N": {
+        "provenance": "BUILTIN",
+        "standard": "c++11",
+        "starterFunction": "DigitRec_sw",
+        "clock": 10,
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "Rosetta-face-detection-N": {
+        "provenance": "BUILTIN",
+        "standard": "c++11",
+        "starterFunction": "face_detect_sw",
+        "clock": 10,
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "Rosetta-optical-flow-current": {
+        "provenance": "BUILTIN",
+        "standard": "c++11",
+        "starterFunction": "optical_flow_sw",
+        "clock": 10,
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "Rosetta-optical-flow-sintel": {
+        "provenance": "BUILTIN",
+        "standard": "c++11",
+        "starterFunction": "optical_flow_sw",
+        "clock": 10,
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "Rosetta-spam-filter-N": {
+        "provenance": "BUILTIN",
+        "standard": "c++11",
+        "starterFunction": "SgdLR_sw",
+        "clock": 10,
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "MachSuite-aes-D": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "aes256_encrypt_ecb",
+        "clock": 10,
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "MachSuite-backprop-D": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "backprop",
+        "clock": 10,
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "MachSuite-bfs-bulk-D": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "bfs",
+        "clock": 10,
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "MachSuite-bfs-queue-D": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "bfs",
+        "clock": 10,
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "MachSuite-fft-strided-D": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "fft",
+        "clock": 10,
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "MachSuite-fft-transpose-D": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "fft1D_512",
+        "clock": 10,
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "MachSuite-gemm-blocked-D": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "bbgemm",
+        "clock": 10,
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "MachSuite-gemm-ncubed-D": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "gemm",
+        "clock": 10,
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "MachSuite-kmp-D": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "kmp",
+        "clock": 10,
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "MachSuite-md-grid-D": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "md",
+        "clock": 10,
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "MachSuite-md-knn-D": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "md_kernel",
+        "clock": 10,
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "MachSuite-nw-D": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "needwun",
+        "clock": 10,
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "MachSuite-sort-merge-D": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "ms_mergesort",
+        "clock": 10,
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "MachSuite-sort-radix-D": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "ss_sort",
+        "clock": 10,
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "MachSuite-spmv-crs-D": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "spmv",
+        "clock": 10,
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "MachSuite-spmv-ellpack-D": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "ellpack",
+        "clock": 10,
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "MachSuite-stencil-2d-D": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "stencil",
+        "clock": 10,
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "MachSuite-stencil-3d-D": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "stencil3d",
+        "clock": 10,
+        "targetPart": "xcvu5p-flva2104-1-e"
+    },
+
+    "MachSuite-viterbi-D": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "viterbi",
+        "clock": 10,
+        "targetPart": "xcvu5p-flva2104-1-e"
+    }
+}
