@@ -18,6 +18,11 @@ class UnnamedPartitioningTool extends UPTStage {
         Platforms.setLinux();
     }
 
+    runBothFlows() {
+        this.runCodeTransformationFlow();
+        this.runHolisticFlow(false);
+    }
+
     runCodeTransformationFlow() {
         this.#printLine();
 

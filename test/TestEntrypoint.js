@@ -29,7 +29,7 @@ function main() {
     }
 
     const upt = new UnnamedPartitioningTool(config);
-    upt.runCodeTransformationFlow();
+    upt.runBothFlows();
 }
 
 main();

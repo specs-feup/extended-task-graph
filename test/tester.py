@@ -16,7 +16,7 @@ EXTRA_INCLUDES = [
 
 def set_default_args(clava):
     # clava.set_no_clava_info()
-    # clava.set_libc_system_libs()
+    clava.set_libc_clava_plus()
     clava.set_clean_intermediate_files()
     clava.set_copy_files_in_sources()
     clava.set_allow_custom_resources()

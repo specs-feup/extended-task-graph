@@ -24,11 +24,11 @@ def main():
         # -------------------
         # Custom apps
         # -------------------
-        # "edgedetect",
+        "edgedetect",
         # "stresstest",
         # "scenarioA",
         # "scenarioB",
-        "trivial",
+        # "trivial",
         # -------------------
         # Rosetta
         # -------------------
