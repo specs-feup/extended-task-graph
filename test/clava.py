@@ -120,6 +120,11 @@ class Clava:
         self._remove_from_set(self.cmd_verbose, "--verbose")
         self._add("-b " + str(level), "--verbose " + str(level))
 
+    def set_clang_flag(self, flag):
+        self._remove_from_set(self.cmd_simple, "-fs")
+        self._remove_from_set(self.cmd_verbose, "--flags")
+        self._add(f'-fs "{flag}"', f'--flags "{flag}"')
+
     def set_libc_default(self):
         self._remove_from_set(self.cmd_simple, "-lib")
         self._remove_from_set(self.cmd_verbose, "--libc-cxx-mode")

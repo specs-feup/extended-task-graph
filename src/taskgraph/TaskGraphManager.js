@@ -8,7 +8,7 @@ laraImport("taskgraph/TaskGraphDumper");
 class TaskGraphManager extends UPTStage {
 
     constructor(topFunction, outputDir, appName) {
-        super("HPFlow-TaskGraphManager", topFunction, outputDir, appName);
+        super("TGGFlow-TaskGraphManager", topFunction, outputDir, appName);
     }
 
     buildTaskGraph() {

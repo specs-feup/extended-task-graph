@@ -11,7 +11,7 @@ class TaskGraphGenerationFlow extends UPTStage {
     #config;
 
     constructor(config) {
-        super("HPFlow",
+        super("TGGFlow",
             config["starterFunction"],
             config["outputDir"],
             config["appName"]);

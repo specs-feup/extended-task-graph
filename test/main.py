@@ -27,8 +27,8 @@ def main():
         # "edgedetect",
         # "stresstest",
         # "scenarioA",
-        # "scenarioB",
-        "trivial",
+        "scenarioB",
+        # "trivial",
         # -------------------
         # Rosetta
         # -------------------

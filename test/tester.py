@@ -17,7 +17,6 @@ EXTRA_INCLUDES = [
 
 def set_default_args(clava):
     # clava.set_no_clava_info()
-    clava.set_libc_clava_plus()
     clava.set_clean_intermediate_files()
     clava.set_copy_files_in_sources()
     clava.set_allow_custom_resources()
@@ -28,6 +27,13 @@ def set_default_args(clava):
     clava.set_no_code_generation()
     clava.set_verbosity(0)
     clava.set_extra_includes_folder(EXTRA_INCLUDES)
+
+    # clava.set_clang_flag("-nostdlibinc")
+    # clava.set_clang_flag("-nobuiltininc")
+    # clava.set_clang_flag("-nobuiltininc -nostdlibinc")
+    # clava.set_libc_system_libs()
+    # clava.set_libc_clava_builtins()
+    clava.set_libc_clava_plus()
 
 
 def generate_image_from_dot(dot):
@@ -86,7 +92,7 @@ def test_bench(name, config):
     clava.set_standard(config["standard"])
 
     # Go, Clava, go!
-    clava.run()
+    clava.run(True)
 
     # If that went well, we'll probably have a bunch of output files
     # Some of which are dotfiles, which we can now render onto pretty,
