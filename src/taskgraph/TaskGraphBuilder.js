@@ -15,23 +15,28 @@ class TaskGraphBuilder {
 
     build(topFunction) {
         const taskGraph = new TaskGraph();
-
+        println("OK 1");
         this.#populateGlobalMap(taskGraph);
 
-        const topTask = this.#buildLevel(taskGraph, topFunction, null, null);
+        try {
+            const topTask = this.#buildLevel(taskGraph, topFunction, null, null);
 
-        // main_begin and main_end are special, and outside of the hierarchy
-        let rank = 1;
-        for (const data of topTask.getReferencedData()) {
-            taskGraph.addCommunication(taskGraph.getSource(), topTask, data, data, rank);
-            rank++;
-        }
-        rank = 1;
-        for (const data of topTask.getDataWritten()) {
-            taskGraph.addCommunication(topTask, taskGraph.getSink(), data, data, rank);
-            rank++;
-        }
+            // main_begin and main_end are special, and outside of the hierarchy
+            let rank = 1;
+            for (const data of topTask.getReferencedData()) {
+                taskGraph.addCommunication(taskGraph.getSource(), topTask, data, data, rank);
+                rank++;
+            }
+            rank = 1;
+            for (const data of topTask.getDataWritten()) {
+                taskGraph.addCommunication(topTask, taskGraph.getSink(), data, data, rank);
+                rank++;
+            }
 
+        } catch (e) {
+            println("[TaskGraphBuilder] CATASTROPHIC ERROR: " + e);
+            return null;
+        }
         return taskGraph;
     }
 

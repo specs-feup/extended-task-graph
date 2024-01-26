@@ -14,8 +14,15 @@ class TaskGraphManager extends UPTStage {
     buildTaskGraph() {
         const tgBuilder = new TaskGraphBuilder();
         const taskGraph = tgBuilder.build(this.getTopFunction());
-        this.log("Successfully built the task graph");
-        return taskGraph;
+
+        if (taskGraph == null) {
+            this.log("Failed to build the task graph");
+            return null;
+        }
+        else {
+            this.log("Successfully built the task graph");
+            return taskGraph;
+        }
     }
 
     dumpTaskGraph(taskGraph) {

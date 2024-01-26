@@ -22,6 +22,11 @@ class TaskGraphGenerationFlow extends UPTStage {
         this.log("Running Task Graph Generation flow");
 
         const tg = this.buildTaskGraph();
+        if (tg == null) {
+            this.log("Task graph was not built successfully, aborting");
+            return;
+        }
+
         //this.annotateTaskGraph(tg);
         this.analyzeTaskGraph(tg);
 
@@ -34,10 +39,17 @@ class TaskGraphGenerationFlow extends UPTStage {
 
         const taskGraphMan = new TaskGraphManager(this.getTopFunction(), outDir, this.getAppName());
         const taskGraph = taskGraphMan.buildTaskGraph();
-        taskGraphMan.dumpTaskGraph(taskGraph);
 
-        this.log("Task graph successfully built!");
-        return taskGraph;
+        if (taskGraph == null) {
+            this.log("Cannot dump task graph, since it was not built successfully");
+            return null;
+        }
+        else {
+            taskGraphMan.dumpTaskGraph(taskGraph);
+
+            this.log("Task graph successfully built!");
+            return taskGraph;
+        }
     }
 
     annotateTaskGraph(taskGraph) {
