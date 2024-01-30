@@ -13,13 +13,13 @@ class TaskGraphBuilder {
 
     constructor() { }
 
-    build(topFunction) {
+    build(topFunctionJoinPoint) {
         const taskGraph = new TaskGraph();
 
         this.#populateGlobalMap(taskGraph);
 
         try {
-            const topTask = this.#buildLevel(taskGraph, topFunction, null, null);
+            const topTask = this.#buildLevel(taskGraph, topFunctionJoinPoint, null, null);
 
             // main_begin and main_end are special, and outside of the hierarchy
             let rank = 1;

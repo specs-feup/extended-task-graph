@@ -343,9 +343,14 @@ class Task {
     #findDataFromGlobals() {
         const globalVars = new Set();
         for (const varref of Query.searchFrom(this.#function.body, "varref")) {
-            const decl = varref.vardecl;
-            if (decl != null && decl.isGlobal) {
-                globalVars.add(decl);
+            try {
+                const decl = varref.vardecl;
+                if (decl != null && decl.isGlobal) {
+                    globalVars.add(decl);
+                }
+            }
+            catch (e) {
+                println(`Could not find vardecl for varref: ${varref.name}`);
             }
         }
         this.#createDataObjects([...globalVars], DataOrigins.GLOBAL);
