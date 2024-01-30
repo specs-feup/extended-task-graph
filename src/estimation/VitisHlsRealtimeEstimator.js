@@ -2,7 +2,7 @@
 
 laraImport("estimation/AEstimator");
 laraImport("estimation/EstimationTemplateFactory");
-laraImport("clava.vitis.VitisHls");
+//laraImport("clava.vitis.VitisHls");
 
 class VitisHlsRealtimeEstimator extends AEstimator {
     targetPart = "";
