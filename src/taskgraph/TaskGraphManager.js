@@ -13,7 +13,10 @@ class TaskGraphManager extends UPTStage {
 
     buildTaskGraph() {
         const tgBuilder = new TaskGraphBuilder();
-        const taskGraph = tgBuilder.build(this.getTopFunction());
+        const startingPoint = this.getTopFunctionJoinPoint();
+
+        this.log(`Task graph root function defined as "${startingPoint.name}"`);
+        const taskGraph = tgBuilder.build(startingPoint);
 
         if (taskGraph == null) {
             this.log("Failed to build the task graph");

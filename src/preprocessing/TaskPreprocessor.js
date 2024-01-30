@@ -16,7 +16,7 @@ class TaskPreprocessor extends UPTStage {
     }
 
     outlineAll() {
-        const annotator = new OutlineRegionFinder(this.getTopFunction());
+        const annotator = new OutlineRegionFinder(this.getTopFunctionName());
 
         const genericRegions = annotator.annotateGenericPass();
         const genCnt = this.#applyOutlining(genericRegions, "outlined_fun_");
@@ -52,8 +52,8 @@ class TaskPreprocessor extends UPTStage {
 
     insertTimer() {
         const timerInserter = new AppTimerInserter();
-        const couldInsert = timerInserter.insertTimer(this.getTopFunction());
-        const topFunName = this.getTopFunction().name;
+        const couldInsert = timerInserter.insertTimer(this.getTopFunctionJoinPoint());
+        const topFunName = this.getTopFunctionName();
 
         if (!couldInsert) {
             this.log(`Could not insert timer around application starting point "${topFunName}"`);

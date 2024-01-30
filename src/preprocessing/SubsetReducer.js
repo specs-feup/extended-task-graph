@@ -17,10 +17,6 @@ class SubsetReducer extends UPTStage {
         super("CTFlow-Preprocessor-SubsetReducer", topFunction);
     }
 
-    #getValidFunctions() {
-        return ClavaUtils.getAllUniqueFunctions(this.getTopFunction());
-    }
-
     reduce() {
         this.normalizeToSubset();
         this.decomposeStatements();
@@ -100,6 +96,10 @@ class SubsetReducer extends UPTStage {
             }
         }
         this.log("Ensured " + count + " function(s) return void");
+    }
+
+    #getValidFunctions() {
+        return ClavaUtils.getAllUniqueFunctions(this.getTopFunctionJoinPoint());
     }
 
     #matchesATemplate(stmt) {

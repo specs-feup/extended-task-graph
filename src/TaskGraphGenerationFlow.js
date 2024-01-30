@@ -35,9 +35,11 @@ class TaskGraphGenerationFlow extends UPTStage {
 
     buildTaskGraph() {
         this.log("Running task graph building process");
+        const topFun = this.getTopFunctionName();
         const outDir = this.getOutputDir() + "/" + OutputDirectories.TASKGRAPH;
+        const appName = this.getAppName();
 
-        const taskGraphMan = new TaskGraphManager(this.getTopFunction(), outDir, this.getAppName());
+        const taskGraphMan = new TaskGraphManager(topFun, outDir, appName);
         const taskGraph = taskGraphMan.buildTaskGraph();
 
         if (taskGraph == null) {
@@ -54,10 +56,12 @@ class TaskGraphGenerationFlow extends UPTStage {
 
     annotateTaskGraph(taskGraph) {
         this.log("Running task graph annotation process");
+        const topFun = this.getTopFunctionName();
         const estimDir = this.getOutputDir() + "/" + OutputDirectories.ESTIMATIONS;
         const inputDir = this.getOutputDir() + "/" + OutputDirectories.SRC_TASKS;
+        this.getAppName()
 
-        const annotator = new TaskGraphAnnotator(this.getTopFunction(), estimDir, this.getAppName());
+        const annotator = new TaskGraphAnnotator(topFun, estimDir, appName);
         annotator.annotateAll(taskGraph, this.#config, inputDir);
         annotator.dumpTaskGraph(taskGraph);
 
@@ -66,9 +70,11 @@ class TaskGraphGenerationFlow extends UPTStage {
 
     analyzeTaskGraph(taskGraph) {
         this.log("Running task graph analysis process");
+        const topFun = this.getTopFunctionName();
         const outDir = this.getOutputDir() + "/" + OutputDirectories.TASKGRAPH;
+        const appName = this.getAppName();
 
-        const analyzer = new TaskGraphAnalyzer(this.getTopFunction(), outDir, this.getAppName(), taskGraph);
+        const analyzer = new TaskGraphAnalyzer(topFun, outDir, appName, taskGraph);
         analyzer.updateMetrics();
         analyzer.saveMetrics();
 

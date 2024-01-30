@@ -33,7 +33,7 @@ def set_default_args(clava):
     # clava.set_clang_flag("-nobuiltininc -nostdlibinc")
     # clava.set_libc_system_libs()
     # clava.set_libc_clava_builtins()
-    clava.set_libc_clava_plus()
+    # clava.set_libc_clava_plus()
 
 
 def generate_image_from_dot(dot):

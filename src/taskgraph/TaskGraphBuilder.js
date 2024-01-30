@@ -15,7 +15,7 @@ class TaskGraphBuilder {
 
     build(topFunction) {
         const taskGraph = new TaskGraph();
-        println("OK 1");
+
         this.#populateGlobalMap(taskGraph);
 
         try {
@@ -55,6 +55,7 @@ class TaskGraphBuilder {
 
     #buildLevel(taskGraph, fun, parent, call) {
         const task = new Task(fun, parent, "REGULAR");
+
         // if task was called by another, add the argument names
         // as alternate names for the task param data
         if (call != null) {
@@ -69,7 +70,6 @@ class TaskGraphBuilder {
 
         for (const call of Query.searchFrom(fun, "call")) {
             const callee = call.function;
-
             // Is of type "REGULAR", handle recursively
             if (ClavaUtils.functionHasImplementation(callee)) {
                 const regularTask = this.#buildLevel(taskGraph, callee, task, call);

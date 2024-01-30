@@ -62,7 +62,7 @@ class CodeTransformationFlow extends UPTStage {
         this.log("Running initial analysis step");
         const outDir = this.getOutputDir() + "/" + OutputDirectories.APP_STATS_ORIGINAL;
         const appName = this.getAppName();
-        const topFun = this.getTopFunction();
+        const topFun = this.getTopFunctionName();
 
         const analyser = new ApplicationAnalyser(topFun, outDir, appName);
         analyser.dumpAST();
@@ -73,7 +73,7 @@ class CodeTransformationFlow extends UPTStage {
         this.log("Running subset preprocessing step");
         const outDir = this.getOutputDir();
         const appName = this.getAppName();
-        const topFun = this.getTopFunction();
+        const topFun = this.getTopFunctionName();
 
         const preprocessor = new SubsetPreprocessor(topFun, outDir, appName);
         preprocessor.preprocess();
@@ -92,7 +92,7 @@ class CodeTransformationFlow extends UPTStage {
         this.log("Running task preprocessing step");
         const outDir = this.getOutputDir();
         const appName = this.getAppName();
-        const topFun = this.getTopFunction();
+        const topFun = this.getTopFunctionName();
 
         const preprocessor = new TaskPreprocessor(topFun, outDir, appName);
         preprocessor.outlineAll();
@@ -103,7 +103,7 @@ class CodeTransformationFlow extends UPTStage {
         this.log("Running intermediate analysis step");
         const outDir = this.getOutputDir() + "/" + OutputDirectories.APP_STATS_TASKS;
         const appName = this.getAppName();
-        const topFun = this.getTopFunction();
+        const topFun = this.getTopFunctionName();
 
         const analyser = new ApplicationAnalyser(topFun, outDir, appName);
         analyser.runAllTasks();
@@ -116,12 +116,13 @@ class CodeTransformationFlow extends UPTStage {
 
     instrumentCode() {
         this.log("Instrumenting code");
-        const instrumenter = new CodeInstrumenter(this.getTopFunction());
+        const instrumenter = new CodeInstrumenter(this.getTopFunctionName());
         instrumenter.instrument();
         this.log("Code successfully instrumented");
     }
 
     generateInstrumentedTaskCode() {
+        // Instrument here
         ClavaUtils.generateCode(this.getOutputDir(), OutputDirectories.SRC_TASKS_INSTRUMENTED);
         this.log(`Instrumented task-based source code written to "${OutputDirectories.SRC_TASKS_INSTRUMENTED}"`);
     }

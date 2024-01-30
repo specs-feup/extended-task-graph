@@ -27,7 +27,7 @@ class ApplicationAnalyser extends UPTStage {
 
     dumpCallGraph() {
         const dumper = new CallGraphDumper();
-        const str = dumper.dump(this.getTopFunction());
+        const str = dumper.dump(this.getTopFunctionJoinPoint());
 
         this.saveToFile(str, "callgraph.dot");
         this.log("Call graph dumped to file callgraph.dot")
