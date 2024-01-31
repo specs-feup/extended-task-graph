@@ -8,14 +8,24 @@ laraImport("taskgraph/TaskGraphDumper");
 class TaskGraphManager extends UPTStage {
 
     constructor(topFunction, outputDir, appName) {
-        super("HPFlow-TaskGraphManager", topFunction, outputDir, appName);
+        super("TGGFlow-TaskGraphManager", topFunction, outputDir, appName);
     }
 
     buildTaskGraph() {
         const tgBuilder = new TaskGraphBuilder();
-        const taskGraph = tgBuilder.build(this.getTopFunction());
-        this.log("Successfully built the task graph");
-        return taskGraph;
+        const startingPoint = this.getTopFunctionJoinPoint();
+
+        this.log(`Task graph root function defined as "${startingPoint.name}"`);
+        const taskGraph = tgBuilder.build(startingPoint);
+
+        if (taskGraph == null) {
+            this.log("Failed to build the task graph");
+            return null;
+        }
+        else {
+            this.log("Successfully built the task graph");
+            return taskGraph;
+        }
     }
 
     dumpTaskGraph(taskGraph) {
@@ -26,6 +36,7 @@ class TaskGraphManager extends UPTStage {
         const fname1 = this.saveToFile(dotVerbose, "taskgraph.dot");
         const fname2 = this.saveToFile(dotMinimal, "taskgraph_min.dot");
 
-        this.log(`Dumped task graph to files "${fname1}" and "${fname2}"`);
+        this.log(`Dumped full task graph to "${fname1}"`);
+        this.log(`Dumped mini task graph to "${fname2}"`);
     }
 }

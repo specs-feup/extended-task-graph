@@ -16,7 +16,7 @@ class OutlineRegionFinder extends UPTStage {
     annotateGenericPass() {
         this.log("Beginning the annotation of generic outlining regions");
 
-        const funs = ClavaUtils.getAllUniqueFunctions(this.getTopFunction());
+        const funs = ClavaUtils.getAllUniqueFunctions(this.getTopFunctionJoinPoint());
         const regions = [];
 
         for (const fun of funs) {
@@ -50,7 +50,7 @@ class OutlineRegionFinder extends UPTStage {
     annotateLoopPass() {
         this.log("Beginning the annotation of loop outlining regions");
 
-        const funs = ClavaUtils.getAllUniqueFunctions(this.getTopFunction());
+        const funs = ClavaUtils.getAllUniqueFunctions(this.getTopFunctionJoinPoint());
         let outlinedCount = 0;
 
         for (const fun of funs) {

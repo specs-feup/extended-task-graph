@@ -1,11 +1,6 @@
 import os
 import json
-import shutil
-from string import Template
-from collections.abc import Iterable
-from benchmarks import benchmarks, apps
 from clava import Clava
-
 
 ENTRYPOINT = "../test/TestEntrypoint.js"
 OUTPUT_DIR = "../test/outputs/"
@@ -14,24 +9,10 @@ TEMP_FOLDER = "../test/temp/"
 CONFIG = TEMP_FOLDER + "config.json"
 EXTRA_INCLUDES = [
     os.path.abspath(os.path.join("..", "clava-code-transformations", "src")),
+    os.path.abspath(os.path.join("..", "clava-vitis-integration", "src")),
     os.path.abspath(os.path.join("..", "clava-benchmarks", "MachSuite")),
     os.path.abspath(os.path.join("..", "clava-benchmarks", "Rosetta")),
 ]
-
-
-def create_estim_folder(appName):
-    estim_path = "../test/outputs/" + appName + "/cpu_profiling"
-    if not os.path.exists(estim_path):
-        os.makedirs(estim_path)
-    profiler = "../tools/profiler/profiler.sh"
-    shutil.copy(profiler, estim_path)
-    agg = "../tools/profiler/csv_to_json.py"
-    shutil.copy(agg, estim_path)
-
-
-def ensure_temp_exists():
-    if not os.path.exists("../test/temp"):
-        os.mkdir("../test/temp")
 
 
 def set_default_args(clava):
@@ -45,141 +26,84 @@ def set_default_args(clava):
     clava.set_show_stack()
     clava.set_no_code_generation()
     clava.set_verbosity(0)
-    # clava.set_libc_system_libs()
     clava.set_extra_includes_folder(EXTRA_INCLUDES)
 
+    # clava.set_clang_flag("-nostdlibinc")
+    # clava.set_clang_flag("-nobuiltininc")
+    # clava.set_clang_flag("-nobuiltininc -nostdlibinc")
+    # clava.set_libc_system_libs()
+    # clava.set_libc_clava_builtins()
+    # clava.set_libc_clava_plus()
 
-def prepare_command_and_file_app(appName, flow, useHls=False):
-    standard, config = apps[appName]
-    outputPath = OUTPUT_DIR + appName
-    inputPath = ""
-    if flow == "code":
-        inputPath = INPUT_DIR + appName
-    if flow == "holistic":
-        inputPath = outputPath + "/src_tasks"
 
-    # UPT config
-    config["appName"] = appName
-    config["outputDir"] = outputPath
-    config["useHls"] = useHls
-    config["cpuEstim"] = outputPath + "/estimations/" + config["cpuEstim"]
-    config["fpgaEstim"] = outputPath + "/estimations/" + config["fpgaEstim"]
+def generate_image_from_dot(dot):
+    if not os.path.exists(dot):
+        print(f"Dotfile {dot} not found! Aborting PNG generation...")
+        return
 
+    png = dot.replace(".dot", ".png")
+    cmd = f"dot -Tpng {dot} -o {png} -Gmemory=2GB"
+
+    print(f"Generating image from {dot}...", end="")
+    os.system(cmd)
+    print(f"Done!")
+
+
+def test_bench(name, config):
+    # Add output folder to the config
+    # On a real-world scenario, this would already be part of it
+    # But for testing purposes, we generate it dynamically
+    out_folder = OUTPUT_DIR + name
+    config["outputDir"] = out_folder
+
+    # And the same thing for the appName:
+    # Normally, this would be part of the config
+    # But since we're using the appName to index the config anyway,
+    # we just replicate it dynamically to reduce clutter
+    # Refer to the README to know exactly how an UPT config looks like
+    config["appName"] = name
+
+    # We save the config on a JSON file, to serve as the input
+    # We could probably inline these and pass it as a CLI arg to Clava,
+    # but this is cleaner and more readable
     if not os.path.exists(TEMP_FOLDER):
         os.makedirs(TEMP_FOLDER)
     with open(CONFIG, "w+") as f:
         json.dump(config, f, indent=4)
 
-    # Clava command line arguments
+    # Now, we build the (very long) command to run Clava with UPT
+    # In reality this could be much shorter, as many of the flags we're
+    # setting here are the default values. But for extra clarity, we're
+    # setting them explicitly
     clava = Clava(ENTRYPOINT)
     set_default_args(clava)
-    clava.set_standard(standard)
-    clava.set_workspace(inputPath)
-    clava.set_output_folder_name(outputPath)
-    clava.set_args({"inputType": "app", "flow": flow})
 
-    return clava
+    # If we're dealing with code outside the builtin benchmarks,
+    # we need to further specify the workspace. Furthermore, we need
+    # to specify the standard. Since all of this is part of the config,
+    # we could just pass the JSON and let Clava handle it, but now we
+    # have the same old philosophical question of whether Clava should
+    # control UPT, or UPT should control Clava. We're going with a mix
+    # of both, with enough leeway to choose one way or the other further
+    # down the line (which further depends on the partitioning component,
+    # since we're now detaching that from UPT's task graph itself)
+    if config["provenance"] != "BUILTIN":
+        clava.set_workspace(INPUT_DIR + name)
+    clava.set_standard(config["standard"])
 
+    # Go, Clava, go!
+    clava.run(True)
 
-def prepare_command_and_file_bench(appName, flow, useHls=False):
-    standard, config = benchmarks[appName]
-    suite = appName.split("-")[0]
-    output_path = OUTPUT_DIR + appName
-
-    # UPT config
-    config["appName"] = appName
-    config["outputDir"] = output_path
-    config["useHls"] = useHls
-    config["cpuEstim"] = output_path + "/estimations/" + config["cpuEstim"]
-    config["fpgaEstim"] = output_path + "/estimations/" + config["fpgaEstim"]
-
-    if not os.path.exists(TEMP_FOLDER):
-        os.makedirs(TEMP_FOLDER)
-    with open(CONFIG, "w+") as f:
-        json.dump(config, f, indent=4)
-
-    clava = Clava(ENTRYPOINT)
-    set_default_args(clava)
-    clava.set_standard(standard)
-    clava.set_flat_output_folder()
-    clava.set_output_folder_name(OUTPUT_DIR)
-    clava.set_args({"inputType": "bench", "flow": flow})
-
-    if flow == "code":
-        # dep = "https://github.com/specs-feup/clava-benchmarks.git?folder=" + suite
-        # clava.set_dependencies(dep)
-        pass
-    if flow == "holistic":
-        inputPath = output_path + "/src_tasks"
-        clava.set_workspace(inputPath)
-
-    return clava
-
-
-def test_flow(appName, isBenchmark, flow, useHls=False):
-    print("-" * 15 + " Running " + flow + " flow for  " + appName + " " + "-" * 15)
-    if isBenchmark:
-        clava = prepare_command_and_file_bench(appName, flow, useHls)
-    else:
-        clava = prepare_command_and_file_app(appName, flow, useHls)
-
-    commands = clava.get_current_command()
-    info = Template("Running Clava with the following command:\n\t$cmd\n")
-    print(info.substitute(cmd=commands))
-
-    res = clava.run()
-    dashes = "-" * 34
-    print(dashes + " (code = " + str(res) + ") " + dashes)
-
-    if flow == "holistic":
-        output_path = OUTPUT_DIR + appName
-        dot1 = f"{output_path}/taskgraph/{appName}_taskgraph.dot"
-        dot2 = f"{output_path}/taskgraph/{appName}_taskgraph_min.dot"
-        dot3 = f"{output_path}/estimations/{appName}_taskgraph_annotated.dot"
-        dot4 = f"{output_path}/app_stats_original/{appName}_callgraph.dot"
-        dot5 = f"{output_path}/app_stats_tasks/{appName}_callgraph.dot"
-
-        generate_image_from_dot([dot1, dot2, dot3, dot4, dot5])
-
-
-def generate_image_from_dot(dotfiles):
-    if not isinstance(dotfiles, Iterable):
-        dotfiles = [dotfiles]
+    # If that went well, we'll probably have a bunch of output files
+    # Some of which are dotfiles, which we can now render onto pretty,
+    # crisp and MASSIVELY MASSIVE PNGs
+    dotfiles = [
+        f"{out_folder}/taskgraph/{name}_taskgraph.dot",
+        f"{out_folder}/taskgraph/{name}_taskgraph_min.dot",
+        f"{out_folder}/estimations/{name}_taskgraph_annotated.dot",
+        f"{out_folder}/app_stats_original/{name}_callgraph.dot",
+        f"{out_folder}/app_stats_tasks/{name}_callgraph.dot",
+    ]
 
     for dot in dotfiles:
-        if not os.path.exists(dot):
-            continue
-
-        png = dot.replace(".dot", ".png")
-        cmd = f"dot -Tpng {dot} -o {png} -Gmemory=2GB"
-
-        print(f"Generating image from {dot}...", end="")
-        os.system(cmd)
-        print(f"Done!")
-
-
-def test_bench_flows(appName, flowCode, flowHolistic, useHls=False):
-    test_flows(appName, True, flowCode, flowHolistic, useHls)
-
-
-def test_app_flows(appName, flowCode, flowHolistic, useHls=False):
-    test_flows(appName, False, flowCode, flowHolistic, useHls)
-
-
-def test_flows(appName, isBenchmark, flowCode, flowHolistic, useHls=False):
-    # -----------------------------------
-    # Flow code
-    # -----------------------------------
-    if flowCode:
-        test_flow(appName, isBenchmark, "code")
-
-    # -----------------------------------
-    # Inter-flow stage: get profiling info
-    # -----------------------------------
-    create_estim_folder(appName)
-
-    # -----------------------------------
-    # Flow Holistic
-    # -----------------------------------
-    if flowHolistic:
-        test_flow(appName, isBenchmark, "holistic", useHls)
+        generate_image_from_dot(dot)

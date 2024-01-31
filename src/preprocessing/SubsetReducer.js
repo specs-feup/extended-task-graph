@@ -17,10 +17,6 @@ class SubsetReducer extends UPTStage {
         super("CTFlow-Preprocessor-SubsetReducer", topFunction);
     }
 
-    #getValidFunctions() {
-        return ClavaUtils.getAllUniqueFunctions(this.getTopFunction());
-    }
-
     reduce() {
         this.normalizeToSubset();
         this.decomposeStatements();
@@ -68,7 +64,11 @@ class SubsetReducer extends UPTStage {
 
     applyCodeTransforms() {
         const flattener = new ArrayFlattener();
-        flattener.flattenAll();
+
+        const funs = this.#getValidFunctions();
+        for (const fun of funs) {
+            flattener.flattenAllInFunction(fun);
+        }
         this.log("Flattened all arrays into 1D");
 
         const foldProg = new FoldingPropagationCombiner();
@@ -100,6 +100,10 @@ class SubsetReducer extends UPTStage {
             }
         }
         this.log("Ensured " + count + " function(s) return void");
+    }
+
+    #getValidFunctions() {
+        return ClavaUtils.getAllUniqueFunctions(this.getTopFunctionJoinPoint());
     }
 
     #matchesATemplate(stmt) {

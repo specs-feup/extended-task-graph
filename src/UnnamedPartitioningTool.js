@@ -3,7 +3,7 @@
 laraImport("lara.Platforms");
 laraImport("UPTStage");
 laraImport("CodeTransformationFlow");
-laraImport("HolisticPartitioningFlow");
+laraImport("TaskGraphGenerationFlow");
 
 class UnnamedPartitioningTool extends UPTStage {
     #config;
@@ -18,6 +18,11 @@ class UnnamedPartitioningTool extends UPTStage {
         Platforms.setLinux();
     }
 
+    runBothFlows() {
+        this.runCodeTransformationFlow();
+        this.runTaskGraphGenerationFlow(false);
+    }
+
     runCodeTransformationFlow() {
         this.#printLine();
 
@@ -27,12 +32,12 @@ class UnnamedPartitioningTool extends UPTStage {
         this.#printLine();
     }
 
-    runHolisticFlow(printFirstLine = true) {
+    runTaskGraphGenerationFlow(printFirstLine = true) {
         if (printFirstLine) {
             this.#printLine();
         }
 
-        const flow = new HolisticPartitioningFlow(this.#config);
+        const flow = new TaskGraphGenerationFlow(this.#config);
         flow.run();
 
         this.#printLine();

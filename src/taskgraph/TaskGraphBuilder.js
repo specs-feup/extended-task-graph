@@ -1,7 +1,7 @@
 "use strict";
 
 laraImport("weaver.Query");
-laraImport("clava.code.TripCountCalculator");
+laraImport("clava.code.LoopCharacterizer");
 laraImport("UPTStage");
 laraImport("taskgraph/TaskGraph");
 laraImport("taskgraph/Task");
@@ -13,25 +13,30 @@ class TaskGraphBuilder {
 
     constructor() { }
 
-    build(topFunction) {
+    build(topFunctionJoinPoint) {
         const taskGraph = new TaskGraph();
 
         this.#populateGlobalMap(taskGraph);
 
-        const topTask = this.#buildLevel(taskGraph, topFunction, null, null);
+        try {
+            const topTask = this.#buildLevel(taskGraph, topFunctionJoinPoint, null, null);
 
-        // main_begin and main_end are special, and outside of the hierarchy
-        let rank = 1;
-        for (const data of topTask.getReferencedData()) {
-            taskGraph.addCommunication(taskGraph.getSource(), topTask, data, data, rank);
-            rank++;
-        }
-        rank = 1;
-        for (const data of topTask.getDataWritten()) {
-            taskGraph.addCommunication(topTask, taskGraph.getSink(), data, data, rank);
-            rank++;
-        }
+            // main_begin and main_end are special, and outside of the hierarchy
+            let rank = 1;
+            for (const data of topTask.getReferencedData()) {
+                taskGraph.addCommunication(taskGraph.getSource(), topTask, data, data, rank);
+                rank++;
+            }
+            rank = 1;
+            for (const data of topTask.getDataWritten()) {
+                taskGraph.addCommunication(topTask, taskGraph.getSink(), data, data, rank);
+                rank++;
+            }
 
+        } catch (e) {
+            println("[TaskGraphBuilder] CATASTROPHIC ERROR: " + e);
+            return null;
+        }
         return taskGraph;
     }
 
@@ -50,6 +55,7 @@ class TaskGraphBuilder {
 
     #buildLevel(taskGraph, fun, parent, call) {
         const task = new Task(fun, parent, "REGULAR");
+
         // if task was called by another, add the argument names
         // as alternate names for the task param data
         if (call != null) {
@@ -64,7 +70,6 @@ class TaskGraphBuilder {
 
         for (const call of Query.searchFrom(fun, "call")) {
             const callee = call.function;
-
             // Is of type "REGULAR", handle recursively
             if (ClavaUtils.functionHasImplementation(callee)) {
                 const regularTask = this.#buildLevel(taskGraph, callee, task, call);
@@ -143,9 +148,10 @@ class TaskGraphBuilder {
         const body = call.parent.parent;
         if (body.parent.instanceOf("loop")) {
             const loop = body.parent;
-            const count = TripCountCalculator.calculate(loop);
+            const characteristics = LoopCharacterizer.characterize(loop);
+            const iterCount = characteristics.count;
 
-            task.setRepetitions(count);
+            task.setRepetitions(iterCount);
             task.getLoopReference(loop);
         }
     }
