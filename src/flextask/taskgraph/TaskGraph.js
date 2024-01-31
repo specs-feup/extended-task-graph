@@ -1,9 +1,9 @@
 "use strict";
 
-laraImport("taskgraph/Task");
-laraImport("taskgraph/Communication");
-laraImport("taskgraph/ControlEdge");
-laraImport("util/ClavaUtils");
+laraImport("flextask/taskgraph/Task");
+laraImport("flextask/taskgraph/Communication");
+laraImport("flextask/taskgraph/ControlEdge");
+laraImport("flextask/util/ClavaUtils");
 class TaskGraph {
     #tasks = [];
     #comms = [];

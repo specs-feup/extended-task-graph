@@ -1,10 +1,10 @@
 "use strict";
 
-laraImport("preprocessing/SubsetReducer");
-laraImport("preprocessing/CodeSanitizer");
-laraImport("UPTStage");
+laraImport("flextask/preprocessing/SubsetReducer");
+laraImport("flextask/preprocessing/CodeSanitizer");
+laraImport("flextask/AStage");
 
-class SubsetPreprocessor extends UPTStage {
+class SubsetPreprocessor extends AStage {
     constructor(topFunction, outputDir, appName) {
         super("CTFlow-SubsetPreprocessor", topFunction, outputDir, appName);
     }

@@ -1,3 +1,5 @@
+"use strict";
+
 class TopologicalSort {
     static sort(tasks) {
         const visited = new Set();

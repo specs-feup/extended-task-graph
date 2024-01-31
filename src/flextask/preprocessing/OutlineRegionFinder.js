@@ -4,11 +4,11 @@ laraImport("lara.util.IdGenerator");
 laraImport("clava.ClavaJoinPoints");
 laraImport("clava.code.Outliner");
 laraImport("weaver.Query");
-laraImport("UPTStage");
-laraImport("util/ExternalFunctionsMatcher");
-laraImport("util/ClavaUtils");
+laraImport("flextask/AStage");
+laraImport("flextask/util/ExternalFunctionsMatcher");
+laraImport("flextask/util/ClavaUtils");
 
-class OutlineRegionFinder extends UPTStage {
+class OutlineRegionFinder extends AStage {
     constructor(topFunction) {
         super("CTFlow-Preprocessor-AppOutliner", topFunction);
     }

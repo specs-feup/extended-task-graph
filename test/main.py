@@ -1,4 +1,3 @@
-import os
 import json
 from tester import test_bench
 
@@ -16,8 +15,8 @@ def main():
     - New metrics:
     * parallel sets, T2 -> {T3, T4}"""
 
-    os.chdir("src")
-    with open("../test/benchmarks.json", "r") as f:
+    # os.chdir("src")
+    with open("test/benchmarks.json", "r") as f:
         benchmarks = json.load(f)
 
     bench_names = [
@@ -74,7 +73,9 @@ def main():
             test_bench(bench_name, bench_props)
             cnt += 1
 
-    print("Finished testing {} benchmarks".format(cnt))
+    print("-------------------------------")
+    print(f"Finished testing {cnt} benchmarks")
+    print("-------------------------------")
 
 
 if __name__ == "__main__":

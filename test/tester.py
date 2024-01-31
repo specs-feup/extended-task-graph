@@ -2,12 +2,13 @@ import os
 import json
 from clava import Clava
 
-ENTRYPOINT = "../test/TestEntrypoint.js"
-OUTPUT_DIR = "../test/outputs/"
-INPUT_DIR = "../test/inputs/"
-TEMP_FOLDER = "../test/temp/"
+ENTRYPOINT = "test/TestEntrypoint.js"
+OUTPUT_DIR = "test/outputs/"
+INPUT_DIR = "test/inputs/"
+TEMP_FOLDER = "test/temp/"
 CONFIG = TEMP_FOLDER + "config.json"
 EXTRA_INCLUDES = [
+    os.path.abspath(os.path.join("src")),
     os.path.abspath(os.path.join("..", "clava-code-transformations", "src")),
     os.path.abspath(os.path.join("..", "clava-vitis-integration", "src")),
     os.path.abspath(os.path.join("..", "clava-benchmarks", "MachSuite")),
@@ -44,7 +45,7 @@ def generate_image_from_dot(dot):
     png = dot.replace(".dot", ".png")
     cmd = f"dot -Tpng {dot} -o {png} -Gmemory=2GB"
 
-    print(f"Generating image from {dot}...", end="")
+    print(f"Generating image from {dot}... ", end="")
     os.system(cmd)
     print(f"Done!")
 
@@ -97,10 +98,12 @@ def test_bench(name, config):
     # If that went well, we'll probably have a bunch of output files
     # Some of which are dotfiles, which we can now render onto pretty,
     # crisp and MASSIVELY MASSIVE PNGs
+    print(f'\nTester finished successfully for application "{name}".')
+    print("Generating some additional data from the outputs...\n")
+
     dotfiles = [
         f"{out_folder}/taskgraph/{name}_taskgraph.dot",
         f"{out_folder}/taskgraph/{name}_taskgraph_min.dot",
-        f"{out_folder}/estimations/{name}_taskgraph_annotated.dot",
         f"{out_folder}/app_stats_original/{name}_callgraph.dot",
         f"{out_folder}/app_stats_tasks/{name}_callgraph.dot",
     ]

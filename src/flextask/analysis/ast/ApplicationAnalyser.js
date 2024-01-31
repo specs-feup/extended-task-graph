@@ -1,12 +1,12 @@
 "use strict";
 
 laraImport("lara.Io");
-laraImport("analysis/ast/AstDumper");
-laraImport("analysis/ast/CallGraphDumper");
-laraImport("analysis/ast/SourceCodeStats");
-laraImport("UPTStage");
+laraImport("flextask/analysis/ast/AstDumper");
+laraImport("flextask/analysis/ast/CallGraphDumper");
+laraImport("flextask/analysis/ast/SourceCodeStats");
+laraImport("flextask/AStage");
 
-class ApplicationAnalyser extends UPTStage {
+class ApplicationAnalyser extends AStage {
     constructor(topFunction, outputDir, appName) {
         super("CTFlow-ApplicationAnalyser", topFunction, outputDir, appName);
     }

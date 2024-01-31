@@ -1,6 +1,6 @@
 "use strict";
 
-laraImport("taskgraph/DataOrigins");
+laraImport("flextask/taskgraph/DataOrigins");
 
 class Data {
     #ref = null;

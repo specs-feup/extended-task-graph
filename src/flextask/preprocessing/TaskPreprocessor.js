@@ -1,11 +1,11 @@
 "use strict";
 
 laraImport("clava.code.Outliner");
-laraImport("preprocessing/OutlineRegionFinder");
-laraImport("preprocessing/AppTimerInserter");
-laraImport("UPTStage");
+laraImport("flextask/preprocessing/OutlineRegionFinder");
+laraImport("flextask/preprocessing/AppTimerInserter");
+laraImport("flextask/AStage");
 
-class TaskPreprocessor extends UPTStage {
+class TaskPreprocessor extends AStage {
     constructor(topFunction, outputDir, appName) {
         super("CTFlow-TaskPreprocessor", topFunction, outputDir, appName);
     }

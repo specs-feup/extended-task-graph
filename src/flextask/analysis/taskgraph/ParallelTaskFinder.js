@@ -1,6 +1,6 @@
 "use strict";
 
-laraImport("taskgraph/TaskGraph");
+laraImport("flextask/taskgraph/TaskGraph");
 laraImport("weaver.Query");
 
 class ParallelTaskFinder {

@@ -9,10 +9,10 @@ laraImport("clava.code.Voidifier");
 laraImport("clava.code.ArrayFlattener");
 laraImport("clava.code.FoldingPropagationCombiner");
 laraImport("clava.code.SwitchToIf");
-laraImport("util/ClavaUtils")
-laraImport("UPTStage");
+laraImport("flextask/util/ClavaUtils")
+laraImport("flextask/AStage");
 
-class SubsetReducer extends UPTStage {
+class SubsetReducer extends AStage {
     constructor(topFunction) {
         super("CTFlow-Preprocessor-SubsetReducer", topFunction);
     }

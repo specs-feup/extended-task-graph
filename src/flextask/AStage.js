@@ -1,6 +1,6 @@
 "use strict";
 
-class UPTStage {
+class AStage {
     #stageName = "DefaultStage";
     #padding = 40;
     #topFunctionName;
@@ -8,7 +8,7 @@ class UPTStage {
     #outputDir;
 
     constructor(stageName, topFunctionName, outputDir = "output", appName = "default_app_name") {
-        if (new.target === UPTStage) {
+        if (new.target === AStage) {
             throw new Error("Can't instantiate abstract class.");
         }
 
@@ -48,7 +48,7 @@ class UPTStage {
     }
 
     log(message) {
-        const prefix = "[UPT-" + this.#stageName + "]";
+        const prefix = "[FTG-" + this.#stageName + "]";
         const padding = this.#padding - prefix.length;
         println(prefix + "-".repeat(padding) + " " + message);
     }

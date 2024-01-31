@@ -1,11 +1,11 @@
 "use strict";
 
 laraImport("clava.Clava");
-laraImport("UnnamedPartitioningTool");
+laraImport("flextask.FlextaskAPI");
 
 
 function main() {
-    const config = Io.readJson("../test/temp/config.json");
+    const config = Io.readJson("test/temp/config.json");
 
     if (config["provenance"] == "BUILTIN") {
         const appName = config["appName"];
@@ -28,8 +28,8 @@ function main() {
         }
     }
 
-    const upt = new UnnamedPartitioningTool(config);
-    upt.runBothFlows();
+    const api = new FlextaskAPI(config);
+    api.runBothFlows();
 }
 
 main();
