@@ -34,7 +34,7 @@ class Task {
     // Task annotations (e.g., performance properties)
     #annotations = {};
 
-    constructor(fun, hierParent, type = "REGULAR") {
+    constructor(fun, hierParent, type = "REGULAR", call = null) {
         this.#type = type;
         this.#hierParent = hierParent;
 
@@ -72,11 +72,16 @@ class Task {
             }
         }
 
-        if (type != "START" && type != "END" && type != "GLOBAL" && fun != null) {
+        if (type == "REGULAR" && fun != null) {
             this.#populateData();
         }
         if (type == "GLOBAL") {
             this.#populateGlobalData();
+        }
+        if (type == "EXTERNAL") {
+            this.#name = call.name;
+            this.#call = call;
+            this.#populateExternalCallData();
         }
     }
 
@@ -135,44 +140,6 @@ class Task {
 
     removeHierarchicalChild(child) {
         this.#hierChildren.delete(child);
-    }
-
-    #getDataByAccessType(accessType, origin = DataOrigins.ANY) {
-        let data = [];
-        if (origin == DataOrigins.ANY) {
-            data = [
-                ...this.#dataParams,
-                ...this.#dataGlobals,
-                ...this.#dataNew,
-                ...this.#dataConstants];
-        }
-        if (origin == DataOrigins.PARAM) {
-            data = this.#dataParams;
-        }
-        if (origin == DataOrigins.GLOBAL) {
-            data = this.#dataGlobals;
-        }
-        if (origin == DataOrigins.NEW) {
-            data = this.#dataNew;
-        }
-        if (origin == DataOrigins.CONSTANT) {
-            data = this.#dataConstants;
-        }
-
-        const dataAccessed = [];
-        for (const datum of data) {
-            if (accessType === "READ") {
-                if (datum.isWritten()) {
-                    dataAccessed.push(datum);
-                }
-            }
-            else if (accessType === "WRITE") {
-                if (datum.isWritten()) {
-                    dataAccessed.push(datum);
-                }
-            }
-        }
-        return dataAccessed;
     }
 
     getDataRead(type = DataOrigins.ANY) {
@@ -318,6 +285,54 @@ class Task {
     }
 
     // ---------------------------------------------------------------------
+    #getDataByAccessType(accessType, origin = DataOrigins.ANY) {
+        let data = [];
+        if (origin == DataOrigins.ANY) {
+            data = [
+                ...this.#dataParams,
+                ...this.#dataGlobals,
+                ...this.#dataNew,
+                ...this.#dataConstants];
+        }
+        if (origin == DataOrigins.PARAM) {
+            data = this.#dataParams;
+        }
+        if (origin == DataOrigins.GLOBAL) {
+            data = this.#dataGlobals;
+        }
+        if (origin == DataOrigins.NEW) {
+            data = this.#dataNew;
+        }
+        if (origin == DataOrigins.CONSTANT) {
+            data = this.#dataConstants;
+        }
+
+        const dataAccessed = [];
+        for (const datum of data) {
+            if (accessType === "READ") {
+                if (datum.isWritten()) {
+                    dataAccessed.push(datum);
+                }
+            }
+            else if (accessType === "WRITE") {
+                if (datum.isWritten()) {
+                    dataAccessed.push(datum);
+                }
+            }
+        }
+        return dataAccessed;
+    }
+
+    #populateExternalCallData() {
+        const refs = new Set();
+        for (const ref of Query.searchFrom(this.#call, "varref")) {
+            if (ref.type != "functionType") {
+                refs.add(ref);
+            }
+        }
+        this.#createDataObjects([...refs], DataOrigins.PARAM);
+    }
+
     #populateData() {
         // handle data comm'd through function params
         this.#findDataFromParams();
@@ -344,13 +359,17 @@ class Task {
         const globalVars = new Set();
         for (const varref of Query.searchFrom(this.#function.body, "varref")) {
             try {
-                const decl = varref.vardecl;
-                if (decl != null && decl.isGlobal) {
-                    globalVars.add(decl);
+                if (varref.type != "functionType") {
+                    const decl = varref.vardecl;
+
+                    if (decl != null && decl.isGlobal) {
+                        globalVars.add(decl);
+                    }
                 }
             }
             catch (e) {
-                println(`Could not find vardecl for varref: ${varref.name}`);
+                // As far as I understand, this error can be ignored. These varrefs are from function names
+                //println(`Could not find vardecl for varref ${varref.name} of type ${varref.type}`);
             }
         }
         this.#createDataObjects([...globalVars], DataOrigins.GLOBAL);
@@ -401,6 +420,10 @@ class Task {
     }
 
     #setReadWritesFunction(data) {
+        if (this.#function == null) {
+            return;
+        }
+
         const body = this.#function.body;
         if (body == null) {
             return;

@@ -16,13 +16,14 @@ class Data {
     #datatypeSize = 4;
 
     #origin = DataOrigins.UNKNOWN;
-    #alternateName = "<none>";
+    #alternateName = "<no_alt_name>";
     #immediateFunctionCall = null;
 
     constructor(ref, origin) {
         this.#ref = ref;
         this.#origin = origin;
         this.#name = this.#getNameFromRef(ref);
+        this.#alternateName = this.#name;
         this.#demangleDatatype(ref);
     }
 

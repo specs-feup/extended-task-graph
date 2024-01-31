@@ -9,6 +9,8 @@
 using namespace std;
 using namespace std::chrono;
 
+#define FORCE_EXTERNAL
+
 void rgbToGrayscale(int input_image[H * W * 3], int output_image[H * W])
 {
     for (int i = 0; i < H; i++)

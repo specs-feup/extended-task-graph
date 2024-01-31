@@ -39,7 +39,7 @@ class DataSourceFinder {
         else {
             const comm = task.getIncomingOfData(datum);
             if (comm == null) {
-                this.log("ERROR: No incoming communication found for data " + datum.getName() + " of task " + task.getUniqueName());
+                println("[DataSourceFinder] ERROR: No incoming communication found for data " + datum.getName() + " of task " + task.getUniqueName());
                 return [path, dataEvo];
             }
             else {
