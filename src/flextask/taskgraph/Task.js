@@ -326,7 +326,7 @@ class Task {
     #populateExternalCallData() {
         const refs = new Set();
         for (const ref of Query.searchFrom(this.#call, "varref")) {
-            if (ref.type != "functionType") {
+            if (!ref.type.instanceOf("functionType")) {
                 refs.add(ref);
             }
         }

@@ -34,7 +34,7 @@ class TaskGraphAnalyzer extends AStage {
     saveMetrics() {
         const jsonMetrics = this.getMetricsAsJson();
         const fname = this.saveToFile(jsonMetrics, "task_graph_metrics.json");
-        this.log(`Saved task graph metrics to file "${fname}"`);
+        this.log(`Saved TG metrics to file "${fname}"`);
     }
 
     updateMetrics() {
