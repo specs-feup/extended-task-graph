@@ -1,16 +1,16 @@
 "use strict";
 
-laraImport("taskgraph/TaskGraph");
-laraImport("analysis/taskgraph/TaskGraphStatFinder");
-laraImport("analysis/taskgraph/TaskPropertiesFinder");
-laraImport("analysis/taskgraph/DataPerTaskFinder");
-laraImport("analysis/taskgraph/NoTaskHistogramFinder");
-laraImport("analysis/taskgraph/GlobalDataFinder");
-laraImport("analysis/taskgraph/DataSourceFinder");
-laraImport("analysis/taskgraph/ParallelTaskFinder");
-laraImport("analysis/taskgraph/ProducerConsumerFinder");
-laraImport("analysis/taskgraph/CriticalPathFinder");
 laraImport("weaver.Query");
+laraImport("flextask/taskgraph/TaskGraph");
+laraImport("flextask/analysis/taskgraph/TaskGraphStatFinder");
+laraImport("flextask/analysis/taskgraph/TaskPropertiesFinder");
+laraImport("flextask/analysis/taskgraph/DataPerTaskFinder");
+laraImport("flextask/analysis/taskgraph/NoTaskHistogramFinder");
+laraImport("flextask/analysis/taskgraph/GlobalDataFinder");
+laraImport("flextask/analysis/taskgraph/DataSourceFinder");
+laraImport("flextask/analysis/taskgraph/ParallelTaskFinder");
+laraImport("flextask/analysis/taskgraph/ProducerConsumerFinder");
+laraImport("flextask/analysis/taskgraph/CriticalPathFinder");
 
 class TaskGraphAnalyzer extends UPTStage {
     #taskGraph;

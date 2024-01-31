@@ -2,11 +2,11 @@
 
 laraImport("weaver.Query");
 laraImport("clava.code.LoopCharacterizer");
-laraImport("UPTStage");
-laraImport("taskgraph/TaskGraph");
-laraImport("taskgraph/Task");
-laraImport("taskgraph/Communication");
-laraImport("taskgraph/TaskGraphDumper");
+laraImport("flextask/UPTStage");
+laraImport("flextask/taskgraph/TaskGraph");
+laraImport("flextask/taskgraph/Task");
+laraImport("flextask/taskgraph/Communication");
+laraImport("flextask/taskgraph/TaskGraphDumper");
 
 class TaskGraphBuilder {
     #lastUsedGlobal = new Map();

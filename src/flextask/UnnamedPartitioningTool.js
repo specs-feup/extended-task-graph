@@ -1,9 +1,9 @@
 "use strict";
 
 laraImport("lara.Platforms");
-laraImport("UPTStage");
-laraImport("CodeTransformationFlow");
-laraImport("TaskGraphGenerationFlow");
+laraImport("flextask/UPTStage");
+laraImport("flextask/CodeTransformationFlow");
+laraImport("flextask/TaskGraphGenerationFlow");
 
 class UnnamedPartitioningTool extends UPTStage {
     #config;

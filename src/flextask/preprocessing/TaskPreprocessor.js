@@ -1,9 +1,9 @@
 "use strict";
 
 laraImport("clava.code.Outliner");
-laraImport("preprocessing/OutlineRegionFinder");
-laraImport("preprocessing/AppTimerInserter");
-laraImport("UPTStage");
+laraImport("flextask/preprocessing/OutlineRegionFinder");
+laraImport("flextask/preprocessing/AppTimerInserter");
+laraImport("flextask/UPTStage");
 
 class TaskPreprocessor extends UPTStage {
     constructor(topFunction, outputDir, appName) {

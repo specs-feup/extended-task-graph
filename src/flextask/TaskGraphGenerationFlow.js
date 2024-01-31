@@ -1,10 +1,10 @@
 "use strict";
 
-laraImport("UPTStage");
-laraImport("OutputDirectories");
-laraImport("taskgraph/TaskGraphManager");
-laraImport("analysis/taskgraph/TaskGraphAnalyzer");
-laraImport("util/ClavaUtils");
+laraImport("flextask/UPTStage");
+laraImport("flextask/OutputDirectories");
+laraImport("flextask/taskgraph/TaskGraphManager");
+laraImport("flextask/analysis/taskgraph/TaskGraphAnalyzer");
+laraImport("flextask/util/ClavaUtils");
 
 class TaskGraphGenerationFlow extends UPTStage {
     #config;

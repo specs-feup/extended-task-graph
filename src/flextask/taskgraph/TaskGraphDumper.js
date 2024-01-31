@@ -1,8 +1,8 @@
 "use strict";
 
-laraImport("taskgraph/TaskGraph");
-laraImport("taskgraph/Task");
-laraImport("taskgraph/Communication");
+laraImport("flextask/taskgraph/TaskGraph");
+laraImport("flextask/taskgraph/Task");
+laraImport("flextask/taskgraph/Communication");
 
 class TaskGraphDumper {
     constructor() { }

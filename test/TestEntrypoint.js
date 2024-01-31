@@ -1,11 +1,11 @@
 "use strict";
 
 laraImport("clava.Clava");
-laraImport("UnnamedPartitioningTool");
+laraImport("flextask.UnnamedPartitioningTool");
 
 
 function main() {
-    const config = Io.readJson("../test/temp/config.json");
+    const config = Io.readJson("test/temp/config.json");
 
     if (config["provenance"] == "BUILTIN") {
         const appName = config["appName"];

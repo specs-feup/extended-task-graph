@@ -1,7 +1,7 @@
 "use strict";
 
-laraImport("taskgraph/TaskGraph");
-laraImport("taskgraph/util/TopologicalSort");
+laraImport("flextask/taskgraph/TaskGraph");
+laraImport("flextask/taskgraph/util/TopologicalSort");
 laraImport("weaver.Query");
 
 class CriticalPathFinder {

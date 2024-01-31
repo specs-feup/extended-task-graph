@@ -2,7 +2,7 @@
 
 laraImport("weaver.Query");
 laraImport("lara.code.Timer");
-laraImport("UPTStage");
+laraImport("flextask/UPTStage");
 
 class CodeInstrumenter extends UPTStage {
     #prefix;

@@ -1,12 +1,12 @@
 "use strict";
 
-laraImport("UPTStage");
-laraImport("OutputDirectories");
-laraImport("analysis/ast/ApplicationAnalyser");
-laraImport("preprocessing/SubsetPreprocessor");
-laraImport("preprocessing/TaskPreprocessor");
-laraImport("preprocessing/CodeInstrumenter");
-laraImport("util/ClavaUtils");
+laraImport("flextask/UPTStage");
+laraImport("flextask/OutputDirectories");
+laraImport("flextask/analysis/ast/ApplicationAnalyser");
+laraImport("flextask/preprocessing/SubsetPreprocessor");
+laraImport("flextask/preprocessing/TaskPreprocessor");
+laraImport("flextask/preprocessing/CodeInstrumenter");
+laraImport("flextask/util/ClavaUtils");
 
 class CodeTransformationFlow extends UPTStage {
     #config;

@@ -2,8 +2,8 @@
 
 laraImport("lara.util.IdGenerator");
 laraImport("weaver.Query");
-laraImport("taskgraph/Data");
-laraImport("taskgraph/DataOrigins");
+laraImport("flextask/taskgraph/Data");
+laraImport("flextask/taskgraph/DataOrigins");
 
 class Task {
     // Constants
@@ -341,7 +341,7 @@ class Task {
     }
 
     #findDataFromGlobals() {
-        const globalVars = new Set(); full
+        const globalVars = new Set();
         for (const varref of Query.searchFrom(this.#function.body, "varref")) {
             try {
                 const decl = varref.vardecl;

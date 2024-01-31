@@ -2,7 +2,7 @@
 
 laraImport("clava.ClavaJoinPoints");
 laraImport("weaver.Query");
-laraImport("UPTStage");
+laraImport("flextask/UPTStage");
 
 class CodeSanitizer extends UPTStage {
     constructor(topFunction) {

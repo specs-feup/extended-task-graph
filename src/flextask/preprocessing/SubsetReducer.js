@@ -9,8 +9,8 @@ laraImport("clava.code.Voidifier");
 laraImport("clava.code.ArrayFlattener");
 laraImport("clava.code.FoldingPropagationCombiner");
 laraImport("clava.code.SwitchToIf");
-laraImport("util/ClavaUtils")
-laraImport("UPTStage");
+laraImport("flextask/util/ClavaUtils")
+laraImport("flextask/UPTStage");
 
 class SubsetReducer extends UPTStage {
     constructor(topFunction) {

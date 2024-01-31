@@ -1,10 +1,10 @@
 "use strict";
 
 laraImport("lara.Io");
-laraImport("analysis/ast/AstDumper");
-laraImport("analysis/ast/CallGraphDumper");
-laraImport("analysis/ast/SourceCodeStats");
-laraImport("UPTStage");
+laraImport("flextask/analysis/ast/AstDumper");
+laraImport("flextask/analysis/ast/CallGraphDumper");
+laraImport("flextask/analysis/ast/SourceCodeStats");
+laraImport("flextask/UPTStage");
 
 class ApplicationAnalyser extends UPTStage {
     constructor(topFunction, outputDir, appName) {

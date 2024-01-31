@@ -1,9 +1,9 @@
 "use strict";
 
-laraImport("UPTStage");
-laraImport("taskgraph/TaskGraph");
-laraImport("taskgraph/TaskGraphBuilder");
-laraImport("taskgraph/TaskGraphDumper");
+laraImport("flextask/UPTStage");
+laraImport("flextask/taskgraph/TaskGraph");
+laraImport("flextask/taskgraph/TaskGraphBuilder");
+laraImport("flextask/taskgraph/TaskGraphDumper");
 
 class TaskGraphManager extends UPTStage {
 
