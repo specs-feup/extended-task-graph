@@ -1,11 +1,11 @@
 "use strict";
 
-laraImport("flextask/UPTStage");
+laraImport("flextask/AStage");
 laraImport("flextask/taskgraph/TaskGraph");
 laraImport("flextask/taskgraph/TaskGraphBuilder");
 laraImport("flextask/taskgraph/TaskGraphDumper");
 
-class TaskGraphManager extends UPTStage {
+class TaskGraphManager extends AStage {
 
     constructor(topFunction, outputDir, appName) {
         super("TGGFlow-TaskGraphManager", topFunction, outputDir, appName);

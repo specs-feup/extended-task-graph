@@ -1,12 +1,12 @@
 "use strict";
 
-laraImport("flextask/UPTStage");
+laraImport("flextask/AStage");
 laraImport("flextask/OutputDirectories");
 laraImport("flextask/taskgraph/TaskGraphManager");
 laraImport("flextask/analysis/taskgraph/TaskGraphAnalyzer");
 laraImport("flextask/util/ClavaUtils");
 
-class TaskGraphGenerationFlow extends UPTStage {
+class TaskGraphGenerationFlow extends AStage {
     #config;
 
     constructor(config) {

@@ -12,7 +12,7 @@ laraImport("flextask/analysis/taskgraph/ParallelTaskFinder");
 laraImport("flextask/analysis/taskgraph/ProducerConsumerFinder");
 laraImport("flextask/analysis/taskgraph/CriticalPathFinder");
 
-class TaskGraphAnalyzer extends UPTStage {
+class TaskGraphAnalyzer extends AStage {
     #taskGraph;
     #metrics = {};
 

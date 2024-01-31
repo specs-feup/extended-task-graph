@@ -3,9 +3,9 @@
 laraImport("clava.code.Outliner");
 laraImport("flextask/preprocessing/OutlineRegionFinder");
 laraImport("flextask/preprocessing/AppTimerInserter");
-laraImport("flextask/UPTStage");
+laraImport("flextask/AStage");
 
-class TaskPreprocessor extends UPTStage {
+class TaskPreprocessor extends AStage {
     constructor(topFunction, outputDir, appName) {
         super("CTFlow-TaskPreprocessor", topFunction, outputDir, appName);
     }

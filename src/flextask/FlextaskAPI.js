@@ -1,21 +1,33 @@
 "use strict";
 
 laraImport("lara.Platforms");
-laraImport("flextask/UPTStage");
+laraImport("flextask/AStage");
 laraImport("flextask/CodeTransformationFlow");
 laraImport("flextask/TaskGraphGenerationFlow");
 
-class UnnamedPartitioningTool extends UPTStage {
+class FlextaskAPI extends AStage {
     #config;
 
     constructor(config) {
-        super("Main");
+        super("FlextaskAPI");
+
+        if (!Platforms.isLinux()) {
+            const platName = Platforms.getPlatformName();
+            this.log(`Current OS is "${platName}", but Flextask only outputs Linux-ready code!`);
+            this.log("Setting Clava platform to Linux (i.e., any syscalls inserted will be for Linux)");
+            Platforms.setLinux();
+        }
+
+        if (!config["appName"]) {
+            throw new Error("Missing appName in config");
+        }
+        if (!config["outputDir"]) {
+            throw new Error("Missing outputDir in config");
+        }
+
         this.#config = config;
-        this.#applyInitialConfig();
         this.setAppName(this.#config["appName"]);
         this.setOutputDir(this.#config["outputDir"]);
-
-        Platforms.setLinux();
     }
 
     runBothFlows() {
@@ -41,15 +53,6 @@ class UnnamedPartitioningTool extends UPTStage {
         flow.run();
 
         this.#printLine();
-    }
-
-    #applyInitialConfig() {
-        if (!this.#config.hasOwnProperty("appName")) {
-            UPTConfig.set("appName", "default_app_name");
-        }
-        if (!this.#config.hasOwnProperty("starterFunction")) {
-            UPTConfig.set("starterFunction", "main");
-        }
     }
 
     #printLine() {

@@ -4,9 +4,9 @@ laraImport("lara.Io");
 laraImport("flextask/analysis/ast/AstDumper");
 laraImport("flextask/analysis/ast/CallGraphDumper");
 laraImport("flextask/analysis/ast/SourceCodeStats");
-laraImport("flextask/UPTStage");
+laraImport("flextask/AStage");
 
-class ApplicationAnalyser extends UPTStage {
+class ApplicationAnalyser extends AStage {
     constructor(topFunction, outputDir, appName) {
         super("CTFlow-ApplicationAnalyser", topFunction, outputDir, appName);
     }

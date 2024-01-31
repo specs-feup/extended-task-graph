@@ -2,7 +2,7 @@
 
 laraImport("weaver.Query");
 laraImport("clava.code.LoopCharacterizer");
-laraImport("flextask/UPTStage");
+laraImport("flextask/AStage");
 laraImport("flextask/taskgraph/TaskGraph");
 laraImport("flextask/taskgraph/Task");
 laraImport("flextask/taskgraph/Communication");

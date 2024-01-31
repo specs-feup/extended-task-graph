@@ -1,7 +1,7 @@
 "use strict";
 
 laraImport("clava.Clava");
-laraImport("flextask.UnnamedPartitioningTool");
+laraImport("flextask.FlextaskAPI");
 
 
 function main() {
@@ -28,8 +28,8 @@ function main() {
         }
     }
 
-    const upt = new UnnamedPartitioningTool(config);
-    upt.runBothFlows();
+    const api = new FlextaskAPI(config);
+    api.runBothFlows();
 }
 
 main();
