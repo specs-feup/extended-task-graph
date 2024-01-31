@@ -1,7 +1,7 @@
 "use strict";
 
 laraImport("weaver.Query");
-laraImport("clava.code.TripCountCalculator");
+laraImport("clava.code.LoopCharacterizer");
 laraImport("UPTStage");
 laraImport("taskgraph/TaskGraph");
 laraImport("taskgraph/Task");
@@ -148,9 +148,10 @@ class TaskGraphBuilder {
         const body = call.parent.parent;
         if (body.parent.instanceOf("loop")) {
             const loop = body.parent;
-            const count = TripCountCalculator.calculate(loop);
+            const characteristics = LoopCharacterizer.characterize(loop);
+            const iterCount = characteristics.count;
 
-            task.setRepetitions(count);
+            task.setRepetitions(iterCount);
             task.getLoopReference(loop);
         }
     }

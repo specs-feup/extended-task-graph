@@ -36,6 +36,7 @@ class TaskGraphManager extends UPTStage {
         const fname1 = this.saveToFile(dotVerbose, "taskgraph.dot");
         const fname2 = this.saveToFile(dotMinimal, "taskgraph_min.dot");
 
-        this.log(`Dumped task graph to files "${fname1}" and "${fname2}"`);
+        this.log(`Dumped full task graph to "${fname1}"`);
+        this.log(`Dumped mini task graph to "${fname2}"`);
     }
 }

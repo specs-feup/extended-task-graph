@@ -64,7 +64,11 @@ class SubsetReducer extends UPTStage {
 
     applyCodeTransforms() {
         const flattener = new ArrayFlattener();
-        flattener.flattenAll();
+
+        const funs = this.#getValidFunctions();
+        for (const fun of funs) {
+            flattener.flattenAllInFunction(fun);
+        }
         this.log("Flattened all arrays into 1D");
 
         const foldProg = new FoldingPropagationCombiner();

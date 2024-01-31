@@ -1,6 +1,6 @@
 "use strict";
 
-laraImport("clava.code.TripCountCalculator");
+laraImport("clava.code.LoopCharacterizer");
 
 class TaskPropertiesFinder {
     #taskGraph;
@@ -75,7 +75,7 @@ class TaskPropertiesFinder {
         let totalCnt = 0;
 
         for (const loop of Query.searchFrom(func, "loop")) {
-            const tripCount = TripCountCalculator.calculate(loop);
+            const tripCount = LoopCharacterizer.characterize(loop).count;
 
             if (tripCount != -1) {
                 staticCnt++;
