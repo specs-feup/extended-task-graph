@@ -3,7 +3,6 @@
 laraImport("UPTStage");
 laraImport("OutputDirectories");
 laraImport("taskgraph/TaskGraphManager");
-laraImport("estimation/TaskGraphAnnotator");
 laraImport("analysis/taskgraph/TaskGraphAnalyzer");
 laraImport("util/ClavaUtils");
 
@@ -52,20 +51,6 @@ class TaskGraphGenerationFlow extends UPTStage {
             this.log("Task graph successfully built!");
             return taskGraph;
         }
-    }
-
-    annotateTaskGraph(taskGraph) {
-        this.log("Running task graph annotation process");
-        const topFun = this.getTopFunctionName();
-        const estimDir = this.getOutputDir() + "/" + OutputDirectories.ESTIMATIONS;
-        const inputDir = this.getOutputDir() + "/" + OutputDirectories.SRC_TASKS;
-        this.getAppName()
-
-        const annotator = new TaskGraphAnnotator(topFun, estimDir, appName);
-        annotator.annotateAll(taskGraph, this.#config, inputDir);
-        annotator.dumpTaskGraph(taskGraph);
-
-        this.log("Task graph successfully annotated with CPU/FPGA estimations!");
     }
 
     analyzeTaskGraph(taskGraph) {

@@ -341,7 +341,7 @@ class Task {
     }
 
     #findDataFromGlobals() {
-        const globalVars = new Set();
+        const globalVars = new Set(); full
         for (const varref of Query.searchFrom(this.#function.body, "varref")) {
             try {
                 const decl = varref.vardecl;
