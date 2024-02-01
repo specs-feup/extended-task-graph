@@ -23,7 +23,7 @@ def main():
         # -------------------
         # Custom apps
         # -------------------
-        "edgedetect",
+        # "edgedetect", # OK
         # "stresstest",
         # "scenarioA",
         # "scenarioB",
@@ -31,20 +31,20 @@ def main():
         # -------------------
         # Rosetta
         # -------------------
-        # "Rosetta-3d-rendering-N",
-        # "Rosetta-digit-recognition-N",
-        # "Rosetta-face-detection-N",
-        # "Rosetta-optical-flow-current",
-        # "Rosetta-spam-filter-N",
+        # "Rosetta-3d-rendering-N", # OK
+        # "Rosetta-digit-recognition-N", # OK
+        # "Rosetta-face-detection-N", # OK
+        "Rosetta-optical-flow-current",  # OK
+        # "Rosetta-spam-filter-N", # OK
         # -------------------
         # MachSuite
         # -------------------
-        # "MachSuite-aes-D",
-        # "MachSuite-backprop-D",
-        # "MachSuite-fft-transpose-D",
-        # "MachSuite-kmp-D",
-        # "MachSuite-sort-merge-D",
-        # "MachSuite-sort-radix-D",
+        # "MachSuite-aes-D", # FAIL
+        # "MachSuite-backprop-D", # OK
+        # "MachSuite-fft-transpose-D", # OK
+        # "MachSuite-kmp-D", # OK
+        # "MachSuite-sort-merge-D", # OK
+        # "MachSuite-sort-radix-D", # OK
         # -------------------
         # HiFlipVX
         # -------------------

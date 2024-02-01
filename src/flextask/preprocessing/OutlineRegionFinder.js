@@ -151,11 +151,13 @@ class OutlineRegionFinder extends AStage {
     #isTrivialIf(scope) {
         if (scope.children.length == 2 && scope.children[1].instanceOf("returnStmt")) {
             const isTrivialReturn = Query.searchFrom(scope.children[0], "varref", { name: "rtr_val" }).chain().length > 0;
+
             if (isTrivialReturn) {
-                println("trivial return found");
-                println(scope.children[0].code);
-                println(scope.children[1].code);
+                const stmt = scope.children[0].code.replace(/\n/g, '\\n');
+                const ret = scope.children[1].code.replace(/\n/g, '');
+                this.log(`Found a trivial return with statements "${stmt}" and "${ret}"`);
             }
+
             return isTrivialReturn;
         }
         return false;

@@ -63,7 +63,7 @@ class CriticalPathFinder {
         const children = parentTask.getHierarchicalChildren();
 
         const sortedChildren = TopologicalSort.sort(children);
-        println(children.length + " | " + sortedChildren.length);
+        //println(children.length + " | " + sortedChildren.length);
 
         const distances = {};
         const predecessors = {};
@@ -105,7 +105,7 @@ class CriticalPathFinder {
             currentTask = predecessors[currentTask.getId()];
         }
 
-        println("NTasks: " + children.length + " | Critical Path Length: " + criticalPath.length + " | Parallelism Measure: " + children.length / criticalPath.length);
+        //println("NTasks: " + children.length + " | Critical Path Length: " + criticalPath.length + " | Parallelism Measure: " + children.length / criticalPath.length);
         return criticalPath.reverse();
     }
 }

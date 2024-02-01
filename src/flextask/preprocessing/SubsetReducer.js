@@ -59,30 +59,13 @@ class SubsetReducer extends AStage {
             }
             nPasses++;
         }
-        this.log("Decomposed statements in " + nPasses + " pass(es)");
+        this.log(`Decomposed statements in ${nPasses} pass${nPasses > 1 ? "es" : ""}`);
     }
 
     applyCodeTransforms() {
-        const flattener = new ArrayFlattener();
-
-        const funs = this.#getValidFunctions();
-        for (const fun of funs) {
-            flattener.flattenAllInFunction(fun);
-        }
-        this.log("Flattened all arrays into 1D");
-
-        const foldProg = new FoldingPropagationCombiner();
-        const nPasses = foldProg.doPassesUntilStop();
-        this.log("Applied constant propagation in " + nPasses + " pass(es)");
-
-        let count = 0;
-        const switchToIf = new SwitchToIf();
-        for (const switchStmt of Query.search("switch")) {
-            switchToIf.convert(switchStmt);
-            count++;
-        }
-        this.log("Converted " + count + " switch statements into if-else statements");
-
+        this.#applyConstantFoldingAndPropagation();
+        this.#applySwitchToIfConversion();
+        this.#applyArrayFlattening();
     }
 
     ensureVoidReturns() {
@@ -100,6 +83,34 @@ class SubsetReducer extends AStage {
             }
         }
         this.log("Ensured " + count + " function(s) return void");
+    }
+
+    #applyArrayFlattening() {
+        const flattener = new ArrayFlattener();
+
+        const funs = this.#getValidFunctions();
+        for (const fun of funs) {
+            flattener.flattenAllInFunction(fun);
+        }
+        this.log("Flattened all arrays into 1D");
+    }
+
+    #applyConstantFoldingAndPropagation() {
+        const foldProg = new FoldingPropagationCombiner();
+
+        const nPasses = foldProg.doPassesUntilStop();
+        this.log("Applied constant propagation in " + nPasses + " pass(es)");
+    }
+
+    #applySwitchToIfConversion() {
+        const switchToIf = new SwitchToIf();
+        let count = 0;
+
+        for (const switchStmt of Query.search("switch")) {
+            switchToIf.convert(switchStmt);
+            count++;
+        }
+        this.log("Converted " + count + " switch statements into if-else statements");
     }
 
     #getValidFunctions() {
