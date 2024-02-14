@@ -20,8 +20,8 @@ class CodeInstrumenter extends AStage {
         for (const fun of Query.search("function")) {
             const body = fun.body;
             if (body != undefined && body.children.length > 0) {
-                const flag = this.instrumentScope(body, fun.name); ~
-                    flags.add(flag);
+                const flag = this.instrumentScope(body, fun.name);
+                flags.add(flag);
             }
         }
         return Array.from(flags);

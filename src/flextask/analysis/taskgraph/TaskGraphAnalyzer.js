@@ -56,6 +56,9 @@ class TaskGraphAnalyzer extends AStage {
         // Distance from a datum to its source
         this.#calculateDataSourceDistance();
 
+        // Data paths in the task graph
+        this.#calculateDataPaths();
+
         // Parallel tasks
         this.#calculateParallelTasks();
 
@@ -95,6 +98,13 @@ class TaskGraphAnalyzer extends AStage {
         const dataPerTask = dataPerTaskFinder.calculateDataPerTask();
 
         this.#metrics["dataPerTask"] = dataPerTask;
+    }
+
+    #calculateDataPaths() {
+        const dataPathFinder = new DataPathFinder(this.#taskGraph);
+        const dataPaths = dataPathFinder.calculateDataPaths();
+
+        this.#metrics["dataPaths"] = dataPaths;
     }
 
     #calculateGlobalData() {

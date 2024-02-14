@@ -18,7 +18,6 @@ class TaskGraphBuilder {
 
         this.#populateGlobalMap(taskGraph);
 
-        //try {
         const topTask = this.#buildLevel(taskGraph, topFunctionJoinPoint, null, null);
 
         // main_begin and main_end are special, and outside of the hierarchy
@@ -32,11 +31,7 @@ class TaskGraphBuilder {
             taskGraph.addCommunication(topTask, taskGraph.getSink(), data, data, rank);
             rank++;
         }
-        /*
-                } catch (e) {
-                    println("[TaskGraphBuilder] CATASTROPHIC ERROR: " + e);
-                    return null;
-                }*/
+
         return taskGraph;
     }
 
@@ -79,7 +74,6 @@ class TaskGraphBuilder {
             // Is of type "EXTERNAL", create it on the spot
             else if (!ExternalFunctionsMatcher.isValidExternal(callee)) {
                 const externalTask = new Task(null, task, "EXTERNAL", call);
-                //externalTask.setCall(call);
                 this.#updateWithRepetitions(task, call);
                 this.#addControlEdges(externalTask, call, taskGraph);
                 taskGraph.addTask(externalTask);

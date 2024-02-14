@@ -140,7 +140,8 @@
     "Rosetta-spam-filter-N": {
         "provenance": "BUILTIN",
         "standard": "c++11",
-        "starterFunction": "SgdLR_sw"
+        "starterFunction": "SgdLR_sw",
+        "alternateStarterFunction": "main"
     },
 
     "MachSuite-aes-D": {

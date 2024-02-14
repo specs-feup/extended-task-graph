@@ -34,12 +34,12 @@ def main():
         # "Rosetta-3d-rendering-N", # OK
         # "Rosetta-digit-recognition-N", # OK
         # "Rosetta-face-detection-N", # OK
-        "Rosetta-optical-flow-current",  # OK
-        # "Rosetta-spam-filter-N", # OK
+        # "Rosetta-optical-flow-current",  # OK
+        "Rosetta-spam-filter-N",  # OK
         # -------------------
         # MachSuite
         # -------------------
-        # "MachSuite-aes-D", # FAIL
+        # "MachSuite-aes-D",  # FAIL
         # "MachSuite-backprop-D", # OK
         # "MachSuite-fft-transpose-D", # OK
         # "MachSuite-kmp-D", # OK
