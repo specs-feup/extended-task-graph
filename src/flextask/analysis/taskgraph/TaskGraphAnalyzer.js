@@ -8,6 +8,7 @@ laraImport("flextask/analysis/taskgraph/DataPerTaskFinder");
 laraImport("flextask/analysis/taskgraph/NoTaskHistogramFinder");
 laraImport("flextask/analysis/taskgraph/GlobalDataFinder");
 laraImport("flextask/analysis/taskgraph/DataSourceFinder");
+laraImport("flextask/analysis/taskgraph/DataPathFinder");
 laraImport("flextask/analysis/taskgraph/ParallelTaskFinder");
 laraImport("flextask/analysis/taskgraph/ProducerConsumerFinder");
 laraImport("flextask/analysis/taskgraph/CriticalPathFinder");

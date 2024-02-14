@@ -1,13 +1,16 @@
 "use strict";
 
 const OutputDirectories = {
-    APP_STATS_ORIGINAL: "app_stats_original",
-    APP_STATS_SUBSET: "app_stats_subset",
-    APP_STATS_TASKS: "app_stats_tasks",
-    SRC_ORIGINAL: "src_original",
-    SRC_SUBSET: "src_subset",
-    SRC_TASKS: "src_tasks",
-    SRC_TASKS_INSTRUMENTED: "src_tasks_instrumented",
+    // Stats about the source code (i.e., AST-level analysis)
+    APP_STATS_ORIGINAL: "app_stats/original",
+    APP_STATS_TASKS: "app_stats/taskform",
+
+    // Weaved source code at different stages
+    SRC_ORIGINAL: "src/original",
+    SRC_SUBSET: "src/taskform_partial",
+    SRC_TASKS: "src/taskform_ready",
+    SRC_TASKS_INSTRUMENTED: "src/taskform_ready_instrumented",
+
+    // Stats about the task graph
     TASKGRAPH: "taskgraph",
-    PROFILING: "cpu_profiling"
 }
