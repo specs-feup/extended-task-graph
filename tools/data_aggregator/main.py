@@ -15,7 +15,7 @@ def main():
         "Rosetta-face-detection-N",
         "Rosetta-optical-flow-current",
         "Rosetta-spam-filter-N",
-        "edgedetect",
+        # "edgedetect",
         # "stresstest",
     ]
 

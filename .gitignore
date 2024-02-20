@@ -14,3 +14,4 @@ types_with_templates.txt
 output_combined*
 combined_output*
 a.out
+!tools/data_aggregator/outputs
