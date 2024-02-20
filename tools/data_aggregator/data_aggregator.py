@@ -17,22 +17,19 @@ class DataAggregator:
 
         json_map = {}
 
-        for subfolder in os.listdir(self.folder_path):
-            subfolder_path = os.path.join(self.folder_path, subfolder, "taskgraph")
+        for folder in self.valid_subfolders:
+            subfolder_path = os.path.join(self.folder_path, folder, "taskgraph")
+            json_name = folder + "_task_graph_metrics.json"
 
-            if self.valid_subfolders is None or (
-                os.path.isdir(subfolder_path) and subfolder in self.valid_subfolders
-            ):
-                json_name = subfolder + "_task_graph_metrics.json"
-                json_file_path = os.path.join(subfolder_path, json_name)
+            json_file_path = os.path.join(subfolder_path, json_name)
 
-                if os.path.exists(json_file_path):
-                    with open(json_file_path, "r") as json_file:
-                        data = json.load(json_file)
+            if os.path.exists(json_file_path):
+                with open(json_file_path, "r") as json_file:
+                    data = json.load(json_file)
 
-                        if "appName" in data:
-                            app_name = data["appName"]
-                            json_map[app_name] = data
+                    if "appName" in data:
+                        app_name = data["appName"]
+                        json_map[app_name] = data
 
         self.cached_json_map = json_map
         return json_map
@@ -418,6 +415,7 @@ class DataAggregator:
                 paths = data.get("dataPaths", {})
 
                 for data_name, data_info in paths.items():
+
                     row_data = [
                         self.get_suite_benchmark(app_name)[0],
                         self.get_suite_benchmark(app_name)[1],
