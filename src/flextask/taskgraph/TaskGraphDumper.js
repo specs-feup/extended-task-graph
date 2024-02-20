@@ -22,8 +22,8 @@ class TaskGraphDumper {
         dot += "\trankdir=TB;\n";
         dot += "\tnode [shape=box];\n";
 
-        const source = taskGraph.getSource();
-        const sink = taskGraph.getSink();
+        const source = taskGraph.getSourceTask();
+        const sink = taskGraph.getSinkTask();
         const globals = taskGraph.getGlobalTask();
 
         dot += `\t"${source.getId()}" [label=main_begin, fillcolor=lightgray];\n`;

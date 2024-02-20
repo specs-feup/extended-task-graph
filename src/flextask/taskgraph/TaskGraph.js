@@ -54,11 +54,11 @@ class TaskGraph {
         return tasks;
     }
 
-    getSource() {
+    getSourceTask() {
         return this.#source;
     }
 
-    getSink() {
+    getSinkTask() {
         return this.#sink;
     }
 
