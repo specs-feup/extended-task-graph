@@ -8,36 +8,68 @@ class DataPathFinder {
     }
 
     calculateDataPaths() {
-        const dataItems = this.#getNewDataItems();
+        const itemsAndTasks = this.#getNewDataItems();
         const dataPaths = {};
 
-        for (const dataItem of dataItems) {
-            const path = this.#findDataPath(dataItem);
-            dataPaths[dataItem] = path;
+        for (const itemAndTask of itemsAndTasks) {
+            const dataItem = itemAndTask.item;
+            const task = itemAndTask.task;
+
+            const paths = this.#findDataPath(dataItem, task);
+            dataPaths[dataItem.getName()] = {
+                "datatype": dataItem.getDatatype(),
+                "sizeInBytes": dataItem.getSizeInBytes(),
+                "mainPath": paths.mainPath,
+                "mainPathLength": paths.mainPath.length,
+                "spurs": paths.spurs,
+                "#spurs": paths.spurs.length,
+                "aliases": [...paths.aliases],
+                "#aliases": paths.aliases.size
+            };
         }
         return dataPaths;
     }
 
     #getNewDataItems() {
-        const dataItems = [];
-        const tasks = this.#taskGraph.getTasks();
+        const itemsAndTasks = [];
+        const tasks = [...this.#taskGraph.getTasks(), this.#taskGraph.getSourceTask(), this.#taskGraph.getSinkTask(), this.#taskGraph.getGlobalTask()];
 
         for (const task of tasks) {
-            if (task.getType() === "REGULAR" || task.getType() === "EXTERNAL") {
-                dataItems.push(...task.getNewData());
+            if (task.getType() == "START" || task.getType() == "REGULAR" || task.getType() == "EXTERNAL") {
+                for (const dataItem of task.getNewData()) {
+                    itemsAndTasks.push({ "item": dataItem, "task": task });
+                }
+            }
+            if (task.getType() == "GLOBAL") {
+                for (const dataItem of task.getGlobalData()) {
+                    itemsAndTasks.push({ "item": dataItem, "task": task });
+                }
             }
         }
-        const sourceTask = this.#taskGraph.getSourceTask();
-        dataItems.push(...sourceTask.getData());
-        println("sourceTask.getData(): " + sourceTask.getData());
-
-        const globalTask = this.#taskGraph.getGlobalTask();
-        dataItems.push(...globalTask.getData());
-
-        return dataItems;
+        return itemsAndTasks;
     }
 
-    #findDataPath(dataItem) {
-        println(dataItem.getName() + " " + dataItem.getOrigin());
+    #findDataPath(dataItem, task) {
+        const mainPath = [task.getName()];
+        const spurs = [];
+        const aliases = new Set();
+        aliases.add(dataItem.getName());
+
+        for (const comm of task.getOutgoingOfData(dataItem)) {
+            const targetTask = comm.getTarget();
+            const targetDataItem = comm.getTargetData();
+            aliases.add(targetDataItem.getName());
+
+            if (targetDataItem.isOnlyRead()) {
+                spurs.push(targetTask.getName());
+            }
+            if (targetDataItem.isWritten()) {
+                const paths = this.#findDataPath(targetDataItem, targetTask);
+                mainPath.push(...paths.mainPath);
+                spurs.push(...paths.spurs);
+                paths.aliases.forEach(alias => aliases.add(alias));
+            }
+        }
+        return { "mainPath": mainPath, "spurs": spurs, "aliases": aliases };
     }
 }

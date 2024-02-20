@@ -54,17 +54,17 @@ class Task {
             }
             case "START": {
                 this.#id = "TStart";
-                this.#name = "main_begin";
+                this.#name = "source_task";
                 break;
             }
             case "END": {
                 this.#id = "TEnd";
-                this.#name = "main_end";
+                this.#name = "sink_task";
                 break;
             }
             case "GLOBAL": {
                 this.#id = "TGlob";
-                this.#name = "Global variables";
+                this.#name = "global_task";
                 break;
             }
             default: {
@@ -184,13 +184,13 @@ class Task {
 
     addStartTaskData(dataItem) {    // EXTREME HACK, REMOVE DURING REFACTORING
         if (this.#type == "START") {
-            this.#dataNew.push(dataItem);
+            this.#dataNew.push(dataItem); // in the "new" list, since it's the closest thing we have
         }
     }
 
     addEndTaskData(dataItem) {    // EXTREME HACK, REMOVE DURING REFACTORING
         if (this.#type == "END") {
-            this.#dataNew.push(dataItem);
+            this.#dataParams.push(dataItem); // in the "param" list, since it's the closest thing we have
         }
     }
 
