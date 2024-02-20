@@ -182,6 +182,18 @@ class Task {
         return [...this.#dataParams, ...this.#dataGlobals];
     }
 
+    addStartTaskData(dataItem) {    // EXTREME HACK, REMOVE DURING REFACTORING
+        if (this.#type == "START") {
+            this.#dataNew.push(dataItem);
+        }
+    }
+
+    addEndTaskData(dataItem) {    // EXTREME HACK, REMOVE DURING REFACTORING
+        if (this.#type == "END") {
+            this.#dataNew.push(dataItem);
+        }
+    }
+
     // Communication methods
     addOutgoingComm(communication) {
         this.#outgoingComm.push(communication);

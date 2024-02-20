@@ -23,12 +23,20 @@ class TaskGraphBuilder {
         // main_begin and main_end are special, and outside of the hierarchy
         let rank = 1;
         for (const data of topTask.getReferencedData()) {
-            taskGraph.addCommunication(taskGraph.getSourceTask(), topTask, data, data, rank);
+            const sourceTask = taskGraph.getSourceTask();
+            const dataCopy = new Data(data.getDecl(), "SOURCE");
+            sourceTask.addStartTaskData(dataCopy);
+
+            taskGraph.addCommunication(sourceTask, topTask, dataCopy, data, rank);
             rank++;
         }
         rank = 1;
         for (const data of topTask.getDataWritten()) {
-            taskGraph.addCommunication(topTask, taskGraph.getSinkTask(), data, data, rank);
+            const sinkTask = taskGraph.getSinkTask();
+            const dataCopy = new Data(data.getDecl(), "SINK");
+            sinkTask.addEndTaskData(dataCopy);
+
+            taskGraph.addCommunication(topTask, sinkTask, data, dataCopy, rank);
             rank++;
         }
 
