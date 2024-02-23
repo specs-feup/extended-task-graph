@@ -23,6 +23,7 @@ def main():
     data_aggregator.output_combined_json()
     print("Created combined JSON")
 
+    """
     csv_files = [
         data_aggregator.output_general_stats(),
         data_aggregator.output_unique_task_data(),
@@ -36,6 +37,8 @@ def main():
         data_aggregator.output_parallelism_metric(),
         data_aggregator.output_producer_consumer_relationship(),
     ]
+    """
+    csv_files = data_aggregator.convert_all_to_csv()
     print("Created intermediary CSV files")
 
     ranges_for_merging = {

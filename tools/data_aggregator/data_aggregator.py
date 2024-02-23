@@ -2,6 +2,7 @@ import os
 import json
 import csv
 from excel_converter import ExcelConverter
+from output_unique_task_data import UniqueTaskData
 
 
 class DataAggregator:
@@ -73,6 +74,27 @@ class DataAggregator:
             ranges_for_merging=ranges_for_merging,
         )
 
+    def convert_all_to_csv(self):
+        data = self.get_indexed_jsons()
+        out = self.output_folder
+
+        csv_pairs = [
+            # self.output_general_stats(),
+            UniqueTaskData(data, "unique_task_data", out).convert_to_csv(),
+            # self.output_no_task_calls_histogram(),
+            # self.output_no_task_calls_hist_total(),
+            # self.output_data_per_task(),
+            # self.output_data_paths(),
+            # self.output_global_var_data(),
+            # self.output_data_source_distance(),
+            # self.output_parallel_tasks(),
+            # self.output_parallelism_metric(),
+            # self.output_producer_consumer_relationship(),
+        ]
+        csv_files = [item for sublist in csv_pairs for item in sublist]
+        return csv_files
+
+    # ----------------------------- DEPRECATED -----------------------------
     def output_general_stats(self, csv_file_path="general_stats.csv"):
         json_map = self.get_indexed_jsons()
         csv_file_path = self.get_full_path(csv_file_path)
@@ -105,63 +127,6 @@ class DataAggregator:
                     data.get("counts", {}).get("globalVars", "N/A"),
                 ]
                 csv_writer.writerow(row_data)
-        return csv_file_path
-
-    def output_unique_task_data(self, csv_file_path="unique_task_data.csv"):
-        json_map = self.get_indexed_jsons()
-        csv_file_path = self.get_full_path(csv_file_path)
-
-        with open(csv_file_path, "w", newline="") as csv_file:
-            csv_writer = csv.writer(csv_file)
-
-            header = [
-                "Suite",
-                "Benchmark",
-                "Task Name",
-                "Task Type",
-                "#Statements",
-                "#forLoops",
-                "#whileLoops",
-                "#ifs",
-                "#switches",
-                "%loops with static number of iter.",
-                "Iterations per Call Sites",
-            ]
-            csv_writer.writerow(header)
-
-            # Write rows
-            for app_name, data in json_map.items():
-                types = data.get("uniqueTaskTypes", {})
-                instances = data.get("uniqueTaskInstances", {})
-
-                for task_name, task_type in types.items():
-                    task_props = instances.get(task_name, "N/A")
-
-                    instance_list = task_props.get("instances", [])
-                    n_statements = task_props.get("#statements", "N/A")
-                    n_for_loops = task_props.get("#loops", "N/A")
-                    n_while_loops = task_props.get("#whiles", "N/A")
-                    n_ifs = task_props.get("#ifs", "N/A")
-                    n_switches = task_props.get("#switches", "N/A")
-                    n_static_loops = task_props.get("perLoopsStaticCounts", "N/A")
-                    n_static_loops = self.to_percentage_str(n_static_loops)
-
-                    row_data = [
-                        self.get_suite_benchmark(app_name)[0],
-                        self.get_suite_benchmark(app_name)[1],
-                        task_name,
-                        task_type,
-                        n_statements,
-                        n_for_loops,
-                        n_while_loops,
-                        n_ifs,
-                        n_switches,
-                        n_static_loops,
-                    ]
-                    row_data.extend(instance_list)
-
-                    csv_writer.writerow(row_data)
-
         return csv_file_path
 
     def output_no_task_calls_histogram(
