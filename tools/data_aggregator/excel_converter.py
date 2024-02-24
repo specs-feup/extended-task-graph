@@ -32,7 +32,8 @@ class ExcelConverter:
                 os.remove(csv_file)
                 pass
 
-            merge_range = ranges_for_merging.get(sheet_name, range(1, 3))
+            merge_range = ranges_for_merging.get(sheet_name, range(0, 0))
+            # self.create_styles(workbook)
             # self.convert_numbers(sheet)
             self.merge_and_center(sheet, merge_range)
             self.center_and_auto_size(sheet)
@@ -50,21 +51,50 @@ class ExcelConverter:
         filename = f"{filename}_{timestamp}.xlsx"
         return filename
 
-    def convert_numbers(self, sheet):
-        numeric_style = NamedStyle(name="numeric", number_format="0")
+    def create_styles(self, workbook):
+        integer_style = NamedStyle(name="Integer")
+        integer_style.number_format = "0"
 
-        for row in sheet.iter_rows(values_only=True):
-            for index, value in enumerate(row, start=1):
-                if isinstance(value, (int, float)):
-                    # Check if the value can be converted to int without loss of information
-                    if value == int(value):
-                        sheet.cell(
-                            row=row[0].row, column=index, value=int(value)
-                        ).style = numeric_style
-                    else:
-                        sheet.cell(
-                            row=row[0].row, column=index, value=float(value)
-                        ).style = numeric_style
+        float_style = NamedStyle(name="Float")
+        float_style.number_format = "0.00"
+
+        percentage_style = NamedStyle(name="Percentage")
+        percentage_style.number_format = "0.00%"
+
+        try:
+            workbook.add_named_style(integer_style)
+            workbook.add_named_style(float_style)
+            workbook.add_named_style(percentage_style)
+        except ValueError:
+            pass
+
+    def convert_numbers(self, sheet):
+        for row in sheet.iter_rows():
+            for cell in row:
+                # Check column header for percentage symbol
+                if cell.row == 1 and "%" in str(cell.value):
+                    column_index = cell.column
+                    for row_num in range(2, sheet.max_row + 1):
+                        cell_in_column = sheet.cell(row=row_num, column=column_index)
+                        try:
+                            cell_in_column.value = (
+                                float(cell_in_column.value.strip("%")) / 100
+                            )
+                            cell_in_column.style = "Percentage"
+                        except (ValueError, AttributeError):
+                            pass  # Value cannot be converted to float or doesn't contain '%', leave it unchanged
+                else:
+                    # Try converting to integer
+                    try:
+                        cell.value = int(cell.value)
+                        cell.style = "Integer"
+                    except (TypeError, ValueError):
+                        # If conversion fails, try converting to float
+                        try:
+                            cell.value = round(float(cell.value), 2)
+                            cell.style = "Float"
+                        except (TypeError, ValueError):
+                            pass  # Value cannot be converted to int or float, leave it unchanged
 
     def set_header_format(self, sheet):
         sheet.freeze_panes = "A2"
