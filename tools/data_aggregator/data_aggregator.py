@@ -48,23 +48,6 @@ class DataAggregator:
     def get_full_path(self, filename):
         return os.path.join(self.output_folder, filename)
 
-    def get_suite_benchmark(self, app_name):
-        split = app_name.split("-")
-        if len(split) < 2:
-            return "<No suite>", app_name
-        else:
-            return split[0], "-".join(split[1:-1])
-
-    def to_percentage_str(self, input_str):
-        try:
-            number = float(input_str)
-            if 0 <= number <= 1:
-                return f"{number * 100:.2f}%"
-            else:
-                return input_str
-        except ValueError:
-            return input_str
-
     def output_combined_json(self, output_file_path="combined_output.json"):
         json_map = self.get_indexed_jsons()
 
@@ -73,7 +56,7 @@ class DataAggregator:
             json.dump(json_map, output_file, indent=4)
 
     def output_excel_from_csv_list(
-        self, csv_files, excel_filename="combined_output.xlsx", ranges_for_merging={}
+        self, csv_files, excel_filename="combined_output", ranges_for_merging={}
     ):
         excel_filename = self.get_full_path(excel_filename)
         converter = ExcelConverter()
@@ -88,17 +71,25 @@ class DataAggregator:
         data = self.get_indexed_jsons()
         out = self.output_folder
 
-        csv_pairs = [
-            GeneralStats(data, out).convert_to_csv(),
-            UniqueTaskData(data, out).convert_to_csv(),
-            NoTaskCallsHistogram(data, out).convert_to_csv(),
-            NoTaskCallsHistTotal(data, out).convert_to_csv(),
-            DataPerTask(data, out).convert_to_csv(),
-            DataPaths(data, out).convert_to_csv(),
-            GlobalVarData(data, out).convert_to_csv(),
-            DataSourceDistance(data, out).convert_to_csv(),
-            ParallelTasks(data, out).convert_to_csv(),
-            ParallelismMetric(data, out).convert_to_csv(),
-            ProducerConsumerRelationship(data, out).convert_to_csv(),
+        converters = [
+            GeneralStats(data, out),
+            UniqueTaskData(data, out),
+            NoTaskCallsHistogram(data, out),
+            NoTaskCallsHistTotal(data, out),
+            DataPerTask(data, out),
+            DataPaths(data, out),
+            GlobalVarData(data, out),
+            DataSourceDistance(data, out),
+            ParallelTasks(data, out),
+            ParallelismMetric(data, out),
+            ProducerConsumerRelationship(data, out),
         ]
-        return csv_pairs
+
+        full_csv_files = []
+        min_csv_files = []
+        for converter in converters:
+            full_csv, min_csv = converter.convert_to_csv()
+            full_csv_files.append(full_csv)
+            min_csv_files.append(min_csv)
+
+        return full_csv_files, min_csv_files

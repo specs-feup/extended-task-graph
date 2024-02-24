@@ -17,8 +17,9 @@ class NoTaskCallsHistTotal(JSONToCSVConverter):
     def get_min_header(self):
         return ["No Task Function", "Total Call Sites"]
 
-    def convert_to_min(self, writer, suite, bench, data):
-        no_task_calls = data.get("noTaskCallsHistogram", {})
+    def convert_to_min(self, writer, json_obj):
+        for _, data in json_obj.items():
+            no_task_calls = data.get("noTaskCallsHistogram", {})
 
-        for func_name, call_count in no_task_calls.items():
-            writer.writerow([func_name, call_count])
+            for func_name, call_count in no_task_calls.items():
+                writer.writerow([func_name, call_count])

@@ -23,9 +23,7 @@ def main():
     data_aggregator.output_combined_json()
     print("Created combined JSON")
 
-    csv_files = data_aggregator.convert_all_to_csv()
-    csv_full = [row[0] for row in csv_files]
-    csv_min = [row[1] for row in csv_files]
+    csv_full, csv_min = data_aggregator.convert_all_to_csv()
     print("Created intermediary CSV files")
 
     full_ranges_for_merging = {

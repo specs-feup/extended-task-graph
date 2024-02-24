@@ -63,5 +63,5 @@ class DataPerTask(JSONToCSVConverter):
     def get_min_header(self):
         return []
 
-    def convert_to_min(self, writer, suite, bench, data):
+    def convert_to_min(self, writer, json_obj):
         pass

@@ -30,10 +30,7 @@ class JSONToCSVConverter(ABC):
             header = self.get_min_header()
             writer.writerow(header)
 
-            for app_name, data in self.json_obj.items():
-                suite = self.get_suite_benchmark(app_name)[0]
-                bench = self.get_suite_benchmark(app_name)[1]
-                self.convert_to_min(writer, suite, bench, data)
+            self.convert_to_min(writer, self.json_obj)
 
         return path_full, path_min
 
@@ -59,7 +56,7 @@ class JSONToCSVConverter(ABC):
         pass
 
     @abstractmethod
-    def convert_to_min(self, writer, suite, bench, data):
+    def convert_to_min(self, writer, json_obj):
         pass
 
     @abstractmethod
