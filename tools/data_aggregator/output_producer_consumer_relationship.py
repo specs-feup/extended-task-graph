@@ -36,7 +36,20 @@ class ProducerConsumerRelationship(JSONToCSVConverter):
             writer.writerow(row_data)
 
     def get_min_header(self):
-        return []
+        return ["Benchmark", "#Pairs", "%Communication"]
 
     def convert_to_min(self, writer, json_obj):
-        pass
+        for app_name, data in json_obj.items():
+            parallel_tasks = data.get("producerConsumer", {})
+            edges = data.get("counts", {}).get("#edges", "N/A")
+
+            total_pairs = 0
+            for pair_info in parallel_tasks:
+                total_pairs += 1 if len(pair_info.get("commonData", "N/A")) == 1 else 0
+
+            row_data = [
+                self.get_suite(app_name) + "-" + self.get_benchmark(app_name),
+                total_pairs,
+                total_pairs / int(edges),
+            ]
+            writer.writerow(row_data)

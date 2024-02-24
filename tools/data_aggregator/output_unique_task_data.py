@@ -54,7 +54,54 @@ class UniqueTaskData(JSONToCSVConverter):
             writer.writerow(row_data)
 
     def get_min_header(self):
-        return ["suite", "benchmark", "min_time"]
+        return [
+            "Benchmark",
+            "Avg #Statements",
+            "#forLoops",
+            "#whileLoops",
+            "#ifs",
+            "#switches",
+            "%static loops",
+        ]
 
     def convert_to_min(self, writer, json_obj):
-        pass
+        for app_name, data in self.json_obj.items():
+            types = data.get("uniqueTaskTypes", {})
+            instances = data.get("uniqueTaskInstances", {})
+
+            n_statements = 0
+            n_for_loops = 0
+            n_while_loops = 0
+            n_ifs = 0
+            n_switches = 0
+            n_static_loops = 0
+            n_tasks = 0
+
+            for task_name, task_type in types.items():
+                task_props = instances.get(task_name, "N/A")
+
+                n_statements += int(task_props.get("#statements", 0))
+                n_for_loops += int(task_props.get("#loops", 0))
+                n_while_loops += int(task_props.get("#whiles", 0))
+                n_ifs += int(task_props.get("#ifs", 0))
+                n_switches += int(task_props.get("#switches", 0))
+
+                per = task_props.get("perLoopsStaticCounts", 0)
+                if per != "N/A":
+                    n_static_loops += float(per)
+
+                n_tasks += 1
+
+            n_statements = n_statements / n_tasks
+            n_static_loops = n_static_loops / n_tasks
+
+            row_data = [
+                self.get_suite(app_name) + "-" + self.get_benchmark(app_name),
+                n_statements,
+                n_for_loops,
+                n_while_loops,
+                n_ifs,
+                n_switches,
+                n_static_loops,
+            ]
+            writer.writerow(row_data)

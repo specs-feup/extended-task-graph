@@ -18,16 +18,19 @@ class ExcelConverter:
         workbook = openpyxl.Workbook()
 
         for csv_file in csv_files:
-            sheet_name = csv_file.split(".")[0].split("/")[-1].split("\\")[-1]
-            sheet = workbook.create_sheet(title=sheet_name)
+            if os.path.getsize(csv_file) > 3:
+                sheet_name = csv_file.split(".")[0].split("/")[-1].split("\\")[-1]
+                sheet = workbook.create_sheet(title=sheet_name)
 
-            with open(csv_file, "r") as file:
-                csv_reader = csv.reader(file)
-                for row_index, row in enumerate(csv_reader, start=1):
-                    for col_index, value in enumerate(row, start=1):
-                        sheet.cell(row=row_index, column=col_index, value=value)
+                with open(csv_file, "r") as file:
+                    csv_reader = csv.reader(file)
+                    for row_index, row in enumerate(csv_reader, start=1):
+                        for col_index, value in enumerate(row, start=1):
+                            sheet.cell(row=row_index, column=col_index, value=value)
+
             if delete_csv:
                 os.remove(csv_file)
+                pass
 
             merge_range = ranges_for_merging.get(sheet_name, range(1, 3))
             # self.convert_numbers(sheet)

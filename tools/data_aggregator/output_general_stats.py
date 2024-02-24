@@ -31,7 +31,25 @@ class GeneralStats(JSONToCSVConverter):
         writer.writerow(row_data)
 
     def get_min_header(self):
-        return []
+        return [
+            "Benchmark",
+            "#Tasks",
+            "#Edges",
+            "regularTasks",
+            "externalTasks",
+            "inlinableCalls",
+            "globalVariables",
+        ]
 
     def convert_to_min(self, writer, json_obj):
-        pass
+        for app_name, data in self.json_obj.items():
+            row_data = [
+                self.get_suite(app_name) + "-" + self.get_benchmark(app_name),
+                data.get("counts", {}).get("#tasks", "N/A"),
+                data.get("counts", {}).get("#edges", "N/A"),
+                data.get("counts", {}).get("regularTasks", "N/A"),
+                data.get("counts", {}).get("externalTasks", "N/A"),
+                data.get("counts", {}).get("inlinableCalls", "N/A"),
+                data.get("counts", {}).get("globalVars", "N/A"),
+            ]
+            writer.writerow(row_data)

@@ -52,7 +52,18 @@ class GlobalVarData(JSONToCSVConverter):
             writer.writerow(row_data)
 
     def get_min_header(self):
-        return []
+        return ["Benchmark", "#Globals", "Total Size (bytes)"]
 
     def convert_to_min(self, writer, json_obj):
-        pass
+        for app_name, data in self.json_obj.items():
+            global_data = data.get("globalData", {})
+            total_size = 0
+            for data_name, data_info in global_data.items():
+                total_size += data_info.get("sizeInBytes", 0)
+
+            row_data = [
+                self.get_suite(app_name) + "-" + self.get_benchmark(app_name),
+                len(global_data),
+                total_size,
+            ]
+            writer.writerow(row_data)

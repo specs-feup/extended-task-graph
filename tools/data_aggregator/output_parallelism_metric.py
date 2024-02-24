@@ -32,7 +32,30 @@ class ParallelismMetric(JSONToCSVConverter):
             writer.writerow(row_data)
 
     def get_min_header(self):
-        return []
+        return [
+            "Benchmark",
+            "#Subgraphs",
+            "Avg. CP Length",
+            "Avg. Parallelism Level",
+        ]
 
     def convert_to_min(self, writer, json_obj):
-        pass
+        for app_name, data in self.json_obj.items():
+            crit_paths = data.get("criticalPaths", {})
+
+            total_subgraphs = 0
+            total_cp_length = 0
+            total_parallelism_level = 0
+
+            for hier_task, hier_info in crit_paths.items():
+                total_subgraphs += 1
+                total_cp_length += hier_info.get("criticalPathLength", 0)
+                total_parallelism_level += hier_info.get("parallelismMeasure", 0)
+
+            row_data = [
+                self.get_suite(app_name) + "-" + self.get_benchmark(app_name),
+                total_subgraphs,
+                total_cp_length / total_subgraphs,
+                total_parallelism_level / total_subgraphs,
+            ]
+            writer.writerow(row_data)

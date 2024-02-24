@@ -41,6 +41,12 @@ class JSONToCSVConverter(ABC):
         else:
             return split[0], "-".join(split[1:-1])
 
+    def get_suite(self, app_name):
+        return self.get_suite_benchmark(app_name)[0]
+
+    def get_benchmark(self, app_name):
+        return self.get_suite_benchmark(app_name)[1]
+
     def to_percentage_str(self, input_str):
         try:
             number = float(input_str)
