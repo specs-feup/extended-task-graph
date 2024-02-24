@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 
 class JSONToCSVConverter(ABC):
-    def __init__(self, json_obj, name, out_folder):
+    def __init__(self, json_obj, out_folder, name):
         self.json_obj = json_obj
         self.name = name
         self.out_folder = out_folder

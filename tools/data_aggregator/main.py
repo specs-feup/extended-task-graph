@@ -23,25 +23,12 @@ def main():
     data_aggregator.output_combined_json()
     print("Created combined JSON")
 
-    """
-    csv_files = [
-        data_aggregator.output_general_stats(),
-        data_aggregator.output_unique_task_data(),
-        data_aggregator.output_no_task_calls_histogram(),
-        data_aggregator.output_no_task_calls_hist_total(),
-        data_aggregator.output_data_per_task(),
-        data_aggregator.output_data_paths(),
-        data_aggregator.output_global_var_data(),
-        data_aggregator.output_data_source_distance(),
-        data_aggregator.output_parallel_tasks(),
-        data_aggregator.output_parallelism_metric(),
-        data_aggregator.output_producer_consumer_relationship(),
-    ]
-    """
     csv_files = data_aggregator.convert_all_to_csv()
+    csv_full = [row[0] for row in csv_files]
+    csv_min = [row[1] for row in csv_files]
     print("Created intermediary CSV files")
 
-    ranges_for_merging = {
+    full_ranges_for_merging = {
         "general_stats": range(1, 3),
         "unique_task_data": range(1, 3),
         "no_task_calls_histogram": range(1, 3),
@@ -55,9 +42,15 @@ def main():
         "producer_consumer_relationship": range(1, 3),
     }
     data_aggregator.output_excel_from_csv_list(
-        csv_files, ranges_for_merging=ranges_for_merging
+        csv_full, ranges_for_merging=full_ranges_for_merging, excel_filename="data_full"
     )
-    print("Created combined Excel")
+    print("Created combined Excel with full data")
+
+    min_ranges_for_merging = {}
+    data_aggregator.output_excel_from_csv_list(
+        csv_min, ranges_for_merging=min_ranges_for_merging, excel_filename="data_min"
+    )
+    print("Created combined Excel with min data")
 
 
 if __name__ == "__main__":

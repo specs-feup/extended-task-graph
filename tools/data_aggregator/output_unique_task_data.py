@@ -2,8 +2,8 @@ from json_to_csv import JSONToCSVConverter
 
 
 class UniqueTaskData(JSONToCSVConverter):
-    def __init__(self, json_obj, name, out_folder):
-        super().__init__(json_obj, name, out_folder)
+    def __init__(self, json_obj, out_folder, name="unique_task_data"):
+        super().__init__(json_obj, out_folder, name)
 
     def get_full_header(self):
         header = [
@@ -20,9 +20,6 @@ class UniqueTaskData(JSONToCSVConverter):
             "Iterations per Call Sites",
         ]
         return header
-
-    def get_min_header(self):
-        return ["suite", "benchmark", "min_time"]
 
     def convert_to_full(self, writer, suite, bench, data):
         types = data.get("uniqueTaskTypes", {})
@@ -56,8 +53,8 @@ class UniqueTaskData(JSONToCSVConverter):
 
             writer.writerow(row_data)
 
+    def get_min_header(self):
+        return ["suite", "benchmark", "min_time"]
+
     def convert_to_min(self, writer, suite, bench, data):
-        # min_time = min([task["time"] for task in data])
-        # row = [suite, bench, min_time]
-        # writer.writerow(row)
         pass
