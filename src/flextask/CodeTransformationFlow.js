@@ -9,23 +9,11 @@ laraImport("flextask/preprocessing/CodeInstrumenter");
 laraImport("flextask/util/ClavaUtils");
 
 class CodeTransformationFlow extends AStage {
-    #config;
-
-    constructor(config) {
+    constructor(topFunctionName, outputDir, appName) {
         super("CTFlow",
-            config["starterFunction"],
-            config["outputDir"],
-            config["appName"]);
-        this.#config = config;
-    }
-
-    applyInitialConfig() {
-        if (!this.#config.hasOwnProperty("appName")) {
-            UPTConfig.set("appName", "default_app_name");
-        }
-        if (!this.#config.hasOwnProperty("starterFunction")) {
-            UPTConfig.set("starterFunction", "main");
-        }
+            topFunctionName,
+            outputDir,
+            appName);
     }
 
     run() {
@@ -37,20 +25,17 @@ class CodeTransformationFlow extends AStage {
         const valid = this.subsetPreprocessing();
         if (!valid) {
             this.log("Aborting...");
-            return;
+            return false;
         }
-        this.generateSubsetCode();
 
+        this.generateSubsetCode();
         this.taskPreprocessing();
         this.intermediateAnalysis();
         this.generateTaskCode();
-
-        // push AST
-        //this.instrumentCode();
         this.generateInstrumentedTaskCode();
-        // pop AST
 
         this.log("Code transformation flow finished successfully!");
+        return true;
     }
 
     generateOriginalCode() {
@@ -114,17 +99,14 @@ class CodeTransformationFlow extends AStage {
         this.log(`Intermediate task-based source code written to "${OutputDirectories.SRC_TASKS}"`);
     }
 
-    instrumentCode() {
-        this.log("Instrumenting code");
-        const instrumenter = new CodeInstrumenter(this.getTopFunctionName());
-        instrumenter.instrument();
-        this.log("Code successfully instrumented");
-    }
-
     generateInstrumentedTaskCode() {
-        // Instrument here
+        // push AST
+        const instrumenter = new CodeInstrumenter(this.getTopFunctionName());
+        //instrumenter.instrument();
+
         ClavaUtils.generateCode(this.getOutputDir(), OutputDirectories.SRC_TASKS_INSTRUMENTED);
         this.log(`Instrumented task-based source code written to "${OutputDirectories.SRC_TASKS_INSTRUMENTED}"`);
+        // pop ASTs
     }
 
 }

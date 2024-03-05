@@ -6,10 +6,8 @@ laraImport("flextask/CodeTransformationFlow");
 laraImport("flextask/TaskGraphGenerationFlow");
 
 class FlextaskAPI extends AStage {
-    #config;
-
-    constructor(config) {
-        super("FlextaskAPI");
+    constructor(topFunctionName, outputDir = "output", appName = "default_app_name") {
+        super("FlextaskAPI", topFunctionName, outputDir, appName);
 
         if (!Platforms.isLinux()) {
             const platName = Platforms.getPlatformName();
@@ -17,31 +15,27 @@ class FlextaskAPI extends AStage {
             this.log("Setting Clava platform to Linux (i.e., any syscalls inserted will be for Linux)");
             Platforms.setLinux();
         }
-
-        if (!config["appName"]) {
-            throw new Error("Missing appName in config");
-        }
-        if (!config["outputDir"]) {
-            throw new Error("Missing outputDir in config");
-        }
-
-        this.#config = config;
-        this.setAppName(this.#config["appName"]);
-        this.setOutputDir(this.#config["outputDir"]);
     }
 
     runBothFlows() {
-        this.runCodeTransformationFlow();
-        this.runTaskGraphGenerationFlow(false);
+        const success = this.runCodeTransformationFlow();
+        if (!success) {
+            this.log("Code transformation flow failed, aborting task graph generation flow");
+            this.#printLine();
+        }
+        else {
+            this.runTaskGraphGenerationFlow(false);
+        }
     }
 
     runCodeTransformationFlow() {
         this.#printLine();
 
-        const flow = new CodeTransformationFlow(this.#config);
-        flow.run();
+        const flow = new CodeTransformationFlow(this.getTopFunctionName(), this.getOutputDir(), this.getAppName());
+        const res = flow.run();
 
         this.#printLine();
+        return res;
     }
 
     runTaskGraphGenerationFlow(printFirstLine = true) {
@@ -49,10 +43,11 @@ class FlextaskAPI extends AStage {
             this.#printLine();
         }
 
-        const flow = new TaskGraphGenerationFlow(this.#config);
-        flow.run();
+        const flow = new TaskGraphGenerationFlow(this.getTopFunctionName(), this.getOutputDir(), this.getAppName());
+        const tg = flow.run();
 
         this.#printLine();
+        return tg;
     }
 
     #printLine() {

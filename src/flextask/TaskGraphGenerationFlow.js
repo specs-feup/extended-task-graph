@@ -7,14 +7,8 @@ laraImport("flextask/analysis/taskgraph/TaskGraphAnalyzer");
 laraImport("flextask/util/ClavaUtils");
 
 class TaskGraphGenerationFlow extends AStage {
-    #config;
-
-    constructor(config) {
-        super("TGGFlow",
-            config["starterFunction"],
-            config["outputDir"],
-            config["appName"]);
-        this.#config = config;
+    constructor(topFunctionName, outputDir, appName) {
+        super("TGGFlow", topFunctionName, outputDir, appName);
     }
 
     run() {
@@ -26,10 +20,10 @@ class TaskGraphGenerationFlow extends AStage {
             return;
         }
 
-        //this.annotateTaskGraph(tg);
         this.analyzeTaskGraph(tg);
 
         this.log("Task Graph Generation flow finished successfully!");
+        return tg;
     }
 
     buildTaskGraph() {

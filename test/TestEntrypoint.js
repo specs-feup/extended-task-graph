@@ -27,8 +27,11 @@ function main() {
             break;
         }
     }
+    const appName = config["appName"];
+    const outputDir = config["outputDir"];
+    const topFunctionName = config["starterFunction"];
 
-    const api = new FlextaskAPI(config);
+    const api = new FlextaskAPI(topFunctionName, outputDir, appName);
     api.runBothFlows();
 }
 
