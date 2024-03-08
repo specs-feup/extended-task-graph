@@ -6,20 +6,29 @@ Flextask is an extension for the [Clava](https://github.com/specs-feup/clava) C/
 
 We provide a high-level API for interacting with Flextask:
 
-`laraImport("flextask.FlextaskAPI");`
+```
+laraImport("flextask.FlextaskAPI");
 
-You can instantiate an API using:
+const topFunctionName = "foo";
+const outputDir = "output";
+const appName = "testApp"
 
-`const api = new FlextaskAPI(config)`
+const api = new FlextaskAPI(topFunctionName, outputDir, appName);
 
-Where `config` is a JS object with the following properties:
+// First, apply the code transformations required for generating a task graph
+// You do not necessarily need to run this flow first if your code is already in a valid format
+const success = api.runCodeTransformationFlow();
+
+// The task graph generator assumes the current AST is in a valid post-transformation form
+const taskGraph = api.runTaskGraphGenerationFlow();
+
+// Or, alternatively, to do both in one go with api.runBothFlows()
+```
+
+The task graph can then be manipulated using another high-level API (while it is possible to directly manipulate add/remove nodes and edges to the graph, we discourage that approach):
 
 ```
-const config = {
-    "starterFunction": "<name of started function (default is main)>",
-    "outputDir": "<output directory (mandatory)>",
-    "appName": "<name of the application (mandatory)>"
-}
+// TBA
 ```
 
 ### Outputs

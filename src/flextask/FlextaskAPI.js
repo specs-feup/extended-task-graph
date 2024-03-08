@@ -8,13 +8,6 @@ laraImport("flextask/TaskGraphGenerationFlow");
 class FlextaskAPI extends AStage {
     constructor(topFunctionName, outputDir = "output", appName = "default_app_name") {
         super("FlextaskAPI", topFunctionName, outputDir, appName);
-
-        if (!Platforms.isLinux()) {
-            const platName = Platforms.getPlatformName();
-            this.log(`Current OS is "${platName}", but Flextask only outputs Linux-ready code!`);
-            this.log("Setting Clava platform to Linux (i.e., any syscalls inserted will be for Linux)");
-            Platforms.setLinux();
-        }
     }
 
     runBothFlows() {
@@ -24,12 +17,13 @@ class FlextaskAPI extends AStage {
             this.#printLine();
         }
         else {
-            this.runTaskGraphGenerationFlow(false);
+            this.runTaskGraphGenerationFlow(true, true, false);
         }
     }
 
     runCodeTransformationFlow() {
         this.#printLine();
+        this.#ensureLinux();
 
         const flow = new CodeTransformationFlow(this.getTopFunctionName(), this.getOutputDir(), this.getAppName());
         const res = flow.run();
@@ -38,16 +32,26 @@ class FlextaskAPI extends AStage {
         return res;
     }
 
-    runTaskGraphGenerationFlow(printFirstLine = true) {
+    runTaskGraphGenerationFlow(dumpGraph = true, gatherMetrics = true, printFirstLine = true) {
         if (printFirstLine) {
             this.#printLine();
         }
+        this.#ensureLinux();
 
         const flow = new TaskGraphGenerationFlow(this.getTopFunctionName(), this.getOutputDir(), this.getAppName());
-        const tg = flow.run();
+        const tg = flow.run(dumpGraph, gatherMetrics);
 
         this.#printLine();
         return tg;
+    }
+
+    #ensureLinux() {
+        if (!Platforms.isLinux()) {
+            const platName = Platforms.getPlatformName();
+            this.log(`Current OS is "${platName}", but Flextask only outputs Linux-ready code!`);
+            this.log("Setting Clava platform to Linux (i.e., any syscalls inserted will be for Linux)");
+            Platforms.setLinux();
+        }
     }
 
     #printLine() {

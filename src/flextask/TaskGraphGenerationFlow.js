@@ -11,7 +11,7 @@ class TaskGraphGenerationFlow extends AStage {
         super("TGGFlow", topFunctionName, outputDir, appName);
     }
 
-    run() {
+    run(dumpGraph = true, gatherMetrics = true) {
         this.log("Running Task Graph Generation flow");
 
         const tg = this.buildTaskGraph();
@@ -20,7 +20,13 @@ class TaskGraphGenerationFlow extends AStage {
             return;
         }
 
-        this.analyzeTaskGraph(tg);
+        if (dumpGraph) {
+            this.dumpTaskGraph(tg);
+        }
+
+        if (gatherMetrics) {
+            this.analyzeTaskGraph(tg);
+        }
 
         this.log("Task Graph Generation flow finished successfully!");
         return tg;
@@ -45,6 +51,10 @@ class TaskGraphGenerationFlow extends AStage {
             this.log("Task graph successfully built!");
             return taskGraph;
         }
+    }
+
+    dumpTaskGraph(taskGraph) {
+
     }
 
     analyzeTaskGraph(taskGraph) {
