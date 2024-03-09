@@ -2,8 +2,8 @@
 
 laraImport("lara.util.IdGenerator");
 laraImport("weaver.Query");
-laraImport("flextask/taskgraph/Data");
-laraImport("flextask/taskgraph/DataOrigins");
+laraImport("flextask/taskgraph/DataItem");
+laraImport("flextask/taskgraph/DataItemOrigins");
 
 class Task {
     // Constants
@@ -142,11 +142,11 @@ class Task {
         this.#hierChildren.delete(child);
     }
 
-    getDataRead(type = DataOrigins.ANY) {
+    getDataRead(type = DataItemOrigins.ANY) {
         return this.#getDataByAccessType("READ", type);
     }
 
-    getDataWritten(type = DataOrigins.ANY) {
+    getDataWritten(type = DataItemOrigins.ANY) {
         return this.#getDataByAccessType("WRITE", type);
     }
 
@@ -297,25 +297,25 @@ class Task {
     }
 
     // ---------------------------------------------------------------------
-    #getDataByAccessType(accessType, origin = DataOrigins.ANY) {
+    #getDataByAccessType(accessType, origin = DataItemOrigins.ANY) {
         let data = [];
-        if (origin == DataOrigins.ANY) {
+        if (origin == DataItemOrigins.ANY) {
             data = [
                 ...this.#dataParams,
                 ...this.#dataGlobals,
                 ...this.#dataNew,
                 ...this.#dataConstants];
         }
-        if (origin == DataOrigins.PARAM) {
+        if (origin == DataItemOrigins.PARAM) {
             data = this.#dataParams;
         }
-        if (origin == DataOrigins.GLOBAL) {
+        if (origin == DataItemOrigins.GLOBAL) {
             data = this.#dataGlobals;
         }
-        if (origin == DataOrigins.NEW) {
+        if (origin == DataItemOrigins.NEW) {
             data = this.#dataNew;
         }
-        if (origin == DataOrigins.CONSTANT) {
+        if (origin == DataItemOrigins.CONSTANT) {
             data = this.#dataConstants;
         }
 
@@ -342,7 +342,7 @@ class Task {
                 refs.add(ref);
             }
         }
-        this.#createDataObjects([...refs], DataOrigins.PARAM);
+        this.#createDataObjects([...refs], DataItemOrigins.PARAM);
     }
 
     #populateData() {
@@ -364,7 +364,7 @@ class Task {
         for (const param of Query.searchFrom(this.#function, "param")) {
             paramVars.add(param);
         }
-        this.#createDataObjects([...paramVars], DataOrigins.PARAM);
+        this.#createDataObjects([...paramVars], DataItemOrigins.PARAM);
     }
 
     #findDataFromGlobals() {
@@ -384,7 +384,7 @@ class Task {
                 //println(`Could not find vardecl for varref ${varref.name} of type ${varref.type}`);
             }
         }
-        this.#createDataObjects([...globalVars], DataOrigins.GLOBAL);
+        this.#createDataObjects([...globalVars], DataItemOrigins.GLOBAL);
     }
 
     #findDataFromNewDecls() {
@@ -392,23 +392,23 @@ class Task {
         for (const vardecl of Query.searchFrom(this.#function.body, "vardecl")) {
             newVars.add(vardecl);
         }
-        this.#createDataObjects([...newVars], DataOrigins.NEW);
+        this.#createDataObjects([...newVars], DataItemOrigins.NEW);
     }
 
     #createDataObjects(vars, originType) {
         for (const vardecl of vars) {
-            const data = new Data(vardecl, originType);
+            const data = new DataItem(vardecl, originType);
 
             this.#setReadWritesFunction(data);
 
             switch (originType) {
-                case DataOrigins.PARAM:
+                case DataItemOrigins.PARAM:
                     this.#dataParams.push(data);
                     break;
-                case DataOrigins.GLOBAL:
+                case DataItemOrigins.GLOBAL:
                     this.#dataGlobals.push(data);
                     break;
-                case DataOrigins.NEW:
+                case DataItemOrigins.NEW:
                     this.#dataNew.push(data);
                     break;
                 default:
@@ -426,7 +426,7 @@ class Task {
     }
 
     #createConstantObject(immConst, funCall) {
-        const datum = new Data(immConst, DataOrigins.CONSTANT);
+        const datum = new DataItem(immConst, DataItemOrigins.CONSTANT);
         datum.setImmediateFunctionCall(funCall);
         this.#dataConstants.push(datum);
     }
@@ -462,7 +462,7 @@ class Task {
 
     #populateGlobalData() {
         for (const global of Query.search("vardecl", { isGlobal: true })) {
-            const data = new Data(global, DataOrigins.GLOBAL);
+            const data = new DataItem(global, DataItemOrigins.GLOBAL);
             this.#dataGlobals.push(data);
             this.#setReadWritesVar(global, data);
         }

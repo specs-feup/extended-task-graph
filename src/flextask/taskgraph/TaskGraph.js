@@ -4,6 +4,7 @@ laraImport("flextask/taskgraph/Task");
 laraImport("flextask/taskgraph/Communication");
 laraImport("flextask/taskgraph/ControlEdge");
 laraImport("flextask/util/ClavaUtils");
+
 class TaskGraph {
     #tasks = [];
     #comms = [];

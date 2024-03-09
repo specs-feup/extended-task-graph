@@ -16,7 +16,7 @@ class DataPerTaskFinder {
 
             for (const datum of task.getData()) {
                 const datumProps = {
-                    "origin": datum.getOriginType(),
+                    "origin": datum.getItemOriginType(),
                     "sizeInBytes": datum.getSizeInBytes(),
                     "cxxType": datum.getDatatype(),
                     "isScalar": datum.isScalar(),

@@ -24,7 +24,7 @@ class TaskGraphBuilder {
         let rank = 1;
         for (const data of topTask.getReferencedData()) {
             const sourceTask = taskGraph.getSourceTask();
-            const dataCopy = new Data(data.getDecl(), "SOURCE");
+            const dataCopy = new DataItem(data.getDecl(), "SOURCE");
             sourceTask.addStartTaskData(dataCopy);
 
             taskGraph.addCommunication(sourceTask, topTask, dataCopy, data, rank);
@@ -33,7 +33,7 @@ class TaskGraphBuilder {
         rank = 1;
         for (const data of topTask.getDataWritten()) {
             const sinkTask = taskGraph.getSinkTask();
-            const dataCopy = new Data(data.getDecl(), "SINK");
+            const dataCopy = new DataItem(data.getDecl(), "SINK");
             sinkTask.addEndTaskData(dataCopy);
 
             taskGraph.addCommunication(topTask, sinkTask, data, dataCopy, rank);

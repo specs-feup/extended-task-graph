@@ -1,8 +1,8 @@
 "use strict";
 
-laraImport("flextask/taskgraph/DataOrigins");
+laraImport("flextask/taskgraph/DataItemOrigins");
 
-class Data {
+class DataItem {
     #ref = null;
     #name = "<noname>";
     #isInit = false;
@@ -15,13 +15,13 @@ class Data {
     #datatype = null;
     #datatypeSize = 4;
 
-    #origin = DataOrigins.UNKNOWN;
+    #itemOrigin = DataItemOrigins.UNKNOWN;
     #alternateName = "<no_alt_name>";
     #immediateFunctionCall = null;
 
     constructor(ref, origin) {
         this.#ref = ref;
-        this.#origin = origin;
+        this.#itemOrigin = origin;
         this.#name = this.#getNameFromRef(ref);
         this.#alternateName = this.#name;
         this.#demangleDatatype(ref);
@@ -31,8 +31,8 @@ class Data {
         return this.#name;
     }
 
-    getOrigin() {
-        return this.#origin;
+    getItemOriginType() {
+        return this.#itemOrigin;
     }
 
     getDecl() {
@@ -93,10 +93,6 @@ class Data {
         return !this.#isRead && this.#isWritten;
     }
 
-    getOriginType() {
-        return this.#origin;
-    }
-
     getDatatypeSize() {
         return this.#datatypeSize;
     }
@@ -106,26 +102,26 @@ class Data {
     }
 
     setImmediateFunctionCall(call) {
-        if (this.#origin !== DataOrigins.CONSTANT) {
+        if (this.#itemOrigin !== DataItemOrigins.CONSTANT) {
             throw new Error("You can only specify an immediate function call for immediate constants!");
         }
         this.#immediateFunctionCall = call;
     }
 
     isNewlyCreated() {
-        return this.#origin === DataOrigins.NEW;
+        return this.#itemOrigin === DataItemOrigins.NEW;
     }
 
     isFromParam() {
-        return this.#origin === DataOrigins.PARAM;
+        return this.#itemOrigin === DataItemOrigins.PARAM;
     }
 
     isFromGlobal() {
-        return this.#origin === DataOrigins.GLOBAL;
+        return this.#itemOrigin === DataItemOrigins.GLOBAL;
     }
 
     isConstant() {
-        return this.#origin === DataOrigins.CONSTANT;
+        return this.#itemOrigin === DataItemOrigins.CONSTANT;
     }
 
     isScalar() {

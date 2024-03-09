@@ -1,6 +1,6 @@
 "use strict";
 
-const DataOrigins = {
+const DataItemOrigins = {
     UNKNOWN: "UNKNOWN",
     ANY: "ANY",
     PARAM: "PARAM",

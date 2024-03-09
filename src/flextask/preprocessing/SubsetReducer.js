@@ -82,7 +82,7 @@ class SubsetReducer extends AStage {
                 count += turnedVoid ? 1 : 0;
             }
         }
-        this.log("Ensured " + count + " function(s) return void");
+        this.log(`Ensured ${count} function${count > 1 ? "s" : ""} return${count > 1 ? "s" : ""} void`);
     }
 
     #applyArrayFlattening() {
@@ -99,7 +99,7 @@ class SubsetReducer extends AStage {
         const foldProg = new FoldingPropagationCombiner();
 
         const nPasses = foldProg.doPassesUntilStop();
-        this.log("Applied constant propagation in " + nPasses + " pass(es)");
+        this.log(`Applied constant propagation in ${nPasses} pass${nPasses > 1 ? "es" : ""}`);
     }
 
     #applySwitchToIfConversion() {
@@ -110,7 +110,7 @@ class SubsetReducer extends AStage {
             switchToIf.convert(switchStmt);
             count++;
         }
-        this.log("Converted " + count + " switch statements into if-else statements");
+        this.log(`Converted ${count} switch statement${count > 1 ? "s" : ""} into if-else statements`);
     }
 
     #getValidFunctions() {

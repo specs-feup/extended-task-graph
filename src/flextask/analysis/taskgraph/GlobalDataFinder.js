@@ -16,7 +16,7 @@ class GlobalDataFinder {
 
             if (outgoing.length > 0) {
                 const datumProps = {
-                    "origin": datum.getOriginType(),
+                    "origin": datum.getItemOriginType(),
                     "sizeInBytes": datum.getSizeInBytes(),
                     "cxxType": datum.getDatatype(),
                     "isScalar": datum.isScalar(),
