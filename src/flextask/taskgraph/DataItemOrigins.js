@@ -1,8 +1,8 @@
 "use strict";
 
 const DataItemOrigins = {
-    UNKNOWN: "UNKNOWN",
-    ANY: "ANY",
+    GRAPH_INPUT: "GRAPH_INPUT",
+    GRAPH_OUTPUT: "GRAPH_OUTPUT",
     PARAM: "PARAM",
     NEW: "NEW",
     GLOBAL: "GLOBAL",

@@ -2,7 +2,8 @@
 
 laraImport("flextask/AStage");
 laraImport("flextask/OutputDirectories");
-laraImport("flextask/taskgraph/TaskGraphManager");
+laraImport("flextask/taskgraph/TaskGraphBuilder");
+laraImport("flextask/taskgraph/TaskGraphDotConverter");
 laraImport("flextask/analysis/taskgraph/TaskGraphAnalyzer");
 laraImport("flextask/util/ClavaUtils");
 
@@ -17,15 +18,15 @@ class TaskGraphGenerationFlow extends AStage {
         const tg = this.buildTaskGraph();
         if (tg == null) {
             this.log("Task graph was not built successfully, aborting");
-            return;
+            return null;
         }
 
         if (dumpGraph) {
-            this.dumpTaskGraph(tg);
+            //this.dumpTaskGraph(tg);
         }
 
         if (gatherMetrics) {
-            this.analyzeTaskGraph(tg);
+            //this.analyzeTaskGraph(tg);
         }
 
         this.log("Task Graph Generation flow finished successfully!");
@@ -38,23 +39,23 @@ class TaskGraphGenerationFlow extends AStage {
         const outDir = this.getOutputDir() + "/" + OutputDirectories.TASKGRAPH;
         const appName = this.getAppName();
 
-        const taskGraphMan = new TaskGraphManager(topFun, outDir, appName);
-        const taskGraph = taskGraphMan.buildTaskGraph();
-
-        if (taskGraph == null) {
-            this.log("Cannot dump task graph, since it was not built successfully");
-            return null;
-        }
-        else {
-            taskGraphMan.dumpTaskGraph(taskGraph);
-
-            this.log("Task graph successfully built!");
-            return taskGraph;
-        }
+        const builder = new TaskGraphBuilder(topFun, outDir, appName);
+        const taskGraph = builder.build();
+        return taskGraph;
     }
 
     dumpTaskGraph(taskGraph) {
+        this.log("Running task graph dumping process");
+        const conv = new TaskGraphDotConverter();
+        const dotVerbose = conv.convert(taskGraph);
+        const dotMinimal = conv.convertMinimal(taskGraph);
 
+        const fname1 = this.saveToFile(dotVerbose, "taskgraph.dot");
+        const fname2 = this.saveToFile(dotMinimal, "taskgraph_min.dot");
+
+        this.log(`Dumped full task graph to "${fname1}"`);
+        this.log(`Dumped mini task graph to "${fname2}"`);
+        this.log("Task graph successfully dumped!");
     }
 
     analyzeTaskGraph(taskGraph) {

@@ -1,6 +1,9 @@
 "use strict";
 
-laraImport("flextask/taskgraph/Task");
+laraImport("flextask/taskgraph/tasks/Task");
+laraImport("flextask/taskgraph/tasks/SourceTask");
+laraImport("flextask/taskgraph/tasks/SinkTask");
+laraImport("flextask/taskgraph/tasks/GlobalTask");
 laraImport("flextask/taskgraph/Communication");
 laraImport("flextask/taskgraph/ControlEdge");
 laraImport("flextask/util/ClavaUtils");
@@ -9,15 +12,15 @@ class TaskGraph {
     #tasks = [];
     #comms = [];
     #control = [];
-    #source = null;
-    #sink = null;
-    #globals = null;
+    #sourceTask = null;
+    #sinkTask = null;
+    #globalTask = null;
     #inlinables = [];
 
     constructor() {
-        this.#source = new Task(null, null, "START");
-        this.#sink = new Task(null, null, "END");
-        this.#globals = new Task(null, null, "GLOBAL");
+        this.#sourceTask = new SourceTask();
+        this.#sinkTask = new SinkTask();
+        this.#globalTask = new GlobalTask();
     }
 
     addTasks(tasks) {
@@ -56,15 +59,15 @@ class TaskGraph {
     }
 
     getSourceTask() {
-        return this.#source;
+        return this.#sourceTask;
     }
 
     getSinkTask() {
-        return this.#sink;
+        return this.#sinkTask;
     }
 
     getGlobalTask() {
-        return this.#globals;
+        return this.#globalTask;
     }
 
     getCommunications() {

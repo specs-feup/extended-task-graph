@@ -4,39 +4,40 @@ laraImport("weaver.Query");
 laraImport("clava.code.LoopCharacterizer");
 laraImport("flextask/AStage");
 laraImport("flextask/taskgraph/TaskGraph");
-laraImport("flextask/taskgraph/Task");
+laraImport("flextask/taskgraph/tasks/Task");
+laraImport("flextask/taskgraph/tasks/RegularTask");
+laraImport("flextask/taskgraph/tasks/ExternalTask");
 laraImport("flextask/taskgraph/Communication");
-laraImport("flextask/taskgraph/TaskGraphDumper");
 
-class TaskGraphBuilder {
+
+class TaskGraphBuilder extends AStage {
     #lastUsedGlobal = new Map();
 
-    constructor() { }
+    constructor(topFunction, outputDir, appName) {
+        super("TGGFlow-TaskGraphBuilder", topFunction, outputDir, appName);
+    }
 
-    build(topFunctionJoinPoint) {
+    build() {
         const taskGraph = new TaskGraph();
-
         this.#populateGlobalMap(taskGraph);
 
-        const topTask = this.#buildLevel(taskGraph, topFunctionJoinPoint, null, null);
+        const topFunctionJoinPoint = this.getTopFunctionJoinPoint();
+        const topTask = this.#buildLevel(taskGraph, topFunctionJoinPoint, null, null, true);
 
-        // main_begin and main_end are special, and outside of the hierarchy
         let rank = 1;
-        for (const data of topTask.getReferencedData()) {
+        for (const dataItem of topTask.getReferencedData()) {
             const sourceTask = taskGraph.getSourceTask();
-            const dataCopy = new DataItem(data.getDecl(), "SOURCE");
-            sourceTask.addStartTaskData(dataCopy);
+            const itemInSource = sourceTask.addDataToSource(dataItem);
 
-            taskGraph.addCommunication(sourceTask, topTask, dataCopy, data, rank);
+            taskGraph.addCommunication(sourceTask, topTask, itemInSource, dataItem, rank);
             rank++;
         }
         rank = 1;
-        for (const data of topTask.getDataWritten()) {
+        for (const dataItem of topTask.getDataWritten()) {
             const sinkTask = taskGraph.getSinkTask();
-            const dataCopy = new DataItem(data.getDecl(), "SINK");
-            sinkTask.addEndTaskData(dataCopy);
+            const itemInSink = sinkTask.addDataToSink(dataItem);
 
-            taskGraph.addCommunication(topTask, sinkTask, data, dataCopy, rank);
+            taskGraph.addCommunication(topTask, sinkTask, dataItem, itemInSink, rank);
             rank++;
         }
 
@@ -56,14 +57,9 @@ class TaskGraphBuilder {
         }
     }
 
-    #buildLevel(taskGraph, fun, parent, call) {
-        const task = new Task(fun, parent, "REGULAR");
-
-        // if task was called by another, add the argument names
-        // as alternate names for the task param data
-        if (call != null) {
-            task.setCall(call);
-            task.updateWithAlternateNames(call);
+    #buildLevel(taskGraph, fun, parent, call, firstLevel = false) {
+        const task = new RegularTask(call, fun, parent);
+        if (!firstLevel) {
             this.#updateWithRepetitions(task, call);
             this.#addControlEdges(task, call, taskGraph);
         }
@@ -73,21 +69,28 @@ class TaskGraphBuilder {
 
         for (const call of Query.searchFrom(fun, "call")) {
             const callee = call.function;
+
             // Is of type "REGULAR", handle recursively
             if (ClavaUtils.functionHasImplementation(callee)) {
                 const regularTask = this.#buildLevel(taskGraph, callee, task, call);
+
                 task.addHierarchicalChild(regularTask);
+
                 childTasks.push(regularTask);
             }
+
             // Is of type "EXTERNAL", create it on the spot
             else if (!ExternalFunctionsMatcher.isValidExternal(callee)) {
-                const externalTask = new Task(null, task, "EXTERNAL", call);
+                const externalTask = new ExternalTask(call, task);
+
                 this.#updateWithRepetitions(task, call);
                 this.#addControlEdges(externalTask, call, taskGraph);
-                taskGraph.addTask(externalTask);
                 task.addHierarchicalChild(externalTask);
+
+                taskGraph.addTask(externalTask);
                 childTasks.push(externalTask);
             }
+
             // Should only happen for inlinable functions (e.g., math.h)
             else {
                 //println("[TaskGraphBuilder] Found an inlinable function: " + callee.signature);

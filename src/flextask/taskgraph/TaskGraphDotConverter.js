@@ -1,10 +1,10 @@
 "use strict";
 
 laraImport("flextask/taskgraph/TaskGraph");
-laraImport("flextask/taskgraph/Task");
+laraImport("flextask/taskgraph/tasks/Task");
 laraImport("flextask/taskgraph/Communication");
 
-class TaskGraphDumper {
+class TaskGraphDotConverter {
     constructor() { }
 
     static hierarchicalColors = [
@@ -17,7 +17,7 @@ class TaskGraphDumper {
         "yellowgreen"
     ];
 
-    dump(taskGraph, isMinimal = false, includePerf = false) {
+    convert(taskGraph, isMinimal = false, includePerf = false) {
         let dot = "digraph G {\n";
         dot += "\trankdir=TB;\n";
         dot += "\tnode [shape=box];\n";
@@ -43,11 +43,11 @@ class TaskGraphDumper {
         return dot;
     }
 
-    dumpMinimal(taskGraph) {
+    convertMinimal(taskGraph) {
         return this.dump(taskGraph, true);
     }
 
-    dumpWithPerformance(taskGraph) {
+    convertWithPerformance(taskGraph) {
         return this.dump(taskGraph, true, true);
     }
 
