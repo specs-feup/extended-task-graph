@@ -63,7 +63,7 @@ class SubsetReducer extends AStage {
     }
 
     applyCodeTransforms() {
-        this.#applyConstantFoldingAndPropagation();
+        //this.#applyConstantFoldingAndPropagation();
         this.#applySwitchToIfConversion();
         this.#applyArrayFlattening();
     }

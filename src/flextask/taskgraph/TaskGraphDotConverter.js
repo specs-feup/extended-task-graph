@@ -34,26 +34,26 @@ class TaskGraphDotConverter {
         dot += this.#getDotOfCluster(topHierTask, isMinimal, includePerf);
 
         dot += "\n";
-        dot += this.#getDotOfCommunications(taskGraph);
+        dot += this.#getDotOfEdges(taskGraph.getCommunications());
 
         dot += "\n";
-        dot += this.#getDotOfControl(taskGraph);
+        dot += this.#getDotOfEdges(taskGraph.getControlEdges(), "red");
 
         dot += "}";
         return dot;
     }
 
     convertMinimal(taskGraph) {
-        return this.dump(taskGraph, true);
+        return this.convert(taskGraph, true);
     }
 
     convertWithPerformance(taskGraph) {
-        return this.dump(taskGraph, true, true);
+        return this.convert(taskGraph, true, true);
     }
 
     #getColor(index) {
-        const len = TaskGraphDumper.hierarchicalColors.length;
-        const color = TaskGraphDumper.hierarchicalColors[index % len];
+        const len = TaskGraphDotConverter.hierarchicalColors.length;
+        const color = TaskGraphDotConverter.hierarchicalColors[index % len];
         return color;
     }
 
@@ -101,12 +101,14 @@ class TaskGraphDotConverter {
     #getLabelOfTask(task, isMinimal = false, includePerf = false) {
         let label = `${task.getId()}: ${task.getName()}`;
 
-        const reps = task.getRepetitions();
-        if (reps > 1) {
-            label += ` (x${reps})`;
-        }
-        if (reps == -1) {
-            label += ` (xANY)`;
+        if (task.getType() == TaskTypes.REGULAR || task.getType() == TaskTypes.EXTERNAL) {
+            const reps = task.getRepetitions();
+            if (reps > 1) {
+                label += ` (x${reps})`;
+            }
+            if (reps == -1) {
+                label += ` (xANY)`;
+            }
         }
 
         if (includePerf) {
@@ -165,65 +167,46 @@ class TaskGraphDotConverter {
         return label;
     }
 
-    #getDotOfCommunications(taskGraph) {
+    #getDotOfEdges(edgeList, color = "black") {
         let dot = "";
-        for (const comm of taskGraph.getCommunications()) {
-            const source = comm.getSource();
-            const target = comm.getTarget();
-            const sourceHasHierChildren = source.getHierarchicalChildren().length > 0;
+
+        for (const edge of edgeList) {
+            const source = edge.getSource();
+            const target = edge.getTarget();
+            println(`Edge: ${source.getUniqueName()} -> ${target.getUniqueName()}`);
+
+            const sourceIsConcrete = source.getType() == TaskTypes.EXTERNAL || source.getType() == TaskTypes.REGULAR;
+
+            const sourceHasHierChildren = sourceIsConcrete ? source.getHierarchicalChildren().length > 0 : false;
             const targetHasHierChildren = target.getHierarchicalChildren().length > 0;
 
             if (target.getHierarchicalParent() !== source) {
                 if (sourceHasHierChildren && targetHasHierChildren) {
-                    dot += `\t"${source.getId()}_target" -> "${target.getId()}_src" [label="${comm.toString()}"];\n`;
+                    dot += `\t"${source.getId()}_target" -> "${target.getId()}_src" [label="${edge.toString()}", color="${color}", fontcolor="${color}"];\n`;
                 }
                 if (sourceHasHierChildren && !targetHasHierChildren) {
-                    dot += `\t"${source.getId()}_target" -> "${target.getId()}" [label="${comm.toString()}"];\n`;
+                    dot += `\t"${source.getId()}_target" -> "${target.getId()}" [label="${edge.toString()}", color="${color}", fontcolor="${color}"];\n`;
                 }
                 if (!sourceHasHierChildren && targetHasHierChildren) {
-                    dot += `\t"${source.getId()}" -> "${target.getId()}_src" [label="${comm.toString()}"];\n`;
+                    dot += `\t"${source.getId()}" -> "${target.getId()}_src" [label="${edge.toString()}", color="${color}", fontcolor="${color}"];\n`;
                 }
                 if (!sourceHasHierChildren && !targetHasHierChildren) {
-                    dot += `\t"${source.getId()}" -> "${target.getId()}" [label="${comm.toString()}"];\n`;
+                    dot += `\t"${source.getId()}" -> "${target.getId()}" [label="${edge.toString()}", color="${color}", fontcolor="${color}"];\n`;
                 }
             }
             else {
                 if (sourceHasHierChildren && targetHasHierChildren) {
-                    dot += `\t"${source.getId()}_src" -> "${target.getId()}_src" [label="${comm.toString()}"];\n`;
+                    dot += `\t"${source.getId()}_src" -> "${target.getId()}_src" [label="${edge.toString()}"];\n`;
                 }
                 if (sourceHasHierChildren && !targetHasHierChildren) {
-                    dot += `\t"${source.getId()}_src" -> "${target.getId()}" [label="${comm.toString()}"];\n`;
+                    dot += `\t"${source.getId()}_src" -> "${target.getId()}" [label="${edge.toString()}"];\n`;
                 }
                 if (!sourceHasHierChildren && targetHasHierChildren) {
-                    dot += `\t"${source.getId()}" -> "${target.getId()}_src" [label="${comm.toString()}"];\n`;
+                    dot += `\t"${source.getId()}" -> "${target.getId()}_src" [label="${edge.toString()}"];\n`;
                 }
                 if (!sourceHasHierChildren && !targetHasHierChildren) {
-                    dot += `\t"${source.getId()}" -> "${target.getId()}" [label="${comm.toString()}"];\n`;
+                    dot += `\t"${source.getId()}" -> "${target.getId()}" [label="${edge.toString()}"];\n`;
                 }
-            }
-        }
-        return dot;
-    }
-
-    #getDotOfControl(taskGraph) {
-        let dot = "";
-        for (const controlEdge of taskGraph.getControlEdges()) {
-            const source = controlEdge.getSource();
-            const target = controlEdge.getTarget();
-            const sourceHasHierChildren = source.getHierarchicalChildren().length > 0;
-            const targetHasHierChildren = target.getHierarchicalChildren().length > 0;
-
-            if (sourceHasHierChildren && targetHasHierChildren) {
-                dot += `\t"${source.getId()}_target" -> "${target.getId()}_src [label="${controlEdge.toString()}", color="red", fontcolor=red];\n`;
-            }
-            if (sourceHasHierChildren && !targetHasHierChildren) {
-                dot += `\t"${source.getId()}_target" -> "${target.getId()}" [label="${controlEdge.toString()}", color="red", fontcolor=red];\n`;
-            }
-            if (!sourceHasHierChildren && targetHasHierChildren) {
-                dot += `\t"${source.getId()}" -> "${target.getId()}_src" [label="${controlEdge.toString()}", color="red", fontcolor=red];\n`;
-            }
-            if (!sourceHasHierChildren && !targetHasHierChildren) {
-                dot += `\t"${source.getId()}" -> "${target.getId()}" [label="${controlEdge.toString()}", color="red", fontcolor=red];\n`;
             }
         }
         return dot;

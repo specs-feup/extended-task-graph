@@ -15,7 +15,7 @@ class DataItem {
     #datatype = null;
     #datatypeSize = 4;
 
-    #itemOrigin = DataItemOrigins.UNKNOWN;
+    #itemOrigin = DataItemOrigins.NEW;
     #alternateName = "<no_alt_name>";
     #immediateFunctionCall = null;
 

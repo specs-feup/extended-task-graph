@@ -22,7 +22,7 @@ class TaskGraphGenerationFlow extends AStage {
         }
 
         if (dumpGraph) {
-            //this.dumpTaskGraph(tg);
+            this.dumpTaskGraph(tg);
         }
 
         if (gatherMetrics) {
@@ -47,14 +47,15 @@ class TaskGraphGenerationFlow extends AStage {
     dumpTaskGraph(taskGraph) {
         this.log("Running task graph dumping process");
         const conv = new TaskGraphDotConverter();
+
         const dotVerbose = conv.convert(taskGraph);
-        const dotMinimal = conv.convertMinimal(taskGraph);
-
-        const fname1 = this.saveToFile(dotVerbose, "taskgraph.dot");
-        const fname2 = this.saveToFile(dotMinimal, "taskgraph_min.dot");
-
+        const fname1 = this.saveToFileInSubfolder(dotVerbose, "taskgraph.dot", OutputDirectories.TASKGRAPH);
         this.log(`Dumped full task graph to "${fname1}"`);
+
+        const dotMinimal = conv.convertMinimal(taskGraph);
+        const fname2 = this.saveToFileInSubfolder(dotMinimal, "taskgraph_min.dot", OutputDirectories.TASKGRAPH);
         this.log(`Dumped mini task graph to "${fname2}"`);
+
         this.log("Task graph successfully dumped!");
     }
 

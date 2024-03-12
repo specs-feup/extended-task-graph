@@ -75,7 +75,6 @@ class TaskGraphBuilder extends AStage {
                 const regularTask = this.#buildLevel(taskGraph, callee, task, call);
 
                 task.addHierarchicalChild(regularTask);
-
                 childTasks.push(regularTask);
             }
 
@@ -85,8 +84,8 @@ class TaskGraphBuilder extends AStage {
 
                 this.#updateWithRepetitions(task, call);
                 this.#addControlEdges(externalTask, call, taskGraph);
-                task.addHierarchicalChild(externalTask);
 
+                task.addHierarchicalChild(externalTask);
                 taskGraph.addTask(externalTask);
                 childTasks.push(externalTask);
             }
@@ -167,7 +166,7 @@ class TaskGraphBuilder extends AStage {
         }
 
         for (const child of children) {
-            const childData = child.getData();
+            const childData = child.getReferencedData();
 
             let rank = 1;
             for (const childDatum of childData) {
