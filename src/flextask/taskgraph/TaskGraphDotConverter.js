@@ -176,11 +176,13 @@ class TaskGraphDotConverter {
             println(`Edge: ${source.getUniqueName()} -> ${target.getUniqueName()}`);
 
             const sourceIsConcrete = source.getType() == TaskTypes.EXTERNAL || source.getType() == TaskTypes.REGULAR;
+            const targetIsConcrete = target.getType() == TaskTypes.EXTERNAL || target.getType() == TaskTypes.REGULAR;
 
             const sourceHasHierChildren = sourceIsConcrete ? source.getHierarchicalChildren().length > 0 : false;
-            const targetHasHierChildren = target.getHierarchicalChildren().length > 0;
+            const targetHasHierChildren = targetIsConcrete ? target.getHierarchicalChildren().length > 0 : false;
+            const targetHierarchicalParent = targetIsConcrete ? target.getHierarchicalParent() : null;
 
-            if (target.getHierarchicalParent() !== source) {
+            if (targetHierarchicalParent !== source) {
                 if (sourceHasHierChildren && targetHasHierChildren) {
                     dot += `\t"${source.getId()}_target" -> "${target.getId()}_src" [label="${edge.toString()}", color="${color}", fontcolor="${color}"];\n`;
                 }

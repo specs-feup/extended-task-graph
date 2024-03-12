@@ -3,6 +3,7 @@
 laraImport("lara.util.IdGenerator");
 laraImport("flextask/taskgraph/tasks/ConcreteTask");
 laraImport("flextask/taskgraph/tasks/TaskTypes");
+laraImport("flextask/util/ClavaUtils");
 
 
 class RegularTask extends ConcreteTask {
@@ -14,6 +15,8 @@ class RegularTask extends ConcreteTask {
         this.#function = fun;
 
         this.#populateData();
+        this.#updateDataReadWrites();
+
         if (call != null) {
             this.#updateWithAlternateNames();
         }
@@ -78,6 +81,21 @@ class RegularTask extends ConcreteTask {
             for (const immConst of Query.searchFrom(funCall, "literal")) {
                 this.createConstantObject(immConst, funCall);
             }
+        }
+    }
+
+    #updateDataReadWrites() {
+        for (const dataItem of this.getData()) {
+            const varref = dataItem.getDecl();
+
+            for (const ref of Query.searchFrom(this.#function.body, "varref", { name: varref.name })) {
+                if ((ClavaUtils.isDef(ref))) {
+                    dataItem.setWritten();
+                }
+                else {
+                    dataItem.setRead();
+                }
+            };
         }
     }
 

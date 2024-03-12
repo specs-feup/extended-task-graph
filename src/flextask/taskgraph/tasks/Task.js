@@ -75,6 +75,24 @@ class Task {
         return data;
     }
 
+    getDataItemByName(name) {
+        for (const datum of this.getData()) {
+            if (datum.getName() == name) {
+                return datum;
+            }
+        }
+        return null;
+    }
+
+    getDataItemByAltName(name) {
+        for (const datum of this.getData()) {
+            if (datum.getAlternateName() == name) {
+                return datum;
+            }
+        }
+        return null;
+    }
+
     getParamData() {
         return this.#dataParams;
     }

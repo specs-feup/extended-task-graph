@@ -98,7 +98,8 @@ class TaskGraphBuilder extends AStage {
         }
 
         // Add communications
-        this.#addParentChildrenComm(taskGraph, task, childTasks);
+        //this.#addParentChildrenComm(taskGraph, task, childTasks);
+        this.#addSubgraphComm(taskGraph, task, childTasks);
 
         // update task with R/W data from the children
         this.#updateTaskWithChildrenData(task, childTasks);
@@ -159,68 +160,45 @@ class TaskGraphBuilder extends AStage {
         }
     }
 
-    #addParentChildrenComm(taskGraph, parent, children) {
+    #addSubgraphComm(taskGraph, parent, children) {
+        // First, we start by building a handy mapping between task and task name
+        const nameToTask = new Map();
+        for (const task of children) {
+            nameToTask.set(task.getUniqueName(), task);
+        }
+        nameToTask.set(parent.getUniqueName(), parent);
+
+        // Then, we build a map of the last task that used each data item
+        // (which, at the beginning, is the parent task itself)
         const lastUsed = new Map();
-        for (const datum of parent.getData()) {
-            lastUsed.set(datum.getName(), [parent]);
+        for (const dataItem of parent.getData()) {
+            lastUsed.set(dataItem.getName(), parent.getUniqueName());
         }
 
         for (const child of children) {
             const childData = child.getReferencedData();
 
             let rank = 1;
-            for (const childDatum of childData) {
-                if (childDatum.isFromParam()) {
-                    this.#buildCommParam(parent, child, childDatum, taskGraph, rank, lastUsed);
-
+            for (const dataItem of childData) {
+                if (dataItem.isFromGlobal()) {
+                    this.#buildCommGlobal(dataItem, child, taskGraph, rank);
                 }
-                if (childDatum.isFromGlobal()) {
-                    this.#buildCommGlobal(childDatum, child, taskGraph, rank);
+                else if (dataItem.isFromParam()) {
+                    const altName = dataItem.getAlternateName();
+                    const lastUsedTaskName = lastUsed.get(altName);
+                    const lastUsedTask = nameToTask.get(lastUsedTaskName);
+                    const lastUsedDataItem = lastUsedTask.getDataItemByAltName(altName);
+
+                    if (lastUsedTask != null && lastUsedTask != child) {
+                        taskGraph.addCommunication(lastUsedTask, child, lastUsedDataItem, dataItem, rank);
+
+                        if (dataItem.isWritten()) {
+                            lastUsed.set(altName, child.getUniqueName());
+                        }
+                    }
                 }
                 rank++;
             }
-        }
-    }
-
-    #buildCommParam(parent, child, childDatum, taskGraph, rank, lastUsed) {
-        const parentData = parent.getData();
-        const dataMap = new Map();
-        for (const datum of parentData) {
-            dataMap.set(datum.getName(), datum);
-        }
-
-        const dataAlt = childDatum.getAlternateName();
-        const parentDatum = dataMap.get(dataAlt);
-        const lastUsedTasks = lastUsed.get(dataAlt);
-
-        if (lastUsedTasks != null) {
-            for (const lastUsedTask of lastUsedTasks) {
-                taskGraph.addCommunication(lastUsedTask, child, parentDatum, childDatum, rank);
-            }
-
-            if (childDatum.isWritten()) {
-                if (child.getIncomingControl().length > 0) {
-                    if (lastUsedTasks.length == 1) {
-                        lastUsed.set(dataAlt, [lastUsedTasks[0], child]);
-                    }
-                    else {
-                        const newLastUsed = [];
-                        for (const lastUsed of lastUsedTasks) {
-                            if (lastUsed.getIncomingControl().length > 0) {
-                                newLastUsed.push(lastUsed);
-                            }
-                        }
-                        newLastUsed.push(child);
-                        lastUsed.set(dataAlt, newLastUsed);
-                    }
-                }
-                else {
-                    lastUsed.set(dataAlt, [child]);
-                }
-            }
-        }
-        else {
-            println("[TaskGraphBuilder] WARNING: " + dataAlt + " not found in " + parent.getName());
         }
     }
 
