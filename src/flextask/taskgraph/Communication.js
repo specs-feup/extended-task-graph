@@ -40,6 +40,14 @@ class Communication {
     }
 
     toString() {
+        if (this.#sourceData == null || this.#targetData == null) {
+            let str = this.#sourceData != null ? this.#sourceData.getName() : "<undef>";
+            str += this.#targetData != null ? "/" + this.#targetData.getName() : "/<undef>";
+
+            println(this.#source.getUniqueName() + " -> " + this.#target.getUniqueName() + " : " + str);
+
+            return str;
+        }
         const source = this.#sourceData.getName();
         const target = this.#targetData.getName();
         const limit = 5;

@@ -137,8 +137,7 @@ class TaskGraphDotConverter {
         }
 
         if (task.getParamData().length > 0) {
-            label += "\n-------------------\n";
-            label += "Param data:\n";
+            label += "\n\n[Param data]\n";
             const refData = [];
             for (const data of task.getParamData()) {
                 refData.push(data.toString());
@@ -147,8 +146,7 @@ class TaskGraphDotConverter {
         }
 
         if (task.getGlobalRefData().length > 0) {
-            label += "\n-------------------\n";
-            label += "Global data:\n";
+            label += "\n\n[Global data]\n";
             const globalData = [];
             for (const data of task.getGlobalRefData()) {
                 globalData.push(data.toString());
@@ -157,8 +155,7 @@ class TaskGraphDotConverter {
         }
 
         if (task.getNewData().length > 0) {
-            label += "\n-------------------\n";
-            label += "New data:\n";
+            label += "\n\n[New data]\n";
             const newData = [];
             for (const data of task.getNewData()) {
                 newData.push(data.toString());

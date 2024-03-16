@@ -117,7 +117,7 @@ class DataItem {
     }
 
     isFromGlobal() {
-        return this.#itemOrigin === DataItemOrigins.GLOBAL;
+        return this.#itemOrigin === DataItemOrigins.GLOBAL_REF;
     }
 
     isConstant() {

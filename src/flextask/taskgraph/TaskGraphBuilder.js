@@ -193,21 +193,10 @@ class TaskGraphBuilder extends AStage {
         const altName = dataItem.getAlternateName();
         const lastUsedTaskName = lastUsed.get(altName);
         const lastUsedTask = nameToTask.get(lastUsedTaskName);
-
-        if (lastUsedTaskName == null) {
-            println("------------------");
-            lastUsed.forEach((value, key) => {
-                println(key + " " + value);
-            });
-            println("------------------");
-            println(lastUsedTaskName + " " + altName);
-        }
-
         const lastUsedDataItem = lastUsedTask.getDataItemByAltName(altName);
 
         if (lastUsedTask != null && lastUsedTask != child) {
             taskGraph.addCommunication(lastUsedTask, child, lastUsedDataItem, dataItem, rank);
-
 
             if (dataItem.isWritten()) {
                 lastUsed.set(altName, child.getUniqueName());
@@ -219,7 +208,6 @@ class TaskGraphBuilder extends AStage {
     #buildCommGlobal(dataItem, task, taskGraph, rank) {
         const dataName = dataItem.getName();
         const lastUsedTask = this.#lastUsedGlobal.get(dataName);
-        println(dataName + " " + lastUsedTask);
         const dataItemInParent = lastUsedTask.getDataItemByName(dataName);
 
         if (lastUsedTask != null && lastUsedTask != task) {

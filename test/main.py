@@ -31,11 +31,11 @@ def main():
         # -------------------
         # Rosetta
         # -------------------
-        # "Rosetta-3d-rendering-N",  # OK
+        "Rosetta-3d-rendering-N",  # OK
         # "Rosetta-digit-recognition-N",  # OK
         # "Rosetta-face-detection-N",  # OK
         # "Rosetta-optical-flow-current",  # OK
-        "Rosetta-spam-filter-N",  # OK
+        # "Rosetta-spam-filter-N",  # OK
         # -------------------
         # MachSuite
         # -------------------

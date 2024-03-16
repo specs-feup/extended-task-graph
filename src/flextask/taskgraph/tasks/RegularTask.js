@@ -49,14 +49,14 @@ class RegularTask extends ConcreteTask {
     }
 
     #findDataFromGlobals() {
-        const globalVars = new Set();
+        const globalVars = new Map();
         for (const varref of Query.searchFrom(this.#function.body, "varref")) {
             try {
                 if (varref.type != "functionType") {
                     const decl = varref.vardecl;
 
                     if (decl != null && decl.isGlobal) {
-                        globalVars.add(decl);
+                        globalVars.set(decl.getName(), decl);
                     }
                 }
             }
@@ -65,7 +65,8 @@ class RegularTask extends ConcreteTask {
                 //println(`Could not find vardecl for varref ${varref.name} of type ${varref.type}`);
             }
         }
-        this.createDataObjects([...globalVars], DataItemOrigins.GLOBAL);
+        const declList = globalVars.values();
+        this.createDataObjects([...declList], DataItemOrigins.GLOBAL_REF);
     }
 
     #findDataFromNewDecls() {
