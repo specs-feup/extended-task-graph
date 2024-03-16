@@ -10,7 +10,7 @@ class SourceTask extends Task {
 
     constructor() {
         super(TaskTypes.GLOBAL);
-        this.setId("TSource");
+        this.setId("TSrc");
         this.setName("<task_graph_source>");
 
     }

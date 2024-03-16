@@ -8,13 +8,12 @@ laraImport("flextask/taskgraph/DataItemOrigins");
 class Task {
     // Basic task details
     #id = "TNull";
-    #function = null;
     #name = "<anonymous>"
     #type = null;
 
     // Data properties
     #dataParams = [];
-    #dataGlobals = [];
+    #dataGlobalRefs = [];
     #dataNew = [];
     #dataConstants = [];
 
@@ -64,7 +63,7 @@ class Task {
     }
 
     getData() {
-        return [...this.#dataParams, ...this.#dataGlobals, ...this.#dataNew, ...this.#dataConstants];
+        return [...this.#dataParams, ...this.#dataGlobalRefs, ...this.#dataNew, ...this.#dataConstants];
     }
 
     getDataAsMap() {
@@ -101,12 +100,12 @@ class Task {
         this.#dataParams.push(dataItem);
     }
 
-    getGlobalData() {
-        return this.#dataGlobals;
+    getGlobalRefData() {
+        return this.#dataGlobalRefs;
     }
 
-    addGlobalData(dataItem) {
-        this.#dataGlobals.push(dataItem);
+    addGlobalRefData(dataItem) {
+        this.#dataGlobalRefs.push(dataItem);
     }
 
     getNewData() {
@@ -126,7 +125,7 @@ class Task {
     }
 
     getReferencedData() {
-        return [...this.#dataParams, ...this.#dataGlobals];
+        return [...this.#dataParams, ...this.#dataGlobalRefs];
     }
 
     // Communication methods
@@ -184,21 +183,47 @@ class Task {
         this.#incomingControl.push(control);
     }
 
+    createDataObjects(vars, originType) {
+        for (const vardecl of vars) {
+            const data = new DataItem(vardecl, originType);
+
+            switch (originType) {
+                case DataItemOrigins.PARAM:
+                    this.#dataParams.push(data);
+                    break;
+                case DataItemOrigins.GLOBAL_REF:
+                    this.#dataGlobalRefs.push(data);
+                    break;
+                case DataItemOrigins.NEW:
+                    this.#dataNew.push(data);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    createConstantObject(immConst, funCall) {
+        const datum = new DataItem(immConst, DataItemOrigins.CONSTANT);
+        datum.setImmediateFunctionCall(funCall);
+        this.#dataConstants.push(datum);
+    }
+
     // ---------------------------------------------------------------------
     #getDataByAccessType(accessType, origin = DataItemOrigins.ANY) {
         let data = [];
         if (origin == DataItemOrigins.ANY) {
             data = [
                 ...this.#dataParams,
-                ...this.#dataGlobals,
+                ...this.#dataGlobalRefs,
                 ...this.#dataNew,
                 ...this.#dataConstants];
         }
         if (origin == DataItemOrigins.PARAM) {
             data = this.#dataParams;
         }
-        if (origin == DataItemOrigins.GLOBAL) {
-            data = this.#dataGlobals;
+        if (origin == DataItemOrigins.GLOBAL_REF) {
+            data = this.#dataGlobalRefs;
         }
         if (origin == DataItemOrigins.NEW) {
             data = this.#dataNew;
@@ -221,62 +246,5 @@ class Task {
             }
         }
         return dataAccessed;
-    }
-
-    createDataObjects(vars, originType) {
-        for (const vardecl of vars) {
-            const data = new DataItem(vardecl, originType);
-
-            this.setReadWritesFunction(data);
-
-            switch (originType) {
-                case DataItemOrigins.PARAM:
-                    this.#dataParams.push(data);
-                    break;
-                case DataItemOrigins.GLOBAL:
-                    this.#dataGlobals.push(data);
-                    break;
-                case DataItemOrigins.NEW:
-                    this.#dataNew.push(data);
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
-    createConstantObject(immConst, funCall) {
-        const datum = new DataItem(immConst, DataItemOrigins.CONSTANT);
-        datum.setImmediateFunctionCall(funCall);
-        this.#dataConstants.push(datum);
-    }
-
-    setReadWritesFunction(data) {
-        if (this.#function == null) {
-            return;
-        }
-
-        const body = this.#function.body;
-        if (body == null) {
-            return;
-        }
-
-        if (body.children.length == 0) {
-            data.setRead();
-            return;
-        }
-
-        for (const varref of Query.searchFrom(body, "varref", { name: data.getDecl().name })) {
-            this.setReadWritesVar(varref, data);
-        }
-    }
-
-    setReadWritesVar(varref, data) {
-        if (ClavaUtils.isDef(varref)) {
-            data.setWritten();
-        }
-        else {
-            data.setRead();
-        }
     }
 }

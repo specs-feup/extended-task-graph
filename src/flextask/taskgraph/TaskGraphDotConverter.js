@@ -26,8 +26,10 @@ class TaskGraphDotConverter {
         const sink = taskGraph.getSinkTask();
         const globals = taskGraph.getGlobalTask();
 
-        dot += `\t"${source.getId()}" [label=main_begin, fillcolor=lightgray];\n`;
-        dot += `\t"${sink.getId()}" [label=main_end, fillcolor=lightgray];\n`;
+        dot += `\t"${source.getId()}" [label="${this.#getLabelOfTask(source, isMinimal, includePerf)}", fillcolor=lightgray];\n`;
+        dot += `\t"${sink.getId()}" [label="${this.#getLabelOfTask(sink, isMinimal, includePerf)}", fillcolor=lightgray];\n`;
+        dot += `\t"${source.getId()}" -> "${sink.getId()}" [style=invis];\n`;
+
         dot += `\t"${globals.getId()}" [label="${this.#getLabelOfTask(globals, isMinimal, includePerf)}", fillcolor=lightgray];\n`;
 
         const topHierTask = taskGraph.getTopHierarchicalTask();
@@ -144,11 +146,11 @@ class TaskGraphDotConverter {
             label += refData.join("\n");
         }
 
-        if (task.getGlobalData().length > 0) {
+        if (task.getGlobalRefData().length > 0) {
             label += "\n-------------------\n";
             label += "Global data:\n";
             const globalData = [];
-            for (const data of task.getGlobalData()) {
+            for (const data of task.getGlobalRefData()) {
                 globalData.push(data.toString());
             }
             label += globalData.join("\n");
@@ -173,7 +175,6 @@ class TaskGraphDotConverter {
         for (const edge of edgeList) {
             const source = edge.getSource();
             const target = edge.getTarget();
-            println(`Edge: ${source.getUniqueName()} -> ${target.getUniqueName()}`);
 
             const sourceIsConcrete = source.getType() == TaskTypes.EXTERNAL || source.getType() == TaskTypes.REGULAR;
             const targetIsConcrete = target.getType() == TaskTypes.EXTERNAL || target.getType() == TaskTypes.REGULAR;

@@ -47,13 +47,10 @@ class TaskGraphBuilder extends AStage {
     #populateGlobalMap(taskGraph) {
         const globalTask = taskGraph.getGlobalTask();
 
-        for (const datum of globalTask.getData()) {
-            if (datum.isInitialized()) {
-                this.#lastUsedGlobal.set(datum.getName(), globalTask);
-            }
-            else {
-                this.#lastUsedGlobal.set(datum.getName(), null);
-            }
+        for (const dataItem of globalTask.getGlobalDeclData()) {
+            // Assume that it is always initialized
+            // We can decide on a better policy later
+            this.#lastUsedGlobal.set(dataItem.getName(), globalTask);
         }
     }
 
@@ -176,50 +173,60 @@ class TaskGraphBuilder extends AStage {
         }
 
         for (const child of children) {
-            const childData = child.getReferencedData();
-
             let rank = 1;
-            for (const dataItem of childData) {
-                if (dataItem.isFromGlobal()) {
-                    this.#buildCommGlobal(dataItem, child, taskGraph, rank);
-                }
-                else if (dataItem.isFromParam()) {
-                    const altName = dataItem.getAlternateName();
-                    const lastUsedTaskName = lastUsed.get(altName);
-                    const lastUsedTask = nameToTask.get(lastUsedTaskName);
-                    const lastUsedDataItem = lastUsedTask.getDataItemByAltName(altName);
 
-                    if (lastUsedTask != null && lastUsedTask != child) {
-                        taskGraph.addCommunication(lastUsedTask, child, lastUsedDataItem, dataItem, rank);
+            const childParams = child.getParamData();
+            for (const dataItem of childParams) {
+                this.buildCommParam(dataItem, lastUsed, nameToTask, child, taskGraph, rank);
+                rank++;
+            }
 
-                        if (dataItem.isWritten()) {
-                            lastUsed.set(altName, child.getUniqueName());
-                        }
-                    }
-                }
+            const childGlobals = child.getGlobalRefData();
+            for (const dataItem of childGlobals) {
+                this.#buildCommGlobal(dataItem, child, taskGraph, rank);
                 rank++;
             }
         }
     }
 
-    // TODO: implement conditionals for this as well
-    #buildCommGlobal(childDatum, child, taskGraph, rank) {
-        const dataName = childDatum.getName();
-        const lastUsedTask = this.#lastUsedGlobal.get(dataName);
+    buildCommParam(dataItem, lastUsed, nameToTask, child, taskGraph, rank) {
+        const altName = dataItem.getAlternateName();
+        const lastUsedTaskName = lastUsed.get(altName);
+        const lastUsedTask = nameToTask.get(lastUsedTaskName);
 
-        let parentDatum = childDatum;
-        for (const datum of lastUsedTask.getData()) {
-            if (datum.getName() == dataName) {
-                parentDatum = datum;
-                break;
-            }
+        if (lastUsedTaskName == null) {
+            println("------------------");
+            lastUsed.forEach((value, key) => {
+                println(key + " " + value);
+            });
+            println("------------------");
+            println(lastUsedTaskName + " " + altName);
         }
+
+        const lastUsedDataItem = lastUsedTask.getDataItemByAltName(altName);
 
         if (lastUsedTask != null && lastUsedTask != child) {
-            taskGraph.addCommunication(lastUsedTask, child, parentDatum, childDatum, rank);
+            taskGraph.addCommunication(lastUsedTask, child, lastUsedDataItem, dataItem, rank);
+
+
+            if (dataItem.isWritten()) {
+                lastUsed.set(altName, child.getUniqueName());
+            }
         }
-        if (childDatum.isWritten()) {
-            this.#lastUsedGlobal.set(dataName, child);
+    }
+
+    // TODO: implement conditionals for this as well
+    #buildCommGlobal(dataItem, task, taskGraph, rank) {
+        const dataName = dataItem.getName();
+        const lastUsedTask = this.#lastUsedGlobal.get(dataName);
+        println(dataName + " " + lastUsedTask);
+        const dataItemInParent = lastUsedTask.getDataItemByName(dataName);
+
+        if (lastUsedTask != null && lastUsedTask != task) {
+            taskGraph.addCommunication(lastUsedTask, task, dataItemInParent, dataItem, rank);
+        }
+        if (dataItem.isWritten()) {
+            this.#lastUsedGlobal.set(dataName, task);
         }
     }
 

@@ -5,6 +5,7 @@ const DataItemOrigins = {
     GRAPH_OUTPUT: "GRAPH_OUTPUT",
     PARAM: "PARAM",
     NEW: "NEW",
-    GLOBAL: "GLOBAL",
+    GLOBAL_REF: "GLOBAL_REF",
+    GLOBAL_DECL: "GLOBAL_DECL",
     CONSTANT: "CONSTANT",
 }
