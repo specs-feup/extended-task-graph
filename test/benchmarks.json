@@ -256,5 +256,115 @@
         "provenance": "BUILTIN",
         "standard": "c11",
         "starterFunction": "viterbi"
+    },
+    "Rodinia-backprop-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "backprop"
+    },
+    "Rodinia-bfs-N": {
+        "provenance": "BUILTIN",
+        "standard": "c++11",
+        "starterFunction": "backprop"
+    },
+    "Rodinia-b+tree-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "backprop"
+    },
+    "Rodinia-cfd-euler3d-N": {
+        "provenance": "BUILTIN",
+        "standard": "c++11",
+        "starterFunction": "backprop"
+    },
+    "Rodinia-cfd-euler3d-double-N": {
+        "provenance": "BUILTIN",
+        "standard": "c++11",
+        "starterFunction": "backprop"
+    },
+    "Rodinia-cfd-pre-euler3d-N": {
+        "provenance": "BUILTIN",
+        "standard": "c++11",
+        "starterFunction": "backprop"
+    },
+    "Rodinia-cfd-pre-euler3d-double-N": {
+        "provenance": "BUILTIN",
+        "standard": "c++11",
+        "starterFunction": "backprop"
+    },
+    "Rodinia-heartwall-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "backprop"
+    },
+    "Rodinia-hotspot-N": {
+        "provenance": "BUILTIN",
+        "standard": "c++11",
+        "starterFunction": "backprop"
+    },
+    "Rodinia-hotspot3D-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "backprop"
+    },
+    "Rodinia-kmeans-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "backprop"
+    },
+    "Rodinia-lavaMD-N": {
+        "provenance": "BUILTIN",
+        "standard": "c++11",
+        "starterFunction": "backprop"
+    },
+    "Rodinia-leukocyte-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "backprop"
+    },
+    "Rodinia-lud-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "backprop"
+    },
+    "Rodinia-myocyte-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "backprop"
+    },
+    "Rodinia-nn-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "backprop"
+    },
+    "Rodinia-nw-N": {
+        "provenance": "BUILTIN",
+        "standard": "c++11",
+        "starterFunction": "backprop"
+    },
+    "Rodinia-particlefilter-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "backprop"
+    },
+    "Rodinia-pathfinder-N": {
+        "provenance": "BUILTIN",
+        "standard": "c++11",
+        "starterFunction": "backprop"
+    },
+    "Rodinia-srad-v1-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "backprop"
+    },
+    "Rodinia-srad-v2-N": {
+        "provenance": "BUILTIN",
+        "standard": "c++11",
+        "starterFunction": "backprop"
+    },
+    "Rodinia-streamcluster-N": {
+        "provenance": "BUILTIN",
+        "standard": "c++11",
+        "starterFunction": "backprop"
     }
 }

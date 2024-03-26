@@ -13,6 +13,7 @@ EXTRA_INCLUDES = [
     os.path.abspath(os.path.join("..", "clava-vitis-integration", "src")),
     os.path.abspath(os.path.join("..", "clava-benchmarks", "MachSuite")),
     os.path.abspath(os.path.join("..", "clava-benchmarks", "Rosetta")),
+    os.path.abspath(os.path.join("..", "clava-benchmarks", "Rodinia")),
 ]
 
 
