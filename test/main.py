@@ -25,6 +25,7 @@ def main():
         # "scenarioA",
         # "scenarioB",
         # "trivial",
+        # "HiFlipVX-v2-N",
         # -------------------
         # Rosetta
         # -------------------
@@ -45,7 +46,7 @@ def main():
         # -------------------
         # Rodinia
         # -------------------
-        "Rodinia-backprop-N",
+        # "Rodinia-backprop-N",
         # "Rodinia-bfs-N",
         # "Rodinia-b+tree-N",
         # "Rodinia-cfd-euler3d-N",
@@ -68,9 +69,18 @@ def main():
         # "Rodinia-srad-v2-N",
         # "Rodinia-streamcluster-N",
         # -------------------
-        # HiFlipVX
+        # CortexSuite
         # -------------------
-        # "HiFlipVX-v2-N",
+        "CortexSuite-vision-disparity-N",
+        "CortexSuite-vision-localization-N",
+        "CortexSuite-vision-mser-N",
+        "CortexSuite-vision-multi-ncut-N",
+        "CortexSuite-vision-pca-N",
+        "CortexSuite-vision-sift-N",
+        "CortexSuite-vision-stitch-N",
+        "CortexSuite-vision-svm-N",
+        "CortexSuite-vision-texture-synthesis-N",
+        "CortexSuite-vision-tracking-N",
         # -------------------
         # CHStone
         # -------------------

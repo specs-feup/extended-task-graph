@@ -12,9 +12,12 @@ EXTRA_INCLUDES = [
     os.path.abspath(os.path.join("src")),
     os.path.abspath(os.path.join("..", "clava-code-transformations", "src")),
     os.path.abspath(os.path.join("..", "clava-vitis-integration", "src")),
+    os.path.abspath(os.path.join("..", "clava-benchmarks", "HiFlipVX")),
+    os.path.abspath(os.path.join("..", "clava-benchmarks", "CHStone")),
     os.path.abspath(os.path.join("..", "clava-benchmarks", "MachSuite")),
     os.path.abspath(os.path.join("..", "clava-benchmarks", "Rosetta")),
     os.path.abspath(os.path.join("..", "clava-benchmarks", "Rodinia")),
+    os.path.abspath(os.path.join("..", "clava-benchmarks", "CortexSuite")),
 ]
 EXPERIMENTAL_INCLUDES = [
     os.path.abspath(os.path.join("..", "wonderland", "ClavaBleedingEdge", "libs")),

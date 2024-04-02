@@ -1,1 +1,61 @@
-{}
+{
+    "CortexSuite-vision-disparity-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "main"
+    },
+
+    "CortexSuite-vision-localization-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "main"
+    },
+
+    "CortexSuite-vision-mser-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "main"
+    },
+
+    "CortexSuite-vision-multi-ncut-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "main"
+    },
+
+    "CortexSuite-vision-pca-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "main"
+    },
+
+    "CortexSuite-vision-sift-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "main"
+    },
+
+    "CortexSuite-vision-stitch-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "main"
+    },
+
+    "CortexSuite-vision-svm-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "main"
+    },
+
+    "CortexSuite-vision-texture-synthesis-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "main"
+    },
+
+    "CortexSuite-vision-tracking-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "main"
+    }
+}
