@@ -1,0 +1,73 @@
+{
+    "CHStone-adpcm-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "adpcm_main"
+    },
+
+    "CHStone-aes-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "aes_main"
+    },
+
+    "CHStone-blowfish-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "blowfish_main"
+    },
+
+    "CHStone-dfadd-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "float64_add"
+    },
+
+    "CHStone-dfdiv-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "float64_div"
+    },
+
+    "CHStone-dfmul-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "float64_mul"
+    },
+
+    "CHStone-dfsin-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "_sin"
+    },
+
+    "CHStone-gsm-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "Gsm_LPC_Analysis"
+    },
+
+    "CHStone-jpeg-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "jpeg2bmp_main"
+    },
+
+    "CHStone-mips-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "mips"
+    },
+
+    "CHStone-motion-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "main"
+    },
+
+    "CHStone-sha-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "sha_stream"
+    }
+}

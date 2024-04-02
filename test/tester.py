@@ -1,6 +1,7 @@
 import os
 import json
 from clava import Clava
+from ast_to_png import AstToPng
 
 ENTRYPOINT = "test/TestEntrypoint.js"
 OUTPUT_DIR = "test/outputs/"
@@ -116,3 +117,8 @@ def test_bench(name, config):
 
     for dot in dotfiles:
         generate_image_from_dot(dot)
+
+    # And finally, we can generate the ASTs as well
+    converter = AstToPng()
+    # converter.generate_image(f"{out_folder}/ast/original/{name}_ast.txt")
+    # converter.generate_image(f"{out_folder}/ast/transformed/{name}_ast.txt")

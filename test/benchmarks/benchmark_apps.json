@@ -1,0 +1,37 @@
+{
+    "edgedetect": {
+        "provenance": "inputs/edgedetect",
+        "standard": "c++11",
+        "starterFunction": "edge_detect"
+    },
+
+    "stresstest": {
+        "provenance": "inputs/stresstest",
+        "standard": "c++11",
+        "starterFunction": "app_start"
+    },
+
+    "scenarioA": {
+        "provenance": "inputs/scenarioA",
+        "standard": "c11",
+        "starterFunction": "main"
+    },
+
+    "scenarioB": {
+        "provenance": "inputs/scenarioB",
+        "standard": "c11",
+        "starterFunction": "scenario"
+    },
+
+    "trivial": {
+        "provenance": "inputs/trivial",
+        "standard": "c11",
+        "starterFunction": "main"
+    },
+
+    "HiFlipVX-v2-N": {
+        "provenance": "BUILTIN",
+        "standard": "c++11",
+        "starterFunction": "main"
+    }
+}

@@ -11,7 +11,7 @@ class AstDumper {
         this.#currentRes = "";
 
         for (const startJp of Query.search("file")) {
-            this.#addLevelToResult(startJp.joinPointType);
+            this.#addLevelToResult(startJp.joinPointType, 0);
 
             for (const child of startJp.children) {
                 this.#dumpJoinPoint(child, 1);
@@ -53,11 +53,11 @@ class AstDumper {
             }
         }
         for (const child of jp.children) {
-            this.#dumpJoinPoint(child, indent + 2);
+            this.#dumpJoinPoint(child, indent + 1);
         }
     }
 
     #addLevelToResult(str, indent) {
-        this.#currentRes += ' '.repeat(indent + 2) + str + "\n";
+        this.#currentRes += `${'-'.repeat(indent)}>${str}\n`;
     }
 }

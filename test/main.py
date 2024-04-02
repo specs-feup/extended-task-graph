@@ -1,23 +1,20 @@
 import json
+import glob
 from tester import test_bench
 
 
 def main():
-    """
-    TODO:
-    - Improve R/W and Uninitialized detection
-    - rendering_sw.cpp:195:7: warning: expression result unused [-Wunused-value]
-        *i++;
-        ^~~~
-        I think this may need some parenthesis or even an expansion to *i = *i + 1
-        Similar issue is observed in fft-transpose
+    json_files = glob.glob("test/benchmarks/*.json")
 
-    - New metrics:
-    * parallel sets, T2 -> {T3, T4}"""
+    json_data = []
+    for file in json_files:
+        with open(file, "r") as file:
+            data = json.load(file)
+            json_data.append(data)
 
-    # os.chdir("src")
-    with open("test/benchmarks.json", "r") as f:
-        benchmarks = json.load(f)
+    benchmarks = {}
+    for d in json_data:
+        benchmarks.update(d)
 
     bench_names = [
         # -------------------
