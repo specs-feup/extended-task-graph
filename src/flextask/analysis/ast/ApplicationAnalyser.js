@@ -21,16 +21,21 @@ class ApplicationAnalyser extends AStage {
         const dumper = new AstDumper();
         const str = dumper.dump();
 
-        this.saveToFile(str, "ast.txt");
-        this.log("AST dumped to file ast.txt");
+        const path = this.saveToFile(str, "ast.txt");
+        this.log(`AST dumped to file ${path}`);
     }
 
     dumpCallGraph() {
         const dumper = new CallGraphDumper();
-        const str = dumper.dump(this.getTopFunctionJoinPoint());
+        const topFun = this.getTopFunctionJoinPoint();
 
-        this.saveToFile(str, "callgraph.dot");
-        this.log("Call graph dumped to file callgraph.dot")
+        const dot1 = dumper.dump(topFun, "TB");
+        const path1 = this.saveToFile(dot1, "callgraph_tb.dot");
+        this.log(`Call graph 1 dumped to files ${path1}`);
+
+        const dot2 = dumper.dump(topFun, "LR");
+        const path2 = this.saveToFile(dot2, "callgraph_lr.dot");
+        this.log(`Call graph 2 dumped to files ${path2}`);
     }
 
     generateStatistics() {
@@ -38,7 +43,7 @@ class ApplicationAnalyser extends AStage {
         codeStats.generateAll();
         const str = codeStats.asCsv();
 
-        this.saveToFile(str, "code_stats.csv");
-        this.log("Generated file with source code statistics");
+        const path = this.saveToFile(str, "code_stats.csv");
+        this.log(`Generated source code statistics in file ${path}`);
     }
 }

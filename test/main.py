@@ -48,7 +48,7 @@ def main():
         # -------------------
         # Rodinia
         # -------------------
-        # "Rodinia-backprop-N",
+        "Rodinia-backprop-N",
         # "Rodinia-bfs-N",
         # "Rodinia-b+tree-N",
         # "Rodinia-cfd-euler3d-N",
@@ -66,7 +66,7 @@ def main():
         # "Rodinia-nn-N",
         # "Rodinia-nw-N",
         # "Rodinia-particlefilter-N",
-        "Rodinia-pathfinder-N",
+        # "Rodinia-pathfinder-N",
         # "Rodinia-srad-v1-N",
         # "Rodinia-srad-v2-N",
         # "Rodinia-streamcluster-N",
@@ -95,6 +95,10 @@ def main():
     for bench_name in bench_names:
         if bench_name in benchmarks:
             bench_props = benchmarks[bench_name]
+
+            bench_props["skipTransforms"] = True
+            bench_props["skipTaskGraph"] = True
+
             test_bench(bench_name, bench_props)
             cnt += 1
 

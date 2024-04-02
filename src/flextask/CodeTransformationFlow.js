@@ -16,11 +16,16 @@ class CodeTransformationFlow extends AStage {
             appName);
     }
 
-    run() {
+    run(dumpCallGraph = true, dumpAST = true, doTransformations = true) {
         this.log("Running code transformation flow");
 
         this.generateOriginalCode();
-        this.initialAnalysis();
+        this.initialAnalysis(dumpCallGraph, dumpAST);
+
+        if (!doTransformations) {
+            this.log("Transformations disabled, skipping to the end");
+            return true;
+        }
 
         const valid = this.subsetPreprocessing();
         if (!valid) {
@@ -43,15 +48,27 @@ class CodeTransformationFlow extends AStage {
         this.log(`Original source code with resolved #defines written to ${OutputDirectories.SRC_ORIGINAL}`);
     }
 
-    initialAnalysis() {
+    initialAnalysis(dumpCallGraph, dumpAST) {
         this.log("Running initial analysis step");
         const outDir = this.getOutputDir() + "/" + OutputDirectories.APP_STATS_ORIGINAL;
         const appName = this.getAppName();
         const topFun = this.getTopFunctionName();
 
         const analyser = new ApplicationAnalyser(topFun, outDir, appName);
-        analyser.dumpAST();
-        analyser.dumpCallGraph();
+        if (dumpCallGraph) {
+            try {
+                analyser.dumpCallGraph();
+            } catch (e) {
+                this.log("Failed to dump call graph");
+            }
+        }
+        if (dumpAST) {
+            try {
+                analyser.dumpAST();
+            } catch (e) {
+                this.log("Failed to dump AST");
+            }
+        }
     }
 
     subsetPreprocessing() {

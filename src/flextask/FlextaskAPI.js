@@ -21,12 +21,12 @@ class FlextaskAPI extends AStage {
         }
     }
 
-    runCodeTransformationFlow() {
+    runCodeTransformationFlow(dumpCallGraph = true, dumpAST = true, doTransformations = true) {
         this.#printLine();
         this.#ensureLinux();
 
         const flow = new CodeTransformationFlow(this.getTopFunctionName(), this.getOutputDir(), this.getAppName());
-        const res = flow.run();
+        const res = flow.run(dumpCallGraph, dumpAST, doTransformations);
 
         this.#printLine();
         return res;

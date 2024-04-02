@@ -15,6 +15,9 @@ EXTRA_INCLUDES = [
     os.path.abspath(os.path.join("..", "clava-benchmarks", "Rosetta")),
     os.path.abspath(os.path.join("..", "clava-benchmarks", "Rodinia")),
 ]
+EXPERIMENTAL_INCLUDES = [
+    os.path.abspath(os.path.join("..", "wonderland", "ClavaBleedingEdge", "libs")),
+]
 
 
 def set_default_args(clava):
@@ -28,7 +31,7 @@ def set_default_args(clava):
     clava.set_show_stack()
     clava.set_no_code_generation()
     clava.set_verbosity(0)
-    clava.set_extra_includes_folder(EXTRA_INCLUDES)
+    clava.set_extra_includes_folder(EXTRA_INCLUDES + EXPERIMENTAL_INCLUDES)
 
     # clava.set_clang_flag("-nostdlibinc")
     # clava.set_clang_flag("-nobuiltininc")
@@ -105,8 +108,10 @@ def test_bench(name, config):
     dotfiles = [
         f"{out_folder}/taskgraph/{name}_taskgraph.dot",
         f"{out_folder}/taskgraph/{name}_taskgraph_min.dot",
-        f"{out_folder}/ast/original/{name}_callgraph.dot",
-        f"{out_folder}/ast/transformed/{name}_callgraph.dot",
+        f"{out_folder}/ast/original/{name}_callgraph_tb.dot",
+        f"{out_folder}/ast/original/{name}_callgraph_lr.dot",
+        f"{out_folder}/ast/transformed/{name}_callgraph_tb.dot",
+        f"{out_folder}/ast/transformed/{name}_callgraph_lr.dot",
     ]
 
     for dot in dotfiles:

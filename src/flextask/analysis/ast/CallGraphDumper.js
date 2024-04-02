@@ -6,9 +6,9 @@ laraImport("clava.graphs.StaticCallGraph");
 class CallGraphDumper {
     constructor() { }
 
-    dump(topFunction) {
+    dump(topFunction, rankdir) {
         const callGraph = StaticCallGraph.build(topFunction);
-        const callGraphDot = callGraph.toDot();
+        const callGraphDot = callGraph.toDot(rankdir);
 
         return callGraphDot;
     }
