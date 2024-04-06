@@ -18,6 +18,7 @@ EXTRA_INCLUDES = [
     os.path.abspath(os.path.join("..", "clava-benchmarks", "Rosetta")),
     os.path.abspath(os.path.join("..", "clava-benchmarks", "Rodinia")),
     os.path.abspath(os.path.join("..", "clava-benchmarks", "CortexSuite")),
+    os.path.abspath(os.path.join("..", "clava-benchmarks", "AxBench")),
 ]
 EXPERIMENTAL_INCLUDES = [
     os.path.abspath(os.path.join("..", "wonderland", "ClavaBleedingEdge", "libs")),
