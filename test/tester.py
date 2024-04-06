@@ -59,10 +59,21 @@ def generate_image_from_dot(dot):
 
 
 def test_bench(name, config):
+    is_builtin = config["provenance"] == "BUILTIN"
+
     # Add output folder to the config
     # On a real-world scenario, this would already be part of it
     # But for testing purposes, we generate it dynamically
-    out_folder = OUTPUT_DIR + name
+
+    if is_builtin:
+        split = name.split("-")
+        subfolder = split[0]
+        folder = "-".join(split[1:-1])
+    else:
+        subfolder = "applications"
+        folder = name
+
+    out_folder = os.path.join(OUTPUT_DIR, subfolder, folder)
     config["outputDir"] = out_folder
 
     # And the same thing for the appName:

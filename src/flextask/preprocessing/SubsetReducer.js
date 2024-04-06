@@ -49,9 +49,9 @@ class SubsetReducer extends AStage {
                     }
 
                     const hasMatchedTemp = this.#matchesATemplate(stmt);
-                    const hasMatchedUnique = this.#matchesUniqueCircumstance(stmt);
+                    const hasMatchedEdgeCase = this.#matchesEdgeCase(stmt);
 
-                    if (hasMatchedTemp || hasMatchedUnique) {
+                    if (hasMatchedTemp || hasMatchedEdgeCase) {
                         decomp.decomposeAndReplace(stmt);
                         hasChanged = true;
                     }
@@ -141,7 +141,7 @@ class SubsetReducer extends AStage {
         return hasMatched;
     }
 
-    #matchesUniqueCircumstance(stmt) {
+    #matchesEdgeCase(stmt) {
         const assignsInStmt = Query.searchFrom(stmt, "binaryOp", { kind: "assign" }).chain().length;
 
         // A[1] = A[0] = foo(X)
