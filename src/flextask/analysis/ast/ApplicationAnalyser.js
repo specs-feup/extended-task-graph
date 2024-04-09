@@ -11,10 +11,28 @@ class ApplicationAnalyser extends AStage {
         super("CTFlow-ApplicationAnalyser", topFunction, outputDir, appName);
     }
 
-    runAllTasks() {
-        this.dumpAST();
-        this.dumpCallGraph();
-        this.generateStatistics();
+    runAllTasks(dumpCallGraph = true, dumpAST = true, generateStatistics = true) {
+        if (dumpCallGraph) {
+            try {
+                this.dumpCallGraph(true);
+            } catch (e) {
+                this.log("Failed to dump call graph");
+            }
+        }
+        if (dumpAST) {
+            try {
+                this.dumpAST();
+            } catch (e) {
+                this.log("Failed to dump AST");
+            }
+        }
+        if (generateStatistics) {
+            try {
+                this.generateStatistics();
+            } catch (e) {
+                this.log("Failed to generate statistics");
+            }
+        }
     }
 
     dumpAST() {
@@ -25,9 +43,11 @@ class ApplicationAnalyser extends AStage {
         this.log(`AST dumped to file ${path}`);
     }
 
-    dumpCallGraph() {
+    dumpCallGraph(startFromMain = true) {
         const dumper = new CallGraphDumper();
-        const topFun = this.getTopFunctionJoinPoint();
+        const topFun = startFromMain ?
+            Query.search("function", { name: "main" }).first() :
+            this.getTopFunctionJoinPoint();
 
         const dot1 = dumper.dump(topFun, "TB");
         const path1 = this.saveToFile(dot1, "callgraph_tb.dot");

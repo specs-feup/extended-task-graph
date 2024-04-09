@@ -24,7 +24,7 @@ class AStage {
     }
 
     getTopFunctionJoinPoint() {
-        return Query.search("function", { name: this.getTopFunctionName() }).first();
+        return Query.search("function", { name: this.getTopFunctionName(), isImplementation: true }).first();
     }
 
     setAppName(appName) {

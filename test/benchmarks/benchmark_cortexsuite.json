@@ -92,7 +92,7 @@
     "CortexSuite-vision-disparity-N": {
         "provenance": "BUILTIN",
         "standard": "c11",
-        "starterFunction": "main"
+        "starterFunction": "getDisparity"
     },
 
     "CortexSuite-vision-localization-N": {

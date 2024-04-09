@@ -69,7 +69,7 @@ def main():
         # "CortexSuite-cortex-word2vec-word2phrase-N",
         # "CortexSuite-cortex-word2vec-word2vec-N",
         # "CortexSuite-cortex-word2vec-word-analogy-N",
-        # "CortexSuite-vision-disparity-N",
+        "CortexSuite-vision-disparity-N",
         # "CortexSuite-vision-localization-N",
         # "CortexSuite-vision-mser-N",
         # "CortexSuite-vision-multi-ncut-N",
@@ -128,7 +128,10 @@ def main():
         if bench_name in benchmarks:
             bench_props = benchmarks[bench_name]
 
-            bench_props["skipTransforms"] = True
+            bench_props["skipTransforms"] = False
+            bench_props["skipTaskGraph"] = False
+
+            # bench_props["skipTransforms"] = True
             bench_props["skipTaskGraph"] = True
 
             test_bench(bench_name, bench_props)

@@ -35,7 +35,7 @@ class CodeTransformationFlow extends AStage {
 
         this.generateSubsetCode();
         this.taskPreprocessing();
-        this.intermediateAnalysis();
+        this.intermediateAnalysis(dumpCallGraph, dumpAST);
         this.generateTaskCode();
         this.generateInstrumentedTaskCode();
 
@@ -50,25 +50,7 @@ class CodeTransformationFlow extends AStage {
 
     initialAnalysis(dumpCallGraph, dumpAST) {
         this.log("Running initial analysis step");
-        const outDir = this.getOutputDir() + "/" + OutputDirectories.APP_STATS_ORIGINAL;
-        const appName = this.getAppName();
-        const topFun = this.getTopFunctionName();
-
-        const analyser = new ApplicationAnalyser(topFun, outDir, appName);
-        if (dumpCallGraph) {
-            try {
-                analyser.dumpCallGraph();
-            } catch (e) {
-                this.log("Failed to dump call graph");
-            }
-        }
-        if (dumpAST) {
-            try {
-                analyser.dumpAST();
-            } catch (e) {
-                this.log("Failed to dump AST");
-            }
-        }
+        this.#genericAnalysisStep(OutputDirectories.APP_STATS_ORIGINAL, dumpCallGraph, dumpAST, false);
     }
 
     subsetPreprocessing() {
@@ -101,14 +83,9 @@ class CodeTransformationFlow extends AStage {
         preprocessor.insertTimer();
     }
 
-    intermediateAnalysis() {
+    intermediateAnalysis(dumpCallGraph, dumpAST) {
         this.log("Running intermediate analysis step");
-        const outDir = this.getOutputDir() + "/" + OutputDirectories.APP_STATS_TASKS;
-        const appName = this.getAppName();
-        const topFun = this.getTopFunctionName();
-
-        const analyser = new ApplicationAnalyser(topFun, outDir, appName);
-        analyser.runAllTasks();
+        this.#genericAnalysisStep(OutputDirectories.APP_STATS_TASKS, dumpCallGraph, dumpAST, false);
     }
 
     generateTaskCode() {
@@ -126,4 +103,12 @@ class CodeTransformationFlow extends AStage {
         // pop ASTs
     }
 
+    #genericAnalysisStep(folder, dumpCallGraph, dumpAST, generateStatistics) {
+        const outDir = this.getOutputDir() + "/" + folder;
+        const appName = this.getAppName();
+        const topFun = this.getTopFunctionName();
+
+        const analyser = new ApplicationAnalyser(topFun, outDir, appName);
+        analyser.runAllTasks(dumpCallGraph, dumpAST, generateStatistics);
+    }
 }

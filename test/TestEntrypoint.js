@@ -31,16 +31,16 @@ function main() {
     const outputDir = config["outputDir"];
     const topFunctionName = config["starterFunction"];
 
-    const skipTransforms = config["skipTransforms"];
-    const skipTaskGraph = config["skipTaskGraph"];
+    const doTransforms = !config["skipTransforms"];
+    const doTaskGraph = !config["skipTaskGraph"];
 
     const api = new FlextaskAPI(topFunctionName, outputDir, appName);
 
-    const success = api.runCodeTransformationFlow(true, true, !skipTransforms);
+    const success = api.runCodeTransformationFlow(true, true, doTransforms);
     if (!success) {
         this.log("Code transformation flow failed, aborting task graph generation flow");
     }
-    else if (!skipTaskGraph) {
+    else if (doTaskGraph) {
         api.runTaskGraphGenerationFlow(true, true, false);
     }
 }
