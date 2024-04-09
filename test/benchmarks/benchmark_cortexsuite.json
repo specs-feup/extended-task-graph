@@ -1,4 +1,94 @@
 {
+    "CortexSuite-cortex-clustering-kmeans-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "main"
+    },
+
+    "CortexSuite-cortex-clustering-spectral-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "main"
+    },
+
+    "CortexSuite-cortex-cnn-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "main"
+    },
+
+    "CortexSuite-cortex-lda-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "main"
+    },
+
+    "CortexSuite-cortex-liblinear-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "main"
+    },
+
+    "CortexSuite-cortex-motion-estimation-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "main"
+    },
+
+    "CortexSuite-cortex-rbm-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "main"
+    },
+
+    "CortexSuite-cortex-sphinx-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "main"
+    },
+
+    "CortexSuite-cortex-srr-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "main"
+    },
+
+    "CortexSuite-cortex-svd3-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "main"
+    },
+
+    "CortexSuite-cortex-word2vec-compute-accuracy-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "main"
+    },
+
+    "CortexSuite-cortex-word2vec-distance-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "main"
+    },
+
+    "CortexSuite-cortex-word2vec-word2phrase-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "main"
+    },
+
+    "CortexSuite-cortex-word2vec-word2vec-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "main"
+    },
+
+    "CortexSuite-cortex-word2vec-word-analogy-N": {
+        "provenance": "BUILTIN",
+        "standard": "c11",
+        "starterFunction": "main"
+    },
+
     "CortexSuite-vision-disparity-N": {
         "provenance": "BUILTIN",
         "standard": "c11",

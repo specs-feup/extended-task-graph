@@ -29,13 +29,13 @@ def main():
         # -------------------
         # AxBench
         # -------------------
-        "AxBench-blackscholes-N",
-        "AxBench-fft-N",
-        "AxBench-inversek2j-N",
-        "AxBench-jmeint-N",
-        "AxBench-jpeg-N",
-        "AxBench-kmeans-N",
-        "AxBench-sobel-N",
+        # "AxBench-blackscholes-N",
+        # "AxBench-fft-N",
+        # "AxBench-inversek2j-N",
+        # "AxBench-jmeint-N",
+        # "AxBench-jpeg-N",
+        # "AxBench-kmeans-N",
+        # "AxBench-sobel-N",
         # -------------------
         # CHStone
         # -------------------
@@ -54,6 +54,21 @@ def main():
         # -------------------
         # CortexSuite
         # -------------------
+        # "CortexSuite-cortex-clustering-kmeans-N",
+        # "CortexSuite-cortex-clustering-spectral-N",
+        # "CortexSuite-cortex-cnn-N",
+        # "CortexSuite-cortex-lda-N",
+        # "CortexSuite-cortex-liblinear-N",  # no call graph gen
+        # "CortexSuite-cortex-motion-estimation-N",
+        # "CortexSuite-cortex-rbm-N",
+        # "CortexSuite-cortex-sphinx-N",  # fail
+        # "CortexSuite-cortex-srr-N",
+        # "CortexSuite-cortex-svd3-N",
+        # "CortexSuite-cortex-word2vec-compute-accuracy-N",
+        # "CortexSuite-cortex-word2vec-distance-N",
+        # "CortexSuite-cortex-word2vec-word2phrase-N",
+        # "CortexSuite-cortex-word2vec-word2vec-N",
+        # "CortexSuite-cortex-word2vec-word-analogy-N",
         # "CortexSuite-vision-disparity-N",
         # "CortexSuite-vision-localization-N",
         # "CortexSuite-vision-mser-N",
