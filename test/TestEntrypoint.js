@@ -4,7 +4,7 @@ laraImport("clava.Clava");
 laraImport("flextask.FlextaskAPI");
 
 
-function main() {
+function getConfig() {
     const config = Io.readJson("test/temp/config.json");
 
     if (config["provenance"] == "BUILTIN") {
@@ -27,10 +27,13 @@ function main() {
             break;
         }
     }
+    return config;
+}
+
+function run(config) {
     const appName = config["appName"];
     const outputDir = config["outputDir"];
     const topFunctionName = config["starterFunction"];
-
     const doTransforms = !config["skipTransforms"];
     const doTaskGraph = !config["skipTaskGraph"];
 
@@ -38,11 +41,19 @@ function main() {
 
     const success = api.runCodeTransformationFlow(true, true, doTransforms);
     if (!success) {
-        this.log("Code transformation flow failed, aborting task graph generation flow");
+        println("Code transformation flow failed, aborting task graph generation flow");
     }
     else if (doTaskGraph) {
         api.runTaskGraphGenerationFlow(true, true, false);
     }
 }
 
-main();
+(function () {
+    const config = getConfig();
+
+    try {
+        run(config);
+    } catch (e) {
+        println("Error: FlexTask failed to run\n\n" + e);
+    }
+})();

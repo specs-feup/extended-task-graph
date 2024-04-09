@@ -61,7 +61,7 @@ def main():
         # "CortexSuite-cortex-liblinear-N",  # no call graph gen
         # "CortexSuite-cortex-motion-estimation-N",
         # "CortexSuite-cortex-rbm-N",
-        # "CortexSuite-cortex-sphinx-N",  # fail
+        "CortexSuite-cortex-sphinx-N",  # fail
         # "CortexSuite-cortex-srr-N",
         # "CortexSuite-cortex-svd3-N",
         # "CortexSuite-cortex-word2vec-compute-accuracy-N",
@@ -132,7 +132,7 @@ def main():
             bench_props["skipTaskGraph"] = False
 
             # bench_props["skipTransforms"] = True
-            bench_props["skipTaskGraph"] = True
+            # bench_props["skipTaskGraph"] = True
 
             test_bench(bench_name, bench_props)
             cnt += 1
