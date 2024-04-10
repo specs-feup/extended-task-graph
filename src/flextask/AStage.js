@@ -1,8 +1,10 @@
 "use strict";
 
+laraImport("flextask/util/Chalk");
+
 class AStage {
     #stageName = "DefaultStage";
-    #padding = 40;
+    #padding = 50;
     #topFunctionName;
     #appName;
     #outputDir;
@@ -47,14 +49,31 @@ class AStage {
         return this.#topFunctionName;
     }
 
+    #getStageOutputHeader() {
+        const fullName = `FTG-${this.#stageName}`;
+        const coloredName = Chalk.color(fullName, "blue");
+
+        const header = `[${coloredName}] `.padEnd(this.#padding, '-');
+        return header;
+    }
+
     log(message) {
-        const prefix = "[FTG-" + this.#stageName + "]";
-        const padding = this.#padding - prefix.length;
-        println(prefix + "-".repeat(padding) + " " + message);
+        const header = this.#getStageOutputHeader();
+        println(`${header} ${message}`);
+    }
+
+    showTrace(exception) {
+        const header = this.#getStageOutputHeader();
+        const warning = Chalk.color("!!!!!! Caught Exception !!!!!!", "red");
+        const end = Chalk.color("!!!!!! End of Exception !!!!!!", "red");
+
+        println(`${header} ${warning}`);
+        println(exception.stack);
+        println(`${header} ${end}`);
     }
 
     saveToFile(content, filename) {
-        const fullName = `${this.#outputDir}/${this.#appName}_${filename}`;
+        const fullName = `${this.#outputDir} /${this.#appName}_${filename}`;
         Io.writeFile(fullName, content);
         return fullName;
     }

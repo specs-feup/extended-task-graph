@@ -140,7 +140,7 @@
     "CortexSuite-vision-texture-synthesis-N": {
         "provenance": "BUILTIN",
         "standard": "c11",
-        "starterFunction": "main"
+        "starterFunction": "create_texture"
     },
 
     "CortexSuite-vision-tracking-N": {

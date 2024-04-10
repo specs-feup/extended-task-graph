@@ -31,11 +31,11 @@ def main():
         # -------------------
         # "AxBench-blackscholes-N",
         # "AxBench-fft-N",
-        # "AxBench-inversek2j-N",
-        # "AxBench-jmeint-N",
-        # "AxBench-jpeg-N",
+        # "AxBench-inversek2j-N",  # two separate "kernels", which makes us consider main as the starting point
+        # "AxBench-jmeint-N",  # "kernel" surrounded by a loop in main, again we consider main as the starting point
+        # "AxBench-jpeg-N",  # same
         # "AxBench-kmeans-N",
-        # "AxBench-sobel-N",
+        # "AxBench-sobel-N",  # same
         # -------------------
         # CHStone
         # -------------------
@@ -61,7 +61,7 @@ def main():
         # "CortexSuite-cortex-liblinear-N",  # no call graph gen
         # "CortexSuite-cortex-motion-estimation-N",
         # "CortexSuite-cortex-rbm-N",
-        "CortexSuite-cortex-sphinx-N",  # fail
+        # "CortexSuite-cortex-sphinx-N",  # fail
         # "CortexSuite-cortex-srr-N",
         # "CortexSuite-cortex-svd3-N",
         # "CortexSuite-cortex-word2vec-compute-accuracy-N",
@@ -69,7 +69,7 @@ def main():
         # "CortexSuite-cortex-word2vec-word2phrase-N",
         # "CortexSuite-cortex-word2vec-word2vec-N",
         # "CortexSuite-cortex-word2vec-word-analogy-N",
-        "CortexSuite-vision-disparity-N",
+        # "CortexSuite-vision-disparity-N",
         # "CortexSuite-vision-localization-N",
         # "CortexSuite-vision-mser-N",
         # "CortexSuite-vision-multi-ncut-N",
@@ -120,7 +120,7 @@ def main():
         # "Rosetta-digit-recognition-N",  # OK
         # "Rosetta-face-detection-N",  # OK
         # "Rosetta-optical-flow-current",  # OK
-        # "Rosetta-spam-filter-N",  # OK
+        "Rosetta-spam-filter-N",  # OK
     ]
 
     cnt = 0
@@ -131,8 +131,8 @@ def main():
             bench_props["skipTransforms"] = False
             bench_props["skipTaskGraph"] = False
 
-            # bench_props["skipTransforms"] = True
-            # bench_props["skipTaskGraph"] = True
+            bench_props["skipTransforms"] = True
+            bench_props["skipTaskGraph"] = True
 
             test_bench(bench_name, bench_props)
             cnt += 1

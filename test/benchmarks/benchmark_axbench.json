@@ -2,12 +2,12 @@
     "AxBench-blackscholes-N": {
         "provenance": "BUILTIN",
         "standard": "c++17",
-        "starterFunction": "main"
+        "starterFunction": "BlkSchlsEqEuroNoDiv"
     },
     "AxBench-fft-N": {
         "provenance": "BUILTIN",
         "standard": "c++17",
-        "starterFunction": "main"
+        "starterFunction": "radix2DitCooleyTykeyFft"
     },
     "AxBench-inversek2j-N": {
         "provenance": "BUILTIN",
@@ -27,7 +27,7 @@
     "AxBench-kmeans-N": {
         "provenance": "BUILTIN",
         "standard": "c++17",
-        "starterFunction": "main"
+        "starterFunction": "segmentImage"
     },
     "AxBench-sobel-N": {
         "provenance": "BUILTIN",
