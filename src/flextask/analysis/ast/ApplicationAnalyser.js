@@ -51,7 +51,7 @@ class ApplicationAnalyser extends AStage {
         const str = dumper.dump();
 
         const path = this.saveToFile(str, "ast.txt");
-        this.log(`AST dumped to file ${path}`);
+        this.logOutput("AST dumped to", path);
     }
 
     dumpCallGraph(startFromMain = true) {
@@ -62,11 +62,11 @@ class ApplicationAnalyser extends AStage {
 
         const dot1 = dumper.dump(topFun, "TB");
         const path1 = this.saveToFile(dot1, "callgraph_tb.dot");
-        this.log(`Call graph TB dumped to files ${path1}`);
+        this.logOutput("Call graph TB dumped to", path1);
 
         const dot2 = dumper.dump(topFun, "LR");
         const path2 = this.saveToFile(dot2, "callgraph_lr.dot");
-        this.log(`Call graph LR dumped to files ${path2}`);
+        this.logOutput("Call graph LR dumped to", path2);
     }
 
     dumpCallTree(startFromMain = true) {
@@ -77,11 +77,11 @@ class ApplicationAnalyser extends AStage {
 
         const dot1 = dumper.dump(topFun, "TB");
         const path1 = this.saveToFile(dot1, "calltree_tb.dot");
-        this.log(`Call tree TB dumped to files ${path1}`);
+        this.logOutput("Call tree TB dumped to", path1);
 
         const dot2 = dumper.dump(topFun, "LR");
         const path2 = this.saveToFile(dot2, "calltree_lr.dot");
-        this.log(`Call tree LR dumped to files ${path2}`);
+        this.logOutput("Call tree LR dumped to", path1);
     }
 
     generateStatistics() {

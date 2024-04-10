@@ -68,6 +68,14 @@ class AStage {
         println(`${header} ${warning} ${message}`);
     }
 
+    logOutput(message, path) {
+        const header = this.#getStageOutputHeader();
+        let prettyPath = Chalk.style(path, "italic");
+        prettyPath = Chalk.color(prettyPath, "cyan");
+
+        println(`${header} ${message} ${prettyPath}`);
+    }
+
     showTrace(exception) {
         const header = this.#getStageOutputHeader();
         const err = Chalk.color("Exception caught with stack trace:", "red");
