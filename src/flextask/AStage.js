@@ -62,18 +62,24 @@ class AStage {
         println(`${header} ${message}`);
     }
 
+    warn(message) {
+        const header = this.#getStageOutputHeader();
+        const warning = Chalk.color("Warning: ", "yellow");
+        println(`${header} ${warning} ${message}`);
+    }
+
     showTrace(exception) {
         const header = this.#getStageOutputHeader();
-        const warning = Chalk.color("!!!!!! Caught Exception !!!!!!", "red");
-        const end = Chalk.color("!!!!!! End of Exception !!!!!!", "red");
+        const err = Chalk.color("Exception caught with stack trace:", "red");
+        const end = Chalk.color("----------------------------------", "red");
 
-        println(`${header} ${warning}`);
+        println(`${header} ${err}`);
         println(exception.stack);
         println(`${header} ${end}`);
     }
 
     saveToFile(content, filename) {
-        const fullName = `${this.#outputDir} /${this.#appName}_${filename}`;
+        const fullName = `${this.#outputDir}/${this.#appName}_${filename}`;
         Io.writeFile(fullName, content);
         return fullName;
     }

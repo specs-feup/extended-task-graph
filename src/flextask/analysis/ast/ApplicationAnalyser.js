@@ -3,6 +3,7 @@
 laraImport("lara.Io");
 laraImport("flextask/analysis/ast/AstDumper");
 laraImport("flextask/analysis/ast/CallGraphDumper");
+laraImport("flextask/analysis/ast/CallTreeDumper");
 laraImport("flextask/analysis/ast/SourceCodeStats");
 laraImport("flextask/AStage");
 
@@ -16,21 +17,31 @@ class ApplicationAnalyser extends AStage {
             try {
                 this.dumpCallGraph(true);
             } catch (e) {
-                this.log("Failed to dump call graph");
+                this.showTrace(e);
+                this.warn("Failed to dump call graph");
+            }
+            try {
+                this.dumpCallTree(true);
+            }
+            catch (e) {
+                this.showTrace(e);
+                this.warn("Failed to dump call tree");
             }
         }
         if (dumpAST) {
             try {
                 this.dumpAST();
             } catch (e) {
-                this.log("Failed to dump AST");
+                this.showTrace(e);
+                this.warn("Failed to dump AST");
             }
         }
         if (generateStatistics) {
             try {
                 this.generateStatistics();
             } catch (e) {
-                this.log("Failed to generate statistics");
+                this.showTrace(e);
+                this.warn("Failed to generate statistics");
             }
         }
     }
@@ -51,11 +62,26 @@ class ApplicationAnalyser extends AStage {
 
         const dot1 = dumper.dump(topFun, "TB");
         const path1 = this.saveToFile(dot1, "callgraph_tb.dot");
-        this.log(`Call graph 1 dumped to files ${path1}`);
+        this.log(`Call graph TB dumped to files ${path1}`);
 
         const dot2 = dumper.dump(topFun, "LR");
         const path2 = this.saveToFile(dot2, "callgraph_lr.dot");
-        this.log(`Call graph 2 dumped to files ${path2}`);
+        this.log(`Call graph LR dumped to files ${path2}`);
+    }
+
+    dumpCallTree(startFromMain = true) {
+        const dumper = new CallTreeDumper();
+        const topFun = startFromMain ?
+            Query.search("function", { name: "main" }).first() :
+            this.getTopFunctionJoinPoint();
+
+        const dot1 = dumper.dump(topFun, "TB");
+        const path1 = this.saveToFile(dot1, "calltree_tb.dot");
+        this.log(`Call tree TB dumped to files ${path1}`);
+
+        const dot2 = dumper.dump(topFun, "LR");
+        const path2 = this.saveToFile(dot2, "calltree_lr.dot");
+        this.log(`Call tree LR dumped to files ${path2}`);
     }
 
     generateStatistics() {
