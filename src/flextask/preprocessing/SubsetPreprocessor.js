@@ -11,8 +11,14 @@ class SubsetPreprocessor extends AStage {
 
     preprocess() {
         this.sanitizeCodePreSubset();
-        this.reduceToSubset();
+
+        const success = this.reduceToSubset();
+        if (!success) {
+            return false;
+        }
+
         this.sanitizeCodePostSubset();
+        return true;
     }
 
     sanitizeCodePreSubset() {
@@ -23,8 +29,16 @@ class SubsetPreprocessor extends AStage {
 
     reduceToSubset() {
         const reducer = new SubsetReducer(this.getTopFunctionName());
-        reducer.reduce();
-        this.log("Successfully reduced the application to a C/C++ subset");
+        try {
+            reducer.reduce();
+            this.log("Successfully reduced the application to a C/C++ subset");
+            return true;
+        }
+        catch (e) {
+            this.logTrace(e);
+            this.logError("Failed to reduce the application to a C/C++ subset");
+            return false;
+        }
     }
 
     sanitizeCodePostSubset() {

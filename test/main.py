@@ -20,7 +20,7 @@ def main():
         # -------------------
         # Applications
         # -------------------
-        "edgedetect",  # OK
+        # "edgedetect",  # OK
         # "stresstest",
         # "scenarioA",
         # "scenarioB",
@@ -58,7 +58,7 @@ def main():
         # "CortexSuite-cortex-clustering-spectral-N",
         # "CortexSuite-cortex-cnn-N",
         # "CortexSuite-cortex-lda-N",
-        # "CortexSuite-cortex-liblinear-N",  # no call graph gen
+        "CortexSuite-cortex-liblinear-N",  # no call graph gen
         # "CortexSuite-cortex-motion-estimation-N",
         # "CortexSuite-cortex-rbm-N",
         # "CortexSuite-cortex-sphinx-N",  # fail
@@ -131,8 +131,8 @@ def main():
             bench_props["skipTransforms"] = False
             bench_props["skipTaskGraph"] = False
 
-            bench_props["skipTransforms"] = True
-            bench_props["skipTaskGraph"] = True
+            # bench_props["skipTransforms"] = True
+            # bench_props["skipTaskGraph"] = True
 
             test_bench(bench_name, bench_props)
             cnt += 1

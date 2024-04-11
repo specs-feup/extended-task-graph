@@ -51,7 +51,7 @@ class AStage {
 
     #getStageOutputHeader() {
         const fullName = `FTG-${this.#stageName}`;
-        const coloredName = Chalk.color(fullName, "blue");
+        const coloredName = Chalk.color(fullName, "cyan");
 
         const header = `[${coloredName}] `.padEnd(this.#padding, '-');
         return header;
@@ -62,21 +62,33 @@ class AStage {
         println(`${header} ${message}`);
     }
 
-    warn(message) {
+    logOutput(message, path) {
+        const header = this.#getStageOutputHeader();
+        let prettyPath = Chalk.style(path, "italic");
+        prettyPath = Chalk.color(prettyPath, "blue");
+
+        println(`${header} ${message} ${prettyPath}`);
+    }
+
+    logSuccess(message) {
+        const header = this.#getStageOutputHeader();
+        const success = Chalk.color("Success: ", "green");
+        println(`${header} ${success} ${message}`);
+    }
+
+    logWarning(message) {
         const header = this.#getStageOutputHeader();
         const warning = Chalk.color("Warning: ", "yellow");
         println(`${header} ${warning} ${message}`);
     }
 
-    logOutput(message, path) {
+    logError(message) {
         const header = this.#getStageOutputHeader();
-        let prettyPath = Chalk.style(path, "italic");
-        prettyPath = Chalk.color(prettyPath, "cyan");
-
-        println(`${header} ${message} ${prettyPath}`);
+        const err = Chalk.color("Error: ", "red");
+        println(`${header} ${err} ${message}`);
     }
 
-    showTrace(exception) {
+    logTrace(exception) {
         const header = this.#getStageOutputHeader();
         const err = Chalk.color("Exception caught with stack trace:", "red");
         const end = Chalk.color("----------------------------------", "red");

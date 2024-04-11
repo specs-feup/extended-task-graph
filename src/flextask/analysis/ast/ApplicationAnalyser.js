@@ -17,31 +17,31 @@ class ApplicationAnalyser extends AStage {
             try {
                 this.dumpCallGraph(true);
             } catch (e) {
-                this.showTrace(e);
-                this.warn("Failed to dump call graph");
+                this.logTrace(e);
+                this.logWarning("Failed to dump call graph");
             }
             try {
                 this.dumpCallTree(true);
             }
             catch (e) {
-                this.showTrace(e);
-                this.warn("Failed to dump call tree");
+                this.logTrace(e);
+                this.logWarning("Failed to dump call tree");
             }
         }
         if (dumpAST) {
             try {
                 this.dumpAST();
             } catch (e) {
-                this.showTrace(e);
-                this.warn("Failed to dump AST");
+                this.logTrace(e);
+                this.logWarning("Failed to dump AST");
             }
         }
         if (generateStatistics) {
             try {
                 this.generateStatistics();
             } catch (e) {
-                this.showTrace(e);
-                this.warn("Failed to generate statistics");
+                this.logTrace(e);
+                this.logWarning("Failed to generate statistics");
             }
         }
     }

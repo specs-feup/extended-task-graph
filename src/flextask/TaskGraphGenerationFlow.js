@@ -17,7 +17,7 @@ class TaskGraphGenerationFlow extends AStage {
 
         const tg = this.buildTaskGraph();
         if (tg == null) {
-            this.log("Task graph was not built successfully, aborting");
+            this.warn("Task graph was not built successfully, aborting");
             return null;
         }
 
@@ -50,11 +50,11 @@ class TaskGraphGenerationFlow extends AStage {
 
         const dotVerbose = conv.convert(taskGraph);
         const fname1 = this.saveToFileInSubfolder(dotVerbose, "taskgraph.dot", OutputDirectories.TASKGRAPH);
-        this.log(`Dumped full task graph to "${fname1}"`);
+        this.logOutput("Dumped full task graph to", fname1);
 
         const dotMinimal = conv.convertMinimal(taskGraph);
         const fname2 = this.saveToFileInSubfolder(dotMinimal, "taskgraph_min.dot", OutputDirectories.TASKGRAPH);
-        this.log(`Dumped mini task graph to "${fname2}"`);
+        this.logOutput("Dumped mini task graph to", fname2);
 
         this.log("Task graph successfully dumped!");
     }

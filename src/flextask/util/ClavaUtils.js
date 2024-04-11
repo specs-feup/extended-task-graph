@@ -19,6 +19,7 @@ class ClavaUtils {
     static generateCode(weaveDir, folder) {
         const path = weaveDir + "/" + folder;
         Clava.writeCode(path);
+        return path;
     }
 
     static matchTemplate(jp, template) {

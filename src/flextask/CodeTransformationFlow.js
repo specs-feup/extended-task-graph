@@ -29,7 +29,7 @@ class CodeTransformationFlow extends AStage {
 
         const valid = this.subsetPreprocessing();
         if (!valid) {
-            this.log("Aborting...");
+            this.logError("Critical error, aborting...");
             return false;
         }
 
@@ -39,13 +39,13 @@ class CodeTransformationFlow extends AStage {
         this.generateTaskCode();
         this.generateInstrumentedTaskCode();
 
-        this.log("Code transformation flow finished successfully!");
+        this.logSuccess("Code transformation flow finished successfully!");
         return true;
     }
 
     generateOriginalCode() {
-        ClavaUtils.generateCode(this.getOutputDir(), OutputDirectories.SRC_ORIGINAL);
-        this.log(`Original source code with resolved #defines written to ${OutputDirectories.SRC_ORIGINAL}`);
+        const outFolder = ClavaUtils.generateCode(this.getOutputDir(), OutputDirectories.SRC_ORIGINAL);
+        this.logOutput("Original source code with resolved #defines written to", outFolder);
     }
 
     initialAnalysis(dumpCallGraph, dumpAST) {
@@ -60,10 +60,23 @@ class CodeTransformationFlow extends AStage {
         const topFun = this.getTopFunctionName();
 
         const preprocessor = new SubsetPreprocessor(topFun, outDir, appName);
-        preprocessor.preprocess();
+        const success = preprocessor.preprocess();
 
+        if (!success) {
+            return false;
+        }
+
+        return this.verifySyntax();
+    }
+
+    verifySyntax() {
         const res = ClavaUtils.verifySyntax();
-        this.log(res ? "Syntax verified" : "Syntax verification failed");
+        if (res) {
+            this.logSuccess("Syntax verified");
+        }
+        else {
+            this.logError("Syntax verification failed");
+        }
         return res;
     }
 
