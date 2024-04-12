@@ -80,6 +80,9 @@ class ClavaUtils {
 
         for (const call of Query.searchFrom(parent, "call")) {
             const fun = call.function;
+            if (fun == undefined) {
+                continue;
+            }
             const valid = includeExternals ? fun : fun.hasDefinition && fun.isImplementation;
 
             if (valid) {

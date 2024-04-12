@@ -64,7 +64,17 @@ class AStage {
 
     logOutput(message, path) {
         const header = this.#getStageOutputHeader();
-        let prettyPath = Chalk.style(path, "italic");
+
+        let minPath = path;
+        const subpaths = Object.values(OutputDirectories);
+        for (const subpath of subpaths) {
+            if (path.includes(subpath)) {
+                minPath = path.substring(path.indexOf(subpath));
+                break; s
+            }
+        }
+
+        let prettyPath = Chalk.style(minPath, "italic");
         prettyPath = Chalk.color(prettyPath, "blue");
 
         println(`${header} ${message} ${prettyPath}`);
