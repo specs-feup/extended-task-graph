@@ -70,6 +70,23 @@ class ReplicaCreator extends AStage {
     }
 
     createReplicas(calls) {
-        return 0;
+        let id = 0;
+        for (const call of calls) {
+            const success = this.replicate(call, id);
+            if (success) {
+                id++;
+            }
+        }
+        return id;
+    }
+
+    replicate(call, id) {
+        const fun = call.function;
+        const clone = fun.clone(`${fun.name}_rep${id}`);
+
+        const argList = call.argList;
+        const newCall = ClavaJoinPoints.call(clone, argList);
+        call.replaceWith(newCall);
+        return true;
     }
 }

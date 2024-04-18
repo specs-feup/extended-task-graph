@@ -20,7 +20,7 @@ def main():
         # -------------------
         # Applications
         # -------------------
-        "edgedetect",  # OK
+        # "edgedetect",  # OK
         # "stresstest",
         # "scenarioA",
         # "scenarioB",
@@ -120,7 +120,7 @@ def main():
         # "Rosetta-digit-recognition-N",  # OK
         # "Rosetta-face-detection-N",  # OK
         # "Rosetta-optical-flow-current",  # OK
-        # "Rosetta-spam-filter-N",  # OK
+        "Rosetta-spam-filter-N",  # OK
     ]
 
     cnt = 0
