@@ -6,7 +6,7 @@ laraImport("flextask/AStage");
 
 class CodeSanitizer extends AStage {
     constructor(topFunction) {
-        super("CTFlow-Preprocessor-CodeSanitizer", topFunction);
+        super("CTFlow-Subset-CodeSanitizer", topFunction);
     }
 
     sanitize() {
@@ -14,6 +14,7 @@ class CodeSanitizer extends AStage {
         this.removeRegisterQualifiers();
         this.removeAllComments();
         this.forceBracketsInScopes();
+        this.log("Sanitized code");
     }
 
     // removes statements like "a = a;"

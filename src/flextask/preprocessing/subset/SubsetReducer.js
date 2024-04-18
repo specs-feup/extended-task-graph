@@ -14,7 +14,7 @@ laraImport("flextask/AStage");
 
 class SubsetReducer extends AStage {
     constructor(topFunction) {
-        super("CTFlow-Preprocessor-SubsetReducer", topFunction);
+        super("CTFlow-Subset-SubsetReducer", topFunction);
     }
 
     reduce() {
@@ -67,7 +67,7 @@ class SubsetReducer extends AStage {
             this.#applyConstantFoldingAndPropagation();
         } catch (e) {
             this.logTrace(e);
-            this.logWarning("Failed to apply thorough constant folding and propagation");
+            this.logWarning("Constant folding and propagation may not have been thorough");
         }
 
         this.#applySwitchToIfConversion();

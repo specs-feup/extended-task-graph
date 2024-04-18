@@ -3,8 +3,8 @@
 laraImport("flextask/AStage");
 laraImport("flextask/OutputDirectories");
 laraImport("flextask/analysis/ast/ApplicationAnalyser");
-laraImport("flextask/preprocessing/SubsetPreprocessor");
-laraImport("flextask/preprocessing/TaskPreprocessor");
+laraImport("flextask/preprocessing/subset/SubsetPreprocessor");
+laraImport("flextask/preprocessing/task/TaskPreprocessor");
 laraImport("flextask/preprocessing/CodeInstrumenter");
 laraImport("flextask/util/ClavaUtils");
 
@@ -92,8 +92,7 @@ class CodeTransformationFlow extends AStage {
         const topFun = this.getTopFunctionName();
 
         const preprocessor = new TaskPreprocessor(topFun, outDir, appName);
-        preprocessor.outlineAll();
-        preprocessor.insertTimer();
+        preprocessor.preprocess();
     }
 
     intermediateAnalysis(dumpCallGraph, dumpAST) {
