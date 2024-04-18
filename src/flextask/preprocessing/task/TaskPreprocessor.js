@@ -8,7 +8,7 @@ laraImport("flextask/AStage");
 
 class TaskPreprocessor extends AStage {
     constructor(topFunction, outputDir, appName) {
-        super("CTFlow-TaskPreprocessor", topFunction, outputDir, appName);
+        super("CTFlow-TaskPrep", topFunction, outputDir, appName);
     }
 
     preprocess() {
@@ -18,6 +18,7 @@ class TaskPreprocessor extends AStage {
     }
 
     outlineAll() {
+        this.log("Finding code regions for outlining...");
         const annotator = new OutlineRegionFinder(this.getTopFunctionName());
 
         const genericRegions = annotator.annotateGenericPass();
@@ -54,28 +55,10 @@ class TaskPreprocessor extends AStage {
     createFunctionReplicas() {
         this.log("Finding functions that can be replicated...");
 
-        const replicaCreator = new ReplicaCreator(this.getTopFunctionJoinPoint());
-        const replicas = replicaCreator.findReplicas();
+        const replicaCreator = new ReplicaCreator(this.getTopFunctionName());
+        const [nReplicas, nUnique] = replicaCreator.replicateAll();
 
-        if (Object.keys(replicas).length == 0) {
-            this.log("Found no replicable functions");
-            return;
-        }
-
-        for (const key in replicas) {
-            const calls = replicas[key];
-            const nCalls = calls.length;
-            const name = calls[0].name;
-            this.log(`Found ${nCalls} replicas for function ${name}`);
-
-            const res = replicaCreator.createReplicas(calls);
-            if (res) {
-                this.log(`Created replicas for function ${name}`);
-            }
-            else {
-                this.log(`Could not create replicas for function ${name}`);
-            }
-        }
+        this.log(`Created ${nReplicas} replicas for ${nUnique} unique functions`);
     }
 
     insertTimer() {

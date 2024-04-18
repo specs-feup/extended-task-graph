@@ -21,6 +21,7 @@ class CodeTransformationFlow extends AStage {
 
         this.generateOriginalCode();
         this.initialAnalysis(dumpCallGraph, dumpAST);
+        this.logLine();
 
         if (!doTransformations) {
             this.log("Transformations disabled, skipping to the end");
@@ -32,12 +33,17 @@ class CodeTransformationFlow extends AStage {
             this.logError("Critical error, aborting...");
             return false;
         }
-
         this.generateSubsetCode();
+        this.logSuccess("Subset preprocessing finished successfully!");
+        this.logLine();
+
         this.taskPreprocessing();
-        this.intermediateAnalysis(dumpCallGraph, dumpAST);
         this.generateTaskCode();
-        this.generateInstrumentedTaskCode();
+        this.logSuccess("Task preprocessing finished successfully!");
+        this.logLine();
+
+        this.intermediateAnalysis(dumpCallGraph, dumpAST);
+        this.logLine();
 
         this.logSuccess("Code transformation flow finished successfully!");
         return true;
@@ -72,7 +78,7 @@ class CodeTransformationFlow extends AStage {
     verifySyntax() {
         const res = ClavaUtils.verifySyntax();
         if (res) {
-            this.logSuccess("Syntax verified");
+            this.log("Syntax verified");
         }
         else {
             this.logError("Syntax verification failed");

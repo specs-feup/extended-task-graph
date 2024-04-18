@@ -18,6 +18,8 @@ class ClavaUtils {
 
     static generateCode(weaveDir, folder) {
         const path = weaveDir + "/" + folder;
+
+        Io.deleteFolderContents(path);
         Clava.writeCode(path);
         return path;
     }

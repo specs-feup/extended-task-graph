@@ -10,7 +10,7 @@ laraImport("flextask/util/ClavaUtils");
 
 class OutlineRegionFinder extends AStage {
     constructor(topFunction) {
-        super("CTFlow-Preprocessor-AppOutliner", topFunction);
+        super("CTFlow-TaskPrep-Outliner", topFunction);
     }
 
     annotateGenericPass() {

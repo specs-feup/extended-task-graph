@@ -70,7 +70,7 @@ class AStage {
         for (const subpath of subpaths) {
             if (path.includes(subpath)) {
                 minPath = path.substring(path.indexOf(subpath));
-                break; s
+                break;
             }
         }
 
@@ -106,6 +106,11 @@ class AStage {
         println(`${header} ${err}`);
         println(exception.stack);
         println(`${header} ${end}`);
+    }
+
+    logLine() {
+        const header = this.#getStageOutputHeader();
+        println(`${header}${"-".repeat(58)}`);
     }
 
     saveToFile(content, filename) {
