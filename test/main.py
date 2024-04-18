@@ -69,7 +69,7 @@ def main():
         # "CortexSuite-cortex-word2vec-word2phrase-N",
         # "CortexSuite-cortex-word2vec-word2vec-N",
         # "CortexSuite-cortex-word2vec-word-analogy-N",
-        # "CortexSuite-vision-disparity-N",
+        "CortexSuite-vision-disparity-N",
         # "CortexSuite-vision-localization-N",
         # "CortexSuite-vision-mser-N",
         # "CortexSuite-vision-multi-ncut-N",
@@ -120,7 +120,7 @@ def main():
         # "Rosetta-digit-recognition-N",  # OK
         # "Rosetta-face-detection-N",  # OK
         # "Rosetta-optical-flow-current",  # OK
-        "Rosetta-spam-filter-N",  # OK
+        # "Rosetta-spam-filter-N",  # OK
     ]
 
     cnt = 0

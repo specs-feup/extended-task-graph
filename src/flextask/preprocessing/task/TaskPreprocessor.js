@@ -12,8 +12,8 @@ class TaskPreprocessor extends AStage {
     }
 
     preprocess() {
-        this.outlineAll();
         this.createFunctionReplicas();
+        this.outlineAll();
         this.insertTimer();
     }
 

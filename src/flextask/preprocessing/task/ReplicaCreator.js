@@ -15,7 +15,7 @@ class ReplicaCreator extends AStage {
 
         if (Object.keys(replicas).length == 0) {
             this.log("Found no replicable functions");
-            return;
+            return [0, 0];
         }
         else {
             this.log(`Found ${Object.keys(replicas).length} replicable functions`);
@@ -47,17 +47,19 @@ class ReplicaCreator extends AStage {
         const uniqueFunNames = uniqueFuns.map(fun => fun.name);
         const replicas = {};
 
-        for (const call of Query.search("call")) {
-            const name = call.name;
-            if (!uniqueFunNames.includes(name)) {
-                continue;
-            }
+        for (const uniqueFun of uniqueFuns) {
+            for (const call of Query.searchFrom(uniqueFun, "call")) {
+                const name = call.name;
+                if (!uniqueFunNames.includes(name)) {
+                    continue;
+                }
 
-            if (replicas[name] == null) {
-                replicas[name] = [call];
-            }
-            else {
-                replicas[name].push(call);
+                if (replicas[name] == null) {
+                    replicas[name] = [call];
+                }
+                else {
+                    replicas[name].push(call);
+                }
             }
         }
 
