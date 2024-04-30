@@ -1,5 +1,6 @@
 "use strict";
 
+laraImport("lara.Io");
 laraImport("flextask/util/Chalk");
 
 class AStage {
@@ -8,16 +9,26 @@ class AStage {
     #topFunctionName;
     #appName;
     #outputDir;
+    #logFile;
+    #startTimestamp = new Date();
+    static #isLogFileInitialized = false;
+    static #currentLog = "";
+    static #maxLogSize = 2048;
 
     constructor(stageName, topFunctionName, outputDir = "output", appName = "default_app_name") {
         if (new.target === AStage) {
             throw new Error("Can't instantiate abstract class.");
         }
-
         this.#stageName = stageName;
         this.#topFunctionName = topFunctionName;
         this.#appName = appName;
         this.#outputDir = outputDir;
+        this.#logFile = `${this.#outputDir}/log_${this.#appName}.txt`;
+
+        if (!AStage.#isLogFileInitialized) {
+            Io.writeFile(this.#logFile, "");
+            AStage.#isLogFileInitialized = true;
+        }
     }
 
     getTopFunction() {
@@ -57,9 +68,42 @@ class AStage {
         return header;
     }
 
+    writeMessage(message, forceFlush = false) {
+        const strippedMsg = Chalk.stripColors(message) + "\n";
+        AStage.#currentLog += strippedMsg;
+
+        if (AStage.#currentLog.length > AStage.#maxLogSize || forceFlush) {
+            Io.appendFile(this.#logFile, AStage.#currentLog);
+            AStage.#currentLog = "";
+        }
+
+        println(message);
+    }
+
     log(message) {
         const header = this.#getStageOutputHeader();
-        println(`${header} ${message}`);
+        this.writeMessage(`${header} ${message}`);
+    }
+
+    logStart() {
+        const date = new Date();
+        const timestamp = date.toISOString();
+        const msg = `Starting at ${timestamp}`;
+
+        this.log(msg);
+        this.#startTimestamp = date;
+    }
+
+    logEnd() {
+        const date = new Date();
+        const diff = date.getTime() - this.#startTimestamp.getTime();
+        const diffInSeconds = diff / 1000;
+        const diff2Decimals = diffInSeconds.toFixed(2);
+
+        const timestamp = date.toISOString();
+        const msg = `Finished at ${timestamp} (elapsed time: ${diff2Decimals}s)`;
+
+        this.log(msg);
     }
 
     logOutput(message, path) {
@@ -77,25 +121,25 @@ class AStage {
         let prettyPath = Chalk.style(minPath, "italic");
         prettyPath = Chalk.color(prettyPath, "blue");
 
-        println(`${header} ${message} ${prettyPath}`);
+        this.writeMessage(`${header} ${message} ${prettyPath}`);
     }
 
     logSuccess(message) {
         const header = this.#getStageOutputHeader();
         const success = Chalk.color("Success: ", "green");
-        println(`${header} ${success} ${message}`);
+        this.writeMessage(`${header} ${success} ${message}`);
     }
 
     logWarning(message) {
         const header = this.#getStageOutputHeader();
         const warning = Chalk.color("Warning: ", "yellow");
-        println(`${header} ${warning} ${message}`);
+        this.writeMessage(`${header} ${warning} ${message}`);
     }
 
     logError(message) {
         const header = this.#getStageOutputHeader();
         const err = Chalk.color("Error: ", "red");
-        println(`${header} ${err} ${message}`);
+        this.writeMessage(`${header} ${err} ${message}`);
     }
 
     logTrace(exception) {
@@ -103,14 +147,14 @@ class AStage {
         const err = Chalk.color("Exception caught with stack trace:", "red");
         const end = Chalk.color("----------------------------------", "red");
 
-        println(`${header} ${err}`);
-        println(exception.stack);
-        println(`${header} ${end}`);
+        this.writeMessage(`${header} ${err}`);
+        this.writeMessage(exception.stack);
+        this.writeMessage(`${header} ${end}`);
     }
 
     logLine() {
         const header = this.#getStageOutputHeader();
-        println(`${header}${"-".repeat(58)}`);
+        this.writeMessage(`${header}${"-".repeat(58)}`);
     }
 
     saveToFile(content, filename) {

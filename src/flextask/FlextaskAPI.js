@@ -10,17 +10,6 @@ class FlextaskAPI extends AStage {
         super("FlextaskAPI", topFunctionName, outputDir, appName);
     }
 
-    runBothFlows() {
-        const success = this.runCodeTransformationFlow();
-        if (!success) {
-            this.log("Code transformation flow failed, aborting task graph generation flow");
-            this.#printLine();
-        }
-        else {
-            this.runTaskGraphGenerationFlow(true, true, false);
-        }
-    }
-
     runCodeTransformationFlow(dumpCallGraph = true, dumpAST = true, doTransformations = true) {
         this.#printLine();
         this.#ensureLinux();
@@ -28,14 +17,11 @@ class FlextaskAPI extends AStage {
         const flow = new CodeTransformationFlow(this.getTopFunctionName(), this.getOutputDir(), this.getAppName());
         const res = flow.run(dumpCallGraph, dumpAST, doTransformations);
 
-        this.#printLine();
         return res;
     }
 
-    runTaskGraphGenerationFlow(dumpGraph = true, gatherMetrics = true, printFirstLine = true) {
-        if (printFirstLine) {
-            this.#printLine();
-        }
+    runTaskGraphGenerationFlow(dumpGraph = true, gatherMetrics = true) {
+        this.#printLine();
         this.#ensureLinux();
 
         const flow = new TaskGraphGenerationFlow(this.getTopFunctionName(), this.getOutputDir(), this.getAppName());
@@ -55,6 +41,7 @@ class FlextaskAPI extends AStage {
     }
 
     #printLine() {
-        println("*".repeat(100));
+        const lineOfStars = "*".repeat(100);
+        this.writeMessage(lineOfStars, true);
     }
 }

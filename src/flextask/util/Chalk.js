@@ -41,4 +41,8 @@ class Chalk {
     static bgColor(text, bgColor) {
         return this.style(text, bgColor);
     }
+
+    static stripColors(text) {
+        return text.replace(/\x1b\[\d+m/g, '');
+    }
 }

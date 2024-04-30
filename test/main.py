@@ -16,19 +16,15 @@ def main():
     for d in json_data:
         benchmarks.update(d)
 
-    bench_names = [
-        # -------------------
-        # Applications
-        # -------------------
-        # "edgedetect",  # OK
+    apps = [
+        "edgedetect",  # OK
         # "stresstest",
         # "scenarioA",
         # "scenarioB",
         # "trivial",
         # "HiFlipVX-v2-N",
-        # -------------------
-        # AxBench
-        # -------------------
+    ]
+    axbench = [
         # "AxBench-blackscholes-N",
         # "AxBench-fft-N",
         # "AxBench-inversek2j-N",  # two separate "kernels", which makes us consider main as the starting point
@@ -36,9 +32,8 @@ def main():
         # "AxBench-jpeg-N",  # same
         # "AxBench-kmeans-N",
         # "AxBench-sobel-N",  # same
-        # -------------------
-        # CHStone
-        # -------------------
+    ]
+    chstone = [
         # "CHStone-aes-N",
         # "CHStone-blowfish-N",
         # "CHStone-dfdiv-N",
@@ -51,9 +46,8 @@ def main():
         # "CHStone-adpcm-N",
         # "CHStone-dfsin-N",
         # "CHStone-jpeg-N",
-        # -------------------
-        # CortexSuite
-        # -------------------
+    ]
+    cortex = [
         # "CortexSuite-cortex-clustering-kmeans-N",
         # "CortexSuite-cortex-clustering-spectral-N",
         # "CortexSuite-cortex-cnn-N",
@@ -79,18 +73,16 @@ def main():
         # "CortexSuite-vision-svm-N",
         # "CortexSuite-vision-texture-synthesis-N",
         # "CortexSuite-vision-tracking-N",
-        # -------------------
-        # MachSuite
-        # -------------------
+    ]
+    machsuite = [
         # "MachSuite-aes-D",  # FAIL
         # "MachSuite-backprop-D",  # OK
         # "MachSuite-fft-transpose-D",  # OK
         # "MachSuite-kmp-D",  # OK
         # "MachSuite-sort-merge-D",  # OK
         # "MachSuite-sort-radix-D",  # OK
-        # -------------------
-        # Rodinia
-        # -------------------
+    ]
+    rodinia = [
         # "Rodinia-backprop-N",
         # "Rodinia-bfs-N",
         # "Rodinia-b+tree-N",
@@ -113,15 +105,23 @@ def main():
         # "Rodinia-srad-v1-N",
         # "Rodinia-srad-v2-N",
         # "Rodinia-streamcluster-N",
-        # -------------------
-        # Rosetta
-        # -------------------
+    ]
+    rosetta = [
         # "Rosetta-3d-rendering-N",  # OK
         # "Rosetta-digit-recognition-N",  # OK
         # "Rosetta-face-detection-N",  # OK
         # "Rosetta-optical-flow-current",  # OK
         # "Rosetta-spam-filter-N",  # OK
     ]
+
+    bench_names = []
+    # bench_names.extend(apps)
+    # bench_names.extend(axbench)
+    # bench_names.extend(chstone)
+    bench_names.extend(cortex)
+    # bench_names.extend(machsuite)
+    # bench_names.extend(rodinia)
+    # bench_names.extend(rosetta)
 
     cnt = 0
     for bench_name in bench_names:

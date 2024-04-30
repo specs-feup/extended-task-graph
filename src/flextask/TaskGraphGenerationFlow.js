@@ -3,7 +3,9 @@
 laraImport("flextask/AStage");
 laraImport("flextask/OutputDirectories");
 laraImport("flextask/taskgraph/TaskGraphBuilder");
-laraImport("flextask/taskgraph/TaskGraphDotConverter");
+laraImport("flextask/taskgraph/DotConverter");
+laraImport("flextask/taskgraph/DotConverterMinimal");
+laraImport("flextask/taskgraph/DotConverterDetailed");
 laraImport("flextask/analysis/taskgraph/TaskGraphAnalyzer");
 laraImport("flextask/util/ClavaUtils");
 
@@ -13,6 +15,7 @@ class TaskGraphGenerationFlow extends AStage {
     }
 
     run(dumpGraph = true, gatherMetrics = true) {
+        this.logStart();
         this.log("Running Task Graph Generation flow");
 
         const tg = this.buildTaskGraph();
@@ -30,6 +33,7 @@ class TaskGraphGenerationFlow extends AStage {
         }
 
         this.log("Task Graph Generation flow finished successfully!");
+        this.logEnd();
         return tg;
     }
 
@@ -46,15 +50,21 @@ class TaskGraphGenerationFlow extends AStage {
 
     dumpTaskGraph(taskGraph) {
         this.log("Running task graph dumping process");
-        const conv = new TaskGraphDotConverter();
 
-        const dotVerbose = conv.convert(taskGraph);
-        const fname1 = this.saveToFileInSubfolder(dotVerbose, "taskgraph.dot", OutputDirectories.TASKGRAPH);
-        this.logOutput("Dumped full task graph to", fname1);
+        const conv1 = new DotConverter();
+        const dotNormal = conv1.convert(taskGraph);
+        const fname1 = this.saveToFileInSubfolder(dotNormal, "taskgraph.dot", OutputDirectories.TASKGRAPH);
+        this.logOutput("Dumped regular task graph to", fname1);
 
-        const dotMinimal = conv.convertMinimal(taskGraph);
+        const conv2 = new DotConverterMinimal();
+        const dotMinimal = conv2.convert(taskGraph);
         const fname2 = this.saveToFileInSubfolder(dotMinimal, "taskgraph_min.dot", OutputDirectories.TASKGRAPH);
         this.logOutput("Dumped mini task graph to", fname2);
+
+        const conv3 = new DotConverterDetailed();
+        const dotDetailed = conv3.convert(taskGraph);
+        const fname3 = this.saveToFileInSubfolder(dotDetailed, "taskgraph_det.dot", OutputDirectories.TASKGRAPH);
+        this.logOutput("Dumped detailed task graph to", fname3);
 
         this.log("Task graph successfully dumped!");
     }

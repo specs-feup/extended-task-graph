@@ -17,6 +17,7 @@ class CodeTransformationFlow extends AStage {
     }
 
     run(dumpCallGraph = true, dumpAST = true, doTransformations = true) {
+        this.logStart();
         this.log("Running code transformation flow");
 
         this.generateOriginalCode();
@@ -46,6 +47,7 @@ class CodeTransformationFlow extends AStage {
         this.logLine();
 
         this.logSuccess("Code transformation flow finished successfully!");
+        this.logEnd();
         return true;
     }
 

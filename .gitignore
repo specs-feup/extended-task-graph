@@ -17,3 +17,4 @@ a.out
 !tools/data_aggregator/outputs
 *.csv
 *.xlsx
+output/

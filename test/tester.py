@@ -124,6 +124,7 @@ def test_bench(name, config):
     dotfiles = [
         f"{out_folder}/taskgraph/{name}_taskgraph.dot",
         f"{out_folder}/taskgraph/{name}_taskgraph_min.dot",
+        f"{out_folder}/taskgraph/{name}_taskgraph_det.dot",
         f"{out_folder}/ast/original/{name}_callgraph_tb.dot",
         f"{out_folder}/ast/original/{name}_callgraph_lr.dot",
         f"{out_folder}/ast/transformed/{name}_callgraph_tb.dot",

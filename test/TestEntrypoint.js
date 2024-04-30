@@ -39,12 +39,12 @@ function run(config) {
 
     const api = new FlextaskAPI(topFunctionName, outputDir, appName);
 
-    const success = api.runCodeTransformationFlow(true, true, doTransforms);
+    const success = api.runCodeTransformationFlow(true, true, doTransforms, false);
     if (!success) {
         println("Code transformation flow failed, aborting task graph generation flow");
     }
     else if (doTaskGraph) {
-        api.runTaskGraphGenerationFlow(true, true, false);
+        api.runTaskGraphGenerationFlow(true, true, true);
     }
 }
 
