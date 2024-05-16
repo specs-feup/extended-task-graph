@@ -150,10 +150,10 @@ class TaskGraphBuilder extends AStage {
         if (body.parent.instanceOf("loop")) {
             const loop = body.parent;
             const characteristics = LoopCharacterizer.characterize(loop);
-            const iterCount = characteristics.count;
+            const iterCount = characteristics.count == undefined ? -1 : characteristics.count;
 
-            task.setRepetitions(iterCount);
-            task.getLoopReference(loop);
+            task.setRepetitions(iterCount, loop);
+            this.log("Task " + task.getUniqueName() + " has " + iterCount + " repetitions");
         }
     }
 

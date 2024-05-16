@@ -10,6 +10,8 @@ class Task {
     #id = "TNull";
     #name = "<anonymous>"
     #type = null;
+    #repetitions = 1;
+    #loopReference = null;
 
     // Data properties
     #dataParams = [];
@@ -51,6 +53,19 @@ class Task {
 
     getUniqueName() {
         return `${this.#id}-${this.#name}`;
+    }
+
+    setRepetitions(repetitions, loopRef) {
+        this.#repetitions = repetitions;
+        this.#loopReference = loopRef;
+    }
+
+    getRepetitions() {
+        return this.#repetitions;
+    }
+
+    getLoopReference() {
+        return this.#loopReference;
     }
 
     // Data methods

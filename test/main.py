@@ -17,7 +17,8 @@ def main():
         benchmarks.update(d)
 
     apps = [
-        "edgedetect",  # OK
+        "disparity",
+        # "edgedetect",  # OK
         # "stresstest",
         # "scenarioA",
         # "scenarioB",
@@ -115,10 +116,10 @@ def main():
     ]
 
     bench_names = []
-    # bench_names.extend(apps)
+    bench_names.extend(apps)
     # bench_names.extend(axbench)
     # bench_names.extend(chstone)
-    bench_names.extend(cortex)
+    # bench_names.extend(cortex)
     # bench_names.extend(machsuite)
     # bench_names.extend(rodinia)
     # bench_names.extend(rosetta)

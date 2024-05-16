@@ -1,4 +1,9 @@
 {
+    "disparity": {
+        "provenance": "inputs/disparity",
+        "standard": "c11",
+        "starterFunction": "top_level"
+    },
     "edgedetect": {
         "provenance": "inputs/edgedetect",
         "standard": "c++11",

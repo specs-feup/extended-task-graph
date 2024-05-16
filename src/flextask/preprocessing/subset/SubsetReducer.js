@@ -9,6 +9,7 @@ laraImport("clava.code.Voidifier");
 laraImport("clava.code.ArrayFlattener");
 laraImport("clava.code.FoldingPropagationCombiner");
 laraImport("clava.code.SwitchToIf");
+laraImport("clava.code.StructDecomposer");
 laraImport("flextask/util/ClavaUtils")
 laraImport("flextask/AStage");
 
@@ -63,14 +64,9 @@ class SubsetReducer extends AStage {
     }
 
     applyCodeTransforms() {
-        try {
-            this.#applyConstantFoldingAndPropagation();
-        } catch (e) {
-            this.logTrace(e);
-            this.logWarning("Constant folding and propagation may not have been thorough");
-        }
-
         this.#applySwitchToIfConversion();
+        //this.#applyStructDecomposition();
+        this.#applyConstantFoldingAndPropagation();
         this.#applyArrayFlattening();
     }
 
@@ -102,10 +98,23 @@ class SubsetReducer extends AStage {
     }
 
     #applyConstantFoldingAndPropagation() {
-        const foldProg = new FoldingPropagationCombiner();
+        try {
+            const foldProg = new FoldingPropagationCombiner();
 
-        const nPasses = foldProg.doPassesUntilStop();
-        this.log(`Applied constant propagation in ${nPasses} pass${nPasses > 1 ? "es" : ""}`);
+            const nPasses = foldProg.doPassesUntilStop();
+            this.log(`Applied constant propagation in ${nPasses} pass${nPasses > 1 ? "es" : ""}`);
+        }
+        catch (e) {
+            this.logTrace(e);
+            this.logWarning("Constant folding and propagation may not have been thorough");
+        }
+    }
+
+    #applyStructDecomposition() {
+        const decomp = new StructDecomposer(true);
+
+        const structNames = decomp.decomposeAll();
+        this.log(`Decomposed ${structNames.length} struct${structNames.length > 1 ? "s" : ""}: ${structNames.join(", ")}`);
     }
 
     #applySwitchToIfConversion() {
