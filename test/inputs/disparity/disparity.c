@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// #define FORCE_MALLOC
+
 // from padarray4.c
 void padarray4(int *inMat_w, int *inMat_h, int *inMat_data, int *borderMat_w,
                int *borderMat_h, int *borderMat_data, int dir,

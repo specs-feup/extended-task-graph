@@ -17,8 +17,8 @@ def main():
         benchmarks.update(d)
 
     apps = [
-        "disparity",
-        # "edgedetect",  # OK
+        # "disparity",
+        "edgedetect",  # OK
         # "stresstest",
         # "scenarioA",
         # "scenarioB",
