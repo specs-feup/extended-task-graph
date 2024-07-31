@@ -116,13 +116,13 @@ def main():
     ]
 
     bench_names = []
-    # bench_names.extend(apps)
+    bench_names.extend(apps)
     # bench_names.extend(axbench)
     # bench_names.extend(chstone)
     # bench_names.extend(cortex)
     # bench_names.extend(machsuite)
     # bench_names.extend(rodinia)
-    bench_names.extend(rosetta)
+    # bench_names.extend(rosetta)
 
     cnt = 0
     for bench_name in bench_names:

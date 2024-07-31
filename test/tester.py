@@ -30,7 +30,6 @@ def set_default_args(clava):
     clava.set_clean_intermediate_files()
     clava.set_copy_files_in_sources()
     clava.set_allow_custom_resources()
-    clava.set_custom_resources()
     clava.set_parallel_parsing()
     clava.set_parse_includes()
     clava.set_show_stack()

@@ -67,9 +67,6 @@ class Clava:
     def set_parse_includes(self):
         self._add("-pi", "--parse-includes")
 
-    def set_custom_resources(self):
-        self._add("-cr", "--custom-resources")
-
     def set_clean_intermediate_files(self):
         self._add("-cl", "--cl")
 

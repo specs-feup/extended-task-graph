@@ -3,11 +3,19 @@
 #include <cmath>
 #include <chrono>
 #include <iostream>
-#include "config.h"
-#include "util.h"
 
 using namespace std;
 using namespace std::chrono;
+
+// Universal params
+#define ITER 0 // 1000
+
+#define K 3
+#define N 512 // 128
+#define T 50  // 127
+
+#define H N
+#define W N
 
 #define FORCE_EXTERNAL
 
