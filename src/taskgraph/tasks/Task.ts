@@ -1,87 +1,88 @@
-"use strict";
+import { Call, Loop, Param, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { TaskType } from "./TaskType.js";
+import { DataItem } from "../DataItem.js";
+import { Communication } from "../Communication.js";
+import { ControlEdge } from "../ControlEdge.js";
+import { DataItemOrigin } from "../DataItemOrigin.js";
+import { AccessType } from "../AccessType.js";
 
-laraImport("lara.util.IdGenerator");
-laraImport("weaver.Query");
-laraImport("flextask/taskgraph/DataItem");
-laraImport("flextask/taskgraph/DataItemOrigins");
-
-class Task {
+export abstract class Task {
     // Basic task details
-    #id = "TNull";
-    #name = "<anonymous>"
-    #type = null;
-    #repetitions = 1;
-    #loopReference = null;
+    #id: string = "TNull";
+    #name: string = "<anonymous>"
+    #type: TaskType = TaskType.REGULAR;
+    #repetitions: number = 1;
+    #loopReference: Loop | null = null;
 
     // Data properties
-    #dataParams = [];
-    #dataGlobalRefs = [];
-    #dataNew = [];
-    #dataConstants = [];
+    #dataParams: DataItem[] = [];
+    #dataGlobalRefs: DataItem[] = [];
+    #dataNew: DataItem[] = [];
+    #dataConstants: DataItem[] = [];
 
     // Data communication properties
-    #incomingComm = [];
-    #outgoingComm = [];
+    #incomingComm: Communication[] = [];
+    #outgoingComm: Communication[] = [];
 
     // Control properties
-    #incomingControl = [];
-    #outgoingControl = [];
+    #incomingControl: ControlEdge[] = [];
+    #outgoingControl: ControlEdge[] = [];
 
-    constructor(type) {
+    constructor(type: TaskType) {
         this.#type = type;
     }
 
-    getType() {
+    getType(): TaskType {
         return this.#type;
     }
 
-    getId() {
+    getId(): string {
         return this.#id;
     }
 
-    setId(id) {
+    setId(id: string): void {
         this.#id = id;
     }
 
-    getName() {
+    getName(): string {
         return this.#name;
     }
 
-    setName(name) {
+    setName(name: string): void {
         this.#name = name;
     }
 
-    getUniqueName() {
+    getUniqueName(): string {
         return `${this.#id}-${this.#name}`;
     }
 
-    setRepetitions(repetitions, loopRef) {
+    setRepetitions(repetitions: number, loopRef: Loop) {
         this.#repetitions = repetitions;
         this.#loopReference = loopRef;
     }
 
-    getRepetitions() {
+    getRepetitions(): number {
         return this.#repetitions;
     }
 
-    getLoopReference() {
+    getLoopReference(): Loop | null {
         return this.#loopReference;
     }
 
     // Data methods
-    getDataRead(type = DataItemOrigins.ANY) {
-        return this.#getDataByAccessType("READ", type);
+    getDataRead(type = DataItemOrigin.ANY): DataItem[] {
+        return this.#getDataByAccessType(AccessType.READ, type);
     }
 
-    getDataWritten(type = DataItemOrigins.ANY) {
-        return this.#getDataByAccessType("WRITE", type);
+    getDataWritten(type = DataItemOrigin.ANY): DataItem[] {
+        return this.#getDataByAccessType(AccessType.WRITE, type);
     }
 
-    getData() {
+    getData(): DataItem[] {
         return [...this.#dataParams, ...this.#dataGlobalRefs, ...this.#dataNew, ...this.#dataConstants];
     }
 
-    getDataAsMap() {
+    getDataAsMap(): Map<string, DataItem> {
         const data = new Map();
         for (const datum of this.getData()) {
             data.set(datum.getName(), datum);
@@ -89,7 +90,7 @@ class Task {
         return data;
     }
 
-    getDataItemByName(name) {
+    getDataItemByName(name: string): DataItem | null {
         for (const datum of this.getData()) {
             if (datum.getName() == name) {
                 return datum;
@@ -98,7 +99,7 @@ class Task {
         return null;
     }
 
-    getDataItemByAltName(name) {
+    getDataItemByAltName(name: string): DataItem | null {
         for (const datum of this.getData()) {
             if (datum.getAlternateName() == name) {
                 return datum;
@@ -107,60 +108,60 @@ class Task {
         return null;
     }
 
-    getParamData() {
+    getParamData(): DataItem[] {
         return this.#dataParams;
     }
 
-    addParamData(dataItem) {
+    addParamData(dataItem: DataItem): void {
         this.#dataParams.push(dataItem);
     }
 
-    getGlobalRefData() {
+    getGlobalRefData(): DataItem[] {
         return this.#dataGlobalRefs;
     }
 
-    addGlobalRefData(dataItem) {
+    addGlobalRefData(dataItem: DataItem): void {
         this.#dataGlobalRefs.push(dataItem);
     }
 
-    getNewData() {
+    getNewData(): DataItem[] {
         return this.#dataNew;
     }
 
-    addNewData(dataItem) {
+    addNewData(dataItem: DataItem): void {
         this.#dataNew.push(dataItem);
     }
 
-    getConstantData() {
+    getConstantData(): DataItem[] {
         return this.#dataConstants;
     }
 
-    addConstantData(dataItem) {
+    addConstantData(dataItem: DataItem): void {
         this.#dataConstants.push(dataItem);
     }
 
-    getReferencedData() {
+    getReferencedData(): DataItem[] {
         return [...this.#dataParams, ...this.#dataGlobalRefs];
     }
 
     // Communication methods
-    addOutgoingComm(communication) {
+    addOutgoingComm(communication: Communication): void {
         this.#outgoingComm.push(communication);
     }
 
-    addIncomingComm(communication) {
+    addIncomingComm(communication: Communication): void {
         this.#incomingComm.push(communication);
     }
 
-    getOutgoingComm() {
+    getOutgoingComm(): Communication[] {
         return this.#outgoingComm;
     }
 
-    getIncomingComm() {
+    getIncomingComm(): Communication[] {
         return this.#incomingComm;
     }
 
-    getOutgoingOfData(datum) {
+    getOutgoingOfData(datum: DataItem): Communication[] {
         const comm = [];
         for (const communication of this.#outgoingComm) {
             if (communication.getSourceData().getName() == datum.getName() ||
@@ -171,7 +172,7 @@ class Task {
         return comm;
     }
 
-    getIncomingOfData(datum) {
+    getIncomingOfData(datum: DataItem): Communication | null {
         for (const communication of this.#incomingComm) {
             if (communication.getTargetData().getName() == datum.getName() ||
                 communication.getTargetData().getAlternateName() == datum.getName()) {
@@ -182,34 +183,34 @@ class Task {
     }
 
     // Control methods
-    getOutgoingControl() {
+    getOutgoingControl(): ControlEdge[] {
         return this.#outgoingControl;
     }
 
-    getIncomingControl() {
+    getIncomingControl(): ControlEdge[] {
         return this.#incomingControl;
     }
 
-    addOutgoingControl(control) {
+    addOutgoingControl(control: ControlEdge): void {
         this.#outgoingControl.push(control);
     }
 
-    addIncomingControl(control) {
+    addIncomingControl(control: ControlEdge): void {
         this.#incomingControl.push(control);
     }
 
-    createDataObjects(vars, originType) {
+    createDataObjects(vars: Vardecl[], originType: DataItemOrigin) {
         for (const vardecl of vars) {
             const data = new DataItem(vardecl, originType);
 
             switch (originType) {
-                case DataItemOrigins.PARAM:
+                case DataItemOrigin.PARAM:
                     this.#dataParams.push(data);
                     break;
-                case DataItemOrigins.GLOBAL_REF:
+                case DataItemOrigin.GLOBAL_REF:
                     this.#dataGlobalRefs.push(data);
                     break;
-                case DataItemOrigins.NEW:
+                case DataItemOrigin.NEW:
                     this.#dataNew.push(data);
                     break;
                 default:
@@ -218,43 +219,43 @@ class Task {
         }
     }
 
-    createConstantObject(immConst, funCall) {
-        const datum = new DataItem(immConst, DataItemOrigins.CONSTANT);
+    createConstantObject(immConst: Vardecl, funCall: Call) {
+        const datum = new DataItem(immConst, DataItemOrigin.CONSTANT);
         datum.setImmediateFunctionCall(funCall);
         this.#dataConstants.push(datum);
     }
 
     // ---------------------------------------------------------------------
-    #getDataByAccessType(accessType, origin = DataItemOrigins.ANY) {
-        let data = [];
-        if (origin == DataItemOrigins.ANY) {
+    #getDataByAccessType(accessType: AccessType, origin = DataItemOrigin.ANY): DataItem[] {
+        let data: DataItem[] = [];
+        if (origin == DataItemOrigin.ANY) {
             data = [
                 ...this.#dataParams,
                 ...this.#dataGlobalRefs,
                 ...this.#dataNew,
                 ...this.#dataConstants];
         }
-        if (origin == DataItemOrigins.PARAM) {
+        if (origin == DataItemOrigin.PARAM) {
             data = this.#dataParams;
         }
-        if (origin == DataItemOrigins.GLOBAL_REF) {
+        if (origin == DataItemOrigin.GLOBAL_REF) {
             data = this.#dataGlobalRefs;
         }
-        if (origin == DataItemOrigins.NEW) {
+        if (origin == DataItemOrigin.NEW) {
             data = this.#dataNew;
         }
-        if (origin == DataItemOrigins.CONSTANT) {
+        if (origin == DataItemOrigin.CONSTANT) {
             data = this.#dataConstants;
         }
 
         const dataAccessed = [];
         for (const datum of data) {
-            if (accessType === "READ") {
+            if (accessType === AccessType.READ) {
                 if (datum.isWritten()) {
                     dataAccessed.push(datum);
                 }
             }
-            else if (accessType === "WRITE") {
+            else if (accessType === AccessType.WRITE) {
                 if (datum.isWritten()) {
                     dataAccessed.push(datum);
                 }

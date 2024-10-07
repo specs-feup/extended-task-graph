@@ -1,25 +1,25 @@
-"use strict";
+import { Call, FloatLiteral, IntLiteral, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { DataItemOrigin } from "./DataItemOrigin.js";
+import { ClavaUtils } from "../util/ClavaUtils.js";
 
-laraImport("flextask/taskgraph/DataItemOrigins");
+export class DataItem {
+    #ref: Vardecl;
+    #name: string = "<no_name>";
+    #isInit: boolean = false;
+    #isWritten: boolean = false;
+    #isRead: boolean = false;
 
-class DataItem {
-    #ref = null;
-    #name = "<noname>";
-    #isInit = false;
-    #isWritten = false;
-    #isRead = false;
+    #isScalar: boolean = false;
+    #dims: number[] = [];
+    #sizeInBytes: number = -1;
+    #datatype: string = "<no_type>";
+    #datatypeSize: number = 4;
 
-    #isScalar = false;
-    #dims = [];
-    #sizeInBytes = -1;
-    #datatype = null;
-    #datatypeSize = 4;
+    #itemOrigin: DataItemOrigin = DataItemOrigin.NEW;
+    #alternateName: string = "<no_alt_name>";
+    #immediateFunctionCall: Call | null = null;
 
-    #itemOrigin = DataItemOrigins.NEW;
-    #alternateName = "<no_alt_name>";
-    #immediateFunctionCall = null;
-
-    constructor(ref, origin) {
+    constructor(ref: Vardecl, origin: DataItemOrigin) {
         this.#ref = ref;
         this.#itemOrigin = origin;
         this.#name = this.#getNameFromRef(ref);
@@ -27,113 +27,114 @@ class DataItem {
         this.#demangleDatatype(ref);
     }
 
-    getName() {
+    getName(): string {
         return this.#name;
     }
 
-    getItemOriginType() {
+    getItemOriginType(): DataItemOrigin {
         return this.#itemOrigin;
     }
 
-    getDecl() {
+    getDecl(): Vardecl | null {
         return this.#ref;
     }
 
-    getDatatype() {
+    getDatatype(): any {
         return this.#datatype;
     }
 
-    getDimensions() {
+    getDimensions(): number[] {
         return this.#dims;
     }
 
-    getAlternateName() {
+    getAlternateName(): string {
         return this.#alternateName;
     }
 
-    getSizeInBytes() {
+    getSizeInBytes(): number {
         return this.#sizeInBytes;
     }
 
-    setAlternateName(name) {
+    setAlternateName(name: string) {
         this.#alternateName = name;
     }
 
-    setWritten() {
+    setWritten(): void {
         this.#isInit = true;
         this.#isWritten = true;
     }
 
-    setRead() {
+    setRead(): void {
         this.#isInit = true;
         this.#isRead = true;
     }
 
-    setInitialized() {
+    setInitialized(): void {
         this.#isInit = true;
     }
 
-    isWritten() {
+    isWritten(): boolean {
         return this.#isWritten;
     }
 
-    isRead() {
+    isRead(): boolean {
         return this.#isRead;
     }
 
-    isInitialized() {
+    isInitialized(): boolean {
         return this.#isInit;
     }
 
-    isOnlyRead() {
+    isOnlyRead(): boolean {
         return this.#isRead && !this.#isWritten;
     }
 
-    isOnlyWritten() {
+    isOnlyWritten(): boolean {
         return !this.#isRead && this.#isWritten;
     }
 
-    getDatatypeSize() {
+    getDatatypeSize(): number {
         return this.#datatypeSize;
     }
 
-    getImmediateFunctionCall() {
+    getImmediateFunctionCall(): Call | null {
         return this.#immediateFunctionCall;
     }
 
-    setImmediateFunctionCall(call) {
-        if (this.#itemOrigin !== DataItemOrigins.CONSTANT) {
+    setImmediateFunctionCall(call: Call): void {
+        if (this.#itemOrigin !== DataItemOrigin.CONSTANT) {
             throw new Error("You can only specify an immediate function call for immediate constants!");
         }
         this.#immediateFunctionCall = call;
     }
 
-    isNewlyCreated() {
-        return this.#itemOrigin === DataItemOrigins.NEW;
+    isNewlyCreated(): boolean {
+        return this.#itemOrigin === DataItemOrigin.NEW;
     }
 
-    isFromParam() {
-        return this.#itemOrigin === DataItemOrigins.PARAM;
+    isFromParam(): boolean {
+        return this.#itemOrigin === DataItemOrigin.PARAM;
     }
 
-    isFromGlobal() {
-        return this.#itemOrigin === DataItemOrigins.GLOBAL_REF;
+    isFromGlobal(): boolean {
+        return this.#itemOrigin === DataItemOrigin.GLOBAL_REF;
     }
 
-    isConstant() {
-        return this.#itemOrigin === DataItemOrigins.CONSTANT;
+    isConstant(): boolean {
+        return this.#itemOrigin === DataItemOrigin.CONSTANT;
     }
 
-    isScalar() {
+    isScalar(): boolean {
         return this.#isScalar;
     }
 
-    toString() {
+    toString(): string {
         const status = !this.#isInit ? "U" : (this.#isRead ? "R" : "") + (this.#isWritten ? "W" : "");
-        return `${this.#ref.name} {${this.#sizeInBytes}} ${status}`;
+        const refName = this.#ref ? this.#ref.name : "<null_ref>";
+        return `${refName} {${this.#sizeInBytes}} ${status}`;
     }
 
-    #demangleDatatype(decl) {
+    #demangleDatatype(decl: Vardecl): void {
         const type = decl.type;
         const typeCode = type.code;
 
@@ -148,8 +149,8 @@ class DataItem {
         }
     }
 
-    #getNameFromRef(ref) {
-        if (ref.instanceOf(["intLiteral", "floatLiteral"])) {
+    #getNameFromRef(ref: Vardecl): string {
+        if (ref instanceof IntLiteral || ref instanceof FloatLiteral) {
             return "imm(" + ref.value + ")";
         }
         else {
@@ -157,18 +158,19 @@ class DataItem {
         }
     }
 
-    #demangleScalar(typeCode) {
+    #demangleScalar(typeCode: string): void {
         this.#datatype = typeCode;
         this.#datatypeSize = ClavaUtils.getDatatypeSize(typeCode);
         this.#sizeInBytes = this.#datatypeSize;
         this.#isScalar = true;
     }
 
-    #demanglePointer(typeCode) {
+    #demanglePointer(typeCode: string): void {
         const datatype = typeCode.substring(0, typeCode.indexOf("*"));
         const datatypeSize = ClavaUtils.getDatatypeSize(datatype);
 
-        const refCount = typeCode.match(/\*/g).length;
+        const match = typeCode.match(/\*/g);
+        const refCount = match ? match.length : 0;
         const dims = Array.from({ length: refCount }, () => -1);
 
         this.#dims = dims;
@@ -177,13 +179,14 @@ class DataItem {
         this.#isScalar = false;
     }
 
-    #demangleArray(typeCode) {
+    #demangleArray(typeCode: string): void {
         const datatype = typeCode.substring(0, typeCode.indexOf("["));
         const datatypeSize = ClavaUtils.getDatatypeSize(datatype);
 
         const dimsStr = typeCode.substring(typeCode.indexOf("[") + 1);
         if (!dimsStr.startsWith("]")) {
-            const dims = dimsStr.match(/\d+/g).map(Number);
+            const match = dimsStr.match(/\d+/g);
+            const dims = match != null ? match.map(Number) : [];
             let size = 0;
             for (const dim of dims) {
                 size += dim * datatypeSize;

@@ -1,13 +1,14 @@
-"use strict";
+import { DataItem } from "./DataItem.js";
+import { Task } from "./tasks/Task.js";
 
-class Communication {
-    #source = null;
-    #target = null;
-    #sourceData = null;
-    #targetData = null;
-    #rank = -1;
+export class Communication {
+    #source: Task;
+    #target: Task;
+    #sourceData: DataItem;
+    #targetData: DataItem;
+    #rank: number = -1;
 
-    constructor(source, target, sourceData, targetData, rank) {
+    constructor(source: Task, target: Task, sourceData: DataItem, targetData: DataItem, rank: number) {
         this.#source = source;
         this.#target = target;
         this.#sourceData = sourceData;
@@ -15,36 +16,36 @@ class Communication {
         this.#rank = rank;
     }
 
-    getSource() {
+    getSource(): Task {
         return this.#source;
     }
 
-    getTarget() {
+    getTarget(): Task {
         return this.#target;
     }
 
-    getSourceData() {
+    getSourceData(): DataItem {
         return this.#sourceData;
     }
 
-    getTargetData() {
+    getTargetData(): DataItem {
         return this.#targetData;
     }
 
-    getData() {
+    getData(): [DataItem, DataItem] {
         return [this.#sourceData, this.#targetData];
     }
 
-    getRank() {
+    getRank(): number {
         return this.#rank;
     }
 
-    toString() {
+    toString(): string {
         if (this.#sourceData == null || this.#targetData == null) {
             let str = this.#sourceData != null ? this.#sourceData.getName() : "<undef>";
             str += this.#targetData != null ? "/" + this.#targetData.getName() : "/<undef>";
 
-            println(this.#source.getUniqueName() + " -> " + this.#target.getUniqueName() + " : " + str);
+            console.log(this.#source.getUniqueName() + " -> " + this.#target.getUniqueName() + " : " + str);
 
             return str;
         }

@@ -1,6 +1,6 @@
-"use strict";
+import { Call, FunctionJp } from "@specs-feup/clava/api/Joinpoints.js";
 
-class ExternalFunctionsMatcher {
+export class ExternalFunctionsMatcher {
     static mathHFuns = {
         "acos": [
             "double"
@@ -474,25 +474,25 @@ class ExternalFunctionsMatcher {
 
     static cppBuiltins = ["__builtin_memcpy", "operator"];
 
-    static isFromMathH(funOrCall) {
+    static isFromMathH(funOrCall: FunctionJp | Call): boolean {
         return ExternalFunctionsMatcher.#isFromGeneric(funOrCall, ExternalFunctionsMatcher.mathHFuns);
     }
 
-    static isFromStdlibH(funOrCall) {
+    static isFromStdlibH(funOrCall: FunctionJp | Call): boolean {
         return ExternalFunctionsMatcher.#isFromGeneric(funOrCall, ExternalFunctionsMatcher.stdlibHFuns);
     }
 
-    static isFromCmath(funOrCall) {
+    static isFromCmath(funOrCall: FunctionJp | Call): boolean {
         return ExternalFunctionsMatcher.#isFromGeneric(funOrCall, ExternalFunctionsMatcher.cmathFuns);
     }
 
-    static isCppBuiltin(funOrCall) {
+    static isCppBuiltin(funOrCall: FunctionJp | Call): boolean {
         const name = funOrCall.name;
         const builtins = ExternalFunctionsMatcher.cppBuiltins;
         return builtins.some(builtin => name.startsWith(builtin));
     }
 
-    static isValidExternal(funOrCall) {
+    static isValidExternal(funOrCall: FunctionJp | Call): boolean {
         if (ExternalFunctionsMatcher.isFromMathH(funOrCall)) {
             return true;
         }
@@ -508,7 +508,7 @@ class ExternalFunctionsMatcher {
         return false;
     }
 
-    static #isFromGeneric(funOrCall, funList) {
+    static #isFromGeneric(funOrCall: FunctionJp | Call, funList: Record<string, string[] | string[][]>): boolean {
         const fun = ExternalFunctionsMatcher.#sanitize(funOrCall);
 
         if (funList.hasOwnProperty(fun.name)) {
@@ -540,11 +540,11 @@ class ExternalFunctionsMatcher {
         return false;
     }
 
-    static #sanitize(funOrCall) {
-        if (funOrCall.instanceOf("call")) {
+    static #sanitize(funOrCall: FunctionJp | Call) {
+        if (funOrCall instanceof Call) {
             return funOrCall.function;
         }
-        else if (funOrCall.instanceOf("function")) {
+        else if (funOrCall instanceof FunctionJp) {
             return funOrCall;
         }
         else {

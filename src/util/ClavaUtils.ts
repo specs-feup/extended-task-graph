@@ -1,8 +1,9 @@
-"use strict";
+import Clava from "@specs-feup/clava/api/clava/Clava.js";
+import { ArrayAccess, BinaryOp, Call, FunctionJp, Joinpoint, PointerType, UnaryExprOrType, UnaryOp, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import Io from "@specs-feup/lara/api/lara/Io.js";
+import Query from "@specs-feup/lara/api/weaver/Query.js";
 
-laraImport("clava.Clava");
-
-class ClavaUtils {
+export class ClavaUtils {
     static verifySyntax() {
         let valid = true;
         Clava.pushAst();
@@ -16,7 +17,7 @@ class ClavaUtils {
         return valid;
     }
 
-    static generateCode(weaveDir, folder) {
+    static generateCode(weaveDir: string, folder: string) {
         const path = weaveDir + "/" + folder;
 
         Io.deleteFolderContents(path);
@@ -24,7 +25,7 @@ class ClavaUtils {
         return path;
     }
 
-    static matchTemplate(jp, template) {
+    static matchTemplate(jp: Joinpoint, template: string) {
         const split = template[0].split(" ");
         const type = split[0];
         const cond = split.length == 2 ? split[1] : "none";
@@ -33,8 +34,8 @@ class ClavaUtils {
             return false;
         }
         if (cond == "noassign") {
-            if (!jp.instanceOf("binaryOp")) {
-                println("[TemplateMatcher] Cannot process condition \"noassign\" on a joinpoint of type " + jp.joinPointType + "; ignoring");
+            if (!(jp instanceof BinaryOp)) {
+                console.log("[TemplateMatcher] Cannot process condition \"noassign\" on a joinpoint of type " + jp.joinPointType + "; ignoring");
             }
             else {
                 if (jp.kind == "assign") {
@@ -43,8 +44,8 @@ class ClavaUtils {
             }
         }
         if (cond == "assign") {
-            if (!jp.instanceOf("binaryOp")) {
-                println("[TemplateMatcher] Cannot process condition \"assign\" on a joinpoint of type " + jp.joinPointType + "; ignoring");
+            if (!(jp instanceof BinaryOp)) {
+                console.log("[TemplateMatcher] Cannot process condition \"assign\" on a joinpoint of type " + jp.joinPointType + "; ignoring");
             }
             else {
                 if (jp.kind != "assign") {
@@ -61,14 +62,14 @@ class ClavaUtils {
         return true;
     }
 
-    static getAllUniqueFunctions(topFunction, includeExternals = false) {
+    static getAllUniqueFunctions(topFunction: FunctionJp, includeExternals = false) {
         const funs = [];
 
         funs.push(topFunction);
         const childrenFuns = ClavaUtils.getEligibleFunctionsFrom(topFunction, includeExternals);
         funs.push(...childrenFuns);
 
-        const uniqueFuns = [];
+        const uniqueFuns: FunctionJp[] = [];
         for (const fun of funs) {
             if (!uniqueFuns.some(elem => elem.signature === fun.signature) && fun) {
                 uniqueFuns.push(fun);
@@ -77,10 +78,10 @@ class ClavaUtils {
         return uniqueFuns;
     }
 
-    static getEligibleFunctionsFrom(parent, includeExternals = false) {
-        const funs = [];
+    static getEligibleFunctionsFrom(parent: Joinpoint, includeExternals = false): FunctionJp[] {
+        const funs: FunctionJp[] = [];
 
-        for (const call of Query.searchFrom(parent, "call")) {
+        for (const call of Query.searchFrom(parent, Call)) {
             const fun = call.function;
             if (fun == undefined) {
                 continue;
@@ -96,36 +97,36 @@ class ClavaUtils {
         return funs;
     }
 
-    static functionHasImplementation(fun) {
+    static functionHasImplementation(fun: FunctionJp) {
         if (fun.name.startsWith("operator")) {
             return false;
         }
-        return fun.hasDefinition && fun.isImplementation && fun.body.children.length > 0;
+        return fun.isImplementation && fun.body.children.length > 0;
     }
 
-    static isDef(varref) {
-        if (varref.parent.instanceOf("binaryOp")) {
+    static isDef(varref: Varref) {
+        if (varref.parent instanceof BinaryOp) {
             const binOp = varref.parent;
             return binOp.kind == "assign" && binOp.left.code == varref.code;
         }
-        if (varref.parent.instanceOf("arrayAccess")) {
+        if (varref.parent instanceof ArrayAccess) {
             const arrAccess = varref.parent;
 
-            if (arrAccess.parent.instanceOf("binaryOp")) {
+            if (arrAccess.parent instanceof BinaryOp) {
                 const binOp = arrAccess.parent;
                 return binOp.kind == "assign" && binOp.left.code == arrAccess.code;
             }
-            if (arrAccess.parent.instanceOf("vardecl")) {
+            if (arrAccess.parent instanceof Vardecl) {
                 return arrAccess.numChildren > 1;
             }
         }
-        if (varref.type.instanceOf("pointerType")) {
+        if (varref.type instanceof PointerType) {
             const parent = varref.parent;
             const grandparent = parent.parent;
 
-            const cond1 = parent.instanceOf("unaryOp") && parent.kind == "deref";
+            const cond1 = parent instanceof UnaryOp && parent.kind == "deref";
             if (cond1) {
-                const cond2 = grandparent.instanceOf("binaryOp") && grandparent.kind == "assign";
+                const cond2 = grandparent instanceof BinaryOp && grandparent.kind == "assign";
                 if (cond2) {
                     return grandparent.left.code == parent.code;
                 }
@@ -135,7 +136,7 @@ class ClavaUtils {
         return false;
     }
 
-    static getDatatypeSize(datatype) {
+    static getDatatypeSize(datatype: string) {
         const cDataTypes = new Map([
             ['char', 1],
             ['unsigned char', 1],

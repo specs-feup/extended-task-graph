@@ -1,24 +1,22 @@
-"use strict";
+import { FunctionJp } from "@specs-feup/clava/api/Joinpoints.js";
+import Io from "@specs-feup/lara/api/lara/Io.js";
+import Query from "@specs-feup/lara/api/weaver/Query.js";
+import { Chalk, ChalkColor, ChalkStyle } from "./util/Chalk.js";
+import { OutputDirectories } from "./OutputDirectories.js";
 
-laraImport("lara.Io");
-laraImport("flextask/util/Chalk");
+export abstract class AStage {
+    #stageName: string = "DefaultStage";
+    #padding: number = 50;
+    #topFunctionName: string;
+    #appName: string;
+    #outputDir: string;
+    #logFile: string;
+    #startTimestamp: Date = new Date();
+    static #isLogFileInitialized: boolean = false;
+    static #currentLog: string = "";
+    static #maxLogSize: number = 2048;
 
-class AStage {
-    #stageName = "DefaultStage";
-    #padding = 50;
-    #topFunctionName;
-    #appName;
-    #outputDir;
-    #logFile;
-    #startTimestamp = new Date();
-    static #isLogFileInitialized = false;
-    static #currentLog = "";
-    static #maxLogSize = 2048;
-
-    constructor(stageName, topFunctionName, outputDir = "output", appName = "default_app_name") {
-        if (new.target === AStage) {
-            throw new Error("Can't instantiate abstract class.");
-        }
+    constructor(stageName: string, topFunctionName: string, outputDir = "output", appName = "default_app_name") {
         this.#stageName = stageName;
         this.#topFunctionName = topFunctionName;
         this.#appName = appName;
@@ -31,44 +29,44 @@ class AStage {
         }
     }
 
-    getTopFunction() {
-        println("!!!!!! getTopFunction() is deprecated, use getTopFunctionJoinPoint() instead !!!!!!");
+    getTopFunction(): FunctionJp {
+        console.log("!!!!!! getTopFunction() is deprecated, use getTopFunctionJoinPoint() instead !!!!!!");
         return this.getTopFunctionJoinPoint();
     }
 
-    getTopFunctionJoinPoint() {
-        return Query.search("function", { name: this.getTopFunctionName(), isImplementation: true }).first();
+    getTopFunctionJoinPoint(): FunctionJp {
+        return Query.search(FunctionJp, { name: this.getTopFunctionName(), isImplementation: true }).first() as FunctionJp;
     }
 
-    setAppName(appName) {
+    setAppName(appName: string): void {
         this.#appName = appName;
     }
 
-    setOutputDir(outputDir) {
+    setOutputDir(outputDir: string): void {
         this.#outputDir = outputDir;
     }
 
-    getAppName() {
+    getAppName(): string {
         return this.#appName;
     }
 
-    getOutputDir() {
+    getOutputDir(): string {
         return this.#outputDir;
     }
 
-    getTopFunctionName() {
+    getTopFunctionName(): string {
         return this.#topFunctionName;
     }
 
-    #getStageOutputHeader() {
+    #getStageOutputHeader(): string {
         const fullName = `FTG-${this.#stageName}`;
-        const coloredName = Chalk.color(fullName, "cyan");
+        const coloredName = Chalk.color(fullName, ChalkColor.cyan);
 
         const header = `[${coloredName}] `.padEnd(this.#padding, '-');
         return header;
     }
 
-    writeMessage(message, forceFlush = false) {
+    writeMessage(message: string, forceFlush = false): void {
         const strippedMsg = Chalk.stripColors(message) + "\n";
         AStage.#currentLog += strippedMsg;
 
@@ -77,15 +75,15 @@ class AStage {
             AStage.#currentLog = "";
         }
 
-        println(message);
+        console.log(message);
     }
 
-    log(message) {
+    log(message: string): void {
         const header = this.#getStageOutputHeader();
         this.writeMessage(`${header} ${message}`);
     }
 
-    logStart() {
+    logStart(): void {
         const date = new Date();
         const timestamp = date.toISOString();
         const msg = `Starting at ${timestamp}`;
@@ -94,7 +92,7 @@ class AStage {
         this.#startTimestamp = date;
     }
 
-    logEnd() {
+    logEnd(): void {
         const date = new Date();
         const diff = date.getTime() - this.#startTimestamp.getTime();
         const diffInSeconds = diff / 1000;
@@ -106,7 +104,7 @@ class AStage {
         this.log(msg);
     }
 
-    logOutput(message, path) {
+    logOutput(message: string, path: string): void {
         const header = this.#getStageOutputHeader();
 
         let minPath = path;
@@ -118,52 +116,57 @@ class AStage {
             }
         }
 
-        let prettyPath = Chalk.style(minPath, "italic");
-        prettyPath = Chalk.color(prettyPath, "blue");
+        let prettyPath = Chalk.style(minPath, ChalkStyle.italic);
+        prettyPath = Chalk.color(prettyPath, ChalkColor.blue);
 
         this.writeMessage(`${header} ${message} ${prettyPath}`);
     }
 
-    logSuccess(message) {
+    logSuccess(message: string): void {
         const header = this.#getStageOutputHeader();
-        const success = Chalk.color("Success: ", "green");
+        const success = Chalk.color("Success: ", ChalkColor.green);
         this.writeMessage(`${header} ${success} ${message}`);
     }
 
-    logWarning(message) {
+    logWarning(message: string): void {
         const header = this.#getStageOutputHeader();
-        const warning = Chalk.color("Warning: ", "yellow");
+        const warning = Chalk.color("Warning: ", ChalkColor.yellow);
         this.writeMessage(`${header} ${warning} ${message}`);
     }
 
-    logError(message) {
+    logError(message: string): void {
         const header = this.#getStageOutputHeader();
-        const err = Chalk.color("Error: ", "red");
+        const err = Chalk.color("Error: ", ChalkColor.red);
         this.writeMessage(`${header} ${err} ${message}`);
     }
 
-    logTrace(exception) {
+    logTrace(exception: unknown): void {
         const header = this.#getStageOutputHeader();
-        const err = Chalk.color("Exception caught with stack trace:", "red");
-        const end = Chalk.color("----------------------------------", "red");
+        const err = Chalk.color("Exception caught with stack trace:", ChalkColor.red);
+        const end = Chalk.color("----------------------------------", ChalkColor.red);
 
         this.writeMessage(`${header} ${err}`);
-        this.writeMessage(exception.stack);
+        if (exception instanceof Error) {
+            this.writeMessage(exception.stack as string);
+        }
+        else {
+            this.writeMessage("(No stack trace available)");
+        }
         this.writeMessage(`${header} ${end}`);
     }
 
-    logLine() {
+    logLine(): void {
         const header = this.#getStageOutputHeader();
         this.writeMessage(`${header}${"-".repeat(58)}`);
     }
 
-    saveToFile(content, filename) {
+    saveToFile(content: string, filename: string): string {
         const fullName = `${this.#outputDir}/${this.#appName}_${filename}`;
         Io.writeFile(fullName, content);
         return fullName;
     }
 
-    saveToFileInSubfolder(content, filename, subfolder) {
+    saveToFileInSubfolder(content: string, filename: string, subfolder: string): string {
         const fullName = `${this.#outputDir}/${subfolder}/${this.#appName}_${filename}`;
         Io.writeFile(fullName, content);
         return fullName;

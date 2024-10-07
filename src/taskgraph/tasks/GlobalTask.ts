@@ -1,15 +1,15 @@
-"use strict";
+import { Vardecl } from "@specs-feup/clava/api/Joinpoints.js";
+import { Task } from "./Task.js";
+import { TaskType } from "./TaskType.js";
+import Query from "@specs-feup/lara/api/weaver/Query.js";
+import { DataItem } from "../DataItem.js";
+import { DataItemOrigin } from "../DataItemOrigin.js";
 
-laraImport("lara.util.IdGenerator");
-laraImport("flextask/taskgraph/tasks/Task");
-laraImport("flextask/taskgraph/tasks/TaskTypes");
-
-
-class GlobalTask extends Task {
-    #dataGlobalDecls = [];
+export class GlobalTask extends Task {
+    #dataGlobalDecls: DataItem[] = [];
 
     constructor() {
-        super(TaskTypes.GLOBALSOURCE);
+        super(TaskType.GLOBALSOURCE);
         this.setId("TG");
         this.setName("<globals_source>");
 
@@ -27,8 +27,8 @@ class GlobalTask extends Task {
     }
 
     #populateGlobalData() {
-        for (const global of Query.search("vardecl", { isGlobal: true })) {
-            const data = new DataItem(global, DataItemOrigins.GLOBAL_DECL);
+        for (const global of Query.search(Vardecl, { isGlobal: true })) {
+            const data = new DataItem(global, DataItemOrigin.GLOBAL_DECL);
             this.#dataGlobalDecls.push(data);
         }
     }
