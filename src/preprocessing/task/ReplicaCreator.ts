@@ -1,17 +1,16 @@
-"use strict";
+import { Call } from "@specs-feup/clava/api/Joinpoints.js";
+import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js"
+import { AStage } from "../../AStage.js";
+import { ClavaUtils } from "../../util/ClavaUtils.js";
+import Query from "@specs-feup/lara/api/weaver/Query.js";
 
-laraImport("clava.ClavaJoinPoints");
-laraImport("weaver.Query");
-laraImport("flextask/AStage");
-laraImport("flextask/util/ClavaUtils");
-
-class ReplicaCreator extends AStage {
-    constructor(topFunctionName) {
+export class ReplicaCreator extends AStage {
+    constructor(topFunctionName: string) {
         super("CTFlow-TaskPrep-Replicator", topFunctionName);
     }
 
-    replicateAll() {
-        const replicas = this.findReplicas();
+    replicateAll(): [number, number] {
+        const replicas: Map<string, Call[]> = this.findReplicas();
 
         if (Object.keys(replicas).length == 0) {
             this.log("Found no replicable functions");
@@ -23,7 +22,7 @@ class ReplicaCreator extends AStage {
 
         let nReplicas = 0, nUnique = 0;
         for (const key in replicas) {
-            const calls = replicas[key];
+            const calls = replicas.get(key)!;
             const nCalls = calls.length;
             const name = calls[0].name;
             this.log(`Found ${nCalls} call sites for function ${name}`);
@@ -41,37 +40,37 @@ class ReplicaCreator extends AStage {
         return [nReplicas, nUnique];
     }
 
-    findReplicas() {
+    findReplicas(): Map<string, Call[]> {
         const topFun = this.getTopFunctionJoinPoint();
         const uniqueFuns = ClavaUtils.getAllUniqueFunctions(topFun);
         const uniqueFunNames = uniqueFuns.map(fun => fun.name);
-        const replicas = {};
+        const replicas: Map<string, Call[]> = new Map();
 
         for (const uniqueFun of uniqueFuns) {
-            for (const call of Query.searchFrom(uniqueFun, "call")) {
+            for (const call of Query.searchFrom(uniqueFun, Call)) {
                 const name = call.name;
                 if (!uniqueFunNames.includes(name)) {
                     continue;
                 }
 
-                if (replicas[name] == null) {
-                    replicas[name] = [call];
+                if (replicas.get(name) == null) {
+                    replicas.set(name, [call]);
                 }
                 else {
-                    replicas[name].push(call);
+                    replicas.get(name)!.push(call);
                 }
             }
         }
 
-        for (const key in replicas) {
-            if (replicas[key].length == 1) {
-                delete replicas[key];
+        for (const key of replicas.keys()) {
+            if (replicas.get(key)!.length == 1) {
+                replicas.delete(key);
             }
         }
         return replicas;
     }
 
-    createReplicas(calls) {
+    createReplicas(calls: Call[]): number {
         let id = 0;
         for (const call of calls) {
             const success = this.replicate(call, id);
@@ -82,12 +81,12 @@ class ReplicaCreator extends AStage {
         return id;
     }
 
-    replicate(call, id) {
+    replicate(call: Call, id: number) {
         const fun = call.function;
         const clone = fun.clone(`${fun.name}_rep${id}`);
 
         const argList = call.argList;
-        const newCall = ClavaJoinPoints.call(clone, argList);
+        const newCall = ClavaJoinPoints.call(clone, ...argList);
         call.replaceWith(newCall);
         return true;
     }
