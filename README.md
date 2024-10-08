@@ -1,35 +1,12 @@
-# Flextask
+# Extended Task Graph
 
-Flextask is an extension for the [Clava](https://github.com/specs-feup/clava) C/C++ to C/C++ Source-to-source compiler that creates a task graph for any generic C/C++ application. These task graphs are automatically analyzed and characterized by several metrics, and through a highly flexible granularity mechanism we can perform extensive graph operations, such as task merging, splitting and clustering, while always outputting valid and readable C/C++ source code.
+This is an implementation of the [Extended Task Graph (ETG)](https://dl.acm.org/doi/abs/10.1145/3652032.3657580) intermediate representation for C/C++, built as an extension for the [Clava](https://github.com/specs-feup/clava) C/C++ to C/C++ Source-to-source compiler. Just like the compiler itself, it is packaged and distributed as an NPM package, which can be either used as a standalone app or as a library for other Clava-based NPM projects.
+
+ These task graphs are automatically analyzed and characterized by several metrics, and through a highly flexible granularity mechanism we can perform extensive graph operations, such as task merging, splitting and clustering, while always outputting valid and readable C/C++ source code.
 
 ### How to use
 
-We provide a high-level API for interacting with Flextask:
-
-```
-laraImport("flextask.FlextaskAPI");
-
-const topFunctionName = "foo";
-const outputDir = "output";
-const appName = "testApp"
-
-const api = new FlextaskAPI(topFunctionName, outputDir, appName);
-
-// First, apply the code transformations required for generating a task graph
-// You do not necessarily need to run this flow first if your code is already in a valid format
-const success = api.runCodeTransformationFlow();
-
-// The task graph generator assumes the current AST is in a valid post-transformation form
-const taskGraph = api.runTaskGraphGenerationFlow();
-
-// Or, alternatively, to do both in one go with api.runBothFlows()
-```
-
-The task graph can then be manipulated using another high-level API (while it is possible to directly manipulate add/remove nodes and edges to the graph, we discourage that approach):
-
-```
-// TBA
-```
+TBD, as the transition into NPM is still undergoing
 
 ### Outputs
 
