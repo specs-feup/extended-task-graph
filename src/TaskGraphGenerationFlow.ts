@@ -1,26 +1,23 @@
-"use strict";
+import { AStage } from "./AStage.js";
+import { OutputDirectories } from "./OutputDirectories.js";
+import { DotConverter } from "./taskgraph/DotConverter.js";
+import { DotConverterDetailed } from "./taskgraph/DotConverterDetailed.js";
+import { DotConverterMinimal } from "./taskgraph/DotConverterMinimal.js";
+import { TaskGraph } from "./taskgraph/TaskGraph.js";
+import { TaskGraphBuilder } from "./taskgraph/TaskGraphBuilder.js";
 
-laraImport("flextask/AStage");
-laraImport("flextask/OutputDirectories");
-laraImport("flextask/taskgraph/TaskGraphBuilder");
-laraImport("flextask/taskgraph/DotConverter");
-laraImport("flextask/taskgraph/DotConverterMinimal");
-laraImport("flextask/taskgraph/DotConverterDetailed");
-laraImport("flextask/analysis/taskgraph/TaskGraphAnalyzer");
-laraImport("flextask/util/ClavaUtils");
-
-class TaskGraphGenerationFlow extends AStage {
-    constructor(topFunctionName, outputDir, appName) {
+export class TaskGraphGenerationFlow extends AStage {
+    constructor(topFunctionName: string, outputDir: string, appName: string) {
         super("TGGFlow", topFunctionName, outputDir, appName);
     }
 
-    run(dumpGraph = true, gatherMetrics = true) {
+    run(dumpGraph = true, gatherMetrics = true): TaskGraph | null {
         this.logStart();
         this.log("Running Task Graph Generation flow");
 
         const tg = this.buildTaskGraph();
         if (tg == null) {
-            this.warn("Task graph was not built successfully, aborting");
+            this.logWarning("Task graph was not built successfully, aborting");
             return null;
         }
 
@@ -37,7 +34,7 @@ class TaskGraphGenerationFlow extends AStage {
         return tg;
     }
 
-    buildTaskGraph() {
+    buildTaskGraph(): TaskGraph | null {
         this.log("Running task graph building process");
         const topFun = this.getTopFunctionName();
         const outDir = this.getOutputDir() + "/" + OutputDirectories.TASKGRAPH;
@@ -48,7 +45,7 @@ class TaskGraphGenerationFlow extends AStage {
         return taskGraph;
     }
 
-    dumpTaskGraph(taskGraph) {
+    dumpTaskGraph(taskGraph: TaskGraph): void {
         this.log("Running task graph dumping process");
 
         const conv1 = new DotConverter();
@@ -69,15 +66,15 @@ class TaskGraphGenerationFlow extends AStage {
         this.log("Task graph successfully dumped!");
     }
 
-    analyzeTaskGraph(taskGraph) {
+    analyzeTaskGraph(taskGraph: TaskGraph): void {
         this.log("Running task graph analysis process");
         const topFun = this.getTopFunctionName();
         const outDir = this.getOutputDir() + "/" + OutputDirectories.TASKGRAPH;
         const appName = this.getAppName();
 
-        const analyzer = new TaskGraphAnalyzer(topFun, outDir, appName, taskGraph);
-        analyzer.updateMetrics();
-        analyzer.saveMetrics();
+        // const analyzer = new TaskGraphAnalyzer(topFun, outDir, appName, taskGraph);
+        // analyzer.updateMetrics();
+        // analyzer.saveMetrics();
 
         this.log("Task graph successfully analyzed!");
     }

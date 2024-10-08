@@ -8,6 +8,8 @@ import { ClavaUtils } from "../util/ClavaUtils.js";
 import { ExternalFunctionsMatcher } from "../util/ExternalFunctionsMatcher.js";
 import { ExternalTask } from "./tasks/ExternalTask.js";
 import { DataItem } from "./DataItem.js";
+import LoopCharacterizer from "clava-code-transformations/LoopCharacterizer";
+import { ConcreteTask } from "./tasks/ConcreteTask.js";
 
 export class TaskGraphBuilder extends AStage {
     #lastUsedGlobal = new Map();
@@ -61,7 +63,7 @@ export class TaskGraphBuilder extends AStage {
         }
         taskGraph.addTask(task);
 
-        const childTasks = [];
+        const childTasks: Task[] = [];
 
         for (const call of Query.searchFrom(fun, Call)) {
             const callee = call.function;
@@ -70,7 +72,7 @@ export class TaskGraphBuilder extends AStage {
             if (ClavaUtils.functionHasImplementation(callee)) {
                 const regularTask = this.#buildLevel(taskGraph, callee, task, call);
 
-                task.addHierarchicalChild(regularTask);
+                task.addHierarchicalChild(regularTask as ConcreteTask);
                 childTasks.push(regularTask);
             }
 
@@ -102,9 +104,14 @@ export class TaskGraphBuilder extends AStage {
         return task;
     }
 
-    #addControlEdges(task: Task, call: Call, taskGraph: TaskGraph): void {
-        const ifStmts = [];
-        const conditions = [];
+    #addControlEdges(task: Task, call: Call | null, taskGraph: TaskGraph): void {
+        const ifStmts: Joinpoint[] = [];
+        const conditions: boolean[] = [];
+
+        if (call == null) {
+            console.log("addControlEdges: Call is null, skipping");
+            return;
+        }
         let child: Joinpoint = call;
         let parent: Joinpoint = call.parent;
 
@@ -131,7 +138,7 @@ export class TaskGraphBuilder extends AStage {
             // are not exactly keeping track of that
             // so we just go through every task and find the 
             // last one to use the variable
-            let condTask = null;
+            let condTask: ConcreteTask | null = null;
             for (const task of taskGraph.getTasks()) {
                 for (const data of task.getData()) {
                     if (data.getName() == varrefName) {
@@ -148,16 +155,20 @@ export class TaskGraphBuilder extends AStage {
         }
     }
 
-    #updateWithRepetitions(task: Task, call: Call): void {
-        // const body = call.parent.parent;
-        // if (body.parent instanceof Loop) {
-        //     const loop = body.parent;
-        //     const characteristics = LoopCharacterizer.characterize(loop);
-        //     const iterCount = characteristics.count == undefined ? -1 : characteristics.count;
+    #updateWithRepetitions(task: Task, call: Call | null): void {
+        if (call == null) {
+            console.log("updateWithRepetitions: Call is null, skipping");
+            return;
+        }
+        const body = call.parent.parent;
+        if (body.parent instanceof Loop) {
+            const loop = body.parent;
+            const characteristics = LoopCharacterizer.characterize(loop);
+            const iterCount = characteristics.tripCount == undefined ? -1 : characteristics.tripCount;
 
-        //     task.setRepetitions(iterCount, loop);
-        //     this.log("Task " + task.getUniqueName() + " has " + iterCount + " repetitions");
-        // }
+            task.setRepetitions(iterCount, loop);
+            this.log("Task " + task.getUniqueName() + " has " + iterCount + " repetitions");
+        }
     }
 
     #addSubgraphComm(taskGraph: TaskGraph, parent: Task, children: Task[]): void {
@@ -192,11 +203,11 @@ export class TaskGraphBuilder extends AStage {
         }
     }
 
-    buildCommParam(dataItem: DataItem, lastUsed, nameToTask, child, taskGraph, rank) {
+    buildCommParam(dataItem: DataItem, lastUsed: Map<string, string>, nameToTask: Map<string, Task>, child: Task, taskGraph: TaskGraph, rank: number): void {
         const altName = dataItem.getAlternateName();
-        const lastUsedTaskName = lastUsed.get(altName);
-        const lastUsedTask = nameToTask.get(lastUsedTaskName);
-        const lastUsedDataItem = lastUsedTask.getDataItemByAltName(altName);
+        const lastUsedTaskName = lastUsed.get(altName)!;
+        const lastUsedTask = nameToTask.get(lastUsedTaskName)!;
+        const lastUsedDataItem = lastUsedTask.getDataItemByAltName(altName)!;
 
         if (lastUsedTask != null && lastUsedTask != child) {
             taskGraph.addCommunication(lastUsedTask, child, lastUsedDataItem, dataItem, rank);
@@ -208,7 +219,7 @@ export class TaskGraphBuilder extends AStage {
     }
 
     // TODO: implement conditionals for this as well
-    #buildCommGlobal(dataItem, task, taskGraph, rank) {
+    #buildCommGlobal(dataItem: DataItem, task: Task, taskGraph: TaskGraph, rank: number): void {
         const dataName = dataItem.getName();
         const lastUsedTask = this.#lastUsedGlobal.get(dataName);
         const dataItemInParent = lastUsedTask.getDataItemByName(dataName);
@@ -221,7 +232,7 @@ export class TaskGraphBuilder extends AStage {
         }
     }
 
-    #updateTaskWithChildrenData(task, children) {
+    #updateTaskWithChildrenData(task: Task, children: Task[]): void {
         const dataMap = task.getDataAsMap();
 
         for (const child of children) {
@@ -229,7 +240,7 @@ export class TaskGraphBuilder extends AStage {
                 const altName = data.getAlternateName();
 
                 if (data.isWritten()) {
-                    dataMap.get(altName).setWritten();
+                    dataMap.get(altName)!.setWritten();
                 }
             }
         }
