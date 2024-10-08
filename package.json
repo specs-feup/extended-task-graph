@@ -5,15 +5,11 @@
   "description": "An Extended Task Graph implementation for the Clava C/C++ to C/C++ source-to-source compiler",
   "type": "module",
   "scripts": {
-    "run": "clava dist/main.js -- clang CxxSources/",
-    "run:watch": "clava dist/main.js -w dist/main.js -- clang CxxSources/",
+    "edgedetect-etg": "clava dist/test/SimpleTaskGraphGeneration.js -- clang inputs/edgedetect-transformed/",
     "build": "tsc",
     "build:watch": "tsc --watch",
     "lint": "eslint .",
-    "docs": "typedoc",
-    "test": "cross-env NODE_OPTIONS='$NODE_OPTIONS --experimental-vm-modules' jest --detectOpenHandles --forceExit src",
-    "test:cov": "npm run test -- --coverage",
-    "test:watch": "npm run test -- --watch"
+    "docs": "typedoc"
   },
   "dependencies": {
     "@specs-feup/clava": "^3.0.1",

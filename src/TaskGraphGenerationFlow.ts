@@ -8,12 +8,12 @@ import { TaskGraphBuilder } from "./taskgraph/TaskGraphBuilder.js";
 
 export class TaskGraphGenerationFlow extends AStage {
     constructor(topFunctionName: string, outputDir: string, appName: string) {
-        super("TGGFlow", topFunctionName, outputDir, appName);
+        super("GenFlow", topFunctionName, outputDir, appName);
     }
 
     run(dumpGraph = true, gatherMetrics = true): TaskGraph | null {
         this.logStart();
-        this.log("Running Task Graph Generation flow");
+        this.log("Running Extended Task Graph Generation flow");
 
         const tg = this.buildTaskGraph();
         if (tg == null) {

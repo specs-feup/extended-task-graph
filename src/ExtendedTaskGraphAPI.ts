@@ -3,9 +3,9 @@ import { TaskGraph } from "./taskgraph/TaskGraph.js";
 import { TaskGraphGenerationFlow } from "./TaskGraphGenerationFlow.js";
 import Platforms from "@specs-feup/lara/api/lara/Platforms.js";
 
-export class FlextaskAPI extends AStage {
+export class ExtendedTaskGraphAPI extends AStage {
     constructor(topFunctionName: string, outputDir: string = "output", appName: string = "default_app_name") {
-        super("FlextaskAPI", topFunctionName, outputDir, appName);
+        super("ExtendedTaskGraphAPI", topFunctionName, outputDir, appName);
     }
 
     // runCodeTransformationFlow(dumpCallGraph = true, dumpAST = true, doTransformations = true) {

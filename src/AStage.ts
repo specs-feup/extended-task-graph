@@ -6,6 +6,7 @@ import { OutputDirectories } from "./OutputDirectories.js";
 
 export abstract class AStage {
     #stageName: string = "DefaultStage";
+    #commonPrefix: string = "ETG"
     #padding: number = 50;
     #topFunctionName: string;
     #appName: string;
@@ -59,7 +60,7 @@ export abstract class AStage {
     }
 
     #getStageOutputHeader(): string {
-        const fullName = `FTG-${this.#stageName}`;
+        const fullName = `${this.#commonPrefix}-${this.#stageName}`;
         const coloredName = Chalk.color(fullName, ChalkColor.cyan);
 
         const header = `[${coloredName}] `.padEnd(this.#padding, '-');
