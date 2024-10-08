@@ -1,15 +1,11 @@
-"use strict";
+import { AStage } from "../../AStage.js";
 
-laraImport("flextask/preprocessing/subset/SubsetReducer");
-laraImport("flextask/preprocessing/subset/CodeSanitizer");
-laraImport("flextask/AStage");
-
-class SubsetPreprocessor extends AStage {
-    constructor(topFunction, outputDir, appName) {
+export class SubsetPreprocessor extends AStage {
+    constructor(topFunction: string, outputDir: string, appName: string) {
         super("CTFlow-Subset", topFunction, outputDir, appName);
     }
 
-    preprocess() {
+    preprocess(): boolean {
         this.sanitizeCodePreSubset();
 
         const success = this.reduceToSubset();
@@ -21,7 +17,7 @@ class SubsetPreprocessor extends AStage {
         return true;
     }
 
-    sanitizeCodePreSubset() {
+    sanitizeCodePreSubset(): void {
         const sanitizer = new CodeSanitizer(this.getTopFunctionName());
         sanitizer.sanitize();
         this.log("Sanitized code before subset reduction");

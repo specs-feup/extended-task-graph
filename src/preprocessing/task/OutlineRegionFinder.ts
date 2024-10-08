@@ -1,23 +1,22 @@
-"use strict";
+import { Body, Call, DeclStmt, ExprStmt, FunctionJp, If, Joinpoint, Loop, ReturnStmt, Scope, Statement, Varref, WrapperStmt } from "@specs-feup/clava/api/Joinpoints.js";
+import { AStage } from "../../AStage.js";
+import { ClavaUtils } from "../../util/ClavaUtils.js";
+import Query from "@specs-feup/lara/api/weaver/Query.js";
+import Outliner from "clava-code-transformations/Outliner";
+import IdGenerator from "@specs-feup/lara/api/lara/util/IdGenerator.js";
+import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
+import { ExternalFunctionsMatcher } from "../../util/ExternalFunctionsMatcher.js";
 
-laraImport("lara.util.IdGenerator");
-laraImport("clava.ClavaJoinPoints");
-laraImport("clava.code.Outliner");
-laraImport("weaver.Query");
-laraImport("flextask/AStage");
-laraImport("flextask/util/ExternalFunctionsMatcher");
-laraImport("flextask/util/ClavaUtils");
-
-class OutlineRegionFinder extends AStage {
-    constructor(topFunction) {
+export class OutlineRegionFinder extends AStage {
+    constructor(topFunction: string) {
         super("CTFlow-TaskPrep-Outliner", topFunction);
     }
 
-    annotateGenericPass() {
+    annotateGenericPass(): Statement[][] {
         this.log("Beginning the annotation of generic outlining regions");
 
         const funs = ClavaUtils.getAllUniqueFunctions(this.getTopFunctionJoinPoint());
-        const regions = [];
+        const regions: Statement[][] = [];
 
         for (const fun of funs) {
             const nCalls = this.#getEffectiveCallsInFunction(fun).length;
@@ -47,14 +46,14 @@ class OutlineRegionFinder extends AStage {
         return wrappedRegions;
     }
 
-    annotateLoopPass() {
+    annotateLoopPass(): number {
         this.log("Beginning the annotation of loop outlining regions");
 
         const funs = ClavaUtils.getAllUniqueFunctions(this.getTopFunctionJoinPoint());
         let outlinedCount = 0;
 
         for (const fun of funs) {
-            for (const loop of Query.searchFrom(fun, "loop")) {
+            for (const loop of Query.searchFrom(fun, Loop)) {
                 outlinedCount += this.#handleLoopRegion(loop);
             }
         }
@@ -62,18 +61,18 @@ class OutlineRegionFinder extends AStage {
         return outlinedCount;
     }
 
-    #handleLoopRegion(loop) {
+    #handleLoopRegion(loop: Loop): number {
         let outlinedCount = 0;
-        const scope = loop.body;
+        const scope: Scope = loop.body;
 
-        const callsInScope = [];
-        const loopsInScope = [];
+        const callsInScope: Call[] = [];
+        const loopsInScope: Loop[] = [];
 
         for (const stmt of scope.children) {
-            if (stmt.instanceOf("loop")) {
+            if (stmt instanceof Loop) {
                 loopsInScope.push(stmt);
             }
-            if (stmt.instanceOf("exprStmt") && stmt.children[0].instanceOf("call")) {
+            if (stmt instanceof ExprStmt && stmt.children[0] instanceof Call) {
                 const call = stmt.children[0];
                 if (this.#hasFunctionCalls(call)) {
                     callsInScope.push(call);
@@ -93,14 +92,14 @@ class OutlineRegionFinder extends AStage {
             return outlinedCount;
         }
         else {
-            const wrappedRegion = this.#wrapRegion(scope.children);
+            const wrappedRegion = this.#wrapRegion(scope.children as Statement[]);
             this.#outlineRegion(wrappedRegion, "outlined_loop_");
 
             return outlinedCount + 1;
         }
     }
 
-    #outlineRegion(wrappedRegion, prefix) {
+    #outlineRegion(wrappedRegion: Statement[], prefix: string): void {
         const start = wrappedRegion[0];
         const end = wrappedRegion[wrappedRegion.length - 1];
 
@@ -113,10 +112,13 @@ class OutlineRegionFinder extends AStage {
         end.detach();
     }
 
-    #validateRegion(region) {
+    #validateRegion(region: Statement[]): boolean {
         let hasOneUsefulStmt = false;
         for (const stmt of region) {
-            hasOneUsefulStmt = !stmt.instanceOf(["wrapperStmt", "declStmt", "returnStmt"]);
+            hasOneUsefulStmt ||= stmt instanceof WrapperStmt;
+            hasOneUsefulStmt ||= stmt instanceof DeclStmt;
+            hasOneUsefulStmt ||= stmt instanceof ReturnStmt;
+
             if (hasOneUsefulStmt) {
                 break;
             }
@@ -127,8 +129,8 @@ class OutlineRegionFinder extends AStage {
 
         // having at least one useful statement is not enough
         // we need to check a few more things
-        if (region.length == 2 && region[1].instanceOf("returnStmt")) {
-            const isTrivialReturn = Query.searchFrom(region[0], "varref", { name: "rtr_val" }).chain().length > 0;
+        if (region.length == 2 && region[1] instanceof ReturnStmt) {
+            const isTrivialReturn = Query.searchFrom(region[0], Varref, { name: "rtr_val" }).chain().length > 0;
             if (isTrivialReturn) {
                 return false;
             }
@@ -136,7 +138,7 @@ class OutlineRegionFinder extends AStage {
         return true;
     }
 
-    #filterRegions(regions) {
+    #filterRegions(regions: Statement[][]): Statement[][] {
         const filteredRegions = [];
 
         for (const region of regions) {
@@ -148,9 +150,9 @@ class OutlineRegionFinder extends AStage {
         return filteredRegions;
     }
 
-    #isTrivialIf(scope) {
-        if (scope.children.length == 2 && scope.children[1].instanceOf("returnStmt")) {
-            const isTrivialReturn = Query.searchFrom(scope.children[0], "varref", { name: "rtr_val" }).chain().length > 0;
+    #isTrivialIf(scope: Scope): boolean {
+        if (scope.children.length == 2 && scope.children[1] instanceof ReturnStmt) {
+            const isTrivialReturn = Query.searchFrom(scope.children[0], Varref, { name: "rtr_val" }).chain().length > 0;
 
             if (isTrivialReturn) {
                 const stmt = scope.children[0].code.replace(/\n/g, '\\n');
@@ -163,16 +165,16 @@ class OutlineRegionFinder extends AStage {
         return false;
     }
 
-    #findRegionsInScope(scope) {
-        const regions = [];
+    #findRegionsInScope(scope: Scope): Statement[][] {
+        const regions: Statement[][] = [];
         const extraScopes = [];
-        let currRegion = [];
+        let currRegion: Statement[] = [];
 
         for (const stmt of scope.children) {
-            if (stmt.instanceOf(["if", "loop"])) {
+            if (stmt instanceof If || stmt instanceof Loop) {
                 const bodies = [];
                 for (const child of stmt.children) {
-                    if (child.instanceOf("body")) {
+                    if (child instanceof Body) {
                         bodies.push(child);
                     }
                 }
@@ -203,7 +205,7 @@ class OutlineRegionFinder extends AStage {
                 }
             }
             else {
-                currRegion.push(stmt);
+                currRegion.push(stmt as Statement);
             }
         }
         // push the last region
@@ -220,7 +222,7 @@ class OutlineRegionFinder extends AStage {
         return regions;
     }
 
-    #wrapRegion(region) {
+    #wrapRegion(region: Statement[]): Statement[] {
         const start = region[0];
         const end = region[region.length - 1];
 
@@ -231,11 +233,11 @@ class OutlineRegionFinder extends AStage {
         // with as many outlinings as the depth of its scope in a loop nest
         // that's an interesting pattern to look into, but for now we just
         // make sure that we don't outline the same region multiple times
-        if (start.instanceOf("wrapperStmt") && end.instanceOf("wrapperStmt")) {
+        if (start instanceof WrapperStmt && end instanceof WrapperStmt) {
             const pragmaStart = start.children[0].code;
             const pragmaEnd = end.children[0].code;
-            const idStart = pragmaStart.match(/#pragma clava_outline_begin (.*)/)[1];
-            const idEnd = pragmaEnd.match(/#pragma clava_outline_end (.*)/)[1];
+            const idStart = pragmaStart.match(/#pragma clava_outline_begin (.*)/)![1];
+            const idEnd = pragmaEnd.match(/#pragma clava_outline_end (.*)/)![1];
 
             if (idStart == idEnd) {
                 return region;
@@ -253,13 +255,13 @@ class OutlineRegionFinder extends AStage {
         return wrappedRegion;
     }
 
-    #hasFunctionCalls(jp) {
-        if (jp.instanceOf("call")) {
+    #hasFunctionCalls(jp: Joinpoint): boolean {
+        if (jp instanceof Call) {
             const isValidExternal = ExternalFunctionsMatcher.isValidExternal(jp.function);
             return !isValidExternal;
         }
 
-        for (const call of Query.searchFrom(jp, "call")) {
+        for (const call of Query.searchFrom(jp, Call)) {
             const fun = call.function;
             const isValidExternal = ExternalFunctionsMatcher.isValidExternal(fun);
             if (!isValidExternal) {
@@ -270,9 +272,9 @@ class OutlineRegionFinder extends AStage {
     }
 
     // returns the calls in a function that are not to external functions
-    #getEffectiveCallsInFunction(fun) {
+    #getEffectiveCallsInFunction(fun: FunctionJp): Call[] {
         const calls = [];
-        for (const call of Query.searchFrom(fun, "call")) {
+        for (const call of Query.searchFrom(fun, Call)) {
             if (this.#hasFunctionCalls(call)) {
                 calls.push(call);
             }

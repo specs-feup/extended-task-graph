@@ -1,13 +1,12 @@
-"use strict";
+import Outliner from "clava-code-transformations/Outliner";
+import { AStage } from "../../AStage.js";
+import { AppTimerInserter } from "./AppTimerInserter.js";
+import { ReplicaCreator } from "./ReplicaCreator.js";
+import { Statement } from "@specs-feup/clava/api/Joinpoints.js";
+import { OutlineRegionFinder } from "./OutlineRegionFinder.js";
 
-laraImport("clava.code.Outliner");
-laraImport("flextask/preprocessing/task/OutlineRegionFinder");
-laraImport("flextask/preprocessing/task/ReplicaCreator");
-laraImport("flextask/preprocessing/task/AppTimerInserter");
-laraImport("flextask/AStage");
-
-class TaskPreprocessor extends AStage {
-    constructor(topFunction, outputDir, appName) {
+export class TaskPreprocessor extends AStage {
+    constructor(topFunction: string, outputDir: string, appName: string) {
         super("CTFlow-TaskPrep", topFunction, outputDir, appName);
     }
 
@@ -17,7 +16,7 @@ class TaskPreprocessor extends AStage {
         this.insertTimer();
     }
 
-    outlineAll() {
+    outlineAll(): void {
         this.log("Finding code regions for outlining...");
         const annotator = new OutlineRegionFinder(this.getTopFunctionName());
 
@@ -33,7 +32,7 @@ class TaskPreprocessor extends AStage {
         this.log("Finished outlining regions");
     }
 
-    #applyOutlining(regions, prefix) {
+    #applyOutlining(regions: Statement[][], prefix: string): number {
         const outliner = new Outliner();
         outliner.setVerbosity(false);
         outliner.setDefaultPrefix(prefix);
