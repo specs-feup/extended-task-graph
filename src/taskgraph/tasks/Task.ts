@@ -1,4 +1,4 @@
-import { Call, Loop, Param, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { Call, Literal, Loop, Param, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 import { TaskType } from "./TaskType.js";
 import { DataItem } from "../DataItem.js";
 import { Communication } from "../Communication.js";
@@ -27,6 +27,9 @@ export abstract class Task {
     // Control properties
     #incomingControl: ControlEdge[] = [];
     #outgoingControl: ControlEdge[] = [];
+
+    // Annotations
+    #annotations: Record<string, any> = {};
 
     constructor(type: TaskType) {
         this.#type = type;
@@ -199,7 +202,7 @@ export abstract class Task {
         this.#incomingControl.push(control);
     }
 
-    createDataObjects(vars: Vardecl[], originType: DataItemOrigin) {
+    createDataObjects(vars: Vardecl[], originType: DataItemOrigin): void {
         for (const vardecl of vars) {
             const data = new DataItem(vardecl, originType);
 
@@ -219,10 +222,27 @@ export abstract class Task {
         }
     }
 
-    createConstantObject(immConst: Vardecl, funCall: Call) {
-        const datum = new DataItem(immConst, DataItemOrigin.CONSTANT);
+    createConstantObject(immConst: Literal, funCall: Call): void {
+        const datum = new DataItem(immConst.vardecl, DataItemOrigin.CONSTANT);
         datum.setImmediateFunctionCall(funCall);
         this.#dataConstants.push(datum);
+    }
+
+    // Annotations
+    getAnnotation(key: string): any {
+        return this.#annotations[key];
+    }
+
+    setAnnotation(key: string, value: any): void {
+        this.#annotations[key] = value;
+    }
+
+    getAnnotations(): Record<string, any> {
+        return this.#annotations;
+    }
+
+    setAnnotations(annotations: Record<string, any>): void {
+        this.#annotations = annotations;
     }
 
     // ---------------------------------------------------------------------

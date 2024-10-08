@@ -1,10 +1,11 @@
-"use strict";
+import { Communication } from "./Communication.js";
+import { ControlEdge } from "./ControlEdge.js";
+import { TaskGraph } from "./TaskGraph.js";
+import { ConcreteTask } from "./tasks/ConcreteTask.js";
+import { Task } from "./tasks/Task.js";
+import { TaskType } from "./tasks/TaskType.js";
 
-laraImport("flextask/taskgraph/TaskGraph");
-laraImport("flextask/taskgraph/tasks/Task");
-laraImport("flextask/taskgraph/Communication");
-
-class DotConverter {
+export class DotConverter {
     constructor() { }
 
     static hierarchicalColors = [
@@ -17,7 +18,7 @@ class DotConverter {
         "yellowgreen"
     ];
 
-    convert(taskGraph) {
+    convert(taskGraph: TaskGraph): string {
         let dot = "digraph G {\n";
         dot += "\trankdir=TB;\n";
         dot += "\tnode [shape=box];\n";
@@ -33,6 +34,11 @@ class DotConverter {
         dot += `\t"${globals.getId()}" [label="${this.getLabelOfTask(globals)}", fillcolor=lightgray];\n`;
 
         const topHierTask = taskGraph.getTopHierarchicalTask();
+        if (topHierTask == null) {
+            console.log("[DotConverter] No top hierarchical task found, cannot convert to DOT.");
+            dot += "}";
+            return dot;
+        }
         dot += this.#getDotOfCluster(topHierTask);
 
         dot += "\n";
@@ -45,10 +51,10 @@ class DotConverter {
         return dot;
     }
 
-    getLabelOfTask(task) {
+    getLabelOfTask(task: Task): string {
         let label = `${task.getId()}: ${task.getName()}`;
 
-        if (task.getType() == TaskTypes.REGULAR || task.getType() == TaskTypes.EXTERNAL) {
+        if (task.getType() == TaskType.REGULAR || task.getType() == TaskType.EXTERNAL) {
             const reps = task.getRepetitions();
             if (reps > 1) {
                 label += ` (x${reps})`;
@@ -60,17 +66,17 @@ class DotConverter {
         return label;
     }
 
-    getLabelOfEdge(edge) {
+    getLabelOfEdge(edge: Communication | ControlEdge): string {
         return edge.toString();
     }
 
-    #getColor(index) {
+    #getColor(index: number) {
         const len = DotConverter.hierarchicalColors.length;
         const color = DotConverter.hierarchicalColors[index % len];
         return color;
     }
 
-    #getDotOfCluster(task, colorIndex = 0) {
+    #getDotOfCluster(task: ConcreteTask, colorIndex = 0): string {
         let dot = "";
         if (task.getHierarchicalChildren().length > 0) {
             dot += `\tsubgraph "cluster_${task.getId()}" {\n`;
@@ -100,16 +106,16 @@ class DotConverter {
         return dot;
     }
 
-    #getDotOfEdges(edgeList, color = "black") {
+    #getDotOfEdges(edgeList: Communication[] | ControlEdge[], color = "black") {
         let dot = "";
 
         for (const edge of edgeList) {
             const label = this.getLabelOfEdge(edge);
-            const source = edge.getSource();
-            const target = edge.getTarget();
+            const source = edge.getSource() as ConcreteTask;
+            const target = edge.getTarget() as ConcreteTask;
 
-            const sourceIsConcrete = source.getType() == TaskTypes.EXTERNAL || source.getType() == TaskTypes.REGULAR;
-            const targetIsConcrete = target.getType() == TaskTypes.EXTERNAL || target.getType() == TaskTypes.REGULAR;
+            const sourceIsConcrete = source.getType() == TaskType.EXTERNAL || source.getType() == TaskType.REGULAR;
+            const targetIsConcrete = target.getType() == TaskType.EXTERNAL || target.getType() == TaskType.REGULAR;
 
             const sourceHasHierChildren = sourceIsConcrete ? source.getHierarchicalChildren().length > 0 : false;
             const targetHasHierChildren = targetIsConcrete ? target.getHierarchicalChildren().length > 0 : false;

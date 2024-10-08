@@ -17,23 +17,23 @@ export class GlobalTask extends Task {
         this.#setDataInitStatus();
     }
 
-    getGlobalDeclData() {
+    getGlobalDeclData(): DataItem[] {
         return this.#dataGlobalDecls;
     }
 
-    getData() {
+    getData(): DataItem[] {
         const otherData = super.getData();  // always empty... in theory
         return [...otherData, ...this.#dataGlobalDecls];
     }
 
-    #populateGlobalData() {
+    #populateGlobalData(): void {
         for (const global of Query.search(Vardecl, { isGlobal: true })) {
             const data = new DataItem(global, DataItemOrigin.GLOBAL_DECL);
             this.#dataGlobalDecls.push(data);
         }
     }
 
-    #setDataInitStatus() {
+    #setDataInitStatus(): void {
         for (const data of this.#dataGlobalDecls) {
             data.setRead();
         }

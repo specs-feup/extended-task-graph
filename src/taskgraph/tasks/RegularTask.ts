@@ -1,16 +1,16 @@
-"use strict";
+import { Call, FloatLiteral, FunctionJp, FunctionType, IntLiteral, Literal, Param, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import Query from "@specs-feup/lara/api/weaver/Query.js";
+import { ConcreteTask } from "./ConcreteTask.js";
+import { Task } from "./Task.js";
+import { TaskType } from "./TaskType.js";
+import { DataItemOrigin } from "../DataItemOrigin.js";
+import { ClavaUtils } from "../../util/ClavaUtils.js";
 
-laraImport("lara.util.IdGenerator");
-laraImport("flextask/taskgraph/tasks/ConcreteTask");
-laraImport("flextask/taskgraph/tasks/TaskTypes");
-laraImport("flextask/util/ClavaUtils");
+export class RegularTask extends ConcreteTask {
+    #function: FunctionJp;
 
-
-class RegularTask extends ConcreteTask {
-    #function;
-
-    constructor(call, fun, hierParent, delimiter = ".") {
-        super(TaskTypes.REGULAR, call, hierParent, fun.name, delimiter, "T");
+    constructor(call: Call | null, fun: FunctionJp, hierParent: Task | null, delimiter = ".") {
+        super(TaskType.REGULAR, call, hierParent, fun.name, delimiter, "T");
 
         this.#function = fun;
 
@@ -22,11 +22,11 @@ class RegularTask extends ConcreteTask {
         }
     }
 
-    getFunction() {
+    getFunction(): FunctionJp {
         return this.#function;
     }
 
-    #populateData() {
+    #populateData(): void {
         // handle data comm'd through function params
         this.#findDataFromParams();
 
@@ -40,23 +40,23 @@ class RegularTask extends ConcreteTask {
         this.#findDataFromConstants();
     }
 
-    #findDataFromParams() {
-        const paramVars = new Set();
-        for (const param of Query.searchFrom(this.#function, "param")) {
+    #findDataFromParams(): void {
+        const paramVars: Set<Param> = new Set();
+        for (const param of Query.searchFrom(this.#function, Param)) {
             paramVars.add(param);
         }
-        this.createDataObjects([...paramVars], DataItemOrigins.PARAM);
+        this.createDataObjects([...paramVars], DataItemOrigin.PARAM);
     }
 
-    #findDataFromGlobals() {
+    #findDataFromGlobals(): void {
         const globalVars = new Map();
-        for (const varref of Query.searchFrom(this.#function.body, "varref")) {
+        for (const varref of Query.searchFrom(this.#function.body, Varref)) {
             try {
-                if (varref.type != "functionType") {
+                if (!(varref.type instanceof FunctionType)) {
                     const decl = varref.vardecl;
 
                     if (decl != null && decl.isGlobal) {
-                        globalVars.set(decl.getName(), decl);
+                        globalVars.set(decl.name, decl);
                     }
                 }
             }
@@ -66,30 +66,30 @@ class RegularTask extends ConcreteTask {
             }
         }
         const declList = globalVars.values();
-        this.createDataObjects([...declList], DataItemOrigins.GLOBAL_REF);
+        this.createDataObjects([...declList], DataItemOrigin.GLOBAL_REF);
     }
 
-    #findDataFromNewDecls() {
-        const newVars = new Set();
-        for (const vardecl of Query.searchFrom(this.#function.body, "vardecl")) {
+    #findDataFromNewDecls(): void {
+        const newVars: Set<Vardecl> = new Set();
+        for (const vardecl of Query.searchFrom(this.#function.body, Vardecl)) {
             newVars.add(vardecl);
         }
-        this.createDataObjects([...newVars], DataItemOrigins.NEW);
+        this.createDataObjects([...newVars], DataItemOrigin.NEW);
     }
 
-    #findDataFromConstants() {
-        for (const funCall of Query.searchFrom(this.#function.body, "call")) {
-            for (const immConst of Query.searchFrom(funCall, "literal")) {
+    #findDataFromConstants(): void {
+        for (const funCall of Query.searchFrom(this.#function.body, Call)) {
+            for (const immConst of Query.searchFrom(funCall, Literal)) {
                 this.createConstantObject(immConst, funCall);
             }
         }
     }
 
-    #updateDataReadWrites() {
+    #updateDataReadWrites(): void {
         for (const dataItem of this.getData()) {
-            const varref = dataItem.getDecl();
+            const vardecl = dataItem.getDecl();
 
-            for (const ref of Query.searchFrom(this.#function.body, "varref", { name: varref.name })) {
+            for (const ref of Query.searchFrom(this.#function.body, Varref, { name: vardecl?.name })) {
                 if ((ClavaUtils.isDef(ref))) {
                     dataItem.setWritten();
                 }
@@ -100,25 +100,29 @@ class RegularTask extends ConcreteTask {
         }
     }
 
-    #updateWithAlternateNames() {
+    #updateWithAlternateNames(): void {
         const call = this.getCall();
+        if (call == null) {
+            console.log("RegularTask: call is null");
+            return;
+        }
         const args = [];
         for (let i = 1; i < call.children.length; i++) {
             const child = call.children[i];
 
             // Two types of parameter: varrefs and literals (int/float)
             // we use .get()[0] because .first() emits an annoying warning when it doesn't find anything
-            const varref = Query.searchFromInclusive(child, "varref").get()[0];
+            const varref = Query.searchFromInclusive(child, Varref).get()[0];
             if (varref != null) {
                 args.push(varref.name);
             }
             else {
-                const intLit = Query.searchFromInclusive(child, "intLiteral").get()[0];
+                const intLit = Query.searchFromInclusive(child, IntLiteral).get()[0];
                 if (intLit != null) {
                     args.push(`imm(${intLit.value})`);
                 }
                 else {
-                    const floatLit = Query.searchFromInclusive(child, "floatLiteral").get()[0];
+                    const floatLit = Query.searchFromInclusive(child, FloatLiteral).get()[0];
                     if (floatLit != null) {
                         args.push(`imm(${floatLit.value})`);
                     }

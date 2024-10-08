@@ -1,6 +1,11 @@
 {
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "**/*.spec.ts", "**/*.test.ts"],
+  "include": ["src/**/*.ts", "test/**/*.ts"],
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "src/taskgraph/TaskGraphBuilder.ts"
+  ],
   "compilerOptions": {
     "outDir": "dist",
     "target": "ES2022",

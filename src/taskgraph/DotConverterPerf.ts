@@ -1,14 +1,13 @@
-"use strict";
+import { DotConverter } from "./DotConverter.js";
+import { Task } from "./tasks/Task.js";
 
-laraImport("flextask/taskgraph/DotConverter");
-
-class DotConverterPerf extends DotConverter {
+export class DotConverterPerf extends DotConverter {
 
     constructor() {
         super();
     }
 
-    getLabelOfTask(task) {
+    getLabelOfTask(task: Task): string {
         let label = super.getLabelOfTask(task);
 
         const cpuPerf = task.getAnnotation("cpu");
@@ -29,11 +28,11 @@ class DotConverterPerf extends DotConverter {
         return label;
     }
 
-    #toPercent(value, precision = 1) {
+    #toPercent(value: number, precision = 1): string {
         return `${(value * 100).toFixed(precision)}%`;
     }
 
-    #secToUsec(seconds, precision = 1) {
+    #secToUsec(seconds: number, precision = 1): string {
         if (seconds == -1 || seconds == null) {
             return "N/A";
         }

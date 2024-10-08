@@ -1,4 +1,4 @@
-import { Call, FunctionType, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { Call, FunctionType, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 import { ConcreteTask } from "./ConcreteTask.js";
 import { Task } from "./Task.js";
 import { TaskType } from "./TaskType.js";
@@ -6,7 +6,7 @@ import { ExternalTaskDataPolicy } from "./ExternalTaskDataPolicy.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { DataItemOrigin } from "../DataItemOrigin.js";
 
-class ExternalTask extends ConcreteTask {
+export class ExternalTask extends ConcreteTask {
     #externalTaskDataPolicy: ExternalTaskDataPolicy;
 
     constructor(call: Call, hierParent: Task, delimiter = ".") {
@@ -18,27 +18,33 @@ class ExternalTask extends ConcreteTask {
     }
 
     #populateExternalCallData() {
-        const refs: Set<Varref> = new Set();
-        for (const ref of Query.searchFrom(this.getCall(), Varref)) {
+        // TS conversion: original code used varrefs, but we are now using vardecls.
+        const refs: Set<Vardecl> = new Set();
+        const call = this.getCall();
+        if (call == null) {
+            console.log("ExternalTask: call is null");
+            return;
+        }
+        for (const ref of Query.searchFrom(call, Varref)) {
             if (!(ref.type instanceof FunctionType)) {
-                refs.add(ref);
+                refs.add(ref.vardecl);
             }
         }
-        const varrefArray: Varref[] = Array.from(refs);
-        this.createDataObjects(, DataItemOrigin.PARAM);
+        const vardeclArray: Vardecl[] = Array.from(refs);
+        this.createDataObjects(vardeclArray, DataItemOrigin.PARAM);
     }
 
-    setExternalTaskDataPolicy(policy) {
+    setExternalTaskDataPolicy(policy: ExternalTaskDataPolicy) {
         this.#externalTaskDataPolicy = policy;
 
         for (const dataItem of this.getData()) {
-            if (policy === ExternalTaskDataPolicies.ALL_READ) {
+            if (policy === ExternalTaskDataPolicy.ALL_READ) {
                 dataItem.setRead();
             }
-            else if (policy === ExternalTaskDataPolicies.ALL_WRITE) {
+            else if (policy === ExternalTaskDataPolicy.ALL_WRITE) {
                 dataItem.setWritten();
             }
-            else if (policy === ExternalTaskDataPolicies.ALL_READ_WRITE) {
+            else if (policy === ExternalTaskDataPolicy.ALL_READ_WRITE) {
                 dataItem.setRead();
                 dataItem.setWritten();
             }

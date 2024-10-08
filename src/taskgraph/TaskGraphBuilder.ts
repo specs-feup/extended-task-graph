@@ -1,23 +1,22 @@
-"use strict";
+import { Call, FunctionJp, If, Joinpoint, Loop, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import Query from "@specs-feup/lara/api/weaver/Query.js";
+import { AStage } from "../AStage.js";
+import { TaskGraph } from "./TaskGraph.js";
+import { Task } from "./tasks/Task.js";
+import { RegularTask } from "./tasks/RegularTask.js";
+import { ClavaUtils } from "../util/ClavaUtils.js";
+import { ExternalFunctionsMatcher } from "../util/ExternalFunctionsMatcher.js";
+import { ExternalTask } from "./tasks/ExternalTask.js";
+import { DataItem } from "./DataItem.js";
 
-laraImport("weaver.Query");
-laraImport("clava.code.LoopCharacterizer");
-laraImport("flextask/AStage");
-laraImport("flextask/taskgraph/TaskGraph");
-laraImport("flextask/taskgraph/tasks/Task");
-laraImport("flextask/taskgraph/tasks/RegularTask");
-laraImport("flextask/taskgraph/tasks/ExternalTask");
-laraImport("flextask/taskgraph/Communication");
-
-
-class TaskGraphBuilder extends AStage {
+export class TaskGraphBuilder extends AStage {
     #lastUsedGlobal = new Map();
 
-    constructor(topFunction, outputDir, appName) {
+    constructor(topFunction: string, outputDir: string, appName: string) {
         super("TGGFlow-TaskGraphBuilder", topFunction, outputDir, appName);
     }
 
-    build() {
+    build(): TaskGraph {
         const taskGraph = new TaskGraph();
         this.#populateGlobalMap(taskGraph);
 
@@ -44,7 +43,7 @@ class TaskGraphBuilder extends AStage {
         return taskGraph;
     }
 
-    #populateGlobalMap(taskGraph) {
+    #populateGlobalMap(taskGraph: TaskGraph): void {
         const globalTask = taskGraph.getGlobalTask();
 
         for (const dataItem of globalTask.getGlobalDeclData()) {
@@ -54,7 +53,7 @@ class TaskGraphBuilder extends AStage {
         }
     }
 
-    #buildLevel(taskGraph, fun, parent, call, firstLevel = false) {
+    #buildLevel(taskGraph: TaskGraph, fun: FunctionJp, parent: Task | null, call: Call | null, firstLevel: boolean = false): Task {
         const task = new RegularTask(call, fun, parent);
         if (!firstLevel) {
             this.#updateWithRepetitions(task, call);
@@ -64,7 +63,7 @@ class TaskGraphBuilder extends AStage {
 
         const childTasks = [];
 
-        for (const call of Query.searchFrom(fun, "call")) {
+        for (const call of Query.searchFrom(fun, Call)) {
             const callee = call.function;
 
             // Is of type "REGULAR", handle recursively
@@ -103,14 +102,14 @@ class TaskGraphBuilder extends AStage {
         return task;
     }
 
-    #addControlEdges(task, call, taskGraph) {
+    #addControlEdges(task: Task, call: Call, taskGraph: TaskGraph): void {
         const ifStmts = [];
         const conditions = [];
-        let child = call;
-        let parent = call.parent;
+        let child: Joinpoint = call;
+        let parent: Joinpoint = call.parent;
 
         do {
-            if (parent.instanceOf("if")) {
+            if (parent instanceof If) {
                 ifStmts.push(parent);
                 // true if child is the "then" branch (children[1])
                 // false if child is the "else" branch (children[2])
@@ -118,13 +117,13 @@ class TaskGraphBuilder extends AStage {
             }
             child = parent;
             parent = child.parent;
-        } while (!parent.instanceOf("function"));
+        } while (!(parent instanceof FunctionJp));
 
         for (let i = 0; i < ifStmts.length; i++) {
             const ifStmt = ifStmts[i];
             const condition = conditions[i];
 
-            const varref = ifStmt.children[0];
+            const varref = ifStmt.children[0] as Varref;
             const varrefName = varref.name;
 
             // horrible hack: we need to find the last task
@@ -140,24 +139,28 @@ class TaskGraphBuilder extends AStage {
                     }
                 }
             }
+            if (condTask == null) {
+                this.log("Could not find task that defines the control variable " + varrefName);
+                continue;
+            }
             // end of horrible hack
             taskGraph.addControlEdge(condTask, task, varref, condition);
         }
     }
 
-    #updateWithRepetitions(task, call) {
-        const body = call.parent.parent;
-        if (body.parent.instanceOf("loop")) {
-            const loop = body.parent;
-            const characteristics = LoopCharacterizer.characterize(loop);
-            const iterCount = characteristics.count == undefined ? -1 : characteristics.count;
+    #updateWithRepetitions(task: Task, call: Call): void {
+        // const body = call.parent.parent;
+        // if (body.parent instanceof Loop) {
+        //     const loop = body.parent;
+        //     const characteristics = LoopCharacterizer.characterize(loop);
+        //     const iterCount = characteristics.count == undefined ? -1 : characteristics.count;
 
-            task.setRepetitions(iterCount, loop);
-            this.log("Task " + task.getUniqueName() + " has " + iterCount + " repetitions");
-        }
+        //     task.setRepetitions(iterCount, loop);
+        //     this.log("Task " + task.getUniqueName() + " has " + iterCount + " repetitions");
+        // }
     }
 
-    #addSubgraphComm(taskGraph, parent, children) {
+    #addSubgraphComm(taskGraph: TaskGraph, parent: Task, children: Task[]): void {
         // First, we start by building a handy mapping between task and task name
         const nameToTask = new Map();
         for (const task of children) {
@@ -189,7 +192,7 @@ class TaskGraphBuilder extends AStage {
         }
     }
 
-    buildCommParam(dataItem, lastUsed, nameToTask, child, taskGraph, rank) {
+    buildCommParam(dataItem: DataItem, lastUsed, nameToTask, child, taskGraph, rank) {
         const altName = dataItem.getAlternateName();
         const lastUsedTaskName = lastUsed.get(altName);
         const lastUsedTask = nameToTask.get(lastUsedTaskName);

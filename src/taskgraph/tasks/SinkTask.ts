@@ -24,11 +24,11 @@ export class SinkTask extends Task {
         return dataCopy;
     }
 
-    getGraphOutputData() {
+    getGraphOutputData(): DataItem[] {
         return this.#graphOutputData;
     }
 
-    getData() {
+    getData(): DataItem[] {
         const otherData = super.getData();  // always empty... in theory
         return [...otherData, ...this.#graphOutputData];
     }

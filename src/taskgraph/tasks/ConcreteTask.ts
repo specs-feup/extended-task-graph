@@ -4,13 +4,13 @@ import { TaskType } from "./TaskType.js";
 import IdGenerator from "@specs-feup/lara/api/lara/util/IdGenerator.js";
 
 export class ConcreteTask extends Task {
-    #call: Call;
+    #call: Call | null;
     #hierParent: Task | null = null;
-    #hierChildren: Set<Task> = new Set();
+    #hierChildren: Set<ConcreteTask> = new Set();
     #repetitions = 1;
     #loopRef: Loop | null = null;
 
-    constructor(type: TaskType.REGULAR | TaskType.EXTERNAL, call: Call, hierParent: Task | null, name: string, delimiter = ".", prefix = "T") {
+    constructor(type: TaskType.REGULAR | TaskType.EXTERNAL, call: Call | null, hierParent: Task | null, name: string, delimiter = ".", prefix = "T") {
         super(type);
 
         const idPrefix = (hierParent != null && hierParent.getType() == TaskType.REGULAR) ?
@@ -25,7 +25,7 @@ export class ConcreteTask extends Task {
         }
     }
 
-    getCall(): Call {
+    getCall(): Call | null {
         return this.#call;
     }
 
@@ -48,15 +48,15 @@ export class ConcreteTask extends Task {
         return this.#hierParent;
     }
 
-    getHierarchicalChildren(): Task[] {
+    getHierarchicalChildren(): ConcreteTask[] {
         return [...this.#hierChildren];
     }
 
-    addHierarchicalChild(child: Task): void {
+    addHierarchicalChild(child: ConcreteTask): void {
         this.#hierChildren.add(child);
     }
 
-    removeHierarchicalChild(child: Task): void {
+    removeHierarchicalChild(child: ConcreteTask): void {
         this.#hierChildren.delete(child);
     }
 }

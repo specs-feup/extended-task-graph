@@ -1,14 +1,13 @@
-"use strict";
+import { DotConverter } from "./DotConverter.js";
+import { Task } from "./tasks/Task.js";
 
-laraImport("flextask/taskgraph/DotConverter");
-
-class DotConverterDetailed extends DotConverter {
+export class DotConverterDetailed extends DotConverter {
 
     constructor() {
         super();
     }
 
-    getLabelOfTask(task) {
+    getLabelOfTask(task: Task): string {
         let label = super.getLabelOfTask(task);
 
         if (task.getParamData().length > 0) {

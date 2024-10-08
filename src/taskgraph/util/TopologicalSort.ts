@@ -1,12 +1,12 @@
-"use strict";
+import { Task } from "../tasks/Task.js";
 
-class TopologicalSort {
-    static sort(tasks) {
-        const visited = new Set();
-        const result = new Set();
-        const taskIds = new Set(tasks.map((task) => task.getId()));
+export class TopologicalSort {
+    static sort(tasks: Task[]): Task[] {
+        const visited: Set<string> = new Set();
+        const result: Set<Task> = new Set();
+        const taskIds: Set<string> = new Set(tasks.map((task) => task.getId()));
 
-        const dfs = (task) => {
+        const dfs = (task: Task) => {
             visited.add(task.getId());
 
             const outgoingComm = task.getOutgoingComm();
@@ -21,7 +21,7 @@ class TopologicalSort {
             result.add(task);
         };
 
-        tasks.forEach((task) => {
+        tasks.forEach((task: Task) => {
             if (!visited.has(task.getId())) {
                 dfs(task);
             }
