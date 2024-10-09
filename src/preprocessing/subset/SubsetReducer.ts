@@ -1,20 +1,17 @@
-"use strict";
+import { AStage } from "../../AStage.js";
+import StatementDecomposer from "@specs-feup/clava/api/clava/code/StatementDecomposer.js";
+import NormalizeToSubset from "@specs-feup/clava/api/clava/opt/NormalizeToSubset.js";
+import { BinaryOp, Body, FunctionJp, If, Joinpoint, Loop, Scope, Statement, Switch } from "@specs-feup/clava/api/Joinpoints.js";
+import Query from "@specs-feup/lara/api/weaver/Query.js";
+import ArrayFlattener from "clava-code-transformations/ArrayFlattener";
+import FoldingPropagationCombiner from "clava-code-transformations/FoldingPropagationCombiner";
+import StructDecomposer from "clava-code-transformations/StructDecomposer";
+import { Voidifier } from "clava-code-transformations/Voidifier";
+import { ClavaUtils } from "../../util/ClavaUtils.js";
+import { SwitchToIf } from "clava-code-transformations/SwitchToIf";
 
-laraImport("weaver.Query");
-laraImport("clava.opt.NormalizeToSubset");
-laraImport("clava.opt.PrepareForInlining");
-laraImport("clava.code.Inliner");
-laraImport("clava.code.StatementDecomposer");
-laraImport("clava.code.Voidifier");
-laraImport("clava.code.ArrayFlattener");
-laraImport("clava.code.FoldingPropagationCombiner");
-laraImport("clava.code.SwitchToIf");
-laraImport("clava.code.StructDecomposer");
-laraImport("flextask/util/ClavaUtils")
-laraImport("flextask/AStage");
-
-class SubsetReducer extends AStage {
-    constructor(topFunction) {
+export class SubsetReducer extends AStage {
+    constructor(topFunction: string) {
         super("CTFlow-Subset-SubsetReducer", topFunction);
     }
 
@@ -44,8 +41,14 @@ class SubsetReducer extends AStage {
             hasChanged = false;
 
             for (const fun of funs) {
-                for (const stmt of Query.searchFrom(fun, "statement", { isInsideHeader: false })) {
-                    if (stmt.instanceOf(["body", "scope", "if", "loop"])) {
+                for (const stmt of Query.searchFrom(fun, Statement, { isInsideHeader: false })) {
+                    let skippable = false;
+                    skippable ||= stmt instanceof Body;
+                    skippable ||= stmt instanceof Scope;
+                    skippable ||= stmt instanceof If;
+                    skippable ||= stmt instanceof Loop;
+
+                    if (skippable) {
                         continue;
                     }
 
@@ -64,7 +67,7 @@ class SubsetReducer extends AStage {
     }
 
     applyCodeTransforms() {
-        this.#applySwitchToIfConversion();
+        //this.#applySwitchToIfConversion();
         //this.#applyStructDecomposition();
         this.#applyConstantFoldingAndPropagation();
         this.#applyArrayFlattening();
@@ -92,12 +95,13 @@ class SubsetReducer extends AStage {
 
         const funs = this.#getValidFunctions();
         for (const fun of funs) {
-            flattener.flattenAllInFunction(fun);
+            const flattened = flattener.flattenAllInFunction(fun);
+            this.log(`Flattened ${flattened} array${flattened > 1 ? "s" : ""} in ${fun.name}()`);
         }
         this.log("Flattened all arrays into 1D");
     }
 
-    #applyConstantFoldingAndPropagation() {
+    #applyConstantFoldingAndPropagation(): boolean {
         try {
             const foldProg = new FoldingPropagationCombiner();
 
@@ -107,10 +111,12 @@ class SubsetReducer extends AStage {
         catch (e) {
             this.logTrace(e);
             this.logWarning("Constant folding and propagation may not have been thorough");
+            return false;
         }
+        return true;
     }
 
-    #applyStructDecomposition() {
+    #applyStructDecomposition(): void {
         const decomp = new StructDecomposer(true);
 
         const structNames = decomp.decomposeAll();
@@ -121,18 +127,20 @@ class SubsetReducer extends AStage {
         const switchToIf = new SwitchToIf();
         let count = 0;
 
-        for (const switchStmt of Query.search("switch")) {
-            switchToIf.convert(switchStmt);
-            count++;
+        for (const switchStmt of Query.search(Switch)) {
+            const success = switchToIf.convert(switchStmt);
+            if (success) {
+                count++;
+            }
         }
         this.log(`Converted ${count} switch statement${count > 1 ? "s" : ""} into if-else statements`);
     }
 
-    #getValidFunctions() {
+    #getValidFunctions(): FunctionJp[] {
         return ClavaUtils.getAllUniqueFunctions(this.getTopFunctionJoinPoint());
     }
 
-    #matchesATemplate(stmt) {
+    #matchesATemplate(stmt: Statement): boolean {
         const templates = [
             //["exprStmt", ["binaryOp", ["arrayAccess"], ["call"]]]
             ["binaryOp noassign", ["call"], ["_"]],
@@ -145,7 +153,7 @@ class SubsetReducer extends AStage {
         let hasMatched = false;
         for (const template of templates) {
 
-            for (const binaryOp of Query.searchFrom(stmt)) {
+            for (const binaryOp of Query.searchFrom(stmt, BinaryOp)) {
                 const matched = ClavaUtils.matchTemplate(binaryOp, template);
                 if (matched) {
                     hasMatched = true;
@@ -156,8 +164,8 @@ class SubsetReducer extends AStage {
         return hasMatched;
     }
 
-    #matchesEdgeCase(stmt) {
-        const assignsInStmt = Query.searchFrom(stmt, "binaryOp", { kind: "assign" }).chain().length;
+    #matchesEdgeCase(stmt: Statement): boolean {
+        const assignsInStmt = Query.searchFrom(stmt, BinaryOp, { kind: "assign" }).chain().length;
 
         // A[1] = A[0] = foo(X)
         if (assignsInStmt > 1) {
@@ -173,13 +181,13 @@ class SubsetReducer extends AStage {
         return false;
     }
 
-    #isInIfCondition(stmt) {
-        let jp = stmt;
+    #isInIfCondition(stmt: Statement): boolean {
+        let jp: Joinpoint = stmt as Joinpoint;
         while (jp != null) {
-            if (jp.instanceOf("if")) {
+            if (jp instanceof If) {
                 return true;
             }
-            if (jp.instanceOf("body")) {
+            if (jp instanceof Body) {
                 return false;
             }
             jp = jp.parent;

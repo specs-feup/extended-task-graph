@@ -1,4 +1,6 @@
 import { AStage } from "../../AStage.js";
+import { CodeSanitizer } from "./CodeSanitizer.js";
+import { SubsetReducer } from "./SubsetReducer.js";
 
 export class SubsetPreprocessor extends AStage {
     constructor(topFunction: string, outputDir: string, appName: string) {

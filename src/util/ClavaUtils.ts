@@ -25,7 +25,9 @@ export class ClavaUtils {
         return path;
     }
 
-    static matchTemplate(jp: Joinpoint, template: string) {
+    // The template matcher needs to be rewritten from scratch,
+    // so we'll facilitate and use a little "any" type for now
+    static matchTemplate(jp: Joinpoint, template: any) {
         const split = template[0].split(" ");
         const type = split[0];
         const cond = split.length == 2 ? split[1] : "none";
