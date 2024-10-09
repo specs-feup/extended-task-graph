@@ -1,9 +1,9 @@
-import { AStage } from "./AStage.js";
+import { AStage } from "../AStage.js";
 import { OutputDirectories } from "./OutputDirectories.js";
-import { CodeInstrumenter } from "./preprocessing/CodeInstrumenter.js";
-import { SubsetPreprocessor } from "./preprocessing/subset/SubsetPreprocessor.js";
-import { TaskPreprocessor } from "./preprocessing/task/TaskPreprocessor.js";
-import { ClavaUtils } from "./util/ClavaUtils.js";
+import { CodeInstrumenter } from "../preprocessing/CodeInstrumenter.js";
+import { SubsetPreprocessor } from "../preprocessing/subset/SubsetPreprocessor.js";
+import { TaskPreprocessor } from "../preprocessing/task/TaskPreprocessor.js";
+import { ClavaUtils } from "../util/ClavaUtils.js";
 
 export class CodeTransformationFlow extends AStage {
     constructor(topFunctionName: string, outputDir: string, appName: string) {

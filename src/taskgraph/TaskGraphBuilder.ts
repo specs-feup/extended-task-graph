@@ -8,8 +8,8 @@ import { ClavaUtils } from "../util/ClavaUtils.js";
 import { ExternalFunctionsMatcher } from "../util/ExternalFunctionsMatcher.js";
 import { ExternalTask } from "./tasks/ExternalTask.js";
 import { DataItem } from "./DataItem.js";
-import LoopCharacterizer from "clava-code-transformations/LoopCharacterizer";
 import { ConcreteTask } from "./tasks/ConcreteTask.js";
+import LoopCharacterizer from "clava-code-transformations/LoopCharacterizer";
 
 export class TaskGraphBuilder extends AStage {
     #lastUsedGlobal = new Map();

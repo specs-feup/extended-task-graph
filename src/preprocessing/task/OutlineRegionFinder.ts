@@ -2,7 +2,6 @@ import { Body, Call, DeclStmt, ExprStmt, FunctionJp, If, Joinpoint, Loop, Return
 import { AStage } from "../../AStage.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
-import Outliner from "clava-code-transformations/Outliner";
 import IdGenerator from "@specs-feup/lara/api/lara/util/IdGenerator.js";
 import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
 import { ExternalFunctionsMatcher } from "../../util/ExternalFunctionsMatcher.js";
@@ -100,16 +99,16 @@ export class OutlineRegionFinder extends AStage {
     }
 
     #outlineRegion(wrappedRegion: Statement[], prefix: string): void {
-        const start = wrappedRegion[0];
-        const end = wrappedRegion[wrappedRegion.length - 1];
+        // const start = wrappedRegion[0];
+        // const end = wrappedRegion[wrappedRegion.length - 1];
 
-        const outliner = new Outliner();
-        outliner.setVerbosity(false);
-        const fname = prefix + IdGenerator.next();
+        // const outliner = new Outliner();
+        // outliner.setVerbosity(false);
+        // const fname = prefix + IdGenerator.next();
 
-        outliner.outlineWithName(start, end, fname);
-        start.detach();
-        end.detach();
+        // outliner.outlineWithName(start, end, fname);
+        // start.detach();
+        // end.detach();
     }
 
     #validateRegion(region: Statement[]): boolean {

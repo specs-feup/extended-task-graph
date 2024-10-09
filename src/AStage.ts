@@ -2,7 +2,8 @@ import { FunctionJp } from "@specs-feup/clava/api/Joinpoints.js";
 import Io from "@specs-feup/lara/api/lara/Io.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { Chalk, ChalkColor, ChalkStyle } from "./util/Chalk.js";
-import { OutputDirectories } from "./OutputDirectories.js";
+import { OutputDirectories } from "./api/OutputDirectories.js";
+
 
 export abstract class AStage {
     #stageName: string = "DefaultStage";
@@ -59,29 +60,9 @@ export abstract class AStage {
         return this.#topFunctionName;
     }
 
-    #getStageOutputHeader(): string {
-        const fullName = `${this.#commonPrefix}-${this.#stageName}`;
-        const coloredName = Chalk.color(fullName, ChalkColor.cyan);
-
-        const header = `[${coloredName}] `.padEnd(this.#padding, '-');
-        return header;
-    }
-
-    writeMessage(message: string, forceFlush = false): void {
-        const strippedMsg = Chalk.stripColors(message) + "\n";
-        AStage.#currentLog += strippedMsg;
-
-        if (AStage.#currentLog.length > AStage.#maxLogSize || forceFlush) {
-            Io.appendFile(this.#logFile, AStage.#currentLog);
-            AStage.#currentLog = "";
-        }
-
-        console.log(message);
-    }
-
     log(message: string): void {
         const header = this.#getStageOutputHeader();
-        this.writeMessage(`${header} ${message}`);
+        this.#writeMessage(`${header} ${message}`);
     }
 
     logStart(): void {
@@ -120,25 +101,25 @@ export abstract class AStage {
         let prettyPath = Chalk.style(minPath, ChalkStyle.italic);
         prettyPath = Chalk.color(prettyPath, ChalkColor.blue);
 
-        this.writeMessage(`${header} ${message} ${prettyPath}`);
+        this.#writeMessage(`${header} ${message} ${prettyPath}`);
     }
 
     logSuccess(message: string): void {
         const header = this.#getStageOutputHeader();
         const success = Chalk.color("Success: ", ChalkColor.green);
-        this.writeMessage(`${header} ${success} ${message}`);
+        this.#writeMessage(`${header} ${success} ${message}`);
     }
 
     logWarning(message: string): void {
         const header = this.#getStageOutputHeader();
         const warning = Chalk.color("Warning: ", ChalkColor.yellow);
-        this.writeMessage(`${header} ${warning} ${message}`);
+        this.#writeMessage(`${header} ${warning} ${message}`);
     }
 
     logError(message: string): void {
         const header = this.#getStageOutputHeader();
         const err = Chalk.color("Error: ", ChalkColor.red);
-        this.writeMessage(`${header} ${err} ${message}`);
+        this.#writeMessage(`${header} ${err} ${message}`);
     }
 
     logTrace(exception: unknown): void {
@@ -146,19 +127,19 @@ export abstract class AStage {
         const err = Chalk.color("Exception caught with stack trace:", ChalkColor.red);
         const end = Chalk.color("----------------------------------", ChalkColor.red);
 
-        this.writeMessage(`${header} ${err}`);
+        this.#writeMessage(`${header} ${err}`);
         if (exception instanceof Error) {
-            this.writeMessage(exception.stack as string);
+            this.#writeMessage(exception.stack as string);
         }
         else {
-            this.writeMessage("(No stack trace available)");
+            this.#writeMessage("(No stack trace available)");
         }
-        this.writeMessage(`${header} ${end}`);
+        this.#writeMessage(`${header} ${end}`);
     }
 
-    logLine(): void {
+    logLine(len: number = 58): void {
         const header = this.#getStageOutputHeader();
-        this.writeMessage(`${header}${"-".repeat(58)}`);
+        this.#writeMessage(`${header}${"-".repeat(len)}`);
     }
 
     saveToFile(content: string, filename: string): string {
@@ -171,5 +152,25 @@ export abstract class AStage {
         const fullName = `${this.#outputDir}/${subfolder}/${this.#appName}_${filename}`;
         Io.writeFile(fullName, content);
         return fullName;
+    }
+
+    #getStageOutputHeader(): string {
+        const fullName = `${this.#commonPrefix}-${this.#stageName}`;
+        const coloredName = Chalk.color(fullName, ChalkColor.cyan);
+
+        const header = `[${coloredName}] `.padEnd(this.#padding, '-');
+        return header;
+    }
+
+    #writeMessage(message: string, forceFlush = false): void {
+        const strippedMsg = Chalk.stripColors(message) + "\n";
+        AStage.#currentLog += strippedMsg;
+
+        if (AStage.#currentLog.length > AStage.#maxLogSize || forceFlush) {
+            Io.appendFile(this.#logFile, AStage.#currentLog);
+            AStage.#currentLog = "";
+        }
+
+        console.log(message);
     }
 }

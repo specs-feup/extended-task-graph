@@ -1,11 +1,11 @@
 import { FunctionJp, Loop, Scope } from "@specs-feup/clava/api/Joinpoints.js";
 import { AStage } from "../AStage.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
-import LoopCharacterizer, { LoopCharacterization } from "clava-code-transformations/LoopCharacterizer";
 import IdGenerator from "@specs-feup/lara/api/lara/util/IdGenerator.js";
 import Timer from "@specs-feup/clava/api/lara/code/Timer.js";
 import { TimerUnit } from "@specs-feup/lara/api/lara/util/TimeUnits.js";
 import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
+import LoopCharacterizer, { LoopCharacterization } from "clava-code-transformations/LoopCharacterizer";
 
 export class CodeInstrumenter extends AStage {
     #prefix;

@@ -1,5 +1,6 @@
-import { AStage } from "./AStage.js";
-import { TaskGraph } from "./taskgraph/TaskGraph.js";
+import { AStage } from "../AStage.js";
+import { CodeTransformationFlow } from "./CodeTransformationFlow.js";
+import { TaskGraph } from "../taskgraph/TaskGraph.js";
 import { TaskGraphGenerationFlow } from "./TaskGraphGenerationFlow.js";
 import Platforms from "@specs-feup/lara/api/lara/Platforms.js";
 
@@ -8,24 +9,24 @@ export class ExtendedTaskGraphAPI extends AStage {
         super("ExtendedTaskGraphAPI", topFunctionName, outputDir, appName);
     }
 
-    // runCodeTransformationFlow(dumpCallGraph = true, dumpAST = true, doTransformations = true) {
-    //     this.#printLine();
-    //     this.#ensureLinux();
+    runCodeTransformationFlow(dumpCallGraph: boolean = true, dumpAST: boolean = true, doTransformations: boolean = true): boolean {
+        this.logLine(100);
+        this.#ensureLinux();
 
-    //     const flow = new CodeTransformationFlow(this.getTopFunctionName(), this.getOutputDir(), this.getAppName());
-    //     const res = flow.run(dumpCallGraph, dumpAST, doTransformations);
+        const flow = new CodeTransformationFlow(this.getTopFunctionName(), this.getOutputDir(), this.getAppName());
+        const res = flow.run(dumpCallGraph, dumpAST, doTransformations);
 
-    //     return res;
-    // }
+        return res;
+    }
 
     runTaskGraphGenerationFlow(dumpGraph: boolean = true, gatherMetrics: boolean = true): TaskGraph | null {
-        this.#printLine();
+        this.logLine(100);
         this.#ensureLinux();
 
         const flow = new TaskGraphGenerationFlow(this.getTopFunctionName(), this.getOutputDir(), this.getAppName());
         const tg = flow.run(dumpGraph, gatherMetrics);
 
-        this.#printLine();
+        this.logLine(100);
         return tg;
     }
 
@@ -39,10 +40,5 @@ export class ExtendedTaskGraphAPI extends AStage {
         else {
             this.log("Current OS is Linux, ETG will output Linux-ready code");
         }
-    }
-
-    #printLine(): void {
-        const lineOfStars = "*".repeat(100);
-        this.writeMessage(lineOfStars, true);
     }
 }

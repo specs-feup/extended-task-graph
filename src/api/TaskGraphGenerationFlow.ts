@@ -1,10 +1,10 @@
-import { AStage } from "./AStage.js";
+import { AStage } from "../AStage.js";
 import { OutputDirectories } from "./OutputDirectories.js";
-import { DotConverter } from "./taskgraph/DotConverter.js";
-import { DotConverterDetailed } from "./taskgraph/DotConverterDetailed.js";
-import { DotConverterMinimal } from "./taskgraph/DotConverterMinimal.js";
-import { TaskGraph } from "./taskgraph/TaskGraph.js";
-import { TaskGraphBuilder } from "./taskgraph/TaskGraphBuilder.js";
+import { DotConverter } from "../taskgraph/DotConverter.js";
+import { DotConverterDetailed } from "../taskgraph/DotConverterDetailed.js";
+import { DotConverterMinimal } from "../taskgraph/DotConverterMinimal.js";
+import { TaskGraph } from "../taskgraph/TaskGraph.js";
+import { TaskGraphBuilder } from "../taskgraph/TaskGraphBuilder.js";
 
 export class TaskGraphGenerationFlow extends AStage {
     constructor(topFunctionName: string, outputDir: string, appName: string) {

@@ -5,9 +5,11 @@
   "description": "An Extended Task Graph implementation for the Clava C/C++ to C/C++ source-to-source compiler",
   "type": "module",
   "scripts": {
-    "edgedetect-etg": "clava dist/test/SimpleTaskGraphGeneration.js -- clang inputs/edgedetect-transformed/",
+    "simple-appdump": "clava dist/test/simple-use-cases/AppDumping.js -- clang inputs/edgedetect-transformed/",
+    "simple-etg": "clava dist/test/simple-use-cases/TaskGraphGeneration.js -- clang inputs/edgedetect-transformed/",
     "build": "tsc",
     "build:watch": "tsc --watch",
+    "clean": "rm -rf node_modules package-lock.json dist/ woven_code/ output/",
     "lint": "eslint .",
     "docs": "typedoc"
   },

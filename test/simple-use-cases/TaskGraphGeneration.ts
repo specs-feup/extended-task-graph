@@ -1,4 +1,4 @@
-import { ExtendedTaskGraphAPI } from "../src/ExtendedTaskGraphAPI.js";
+import { ExtendedTaskGraphAPI } from "../../src/api/ExtendedTaskGraphAPI.js";
 
 const api = new ExtendedTaskGraphAPI("edgedetect", "output", "edgedetect-simple-etg");
 const etg = api.runTaskGraphGenerationFlow(true, false);

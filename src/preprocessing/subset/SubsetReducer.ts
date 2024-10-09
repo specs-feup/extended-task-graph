@@ -1,14 +1,11 @@
 import { AStage } from "../../AStage.js";
+import { ClavaUtils } from "../../util/ClavaUtils.js";
 import StatementDecomposer from "@specs-feup/clava/api/clava/code/StatementDecomposer.js";
 import NormalizeToSubset from "@specs-feup/clava/api/clava/opt/NormalizeToSubset.js";
 import { BinaryOp, Body, FunctionJp, If, Joinpoint, Loop, Scope, Statement, Switch } from "@specs-feup/clava/api/Joinpoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import ArrayFlattener from "clava-code-transformations/ArrayFlattener";
-import FoldingPropagationCombiner from "clava-code-transformations/FoldingPropagationCombiner";
-import StructDecomposer from "clava-code-transformations/StructDecomposer";
-import { Voidifier } from "clava-code-transformations/Voidifier";
-import { ClavaUtils } from "../../util/ClavaUtils.js";
-import { SwitchToIf } from "clava-code-transformations/SwitchToIf";
+import SwitchToIf from "clava-code-transformations/SwitchToIf";
 
 export class SubsetReducer extends AStage {
     constructor(topFunction: string) {
@@ -67,27 +64,27 @@ export class SubsetReducer extends AStage {
     }
 
     applyCodeTransforms() {
-        //this.#applySwitchToIfConversion();
-        //this.#applyStructDecomposition();
+        this.#applySwitchToIfConversion();
+        this.#applyStructDecomposition();
         this.#applyConstantFoldingAndPropagation();
         this.#applyArrayFlattening();
     }
 
     ensureVoidReturns() {
-        const funs = this.#getValidFunctions();
-        const vf = new Voidifier();
+        // const funs = this.#getValidFunctions();
+        // const vf = new Voidifier();
 
-        let count = 0;
-        for (const fun of funs) {
-            if (fun.name == "main") {
-                this.log("Skipping voidification of main(), which is part of the valid call graph for subset reduction");
-            }
-            else {
-                const turnedVoid = vf.voidify(fun, "rtr_val");
-                count += turnedVoid ? 1 : 0;
-            }
-        }
-        this.log(`Ensured ${count} function${count > 1 ? "s" : ""} return${count > 1 ? "s" : ""} void`);
+        // let count = 0;
+        // for (const fun of funs) {
+        //     if (fun.name == "main") {
+        //         this.log("Skipping voidification of main(), which is part of the valid call graph for subset reduction");
+        //     }
+        //     else {
+        //         const turnedVoid = vf.voidify(fun, "rtr_val");
+        //         count += turnedVoid ? 1 : 0;
+        //     }
+        // }
+        // this.log(`Ensured ${count} function${count > 1 ? "s" : ""} return${count > 1 ? "s" : ""} void`);
     }
 
     #applyArrayFlattening() {
@@ -102,25 +99,25 @@ export class SubsetReducer extends AStage {
     }
 
     #applyConstantFoldingAndPropagation(): boolean {
-        try {
-            const foldProg = new FoldingPropagationCombiner();
+        // try {
+        //     const foldProg = new FoldingPropagationCombiner();
 
-            const nPasses = foldProg.doPassesUntilStop();
-            this.log(`Applied constant propagation in ${nPasses} pass${nPasses > 1 ? "es" : ""}`);
-        }
-        catch (e) {
-            this.logTrace(e);
-            this.logWarning("Constant folding and propagation may not have been thorough");
-            return false;
-        }
+        //     const nPasses = foldProg.doPassesUntilStop();
+        //     this.log(`Applied constant propagation in ${nPasses} pass${nPasses > 1 ? "es" : ""}`);
+        // }
+        // catch (e) {
+        //     this.logTrace(e);
+        //     this.logWarning("Constant folding and propagation may not have been thorough");
+        //     return false;
+        // }
         return true;
     }
 
     #applyStructDecomposition(): void {
-        const decomp = new StructDecomposer(true);
+        // const decomp = new StructDecomposer(true);
 
-        const structNames = decomp.decomposeAll();
-        this.log(`Decomposed ${structNames.length} struct${structNames.length > 1 ? "s" : ""}: ${structNames.join(", ")}`);
+        // const structNames = decomp.decomposeAll();
+        // this.log(`Decomposed ${structNames.length} struct${structNames.length > 1 ? "s" : ""}: ${structNames.join(", ")}`);
     }
 
     #applySwitchToIfConversion() {

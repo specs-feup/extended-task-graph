@@ -1,4 +1,3 @@
-import Outliner from "clava-code-transformations/Outliner";
 import { AStage } from "../../AStage.js";
 import { AppTimerInserter } from "./AppTimerInserter.js";
 import { ReplicaCreator } from "./ReplicaCreator.js";
@@ -33,22 +32,23 @@ export class TaskPreprocessor extends AStage {
     }
 
     #applyOutlining(regions: Statement[][], prefix: string): number {
-        const outliner = new Outliner();
-        outliner.setVerbosity(false);
-        outliner.setDefaultPrefix(prefix);
+        // const outliner = new Outliner();
+        // outliner.setVerbosity(false);
+        // outliner.setDefaultPrefix(prefix);
 
-        let outCount = 0;
-        for (const region of regions) {
-            const start = region[0];
-            const end = region[region.length - 1];
+        // let outCount = 0;
+        // for (const region of regions) {
+        //     const start = region[0];
+        //     const end = region[region.length - 1];
 
-            outliner.outline(start, end);
+        //     outliner.outline(start, end);
 
-            start.detach();
-            end.detach();
-            outCount++;
-        }
-        return outCount;
+        //     start.detach();
+        //     end.detach();
+        //     outCount++;
+        // }
+        // return outCount;
+        return 0;
     }
 
     createFunctionReplicas() {
