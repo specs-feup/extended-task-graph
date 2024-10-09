@@ -1,16 +1,15 @@
-"use strict";
+import { BinaryOp, Call, FileJp, FunctionJp, IntLiteral, Joinpoint, MemberAccess, Param, UnaryOp, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import Query from "@specs-feup/lara/api/weaver/Query.js";
 
-laraImport("weaver.Query");
-
-class AstDumper {
+export class AstDumper {
     #currentRes = "";
 
     constructor() { }
 
-    dump() {
+    dump(): string {
         this.#currentRes = "";
 
-        for (const startJp of Query.search("file")) {
+        for (const startJp of Query.search(FileJp)) {
             this.#addLevelToResult(startJp.joinPointType, 0);
 
             for (const child of startJp.children) {
@@ -20,22 +19,26 @@ class AstDumper {
         return this.#currentRes.slice();
     }
 
-    #buildLabel(key, val) {
+    #buildLabel(key: string, val: string): string {
         return "  {" + key + ": " + val + "}";
     }
 
-    #dumpJoinPoint(jp, indent) {
+    #dumpJoinPoint(jp: Joinpoint, indent: number): void {
         var str = jp.joinPointType;
-        if (jp.instanceOf(["param", "vardecl", "varref", "memberAccess"])) {
+
+        if (jp instanceof Param || jp instanceof Vardecl || jp instanceof Varref || jp instanceof MemberAccess) {
             str += this.#buildLabel("name", jp.name) + this.#buildLabel("type", jp.type.joinPointType);
         }
-        if (jp.instanceOf(["unaryOp", "binaryOp"])) {
+
+        if (jp instanceof UnaryOp || jp instanceof BinaryOp) {
             str += this.#buildLabel("kind", jp.kind);
         }
-        if (jp.instanceOf("call")) {
+
+        if (jp instanceof Call) {
             str += this.#buildLabel("fun", jp.name);
         }
-        if (jp.instanceOf("function")) {
+
+        if (jp instanceof FunctionJp) {
             str += this.#buildLabel("sig", jp.signature);
         }
         this.#addLevelToResult(str, indent);
@@ -43,7 +46,7 @@ class AstDumper {
         if (jp.children.length > 4) {
             var allLits = true;
             for (const child of jp.children) {
-                if (!child.instanceOf("intLiteral")) {
+                if (!(child instanceof IntLiteral)) {
                     allLits = false;
                 }
             }
@@ -57,7 +60,7 @@ class AstDumper {
         }
     }
 
-    #addLevelToResult(str, indent) {
+    #addLevelToResult(str: string, indent: number): void {
         this.#currentRes += `${'-'.repeat(indent)}>${str}\n`;
     }
 }

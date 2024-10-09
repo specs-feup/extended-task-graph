@@ -1,16 +1,16 @@
-"use strict";
+import { Call, FunctionJp } from "@specs-feup/clava/api/Joinpoints.js";
+import IdGenerator from "@specs-feup/lara/api/lara/util/IdGenerator.js";
+import { DotSorting } from "../../util/DotSorting.js";
+import Query from "@specs-feup/lara/api/weaver/Query.js";
 
-laraImport("weaver.Query");
-laraImport("lara.util.IdGenerator");
-
-class CallTreeDumper {
-    #omitOperators;
+export class CallTreeDumper {
+    #omitOperators: boolean;
 
     constructor(omitOperators = true) {
         this.#omitOperators = omitOperators;
     }
 
-    dump(topFunction, rankdir = "LR") {
+    dump(topFunction: FunctionJp, rankdir: DotSorting = DotSorting.LEFT_TO_RIGHT): string {
         const topId = IdGenerator.next("F");
         const ret = this.#buildTree(topFunction, topId);
         const nodes = ret[0].join("\n");
@@ -18,7 +18,7 @@ class CallTreeDumper {
 
         const dot = `
 digraph G {
-rankdir=${rankdir};
+rankdir=${rankdir.valueOf()};
 node [shape=rectangle];
 
 ${nodes}
@@ -28,7 +28,7 @@ ${edges}
         return dot;
     }
 
-    #buildTree(fun, id) {
+    #buildTree(fun: FunctionJp, id: string): [string[], string[]] {
         if (fun == undefined) {
             return [[], []];
         }
@@ -44,7 +44,7 @@ ${edges}
         const edges = [];
 
         let i = 0;
-        for (const call of Query.searchFrom(fun, "call")) {
+        for (const call of Query.searchFrom(fun, Call)) {
             const targetId = IdGenerator.next("F");
             const targetFun = call.function;
             const res = this.#buildTree(targetFun, targetId);
@@ -63,7 +63,7 @@ ${edges}
         return [nodes, edges];
     }
 
-    #isCppOperator(str) {
+    #isCppOperator(str: string) {
         const cppOperatorRegex = /^operator(?:\+\+|--|>>|<<|\|\||&&|[-+*\/%^&|=<>!]=?|~|\.|\->|\(|\)|\[|\]|\{|}|,|;|:|\?|\#|@|::)$/;
         return cppOperatorRegex.test(str);
     }
