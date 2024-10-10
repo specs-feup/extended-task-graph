@@ -6,7 +6,7 @@ import { OutlineRegionFinder } from "./OutlineRegionFinder.js";
 
 export class TaskPreprocessor extends AStage {
     constructor(topFunction: string, outputDir: string, appName: string) {
-        super("CTFlow-TaskPrep", topFunction, outputDir, appName);
+        super("TransFlow-TaskPrep", topFunction, outputDir, appName);
     }
 
     preprocess() {

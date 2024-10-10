@@ -4,7 +4,7 @@ import { AStage } from "../../AStage.js";
 
 export class CodeSanitizer extends AStage {
     constructor(topFunction: string) {
-        super("CTFlow-Subset-CodeSanitizer", topFunction);
+        super("TransFlow-Subset-CodeSanitizer", topFunction);
     }
 
     sanitize(): void {

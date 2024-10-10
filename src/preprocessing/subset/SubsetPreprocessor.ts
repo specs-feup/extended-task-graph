@@ -4,7 +4,7 @@ import { SubsetReducer } from "./SubsetReducer.js";
 
 export class SubsetPreprocessor extends AStage {
     constructor(topFunction: string, outputDir: string, appName: string) {
-        super("CTFlow-Subset", topFunction, outputDir, appName);
+        super("TransFlow-Subset", topFunction, outputDir, appName);
     }
 
     preprocess(): boolean {

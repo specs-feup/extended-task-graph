@@ -9,7 +9,7 @@ import { SourceCodeStats } from "./SourceCodeStats.js";
 
 export class ApplicationAnalyser extends AStage {
     constructor(topFunction: string, outputDir: string, appName: string) {
-        super("CTFlow-ApplicationAnalyser", topFunction, outputDir, appName);
+        super("TransFlow-ApplicationAnalyser", topFunction, outputDir, appName);
     }
 
     runAllTasks(dumpCallGraph = true, dumpAST = true, generateStatistics = true) {

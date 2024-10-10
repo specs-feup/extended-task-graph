@@ -6,11 +6,11 @@ import Platforms from "@specs-feup/lara/api/lara/Platforms.js";
 
 export class ExtendedTaskGraphAPI extends AStage {
     constructor(topFunctionName: string, outputDir: string = "output", appName: string = "default_app_name") {
-        super("ExtendedTaskGraphAPI", topFunctionName, outputDir, appName);
+        super("API", topFunctionName, `${outputDir}/${appName}`, appName);
     }
 
     runCodeTransformationFlow(dumpCallGraph: boolean = true, dumpAST: boolean = true, doTransformations: boolean = true): boolean {
-        this.logLine(100);
+        this.logLine();
         this.#ensureLinux();
 
         const flow = new CodeTransformationFlow(this.getTopFunctionName(), this.getOutputDir(), this.getAppName());
@@ -20,13 +20,13 @@ export class ExtendedTaskGraphAPI extends AStage {
     }
 
     runTaskGraphGenerationFlow(dumpGraph: boolean = true, gatherMetrics: boolean = true): TaskGraph | null {
-        this.logLine(100);
+        this.logLine();
         this.#ensureLinux();
 
         const flow = new TaskGraphGenerationFlow(this.getTopFunctionName(), this.getOutputDir(), this.getAppName());
         const tg = flow.run(dumpGraph, gatherMetrics);
 
-        this.logLine(100);
+        this.logLine();
         return tg;
     }
 

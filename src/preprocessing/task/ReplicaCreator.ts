@@ -6,7 +6,7 @@ import Query from "@specs-feup/lara/api/weaver/Query.js";
 
 export class ReplicaCreator extends AStage {
     constructor(topFunctionName: string) {
-        super("CTFlow-TaskPrep-Replicator", topFunctionName);
+        super("TransFlow-TaskPrep-Replicator", topFunctionName);
     }
 
     replicateAll(): [number, number] {

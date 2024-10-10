@@ -5,6 +5,7 @@ import { DotConverterDetailed } from "../taskgraph/DotConverterDetailed.js";
 import { DotConverterMinimal } from "../taskgraph/DotConverterMinimal.js";
 import { TaskGraph } from "../taskgraph/TaskGraph.js";
 import { TaskGraphBuilder } from "../taskgraph/TaskGraphBuilder.js";
+import { TaskGraphAnalyzer } from "../analysis/taskgraph/TaskGraphAnalyzer.js";
 
 export class TaskGraphGenerationFlow extends AStage {
     constructor(topFunctionName: string, outputDir: string, appName: string) {
@@ -72,9 +73,9 @@ export class TaskGraphGenerationFlow extends AStage {
         const outDir = this.getOutputDir() + "/" + OutputDirectories.TASKGRAPH;
         const appName = this.getAppName();
 
-        // const analyzer = new TaskGraphAnalyzer(topFun, outDir, appName, taskGraph);
-        // analyzer.updateMetrics();
-        // analyzer.saveMetrics();
+        const analyzer = new TaskGraphAnalyzer(topFun, outDir, appName, taskGraph);
+        analyzer.updateMetrics();
+        analyzer.saveMetrics();
 
         this.log("Task graph successfully analyzed!");
     }

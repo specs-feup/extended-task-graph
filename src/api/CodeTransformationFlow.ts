@@ -4,6 +4,7 @@ import { CodeInstrumenter } from "../preprocessing/CodeInstrumenter.js";
 import { SubsetPreprocessor } from "../preprocessing/subset/SubsetPreprocessor.js";
 import { TaskPreprocessor } from "../preprocessing/task/TaskPreprocessor.js";
 import { ClavaUtils } from "../util/ClavaUtils.js";
+import { ApplicationAnalyser } from "../analysis/ast/ApplicationAnalyser.js";
 
 export class CodeTransformationFlow extends AStage {
     constructor(topFunctionName: string, outputDir: string, appName: string) {
@@ -121,11 +122,11 @@ export class CodeTransformationFlow extends AStage {
     }
 
     #genericAnalysisStep(folder: string, dumpCallGraph: boolean, dumpAST: boolean, generateStatistics: boolean): void {
-        // const outDir = this.getOutputDir() + "/" + folder;
-        // const appName = this.getAppName();
-        // const topFun = this.getTopFunctionName();
+        const outDir = this.getOutputDir() + "/" + folder;
+        const appName = this.getAppName();
+        const topFun = this.getTopFunctionName();
 
-        // const analyser = new ApplicationAnalyser(topFun, outDir, appName);
-        // analyser.runAllTasks(dumpCallGraph, dumpAST, generateStatistics);
+        const analyser = new ApplicationAnalyser(topFun, outDir, appName);
+        analyser.runAllTasks(dumpCallGraph, dumpAST, generateStatistics);
     }
 }

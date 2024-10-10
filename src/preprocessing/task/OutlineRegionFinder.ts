@@ -8,7 +8,7 @@ import { ExternalFunctionsMatcher } from "../../util/ExternalFunctionsMatcher.js
 
 export class OutlineRegionFinder extends AStage {
     constructor(topFunction: string) {
-        super("CTFlow-TaskPrep-Outliner", topFunction);
+        super("TransFlow-TaskPrep-Outliner", topFunction);
     }
 
     annotateGenericPass(): Statement[][] {

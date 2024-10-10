@@ -9,7 +9,7 @@ import SwitchToIf from "clava-code-transformations/SwitchToIf";
 
 export class SubsetReducer extends AStage {
     constructor(topFunction: string) {
-        super("CTFlow-Subset-SubsetReducer", topFunction);
+        super("TransFlow-Subset-SubsetReducer", topFunction);
     }
 
     reduce() {

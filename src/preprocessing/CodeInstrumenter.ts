@@ -13,7 +13,7 @@ export class CodeInstrumenter extends AStage {
     #iterationsCsv = "loop_iterations.csv";
 
     constructor(topFunction: string, prefix: string = "TASK_TIMING") {
-        super("CTFlow-Preprocessor-Instrumenter", topFunction);
+        super("TransFlowPreprocessor-Instrumenter", topFunction);
         this.#prefix = prefix;
     }
 

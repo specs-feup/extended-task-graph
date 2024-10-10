@@ -15,7 +15,7 @@ export class TaskGraphBuilder extends AStage {
     #lastUsedGlobal = new Map();
 
     constructor(topFunction: string, outputDir: string, appName: string) {
-        super("TGGFlow-TaskGraphBuilder", topFunction, outputDir, appName);
+        super("GenFlow-TaskGraphBuilder", topFunction, outputDir, appName);
     }
 
     build(): TaskGraph {

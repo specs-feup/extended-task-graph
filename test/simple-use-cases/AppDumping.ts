@@ -6,11 +6,22 @@
  * To run directly on clava, if you have it installed globally: `clava dist/test/simple-use-cases/AppDumping.js -- clang inputs/edgedetect/`
  * 
  * It uses the edge detection application in `inputs/edgedetect/`. Replace as needed.
+ * 
+ * Check the output in the output/apps/edgedetect-simple-appdump folder. You can set this to whatever you want, but you may want to organize
+ * it in a way that makes sense for your project and the amount and type of applications you are analyzing.
  */
 import { ExtendedTaskGraphAPI } from "../../src/api/ExtendedTaskGraphAPI.js";
 
 console.log("Running the code transformation flow...");
 
-const api = new ExtendedTaskGraphAPI("edgedetect", "output", "edgedetect-simple-appdump");
-const success = api.runCodeTransformationFlow(true, true, false);
+const topFunctionName = "edgedetect";
+const outputDir = "output/apps";
+const appName = "edgedetect-appdump";
+const api = new ExtendedTaskGraphAPI(topFunctionName, outputDir, appName);
+
+const dumpAST = true;
+const dumpCallGraph = true;
+const doTransformations = false;
+const success = api.runCodeTransformationFlow(dumpCallGraph, dumpAST, doTransformations);
+
 console.log(success ? "Code transformation succeeded" : "Code transformation failed");
