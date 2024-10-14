@@ -7,6 +7,7 @@
   "scripts": {
     "simple-appdump": "clava dist/test/simple-use-cases/AppDumping.js -- clang inputs/edgedetect-transformed/",
     "simple-etg": "clava dist/test/simple-use-cases/TaskGraphGeneration.js -- clang inputs/edgedetect-transformed/",
+    "bench-rosetta": "clava dist/test/benchmark-testing/TestRosetta.js",
     "build": "tsc",
     "build:watch": "tsc --watch",
     "clean": "rm -rf node_modules package-lock.json dist/ woven_code/ output/",
