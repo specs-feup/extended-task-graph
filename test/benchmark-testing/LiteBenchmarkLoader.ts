@@ -5,8 +5,11 @@ import { readdirSync } from "fs";
 
 export class LiteBenchmarkLoader {
     static load(suite: BenchmarkSuite, app: string): string {
-        const summary = suite.apps[app];
+        const summary = suite.appDetails[app];
         const fullPath = `${suite.path}${app}`;
+
+        Clava.getData().setStandard(summary.standard);
+        Clava.getData().setFlags(suite.flags.join(" "));
 
         if (!Io.isFolder(fullPath)) {
             console.error(`Benchmark folder not found: ${fullPath}`);
@@ -17,14 +20,13 @@ export class LiteBenchmarkLoader {
         const sources = LiteBenchmarkLoader.readSourcesInFolder(fullPath);
         console.log(`Found ${sources.length} files for ${app}`);
 
-        Clava.popAst();
         Clava.pushAst(ClavaJoinPoints.program());
         for (const source of sources) {
             const fileJp = ClavaJoinPoints.file(source);
             Clava.addFile(fileJp);
         }
+        Clava.rebuild();
 
-        Clava.getData().setStandard(summary.standard);
         return summary.topFunction;
     }
 
@@ -51,7 +53,9 @@ export class LiteBenchmarkLoader {
 export type BenchmarkSuite = {
     name: string,
     path: string,
-    apps: Record<string, AppSummary>
+    apps: string[],
+    appDetails: Record<string, AppSummary>,
+    flags: string[]
 };
 
 export type AppSummary = {

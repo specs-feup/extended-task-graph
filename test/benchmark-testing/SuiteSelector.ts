@@ -1,22 +1,40 @@
-import { BenchmarkSuite } from "./BenchmarkLoader.js";
+import { BenchmarkSuite } from "./LiteBenchmarkLoader.js";
 
 export const SuiteSelector: Record<string, BenchmarkSuite> = {
     GENERIC: {
         name: "TestApps",
         path: "inputs/",
-        apps: {
+        apps: [
+            "disparity",
+            "edgedetect",
+            "stresstest",
+            "scenarioA",
+            "scenarioB",
+            "trivial"
+        ],
+        appDetails: {
             "disparity": { standard: "c11", topFunction: "top_level", input: "disparity" },
             "edgedetect": { standard: "c++11", topFunction: "edge_detect", input: "edgedetect" },
             "stresstest": { standard: "c++11", topFunction: "app_start", input: "stresstest" },
             "scenarioA": { standard: "c11", topFunction: "main", input: "scenarioA" },
             "scenarioB": { standard: "c11", topFunction: "scenario", input: "scenarioB" },
             "trivial": { standard: "c11", topFunction: "main", input: "trivial" },
-        }
+        },
+        flags: []
     },
     AXBENCH: {
         name: "AxBench",
         path: "clava-benchmarks/AxSuite/lara/benchmark/",
-        apps: {
+        apps: [
+            "blackscholes",
+            "fft",
+            "inversek2j",
+            "jmeint",
+            "jpeg",
+            "kmeans",
+            "sobel"
+        ],
+        appDetails: {
             "blackscholes": { standard: "c++17", topFunction: "BlkSchlsEqEuroNoDiv" },
             "fft": { standard: "c++17", topFunction: "radix2DitCooleyTykeyFft" },
             "inversek2j": { standard: "c++17", topFunction: "main" },
@@ -24,12 +42,27 @@ export const SuiteSelector: Record<string, BenchmarkSuite> = {
             "jpeg": { standard: "c++17", topFunction: "main" },
             "kmeans": { standard: "c++17", topFunction: "segmentImage" },
             "sobel": { standard: "c++17", topFunction: "main" },
-        }
+        },
+        flags: []
     },
     CHSTONE: {
         name: "CHStone",
         path: "clava-benchmarks/CHStone/lara/benchmark/",
-        apps: {
+        apps: [
+            "adpcm",
+            "aes",
+            "blowfish",
+            "dfadd",
+            "dfdiv",
+            "dfmul",
+            "dfsin",
+            "gsm",
+            "jpeg",
+            "mips",
+            "motion",
+            "sha"
+        ],
+        appDetails: {
             "adpcm": { standard: "c11", topFunction: "adpcm_main" },
             "aes": { standard: "c11", topFunction: "aes_main" },
             "blowfish": { standard: "c11", topFunction: "blowfish_main" },
@@ -42,12 +75,30 @@ export const SuiteSelector: Record<string, BenchmarkSuite> = {
             "mips": { standard: "c11", topFunction: "mips" },
             "motion": { standard: "c11", topFunction: "main" },
             "sha": { standard: "c11", topFunction: "sha_stream" }
-        }
+        },
+        flags: []
     },
     CORTEXSUITE_CORTEX: {
         name: "CortexSuite",
         path: "clava-benchmarks/CortexSuite/lara/benchmark/",
-        apps: {
+        apps: [
+            "cortex-clustering-kmeans",
+            "cortex-clustering-spectral",
+            "cortex-cnn",
+            "cortex-lda",
+            "cortex-liblinear",
+            "cortex-motion-estimation",
+            "cortex-rbm",
+            "cortex-sphinx",
+            "cortex-srr",
+            "cortex-svd3",
+            "cortex-word2vec-compute-accuracy",
+            "cortex-word2vec-distance",
+            "cortex-word2vec-word2phrase",
+            "cortex-word2vec-word2vec",
+            "cortex-word2vec-word-analogy"
+        ],
+        appDetails: {
             "cortex-clustering-kmeans": { standard: "c11", topFunction: "main" },
             "cortex-clustering-spectral": { standard: "c11", topFunction: "main" },
             "cortex-cnn": { standard: "c11", topFunction: "main" },
@@ -63,12 +114,25 @@ export const SuiteSelector: Record<string, BenchmarkSuite> = {
             "cortex-word2vec-word2phrase": { standard: "c11", topFunction: "main" },
             "cortex-word2vec-word2vec": { standard: "c11", topFunction: "main" },
             "cortex-word2vec-word-analogy": { standard: "c11", topFunction: "main" }
-        }
+        },
+        flags: []
     },
     CORTEXSUITE_VISION: {
         name: "CortexSuite",
         path: "clava-benchmarks/CortexSuite/lara/benchmark/",
-        apps: {
+        apps: [
+            "vision-disparity",
+            "vision-localization",
+            "vision-mser",
+            "vision-multicut",
+            "vision-pca",
+            "vision-sift",
+            "vision-stitch",
+            "vision-svm",
+            "vision-texture-synthesis",
+            "vision-tracking"
+        ],
+        appDetails: {
             "vision-disparity": { standard: "c11", topFunction: "getDisparity" },
             "vision-localization": { standard: "c11", topFunction: "main" },
             "vision-mser": { standard: "c11", topFunction: "main" },
@@ -79,12 +143,34 @@ export const SuiteSelector: Record<string, BenchmarkSuite> = {
             "vision-svm": { standard: "c11", topFunction: "main" },
             "vision-texture-synthesis": { standard: "c11", topFunction: "create_texture" },
             "vision-tracking": { standard: "c11", topFunction: "main" }
-        }
+        },
+        flags: []
     },
     MACHSUITE: {
         name: "MachSuite",
         path: "clava-benchmarks/MachSuite/lara/benchmark/",
-        apps: {
+        apps: [
+            "aes",
+            "backprop",
+            "bfs-bulk",
+            "bfs-queue",
+            "fft-strided",
+            "fft-transpose",
+            "gemm-blocked",
+            "gemm-ncubed",
+            "kmp",
+            "md-grid",
+            "md-knn",
+            "nw",
+            "sort-merge",
+            "sort-radix",
+            "spmv-crs",
+            "spmv-ellpack",
+            "stencil-2d",
+            "stencil-3d",
+            "viterbi"
+        ],
+        appDetails: {
             "aes": { standard: "c11", topFunction: "aes256_encrypt_ecb" },
             "backprop": { standard: "c11", topFunction: "backprop" },
             "bfs-bulk": { standard: "c11", topFunction: "bfs" },
@@ -104,12 +190,37 @@ export const SuiteSelector: Record<string, BenchmarkSuite> = {
             "stencil-2d": { standard: "c11", topFunction: "stencil" },
             "stencil-3d": { standard: "c11", topFunction: "stencil3d" },
             "viterbi": { standard: "c11", topFunction: "viterbi" }
-        }
+        },
+        flags: []
     },
     RODINIA: {
         name: "Rodinia",
         path: "clava-benchmarks/Rodinia/lara/benchmark/",
-        apps: {
+        apps: [
+            "backprop",
+            "bfs",
+            "b+tree",
+            "cfd-euler3d",
+            "cfd-euler3d-double",
+            "cfd-pre-euler3d",
+            "cfd-pre-euler3d-double",
+            "heartwall",
+            "hotspot",
+            "hotspot3D",
+            "kmeans",
+            "lavaMD",
+            "leukocyte",
+            "lud",
+            "myocyte",
+            "nn",
+            "nw",
+            "particlefilter",
+            "pathfinder",
+            "srad-v1",
+            "srad-v2",
+            "streamcluster"
+        ],
+        appDetails: {
             "backprop": { standard: "c11", topFunction: "main" },
             "bfs": { standard: "c++11", topFunction: "main" },
             "b+tree": { standard: "c11", topFunction: "main" },
@@ -132,17 +243,26 @@ export const SuiteSelector: Record<string, BenchmarkSuite> = {
             "srad-v1": { standard: "c11", topFunction: "main" },
             "srad-v2": { standard: "c++11", topFunction: "main" },
             "streamcluster": { standard: "c++11", topFunction: "main" }
-        }
+        },
+        flags: []
     },
     ROSETTA: {
         name: "Rosetta",
         path: "clava-benchmarks/Rosetta/lara/benchmark/",
-        apps: {
+        apps: [
+            "3d-rendering",
+            "digit-recognition",
+            "face-detection",
+            "optical-flow",
+            "spam-filter"
+        ],
+        appDetails: {
             "3d-rendering": { standard: "c++11", topFunction: "rendering_sw" },
             "digit-recognition": { standard: "c++11", topFunction: "DigitRec_sw" },
             "face-detection": { standard: "c++11", topFunction: "face_detect_sw" },
             "optical-flow": { standard: "c++11", topFunction: "optical_flow_sw" },
             "spam-filter": { standard: "c++11", topFunction: "SgdLR_sw", alternateTopFunction: "main" }
-        }
+        },
+        flags: ["-D SW"]
     }
 } as const;
