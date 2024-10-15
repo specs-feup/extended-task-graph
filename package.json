@@ -7,7 +7,7 @@
   "scripts": {
     "simple-appdump": "clava dist/test/simple-use-cases/AppDumping.js -- clang inputs/edgedetect-transformed/",
     "simple-etg": "clava dist/test/simple-use-cases/TaskGraphGeneration.js -- clang inputs/edgedetect-transformed/",
-    "bench-rosetta": "clava dist/test/benchmark-testing/TestRosetta.js",
+    "bench:rosetta": "clava dist/test/benchmark-testing/TestRosetta.js",
     "build": "tsc",
     "build:watch": "tsc --watch",
     "clean": "rm -rf node_modules package-lock.json dist/ woven_code/ output/",
@@ -16,11 +16,14 @@
   },
   "dependencies": {
     "@specs-feup/clava": "^3.0.1",
-    "clava-code-transformations": "^1.0.0"
+    "clava-code-transformations": "^1.0.0",
+    "fs": "^0.0.1-security",
+    "path": "^0.12.7"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",
     "@types/jest": "^29.5.12",
+    "@types/node": "^22.7.5",
     "@typescript-eslint/eslint-plugin": "^7.16.0",
     "@typescript-eslint/parser": "^7.16.0",
     "cross-env": "^7.0.3",

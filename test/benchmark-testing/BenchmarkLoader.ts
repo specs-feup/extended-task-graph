@@ -1,33 +1,50 @@
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
 import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
 import Io from "@specs-feup/lara/api/lara/Io.js";
-import { JavaClasses } from "@specs-feup/lara/api/lara/util/JavaTypes.js";
+import { readdirSync } from "fs";
 
-export class BenchmarkLoader {
-    static load(suite: BenchmarkSuite, app: string): boolean {
+export class LiteBenchmarkLoader {
+    static load(suite: BenchmarkSuite, app: string): string {
         const summary = suite.apps[app];
         const fullPath = `${suite.path}${app}`;
 
         if (!Io.isFolder(fullPath)) {
             console.error(`Benchmark folder not found: ${fullPath}`);
             console.log("Have you cloned the submodule github.com/specs-feup/clava-benchmarks?");
-            return false;
+            return "<none>";
         }
 
-        const sources: string[] = [];
-        for (const file of Io.getFiles(fullPath)) {
-            if ([".c", ".cpp", ".h", ".hpp"].some(char => file.endsWith(char))) {
-                sources.push(`${fullPath}/${file.name}`);
-            }
-        }
+        const sources = LiteBenchmarkLoader.readSourcesInFolder(fullPath);
         console.log(`Found ${sources.length} files for ${app}`);
 
+        Clava.popAst();
         Clava.pushAst(ClavaJoinPoints.program());
         for (const source of sources) {
             const fileJp = ClavaJoinPoints.file(source);
             Clava.addFile(fileJp);
         }
-        return true;
+
+        Clava.getData().setStandard(summary.standard);
+        return summary.topFunction;
+    }
+
+    public static readSourcesInFolder(folderPath: string): string[] {
+        const sources: string[] = [];
+
+        try {
+            const files = readdirSync(folderPath);
+            for (const file of files) {
+                if (typeof file === "string") {
+                    if ([".c", ".cpp", ".h", ".hpp"].some(char => file.endsWith(char))) {
+                        sources.push(`${folderPath}/${file}`);
+                    }
+                }
+            }
+
+        } catch (err) {
+            console.error('Error reading files:', err);
+        }
+        return sources;
     }
 }
 

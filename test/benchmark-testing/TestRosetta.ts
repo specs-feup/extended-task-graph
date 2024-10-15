@@ -1,13 +1,5 @@
-import { BenchmarkSuite } from "./BenchmarkLoader.js";
+import { LiteBenchmarkLoader, BenchmarkSuite } from "./BenchmarkLoader.js";
+import { SuiteSelector } from "./SuiteSelector.js";
 
-const rosettaSuite: BenchmarkSuite = {
-    name: "Rosetta",
-    path: "clava-benchmarks/Rosetta/lara/benchmark/",
-    apps: {
-        "3d-rendering": { standard: "c++11", topFunction: "rendering_sw" },
-        "digit-recognition": { standard: "c++11", topFunction: "DigitRec_sw" },
-        "face-detection": { standard: "c++11", topFunction: "face_detect_sw" },
-        "optical-flow": { standard: "c++11", topFunction: "optical_flow_sw" },
-        "spam-filter": { standard: "c++11", topFunction: "SgdLR_sw", alternateTopFunction: "main" }
-    }
-};
+const rosettaSuite: BenchmarkSuite = SuiteSelector.ROSETTA;
+const topFun = LiteBenchmarkLoader.load(rosettaSuite, "spam-filter");
