@@ -1,12 +1,12 @@
 import { TaskGraph } from "../../taskgraph/TaskGraph.js";
-import { TaskGraphStatGatherer } from "./TaskGraphStatGatherer.js";
+import { TaskGraphStat } from "./TaskGraphStat.js";
 import LoopCharacterizer from "clava-code-transformations/LoopCharacterizer";
 import { ExternalTask } from "../../taskgraph/tasks/ExternalTask.js";
 import { RegularTask } from "../../taskgraph/tasks/RegularTask.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { If, Loop, Statement, Switch } from "@specs-feup/clava/api/Joinpoints.js";
 
-export class TaskPropertiesFinder extends TaskGraphStatGatherer {
+export class TaskPropertiesFinder extends TaskGraphStat {
 
     constructor(taskGraph: TaskGraph) {
         super("uniqueTaskInstances", taskGraph);
@@ -14,7 +14,7 @@ export class TaskPropertiesFinder extends TaskGraphStatGatherer {
 
     public getStatSummary(): Record<string, any> {
         const uniqueTasks: Record<string, Record<string, any>> = {};
-        const tasks = this.getTaskGraph().getTasks();
+        const tasks = this.taskGraph.getTasks();
 
         for (const task of tasks) {
             const taskName = task.getName();

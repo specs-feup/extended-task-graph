@@ -1,8 +1,8 @@
 import { TaskGraph } from "../../taskgraph/TaskGraph.js";
 
-export abstract class TaskGraphStatGatherer {
-    private statName: string;
-    private taskGraph: TaskGraph;
+export abstract class TaskGraphStat {
+    protected statName: string;
+    protected taskGraph: TaskGraph;
 
     constructor(statName: string, taskGraph: TaskGraph) {
         this.statName = statName;

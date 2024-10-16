@@ -1,15 +1,14 @@
-"use strict";
+import { TaskGraph } from "../../taskgraph/TaskGraph.js";
+import { TaskGraphStat } from "./TaskGraphStat.js";
 
-class GlobalDataFinder {
-    #taskGraph;
-
-    constructor(taskGraph) {
-        this.#taskGraph = taskGraph;
+export class GlobalDataFinder extends TaskGraphStat {
+    constructor(taskGraph: TaskGraph) {
+        super("globalData", taskGraph);
     }
 
-    calculateGlobalData() {
-        const globalData = {};
-        const globalTask = this.#taskGraph.getGlobalTask();
+    public getStatSummary(): Record<string, any> {
+        const globalData: Record<string, any> = {};
+        const globalTask = this.taskGraph.getGlobalTask();
 
         for (const datum of globalTask.getData()) {
             const outgoing = globalTask.getOutgoingOfData(datum);

@@ -1,21 +1,23 @@
-"use strict";
+import { DataItem } from "../../taskgraph/DataItem.js";
+import { TaskGraph } from "../../taskgraph/TaskGraph.js";
+import { Task } from "../../taskgraph/tasks/Task.js";
+import { TaskType } from "../../taskgraph/tasks/TaskType.js";
+import { TaskGraphStat } from "./TaskGraphStat.js";
 
-class DataSourceFinder {
-    #taskGraph;
-
-    constructor(taskGraph) {
-        this.#taskGraph = taskGraph;
+export class DataSourceFinder extends TaskGraphStat {
+    constructor(taskGraph: TaskGraph) {
+        super("dataSourceDistance", taskGraph);
     }
 
-    calculateDataSourceDistance() {
-        const dataSourceDistance = {};
-        const tasks = this.#taskGraph.getTasks();
+    public getStatSummary(): Record<string, any> {
+        const dataSourceDistance: Record<string, any> = {};
+        const tasks = this.taskGraph.getTasks();
 
         for (const task of tasks) {
-            const commOfTask = {};
+            const commOfTask: Record<string, any> = {};
 
             for (const datum of task.getData()) {
-                const pathAndEvo = this.#calculateDistanceToOrigin(datum, task);
+                const pathAndEvo = this.calculateDistanceToOrigin(datum, task);
                 const path = pathAndEvo[0];
                 const dataEvo = pathAndEvo[1];
                 commOfTask[datum.getName()] = { "pathToOrigin": path, "dataEvolution": dataEvo, "distanceToOrigin": path.length };
@@ -26,11 +28,11 @@ class DataSourceFinder {
         return dataSourceDistance;
     }
 
-    #calculateDistanceToOrigin(datum, task) {
+    private calculateDistanceToOrigin(datum: DataItem, task: Task): [string[], string[]] {
         const path = [task.getUniqueName()];
         const dataEvo = [datum.getName()];
 
-        if (task.getType() === "GLOBAL" || task.getType() === "START") {
+        if (task.getType() === TaskType.GLOBALSOURCE || task.getType() === TaskType.SOURCE) {
             return [path, dataEvo];
         }
         if (datum.isNewlyCreated() || datum.isConstant()) {
@@ -39,14 +41,14 @@ class DataSourceFinder {
         else {
             const comm = task.getIncomingOfData(datum);
             if (comm == null) {
-                println("[DataSourceFinder] ERROR: No incoming communication found for data " + datum.getName() + " of task " + task.getUniqueName());
+                console.log(`[DataSourceFinder] ERROR: No incoming communication found for data ${datum.getName()} of task ${task.getUniqueName()}`);
                 return [path, dataEvo];
             }
             else {
                 const srcTask = comm.getSource();
                 const srcDatum = comm.getSourceData();
 
-                const remaining = this.#calculateDistanceToOrigin(srcDatum, srcTask);
+                const remaining = this.calculateDistanceToOrigin(srcDatum, srcTask);
                 const remainingPath = remaining[0];
                 const remainingDataEvo = remaining[1];
 

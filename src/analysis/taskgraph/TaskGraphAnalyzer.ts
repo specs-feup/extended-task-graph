@@ -1,6 +1,15 @@
 import { AStage } from "../../AStage.js";
 import { TaskGraph } from "../../taskgraph/TaskGraph.js";
-import { TaskGraphStatGatherer } from "./TaskGraphStatGatherer.js";
+import { CriticalPathFinder } from "./CriticalPathFinder.js";
+import { DataPathFinder } from "./DataPathFinder.js";
+import { DataPerTaskFinder } from "./DataPerTaskFinder.js";
+import { DataSourceFinder } from "./DataSourceFinder.js";
+import { GlobalDataFinder } from "./GlobalDataFinder.js";
+import { NoTaskHistogramFinder } from "./NoTaskHistogramFinder.js";
+import { ParallelTaskFinder } from "./ParallelTaskFinder.js";
+import { ProducerConsumerFinder } from "./ProducerConsumerFinder.js";
+import { TaskGraphStat } from "./TaskGraphStat.js";
+import { TaskGraphStatFinder } from "./TaskGraphStatFinder.js";
 import { TaskPropertiesFinder } from "./TaskPropertiesFinder.js";
 
 export class TaskGraphAnalyzer extends AStage {
@@ -25,21 +34,21 @@ export class TaskGraphAnalyzer extends AStage {
     public saveMetrics(): void {
         const jsonMetrics = this.getMetricsAsJson();
         const fname = this.saveToFile(jsonMetrics, "task_graph_metrics.json");
-        this.log(`Saved TG metrics to file "${fname}"`);
+        this.log(`Saved ETG metrics to file "${fname}"`);
     }
 
     public updateMetrics(): Record<string, any> {
-        const statCalculators: TaskGraphStatGatherer[] = [
+        const statCalculators: TaskGraphStat[] = [
             new TaskPropertiesFinder(this.taskGraph),  // Code properties of each task
-            //new TaskGraphStatFinder(this.taskGraph),   // Statistics of the task graph
-            //new NoTaskHistogramFinder(this.taskGraph), // Histogram of no-task function calls
-            //new DataPerTaskFinder(this.taskGraph),     // Data per task
-            //new GlobalDataFinder(this.taskGraph),      // Information about global data
-            //new DataSourceFinder(this.taskGraph),      // Distance from a datum to its source
-            //new DataPathFinder(this.taskGraph),        // Data paths in the task graph
-            //new ParallelTaskFinder(),                   // Parallel tasks
-            //new ProducerConsumerFinder(),               // Producer-consumer relationships
-            //new CriticalPathFinder()                    // Critical path / ILP measure
+            new TaskGraphStatFinder(this.taskGraph),   // Statistics of the task graph
+            new NoTaskHistogramFinder(this.taskGraph), // Histogram of no-task function calls
+            new DataPerTaskFinder(this.taskGraph),     // Data per task
+            new GlobalDataFinder(this.taskGraph),      // Information about global data
+            new DataSourceFinder(this.taskGraph),      // Distance from a datum to its source
+            new DataPathFinder(this.taskGraph),        // Data paths in the task graph
+            new ParallelTaskFinder(this.taskGraph),                   // Parallel tasks
+            new ProducerConsumerFinder(this.taskGraph),               // Producer-consumer relationships
+            new CriticalPathFinder(this.taskGraph)          // Critical path / ILP measure
         ];
 
         for (const statCalc of statCalculators) {

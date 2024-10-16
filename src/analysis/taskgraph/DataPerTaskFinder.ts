@@ -1,18 +1,17 @@
-"use strict";
+import { TaskGraph } from "../../taskgraph/TaskGraph.js";
+import { TaskGraphStat } from "./TaskGraphStat.js";
 
-class DataPerTaskFinder {
-    #taskGraph;
-
-    constructor(taskGraph) {
-        this.#taskGraph = taskGraph;
+export class DataPerTaskFinder extends TaskGraphStat {
+    constructor(taskGraph: TaskGraph) {
+        super("dataPerTask", taskGraph);
     }
 
-    calculateDataPerTask() {
-        const dataPerTask = {};
-        const tasks = this.#taskGraph.getTasks();
+    public getStatSummary(): Record<string, any> {
+        const dataPerTask: Record<string, any> = {};
+        const tasks = this.taskGraph.getTasks();
 
         for (const task of tasks) {
-            const taskData = {};
+            const taskData: Record<string, any> = {};
 
             for (const datum of task.getData()) {
                 const datumProps = {

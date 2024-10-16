@@ -1,21 +1,24 @@
-"use strict";
+import { DataItem } from "../../taskgraph/DataItem.js";
+import { TaskGraph } from "../../taskgraph/TaskGraph.js";
+import { GlobalTask } from "../../taskgraph/tasks/GlobalTask.js";
+import { Task } from "../../taskgraph/tasks/Task.js";
+import { TaskType } from "../../taskgraph/tasks/TaskType.js";
+import { TaskGraphStat } from "./TaskGraphStat.js";
 
-class DataPathFinder {
-    #taskGraph;
-
-    constructor(taskGraph) {
-        this.#taskGraph = taskGraph;
+export class DataPathFinder extends TaskGraphStat {
+    constructor(taskGraph: TaskGraph) {
+        super("dataPaths", taskGraph);
     }
 
-    calculateDataPaths() {
-        const itemsAndTasks = this.#getNewDataItems();
-        const dataPaths = {};
+    public getStatSummary(): Record<string, any> {
+        const itemsAndTasks = this.getNewDataItems();
+        const dataPaths: Record<string, any> = {};
 
         for (const itemAndTask of itemsAndTasks) {
             const dataItem = itemAndTask.item;
             const task = itemAndTask.task;
 
-            const paths = this.#findDataPath(dataItem, task);
+            const paths = this.findDataPath(dataItem, task);
             dataPaths[dataItem.getName()] = {
                 "datatype": dataItem.getDatatype(),
                 "sizeInBytes": dataItem.getSizeInBytes(),
@@ -30,18 +33,19 @@ class DataPathFinder {
         return dataPaths;
     }
 
-    #getNewDataItems() {
+    private getNewDataItems(): { "item": DataItem, "task": Task }[] {
         const itemsAndTasks = [];
-        const tasks = [...this.#taskGraph.getTasks(), this.#taskGraph.getSourceTask(), this.#taskGraph.getSinkTask(), this.#taskGraph.getGlobalTask()];
+        const tasks = [...this.taskGraph.getTasks(), this.taskGraph.getSourceTask(), this.taskGraph.getSinkTask(), this.taskGraph.getGlobalTask()];
 
         for (const task of tasks) {
-            if (task.getType() == "START" || task.getType() == "REGULAR" || task.getType() == "EXTERNAL") {
+            if (task.getType() == TaskType.SOURCE || task.getType() == TaskType.REGULAR || task.getType() == TaskType.EXTERNAL) {
                 for (const dataItem of task.getNewData()) {
                     itemsAndTasks.push({ "item": dataItem, "task": task });
                 }
             }
-            if (task.getType() == "GLOBAL") {
-                for (const dataItem of task.getGlobalData()) {
+            if (task.getType() == TaskType.GLOBALSOURCE) {
+                const globalTask = task as GlobalTask;
+                for (const dataItem of globalTask.getGlobalDeclData()) {
                     itemsAndTasks.push({ "item": dataItem, "task": task });
                 }
             }
@@ -49,10 +53,10 @@ class DataPathFinder {
         return itemsAndTasks;
     }
 
-    #findDataPath(dataItem, task) {
+    private findDataPath(dataItem: DataItem, task: Task): { "mainPath": string[], "spurs": string[], "aliases": Set<string> } {
         const mainPath = [task.getName()];
         const spurs = [];
-        const aliases = new Set();
+        const aliases: Set<string> = new Set();
         aliases.add(dataItem.getName());
 
         for (const comm of task.getOutgoingOfData(dataItem)) {
@@ -64,7 +68,7 @@ class DataPathFinder {
                 spurs.push(targetTask.getName());
             }
             if (targetDataItem.isWritten()) {
-                const paths = this.#findDataPath(targetDataItem, targetTask);
+                const paths = this.findDataPath(targetDataItem, targetTask);
                 mainPath.push(...paths.mainPath);
                 spurs.push(...paths.spurs);
                 paths.aliases.forEach(alias => aliases.add(alias));

@@ -1,7 +1,7 @@
 import { Task } from "../tasks/Task.js";
 
 export class TopologicalSort {
-    public static sort(tasks: Task[]): Task[] {
+    static sort(tasks: Task[]): Task[] {
         const visited: Set<string> = new Set();
         const result: Set<Task> = new Set();
         const taskIds: Set<string> = new Set(tasks.map((task) => task.getId()));

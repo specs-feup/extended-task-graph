@@ -1,15 +1,23 @@
-"use strict";
+import { Communication } from "../../taskgraph/Communication.js";
+import { TaskGraph } from "../../taskgraph/TaskGraph.js";
+import { ConcreteTask } from "../../taskgraph/tasks/ConcreteTask.js";
+import { TaskGraphStat } from "./TaskGraphStat.js";
 
-laraImport("flextask/taskgraph/TaskGraph");
-laraImport("weaver.Query");
+export class ProducerConsumerFinder extends TaskGraphStat {
+    constructor(taskGraph: TaskGraph) {
+        super("producerConsumer", taskGraph);
+    }
 
-class ProducerConsumerFinder {
-    constructor() { }
+    public getStatSummary(): Record<string, any> {
+        const pairs = this.findTaskPairs();
+        const mapping = this.getPairToProducerConsumerMap(pairs);
+        return mapping;
+    }
 
-    findTaskPairs(taskGraph) {
-        const pairs = [];
+    private findTaskPairs(): ConcreteTask[][] {
+        const pairs: ConcreteTask[][] = [];
 
-        for (const task of taskGraph.getTasks()) {
+        for (const task of this.taskGraph.getTasks()) {
             const children = task.getHierarchicalChildren();
 
             // we can only have pairs if we have at least 2 children
@@ -32,7 +40,7 @@ class ProducerConsumerFinder {
     }
 
     // consider having a getChildren/getParents method in Task
-    taskIsDirectChild(task1, task2) {
+    private taskIsDirectChild(task1: ConcreteTask, task2: ConcreteTask): boolean {
         const t1comm = task1.getOutgoingComm();
 
         for (const comm of t1comm) {
@@ -43,8 +51,8 @@ class ProducerConsumerFinder {
         return false;
     }
 
-    hasPCRelationship(task1, task2) {
-        const commonData = [];
+    hasPCRelationship(task1: ConcreteTask, task2: ConcreteTask): Communication[] {
+        const commonData: Communication[] = [];
         const t1comm = task1.getOutgoingComm();
 
         // only consider pair if all comm from T1 goes to T2, with W -> R
@@ -64,11 +72,11 @@ class ProducerConsumerFinder {
         return commonData;
     }
 
-    getPairToProducerConsumerMap(taskPairs, taskGraph) {
+    getPairToProducerConsumerMap(taskPairs: ConcreteTask[][]) {
         const mapping = [];
 
         for (const pair of taskPairs) {
-            const commonData = this.hasPCRelationship(pair[0], pair[1], taskGraph);
+            const commonData = this.hasPCRelationship(pair[0], pair[1]);
             const hasPC = commonData.length > 0;
 
             if (!hasPC) {
@@ -79,7 +87,9 @@ class ProducerConsumerFinder {
             const firstTaskName = pair[0].getId() + " : " + pair[0].getName();
             const secondTaskName = pair[1].getId() + " : " + pair[1].getName();
             const parentHier = pair[0].getHierarchicalParent();
-            const hierParentName = parentHier.getId() + " : " + parentHier.getName();
+            const hierParentName = parentHier == null ?
+                "<null_id>:<null_name>" :
+                `${parentHier.getId()}:${parentHier.getName()}`;
 
             const map = {
                 "pair": [firstTaskName, secondTaskName],

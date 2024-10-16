@@ -1,16 +1,19 @@
-"use strict";
+import { TaskGraph } from "../../taskgraph/TaskGraph.js";
+import { ConcreteTask } from "../../taskgraph/tasks/ConcreteTask.js";
+import { Task } from "../../taskgraph/tasks/Task.js";
+import { TopologicalSort } from "../../taskgraph/util/TopologicalSort.js";
+import { TaskGraphStat } from "./TaskGraphStat.js";
 
-laraImport("flextask/taskgraph/TaskGraph");
-laraImport("flextask/taskgraph/util/TopologicalSort");
-laraImport("weaver.Query");
+export class CriticalPathFinder extends TaskGraphStat {
 
-class CriticalPathFinder {
-    constructor() { }
+    constructor(taskGraph: TaskGraph) {
+        super("criticalPaths", taskGraph);
+    }
 
-    findCriticalPaths(taskGraph) {
-        const paths = {};
+    public getStatSummary(): Record<string, any> {
+        const paths: Record<string, any> = {};
 
-        for (const task of taskGraph.getTasks()) {
+        for (const task of this.taskGraph.getTasks()) {
             const pathInfo = this.findPathInHierarchy(task);
             if (pathInfo["#Tasks"] > 1) {
                 paths[task.getId()] = pathInfo;
@@ -19,7 +22,7 @@ class CriticalPathFinder {
         return paths;
     }
 
-    findPathInHierarchy(task) {
+    private findPathInHierarchy(task: ConcreteTask): Record<string, any> {
         const children = task.getHierarchicalChildren();
         const nTasks = children.length;
 
@@ -44,7 +47,7 @@ class CriticalPathFinder {
             return path;
         }
         else {
-            const criticalPath = this.#findCriticalPath(task);
+            const criticalPath = this.findCriticalPath(task);
             const criticalPathLength = criticalPath.length;
             const parallelismMeasure = nTasks / criticalPathLength;
 
@@ -59,14 +62,14 @@ class CriticalPathFinder {
         }
     }
 
-    #findCriticalPath(parentTask) {
+    private findCriticalPath(parentTask: ConcreteTask): string[] {
         const children = parentTask.getHierarchicalChildren();
 
         const sortedChildren = TopologicalSort.sort(children);
-        //println(children.length + " | " + sortedChildren.length);
 
-        const distances = {};
-        const predecessors = {};
+        const distances: Record<string, number> = {};
+        const predecessors: Record<string, Task | null> = {};
+
         for (const task of sortedChildren) {
             distances[task.getId()] = 0;
             predecessors[task.getId()] = null;
@@ -98,14 +101,13 @@ class CriticalPathFinder {
             }
         }
 
-        const criticalPath = [];
+        const criticalPath: string[] = [];
         let currentTask = maxTask;
         while (currentTask != null && !criticalPath.includes(currentTask.getName())) {
             criticalPath.push(currentTask.getName());
             currentTask = predecessors[currentTask.getId()];
         }
 
-        //println("NTasks: " + children.length + " | Critical Path Length: " + criticalPath.length + " | Parallelism Measure: " + children.length / criticalPath.length);
         return criticalPath.reverse();
     }
 }
