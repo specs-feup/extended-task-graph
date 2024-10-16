@@ -1,21 +1,21 @@
 import { TaskGraph } from "../../taskgraph/TaskGraph.js";
 
 export abstract class TaskGraphStatGatherer {
-    #statName: string;
-    #taskGraph: TaskGraph;
+    private statName: string;
+    private taskGraph: TaskGraph;
 
     constructor(statName: string, taskGraph: TaskGraph) {
-        this.#statName = statName;
-        this.#taskGraph = taskGraph;
+        this.statName = statName;
+        this.taskGraph = taskGraph;
     }
 
-    getStatName(): string {
-        return this.#statName;
+    public getStatName(): string {
+        return this.statName;
     }
 
-    getTaskGraph(): TaskGraph {
-        return this.#taskGraph;
+    public getTaskGraph(): TaskGraph {
+        return this.taskGraph;
     }
 
-    abstract getStatSummary(): Record<string, any>;
+    public abstract getStatSummary(): Record<string, any>;
 }

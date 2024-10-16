@@ -5,20 +5,21 @@ import Query from "@specs-feup/lara/api/weaver/Query.js";
 import IdGenerator from "@specs-feup/lara/api/lara/util/IdGenerator.js";
 import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
 import { ExternalFunctionsMatcher } from "../../util/ExternalFunctionsMatcher.js";
+import Outliner from "clava-code-transformations/Outliner";
 
 export class OutlineRegionFinder extends AStage {
     constructor(topFunction: string) {
         super("TransFlow-TaskPrep-Outliner", topFunction);
     }
 
-    annotateGenericPass(): Statement[][] {
+    public annotateGenericPass(): Statement[][] {
         this.log("Beginning the annotation of generic outlining regions");
 
         const funs = ClavaUtils.getAllUniqueFunctions(this.getTopFunctionJoinPoint());
         const regions: Statement[][] = [];
 
         for (const fun of funs) {
-            const nCalls = this.#getEffectiveCallsInFunction(fun).length;
+            const nCalls = this.getEffectiveCallsInFunction(fun).length;
 
             // if the function has no calls, there is no need to outline it
             if (nCalls == 0) {
@@ -26,18 +27,18 @@ export class OutlineRegionFinder extends AStage {
             }
             else {
                 // find all outlining regions of the function
-                const funRegions = this.#findRegionsInScope(fun.body);
+                const funRegions = this.findRegionsInScope(fun.body);
                 regions.push(...funRegions);
 
                 this.log(fun.name + ": found " + funRegions.length + " outlining regions");
             }
         }
-        const filteredRegions = this.#filterRegions(regions);
+        const filteredRegions = this.filterRegions(regions);
 
         // finally, wrap all the regions we found
         const wrappedRegions = [];
         for (const region of filteredRegions) {
-            const wrappedRegion = this.#wrapRegion(region);
+            const wrappedRegion = this.wrapRegion(region);
             wrappedRegions.push(wrappedRegion);
         }
 
@@ -45,7 +46,7 @@ export class OutlineRegionFinder extends AStage {
         return wrappedRegions;
     }
 
-    annotateLoopPass(): number {
+    public annotateLoopPass(): number {
         this.log("Beginning the annotation of loop outlining regions");
 
         const funs = ClavaUtils.getAllUniqueFunctions(this.getTopFunctionJoinPoint());
@@ -53,14 +54,14 @@ export class OutlineRegionFinder extends AStage {
 
         for (const fun of funs) {
             for (const loop of Query.searchFrom(fun, Loop)) {
-                outlinedCount += this.#handleLoopRegion(loop);
+                outlinedCount += this.handleLoopRegion(loop);
             }
         }
         this.log("Finished annotating loop outlining regions");
         return outlinedCount;
     }
 
-    #handleLoopRegion(loop: Loop): number {
+    private handleLoopRegion(loop: Loop): number {
         let outlinedCount = 0;
         const scope: Scope = loop.body;
 
@@ -73,14 +74,14 @@ export class OutlineRegionFinder extends AStage {
             }
             if (stmt instanceof ExprStmt && stmt.children[0] instanceof Call) {
                 const call = stmt.children[0];
-                if (this.#hasFunctionCalls(call)) {
+                if (this.hasFunctionCalls(call)) {
                     callsInScope.push(call);
                 }
             }
         }
 
         for (const childLoop of loopsInScope) {
-            outlinedCount += this.#handleLoopRegion(childLoop);
+            outlinedCount += this.handleLoopRegion(childLoop);
         }
 
         const cond1 = callsInScope.length == 0 && loopsInScope.length == 0;
@@ -91,27 +92,27 @@ export class OutlineRegionFinder extends AStage {
             return outlinedCount;
         }
         else {
-            const wrappedRegion = this.#wrapRegion(scope.children as Statement[]);
-            this.#outlineRegion(wrappedRegion, "outlined_loop_");
+            const wrappedRegion = this.wrapRegion(scope.children as Statement[]);
+            this.outlineRegion(wrappedRegion, "outlined_loop_");
 
             return outlinedCount + 1;
         }
     }
 
-    #outlineRegion(wrappedRegion: Statement[], prefix: string): void {
-        // const start = wrappedRegion[0];
-        // const end = wrappedRegion[wrappedRegion.length - 1];
+    private outlineRegion(wrappedRegion: Statement[], prefix: string): void {
+        const start = wrappedRegion[0];
+        const end = wrappedRegion[wrappedRegion.length - 1];
 
-        // const outliner = new Outliner();
-        // outliner.setVerbosity(false);
-        // const fname = prefix + IdGenerator.next();
+        const outliner = new Outliner();
+        outliner.setVerbosity(false);
+        const fname = prefix + IdGenerator.next();
 
-        // outliner.outlineWithName(start, end, fname);
-        // start.detach();
-        // end.detach();
+        outliner.outlineWithName(start, end, fname);
+        start.detach();
+        end.detach();
     }
 
-    #validateRegion(region: Statement[]): boolean {
+    private validateRegion(region: Statement[]): boolean {
         let hasOneUsefulStmt = false;
         for (const stmt of region) {
             hasOneUsefulStmt ||= stmt instanceof WrapperStmt;
@@ -137,11 +138,11 @@ export class OutlineRegionFinder extends AStage {
         return true;
     }
 
-    #filterRegions(regions: Statement[][]): Statement[][] {
+    private filterRegions(regions: Statement[][]): Statement[][] {
         const filteredRegions = [];
 
         for (const region of regions) {
-            const valid = this.#validateRegion(region);
+            const valid = this.validateRegion(region);
             if (valid) {
                 filteredRegions.push(region);
             }
@@ -149,7 +150,7 @@ export class OutlineRegionFinder extends AStage {
         return filteredRegions;
     }
 
-    #isTrivialIf(scope: Scope): boolean {
+    private isTrivialIf(scope: Scope): boolean {
         if (scope.children.length == 2 && scope.children[1] instanceof ReturnStmt) {
             const isTrivialReturn = Query.searchFrom(scope.children[0], Varref, { name: "rtr_val" }).chain().length > 0;
 
@@ -164,7 +165,7 @@ export class OutlineRegionFinder extends AStage {
         return false;
     }
 
-    #findRegionsInScope(scope: Scope): Statement[][] {
+    private findRegionsInScope(scope: Scope): Statement[][] {
         const regions: Statement[][] = [];
         const extraScopes = [];
         let currRegion: Statement[] = [];
@@ -180,7 +181,7 @@ export class OutlineRegionFinder extends AStage {
 
                 let atLeastOne = false;
                 for (const body of bodies) {
-                    if (this.#hasFunctionCalls(body) || this.#isTrivialIf(body)) {
+                    if (this.hasFunctionCalls(body) || this.isTrivialIf(body)) {
                         atLeastOne = true;
                         break;
                     }
@@ -197,7 +198,7 @@ export class OutlineRegionFinder extends AStage {
                     currRegion.push(stmt);
                 }
             }
-            else if (this.#hasFunctionCalls(stmt)) {
+            else if (this.hasFunctionCalls(stmt)) {
                 if (currRegion.length > 0) {
                     regions.push(currRegion);
                     currRegion = [];
@@ -214,14 +215,14 @@ export class OutlineRegionFinder extends AStage {
 
         // recursively find and push regions in the scopes we found
         for (const extraScope of extraScopes) {
-            const extraScopeRegions = this.#findRegionsInScope(extraScope);
+            const extraScopeRegions = this.findRegionsInScope(extraScope);
             regions.push(...extraScopeRegions);
         }
 
         return regions;
     }
 
-    #wrapRegion(region: Statement[]): Statement[] {
+    private wrapRegion(region: Statement[]): Statement[] {
         const start = region[0];
         const end = region[region.length - 1];
 
@@ -254,7 +255,7 @@ export class OutlineRegionFinder extends AStage {
         return wrappedRegion;
     }
 
-    #hasFunctionCalls(jp: Joinpoint): boolean {
+    private hasFunctionCalls(jp: Joinpoint): boolean {
         if (jp instanceof Call) {
             const isValidExternal = ExternalFunctionsMatcher.isValidExternal(jp.function);
             return !isValidExternal;
@@ -271,10 +272,10 @@ export class OutlineRegionFinder extends AStage {
     }
 
     // returns the calls in a function that are not to external functions
-    #getEffectiveCallsInFunction(fun: FunctionJp): Call[] {
+    private getEffectiveCallsInFunction(fun: FunctionJp): Call[] {
         const calls = [];
         for (const call of Query.searchFrom(fun, Call)) {
-            if (this.#hasFunctionCalls(call)) {
+            if (this.hasFunctionCalls(call)) {
                 calls.push(call);
             }
         }

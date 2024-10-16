@@ -5,7 +5,7 @@ import { Task } from "./Task.js";
 import { TaskType } from "./TaskType.js";
 
 export class SourceTask extends Task {
-    #graphInputData: DataItem[] = [];
+    private graphInputData: DataItem[] = [];
 
     constructor() {
         super(TaskType.SOURCE);
@@ -13,22 +13,22 @@ export class SourceTask extends Task {
         this.setName("<task_graph_source>");
     }
 
-    addDataToSource(dataItem: DataItem): DataItem {
+    public addDataToSource(dataItem: DataItem): DataItem {
         if (dataItem.getDecl() == null) {
             throw new Error("Data item cannot be null");
         }
         const vardecl = dataItem.getDecl() as Vardecl;
         const dataCopy = new DataItem(vardecl, DataItemOrigin.GRAPH_INPUT);
-        this.#graphInputData.push(dataCopy);
+        this.graphInputData.push(dataCopy);
         return dataCopy;
     }
 
-    getGraphInputData(): DataItem[] {
-        return this.#graphInputData;
+    public getGraphInputData(): DataItem[] {
+        return this.graphInputData;
     }
 
-    getData(): DataItem[] {
+    public getData(): DataItem[] {
         const otherData = super.getData();  // always empty... in theory
-        return [...otherData, ...this.#graphInputData];
+        return [...otherData, ...this.graphInputData];
     }
 }

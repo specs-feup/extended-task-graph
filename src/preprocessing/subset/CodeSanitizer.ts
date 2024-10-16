@@ -1,4 +1,4 @@
-import { BinaryOp, Comment, Decl, DeclStmt, Joinpoint, LabelStmt, Scope, StorageClass, Vardecl, Varref, WrapperStmt } from "@specs-feup/clava/api/Joinpoints.js";
+import { BinaryOp, Comment, DeclStmt, LabelStmt, Scope, StorageClass, Vardecl, Varref, WrapperStmt } from "@specs-feup/clava/api/Joinpoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { AStage } from "../../AStage.js";
 
@@ -7,8 +7,8 @@ export class CodeSanitizer extends AStage {
         super("TransFlow-Subset-CodeSanitizer", topFunction);
     }
 
-    sanitize(): void {
-        const nuked = this.#nukeAll(LabelStmt);
+    public sanitize(): void {
+        const nuked = this.nukeAll(LabelStmt);
         this.log(nuked > 0 ? `Nuked ${nuked} labels` : "No labels to nuke");
 
         const regs = this.removeRegisterQualifiers();
@@ -24,7 +24,7 @@ export class CodeSanitizer extends AStage {
     }
 
     // removes statements like "a = a;"
-    removeSpuriousStatements(): number {
+    public removeSpuriousStatements(): number {
         let count: number = 0;
 
         for (const op of Query.search(BinaryOp, { kind: "assign" })) {
@@ -41,7 +41,7 @@ export class CodeSanitizer extends AStage {
         return count;
     }
 
-    removeDuplicatedDecls(): number {
+    public removeDuplicatedDecls(): number {
         let count: number = 0;
 
         for (const scope of Query.search(Scope)) {
@@ -70,7 +70,7 @@ export class CodeSanitizer extends AStage {
         return count;
     }
 
-    forceBracketsInScopes(): number {
+    public forceBracketsInScopes(): number {
         let count: number = 0;
 
         for (const scope of Query.search(Scope, { naked: true })) {
@@ -80,7 +80,7 @@ export class CodeSanitizer extends AStage {
         return count;
     }
 
-    removeAllComments(): number {
+    public removeAllComments(): number {
         let count: number = 0;
 
         // comments within wrapperStmts first
@@ -91,11 +91,11 @@ export class CodeSanitizer extends AStage {
             }
         }
         // then comments on their lonesome
-        count += this.#nukeAll(Comment);
+        count += this.nukeAll(Comment);
         return count;
     }
 
-    removeRegisterQualifiers(): number {
+    public removeRegisterQualifiers(): number {
         let count: number = 0;
 
         for (const decl of Query.search(Vardecl, { storageClass: StorageClass.REGISTER })) {
@@ -105,7 +105,7 @@ export class CodeSanitizer extends AStage {
         return count;
     }
 
-    #nukeAll(jpType: any): number {
+    private nukeAll(jpType: any): number {
         let count: number = 0;
 
         for (const stmt of Query.search(jpType)) {

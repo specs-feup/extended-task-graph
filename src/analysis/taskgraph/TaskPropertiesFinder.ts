@@ -12,7 +12,7 @@ export class TaskPropertiesFinder extends TaskGraphStatGatherer {
         super("uniqueTaskInstances", taskGraph);
     }
 
-    getStatSummary(): Record<string, any> {
+    public getStatSummary(): Record<string, any> {
         const uniqueTasks: Record<string, Record<string, any>> = {};
         const tasks = this.getTaskGraph().getTasks();
 
@@ -28,21 +28,21 @@ export class TaskPropertiesFinder extends TaskGraphStatGatherer {
 
                 if (task instanceof ExternalTask) {
                     uniqueTaskProps["instances"] = [taskReps];
-                    uniqueTaskProps["#statements"] = -1;
-                    uniqueTaskProps["#loops"] = -1;
-                    uniqueTaskProps["#whiles"] = -1;
-                    uniqueTaskProps["#ifs"] = -1;
-                    uniqueTaskProps["#switches"] = -1;
+                    uniqueTaskProps["statements"] = -1;
+                    uniqueTaskProps["loops"] = -1;
+                    uniqueTaskProps["whiles"] = -1;
+                    uniqueTaskProps["ifs"] = -1;
+                    uniqueTaskProps["switches"] = -1;
                     uniqueTaskProps["perLoopsStaticCounts"] = -1;
                 }
                 if (task instanceof RegularTask) {
                     uniqueTaskProps["instances"] = [taskReps];
-                    uniqueTaskProps["#statements"] = this.#countSyntacticFeature(task, "statement");
-                    uniqueTaskProps["#loops"] = this.#countSyntacticFeature(task, "loop");
-                    uniqueTaskProps["#whiles"] = this.#countSyntacticFeature(task, "while");
-                    uniqueTaskProps["#ifs"] = this.#countSyntacticFeature(task, "if");
-                    uniqueTaskProps["#switches"] = this.#countSyntacticFeature(task, "switch");
-                    uniqueTaskProps["perLoopsStaticCounts"] = this.#countStaticLoops(task);
+                    uniqueTaskProps["statements"] = this.countSyntacticFeature(task, "statement");
+                    uniqueTaskProps["loops"] = this.countSyntacticFeature(task, "loop");
+                    uniqueTaskProps["whiles"] = this.countSyntacticFeature(task, "while");
+                    uniqueTaskProps["ifs"] = this.countSyntacticFeature(task, "if");
+                    uniqueTaskProps["switches"] = this.countSyntacticFeature(task, "switch");
+                    uniqueTaskProps["perLoopsStaticCounts"] = this.countStaticLoops(task);
 
                 }
                 uniqueTasks[taskName] = uniqueTaskProps;
@@ -51,7 +51,7 @@ export class TaskPropertiesFinder extends TaskGraphStatGatherer {
         return uniqueTasks;
     }
 
-    #countSyntacticFeature(task: RegularTask, feature: string): number {
+    private countSyntacticFeature(task: RegularTask, feature: string): number {
         const func = task.getFunction();
         let cnt = 0;
 
@@ -81,14 +81,15 @@ export class TaskPropertiesFinder extends TaskGraphStatGatherer {
         return cnt;
     }
 
-    #countStaticLoops(task: RegularTask): number {
+    private countStaticLoops(task: RegularTask): number {
         const func = task.getFunction();
 
         let staticCnt = 0;
         let totalCnt = 0;
 
         for (const loop of Query.searchFrom(func, Loop)) {
-            const tripCount = LoopCharacterizer.characterize(loop).tripCount;
+            const characterizer = new LoopCharacterizer();
+            const tripCount = characterizer.characterize(loop).tripCount;
 
             if (tripCount != -1) {
                 staticCnt++;

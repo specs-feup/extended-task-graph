@@ -12,7 +12,7 @@
  */
 import { ExtendedTaskGraphAPI } from "../../src/api/ExtendedTaskGraphAPI.js";
 
-console.log("Running the code transformation flow...");
+console.log("Test: dump the AST and call graph of edgedetect");
 
 const topFunctionName = "edgedetect";
 const outputDir = "output/apps";
@@ -21,7 +21,7 @@ const api = new ExtendedTaskGraphAPI(topFunctionName, outputDir, appName);
 
 const dumpAST = true;
 const dumpCallGraph = true;
-const doTransformations = true;
+const doTransformations = false;
 const success = api.runCodeTransformationFlow(dumpCallGraph, dumpAST, doTransformations);
 
-console.log(success ? "Code transformation succeeded" : "Code transformation failed");
+console.log(success ? "Test passed: dumping succeeded" : "Test failed: dumping failed");

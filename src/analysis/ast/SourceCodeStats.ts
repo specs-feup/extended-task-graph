@@ -2,22 +2,22 @@ import { FunctionJp } from "@specs-feup/clava/api/Joinpoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 
 export class SourceCodeStats {
-    #nFunctions = 0;
+    private nFunctions: number = 0;
 
     constructor() { }
 
-    generateAll(): void {
-        this.#generateFunctionStats();
+    public generateAll(): void {
+        this.generateFunctionStats();
     }
 
-    asCsv(): string {
+    public asCsv(): string {
         const csv = [];
-        csv.push("nFunctions," + this.#nFunctions);
+        csv.push("nFunctions," + this.nFunctions);
         return csv.join("\n");
     }
 
-    #generateFunctionStats() {
+    private generateFunctionStats() {
         const nFunc = Query.search(FunctionJp, { isImplementation: true }).chain().length;
-        this.#nFunctions = nFunc;
+        this.nFunctions = nFunc;
     }
 }

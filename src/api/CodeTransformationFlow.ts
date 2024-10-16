@@ -14,7 +14,7 @@ export class CodeTransformationFlow extends AStage {
             appName);
     }
 
-    run(dumpCallGraph: boolean = true, dumpAST: boolean = true, doTransformations: boolean = true): boolean {
+    public run(dumpCallGraph: boolean = true, dumpAST: boolean = true, doTransformations: boolean = true): boolean {
         this.logStart();
         this.log("Running code transformation flow");
 
@@ -50,17 +50,17 @@ export class CodeTransformationFlow extends AStage {
         return true;
     }
 
-    generateOriginalCode(): void {
+    public generateOriginalCode(): void {
         const outFolder = ClavaUtils.generateCode(this.getOutputDir(), OutputDirectories.SRC_ORIGINAL);
         this.logOutput("Original source code with resolved #defines written to", outFolder);
     }
 
-    initialAnalysis(dumpCallGraph: boolean, dumpAST: boolean): void {
+    public initialAnalysis(dumpCallGraph: boolean, dumpAST: boolean): void {
         this.log("Running initial analysis step");
-        this.#genericAnalysisStep(OutputDirectories.APP_STATS_ORIGINAL, dumpCallGraph, dumpAST, false);
+        this.genericAnalysisStep(OutputDirectories.APP_STATS_ORIGINAL, dumpCallGraph, dumpAST, false);
     }
 
-    subsetPreprocessing(): boolean {
+    public subsetPreprocessing(): boolean {
         this.log("Running subset preprocessing step");
         const outDir = this.getOutputDir();
         const appName = this.getAppName();
@@ -76,7 +76,7 @@ export class CodeTransformationFlow extends AStage {
         return this.verifySyntax();
     }
 
-    verifySyntax(): boolean {
+    public verifySyntax(): boolean {
         const res = ClavaUtils.verifySyntax();
         if (res) {
             this.log("Syntax verified");
@@ -87,12 +87,12 @@ export class CodeTransformationFlow extends AStage {
         return res;
     }
 
-    generateSubsetCode(): void {
+    public generateSubsetCode(): void {
         ClavaUtils.generateCode(this.getOutputDir(), OutputDirectories.SRC_SUBSET);
         this.log(`Intermediate subset-reduced source code written to ${OutputDirectories.SRC_SUBSET}`)
     }
 
-    taskPreprocessing(): void {
+    public taskPreprocessing(): void {
         this.log("Running task preprocessing step");
         const outDir = this.getOutputDir();
         const appName = this.getAppName();
@@ -102,17 +102,17 @@ export class CodeTransformationFlow extends AStage {
         preprocessor.preprocess();
     }
 
-    intermediateAnalysis(dumpCallGraph: boolean, dumpAST: boolean): void {
+    public intermediateAnalysis(dumpCallGraph: boolean, dumpAST: boolean): void {
         this.log("Running intermediate analysis step");
-        this.#genericAnalysisStep(OutputDirectories.APP_STATS_TASKS, dumpCallGraph, dumpAST, false);
+        this.genericAnalysisStep(OutputDirectories.APP_STATS_TASKS, dumpCallGraph, dumpAST, false);
     }
 
-    generateTaskCode(): void {
+    public generateTaskCode(): void {
         ClavaUtils.generateCode(this.getOutputDir(), OutputDirectories.SRC_TASKS);
         this.log(`Intermediate task-based source code written to "${OutputDirectories.SRC_TASKS}"`);
     }
 
-    generateInstrumentedTaskCode(): void {
+    public generateInstrumentedTaskCode(): void {
         // push AST
         const instrumenter = new CodeInstrumenter(this.getTopFunctionName());
         //instrumenter.instrument();
@@ -122,7 +122,7 @@ export class CodeTransformationFlow extends AStage {
         // pop ASTs
     }
 
-    #genericAnalysisStep(folder: string, dumpCallGraph: boolean, dumpAST: boolean, generateStatistics: boolean): void {
+    private genericAnalysisStep(folder: string, dumpCallGraph: boolean, dumpAST: boolean, generateStatistics: boolean): void {
         const outDir = this.getOutputDir() + "/" + folder;
         const appName = this.getAppName();
         const topFun = this.getTopFunctionName();

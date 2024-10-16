@@ -3,24 +3,25 @@ import { AppTimerInserter } from "./AppTimerInserter.js";
 import { ReplicaCreator } from "./ReplicaCreator.js";
 import { Statement } from "@specs-feup/clava/api/Joinpoints.js";
 import { OutlineRegionFinder } from "./OutlineRegionFinder.js";
+import Outliner from "clava-code-transformations/Outliner";
 
 export class TaskPreprocessor extends AStage {
     constructor(topFunction: string, outputDir: string, appName: string) {
         super("TransFlow-TaskPrep", topFunction, outputDir, appName);
     }
 
-    preprocess() {
+    public preprocess() {
         this.createFunctionReplicas();
         this.outlineAll();
         this.insertTimer();
     }
 
-    outlineAll(): void {
+    public outlineAll(): void {
         this.log("Finding code regions for outlining...");
         const annotator = new OutlineRegionFinder(this.getTopFunctionName());
 
         const genericRegions = annotator.annotateGenericPass();
-        const genCnt = this.#applyOutlining(genericRegions, "outlined_fun_");
+        const genCnt = this.applyOutlining(genericRegions, "outlined_fun_");
         this.log(`Outlined ${genCnt} generic regions`);
 
         // annotator also does the outlining
@@ -31,27 +32,26 @@ export class TaskPreprocessor extends AStage {
         this.log("Finished outlining regions");
     }
 
-    #applyOutlining(regions: Statement[][], prefix: string): number {
-        // const outliner = new Outliner();
-        // outliner.setVerbosity(false);
-        // outliner.setDefaultPrefix(prefix);
+    private applyOutlining(regions: Statement[][], prefix: string): number {
+        const outliner = new Outliner();
+        outliner.setVerbosity(false);
+        outliner.setDefaultPrefix(prefix);
 
-        // let outCount = 0;
-        // for (const region of regions) {
-        //     const start = region[0];
-        //     const end = region[region.length - 1];
+        let outCount = 0;
+        for (const region of regions) {
+            const start = region[0];
+            const end = region[region.length - 1];
 
-        //     outliner.outline(start, end);
+            outliner.outline(start, end);
 
-        //     start.detach();
-        //     end.detach();
-        //     outCount++;
-        // }
-        // return outCount;
-        return 0;
+            start.detach();
+            end.detach();
+            outCount++;
+        }
+        return outCount;
     }
 
-    createFunctionReplicas() {
+    public createFunctionReplicas() {
         this.log("Finding functions that can be replicated...");
 
         const replicaCreator = new ReplicaCreator(this.getTopFunctionName());
@@ -60,7 +60,7 @@ export class TaskPreprocessor extends AStage {
         this.log(`Created ${nReplicas} replicas for ${nUnique} unique functions`);
     }
 
-    insertTimer() {
+    public insertTimer() {
         const timerInserter = new AppTimerInserter();
         const couldInsert = timerInserter.insertTimer(this.getTopFunctionJoinPoint());
 

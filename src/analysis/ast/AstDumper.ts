@@ -2,46 +2,46 @@ import { BinaryOp, Call, FileJp, FunctionJp, IntLiteral, Joinpoint, MemberAccess
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 
 export class AstDumper {
-    #currentRes = "";
+    private currentRes: string = "";
 
     constructor() { }
 
-    dump(): string {
-        this.#currentRes = "";
+    public dump(): string {
+        this.currentRes = "";
 
         for (const startJp of Query.search(FileJp)) {
-            this.#addLevelToResult(startJp.joinPointType, 0);
+            this.addLevelToResult(startJp.joinPointType, 0);
 
             for (const child of startJp.children) {
-                this.#dumpJoinPoint(child, 1);
+                this.dumpJoinPoint(child, 1);
             }
         }
-        return this.#currentRes.slice();
+        return this.currentRes.slice();
     }
 
-    #buildLabel(key: string, val: string): string {
+    private buildLabel(key: string, val: string): string {
         return "  {" + key + ": " + val + "}";
     }
 
-    #dumpJoinPoint(jp: Joinpoint, indent: number): void {
+    private dumpJoinPoint(jp: Joinpoint, indent: number): void {
         var str = jp.joinPointType;
 
         if (jp instanceof Param || jp instanceof Vardecl || jp instanceof Varref || jp instanceof MemberAccess) {
-            str += this.#buildLabel("name", jp.name) + this.#buildLabel("type", jp.type.joinPointType);
+            str += this.buildLabel("name", jp.name) + this.buildLabel("type", jp.type.joinPointType);
         }
 
         if (jp instanceof UnaryOp || jp instanceof BinaryOp) {
-            str += this.#buildLabel("kind", jp.kind);
+            str += this.buildLabel("kind", jp.kind);
         }
 
         if (jp instanceof Call) {
-            str += this.#buildLabel("fun", jp.name);
+            str += this.buildLabel("fun", jp.name);
         }
 
         if (jp instanceof FunctionJp) {
-            str += this.#buildLabel("sig", jp.signature);
+            str += this.buildLabel("sig", jp.signature);
         }
-        this.#addLevelToResult(str, indent);
+        this.addLevelToResult(str, indent);
 
         if (jp.children.length > 4) {
             var allLits = true;
@@ -51,16 +51,16 @@ export class AstDumper {
                 }
             }
             if (allLits) {
-                this.#addLevelToResult(jp.joinPointType + " (" + jp.children.length + "x)", indent + 2);
+                this.addLevelToResult(jp.joinPointType + " (" + jp.children.length + "x)", indent + 2);
                 return;
             }
         }
         for (const child of jp.children) {
-            this.#dumpJoinPoint(child, indent + 1);
+            this.dumpJoinPoint(child, indent + 1);
         }
     }
 
-    #addLevelToResult(str: string, indent: number): void {
-        this.#currentRes += `${'-'.repeat(indent)}>${str}\n`;
+    private addLevelToResult(str: string, indent: number): void {
+        this.currentRes += `${'-'.repeat(indent)}>${str}\n`;
     }
 }

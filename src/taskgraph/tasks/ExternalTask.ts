@@ -7,17 +7,34 @@ import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { DataItemOrigin } from "../DataItemOrigin.js";
 
 export class ExternalTask extends ConcreteTask {
-    #externalTaskDataPolicy: ExternalTaskDataPolicy;
+    private externalTaskDataPolicy: ExternalTaskDataPolicy;
 
     constructor(call: Call, hierParent: Task, delimiter = ".") {
         super(TaskType.EXTERNAL, call, hierParent, call.name, delimiter, "TEx");
 
-        this.#populateExternalCallData();
-        this.#externalTaskDataPolicy = ExternalTaskDataPolicy.ALL_READ_WRITE;
+        this.populateExternalCallData();
+        this.externalTaskDataPolicy = ExternalTaskDataPolicy.ALL_READ_WRITE;
         this.setExternalTaskDataPolicy(ExternalTaskDataPolicy.ALL_READ_WRITE);
     }
 
-    #populateExternalCallData() {
+    public setExternalTaskDataPolicy(policy: ExternalTaskDataPolicy) {
+        this.externalTaskDataPolicy = policy;
+
+        for (const dataItem of this.getData()) {
+            if (policy === ExternalTaskDataPolicy.ALL_READ) {
+                dataItem.setRead();
+            }
+            else if (policy === ExternalTaskDataPolicy.ALL_WRITE) {
+                dataItem.setWritten();
+            }
+            else if (policy === ExternalTaskDataPolicy.ALL_READ_WRITE) {
+                dataItem.setRead();
+                dataItem.setWritten();
+            }
+        }
+    }
+
+    private populateExternalCallData() {
         // TS conversion: original code used varrefs, but we are now using vardecls.
         const refs: Set<Vardecl> = new Set();
         const call = this.getCall();
@@ -34,24 +51,7 @@ export class ExternalTask extends ConcreteTask {
         this.createDataObjects(vardeclArray, DataItemOrigin.PARAM);
     }
 
-    setExternalTaskDataPolicy(policy: ExternalTaskDataPolicy) {
-        this.#externalTaskDataPolicy = policy;
-
-        for (const dataItem of this.getData()) {
-            if (policy === ExternalTaskDataPolicy.ALL_READ) {
-                dataItem.setRead();
-            }
-            else if (policy === ExternalTaskDataPolicy.ALL_WRITE) {
-                dataItem.setWritten();
-            }
-            else if (policy === ExternalTaskDataPolicy.ALL_READ_WRITE) {
-                dataItem.setRead();
-                dataItem.setWritten();
-            }
-        }
-    }
-
-    getExternalTaskDataPolicy() {
-        return this.#externalTaskDataPolicy;
+    public getExternalTaskDataPolicy() {
+        return this.externalTaskDataPolicy;
     }
 }

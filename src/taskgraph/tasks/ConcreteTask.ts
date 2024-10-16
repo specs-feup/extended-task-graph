@@ -4,11 +4,11 @@ import { TaskType } from "./TaskType.js";
 import IdGenerator from "@specs-feup/lara/api/lara/util/IdGenerator.js";
 
 export class ConcreteTask extends Task {
-    #call: Call | null;
-    #hierParent: Task | null = null;
-    #hierChildren: Set<ConcreteTask> = new Set();
-    #repetitions = 1;
-    #loopRef: Loop | null = null;
+    private call: Call | null;
+    private hierParent: Task | null = null;
+    private hierChildren: Set<ConcreteTask> = new Set();
+    private repetitions = 1;
+    private loopRef: Loop | null = null;
 
     constructor(type: TaskType.REGULAR | TaskType.EXTERNAL, call: Call | null, hierParent: Task | null, name: string, delimiter = ".", prefix = "T") {
         super(type);
@@ -19,44 +19,44 @@ export class ConcreteTask extends Task {
 
         this.setId(id);
         this.setName(name);
-        this.#call = call;
+        this.call = call;
         if (hierParent != null) {
-            this.#hierParent = hierParent;
+            this.hierParent = hierParent;
         }
     }
 
-    getCall(): Call | null {
-        return this.#call;
+    public getCall(): Call | null {
+        return this.call;
     }
 
     // Repetitions
-    setRepetitions(reps: number, loopRef: Loop): void {
-        this.#repetitions = reps;
-        this.#loopRef = loopRef;
+    public setRepetitions(reps: number, loopRef: Loop): void {
+        this.repetitions = reps;
+        this.loopRef = loopRef;
     }
 
-    getRepetitions(): number {
-        return this.#repetitions;
+    public getRepetitions(): number {
+        return this.repetitions;
     }
 
-    getLoopReference(): Loop | null {
-        return this.#loopRef;
+    public getLoopReference(): Loop | null {
+        return this.loopRef;
     }
 
     // Hierarchical stuff
-    getHierarchicalParent(): Task | null {
-        return this.#hierParent;
+    public getHierarchicalParent(): Task | null {
+        return this.hierParent;
     }
 
-    getHierarchicalChildren(): ConcreteTask[] {
-        return [...this.#hierChildren];
+    public getHierarchicalChildren(): ConcreteTask[] {
+        return [...this.hierChildren];
     }
 
-    addHierarchicalChild(child: ConcreteTask): void {
-        this.#hierChildren.add(child);
+    public addHierarchicalChild(child: ConcreteTask): void {
+        this.hierChildren.add(child);
     }
 
-    removeHierarchicalChild(child: ConcreteTask): void {
-        this.#hierChildren.delete(child);
+    public removeHierarchicalChild(child: ConcreteTask): void {
+        this.hierChildren.delete(child);
     }
 }

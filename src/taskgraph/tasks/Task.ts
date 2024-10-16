@@ -8,84 +8,74 @@ import { AccessType } from "../AccessType.js";
 
 export abstract class Task {
     // Basic task details
-    #id: string = "TNull";
-    #name: string = "<anonymous>"
-    #type: TaskType = TaskType.REGULAR;
-    #repetitions: number = 1;
-    #loopReference: Loop | null = null;
+    private id: string = "TNull";
+    private name: string = "<anonymous>"
+    private type: TaskType = TaskType.REGULAR;
+    private loopReference: Loop | null = null;
 
     // Data properties
-    #dataParams: DataItem[] = [];
-    #dataGlobalRefs: DataItem[] = [];
-    #dataNew: DataItem[] = [];
-    #dataConstants: DataItem[] = [];
+    private dataParams: DataItem[] = [];
+    private dataGlobalRefs: DataItem[] = [];
+    private dataNew: DataItem[] = [];
+    private dataConstants: DataItem[] = [];
 
     // Data communication properties
-    #incomingComm: Communication[] = [];
-    #outgoingComm: Communication[] = [];
+    private incomingComm: Communication[] = [];
+    private outgoingComm: Communication[] = [];
 
     // Control properties
-    #incomingControl: ControlEdge[] = [];
-    #outgoingControl: ControlEdge[] = [];
+    private incomingControl: ControlEdge[] = [];
+    private outgoingControl: ControlEdge[] = [];
 
     // Annotations
-    #annotations: Record<string, any> = {};
+    private annotations: Record<string, any> = {};
 
     constructor(type: TaskType) {
-        this.#type = type;
+        this.type = type;
     }
 
-    getType(): TaskType {
-        return this.#type;
+    public getType(): TaskType {
+        return this.type;
     }
 
-    getId(): string {
-        return this.#id;
+    public getId(): string {
+        return this.id;
     }
 
-    setId(id: string): void {
-        this.#id = id;
+    public setId(id: string): void {
+        this.id = id;
     }
 
-    getName(): string {
-        return this.#name;
+    public getName(): string {
+        return this.name;
     }
 
-    setName(name: string): void {
-        this.#name = name;
+    public setName(name: string): void {
+        this.name = name;
     }
 
-    getUniqueName(): string {
-        return `${this.#id}-${this.#name}`;
+    public getUniqueName(): string {
+        return `${this.id}-${this.name}`;
     }
 
-    setRepetitions(repetitions: number, loopRef: Loop) {
-        this.#repetitions = repetitions;
-        this.#loopReference = loopRef;
-    }
-
-    getRepetitions(): number {
-        return this.#repetitions;
-    }
-
-    getLoopReference(): Loop | null {
-        return this.#loopReference;
+    public getLoopReference(): Loop | null {
+        return this.loopReference;
     }
 
     // Data methods
-    getDataRead(type = DataItemOrigin.ANY): DataItem[] {
-        return this.#getDataByAccessType(AccessType.READ, type);
+    public getDataRead(type = DataItemOrigin.ANY): DataItem[] {
+        return this.getDataByAccessType(AccessType.READ, type);
     }
 
-    getDataWritten(type = DataItemOrigin.ANY): DataItem[] {
-        return this.#getDataByAccessType(AccessType.WRITE, type);
+    public getDataWritten(type = DataItemOrigin.ANY): DataItem[] {
+        return this.getDataByAccessType(AccessType.WRITE, type);
     }
 
-    getData(): DataItem[] {
-        return [...this.#dataParams, ...this.#dataGlobalRefs, ...this.#dataNew, ...this.#dataConstants];
+    public getData(): DataItem[] {
+        return [...this.dataParams, ...this.dataGlobalRefs, ...this.dataNew, ...this.dataConstants];
     }
 
-    getDataAsMap(): Map<string, DataItem> {
+    public getDataAsMap(): Map<string, DataItem> {
         const data = new Map();
         for (const datum of this.getData()) {
             data.set(datum.getName(), datum);
@@ -93,7 +83,7 @@ export abstract class Task {
         return data;
     }
 
-    getDataItemByName(name: string): DataItem | null {
+    public getDataItemByName(name: string): DataItem | null {
         for (const datum of this.getData()) {
             if (datum.getName() == name) {
                 return datum;
@@ -102,7 +92,7 @@ export abstract class Task {
         return null;
     }
 
-    getDataItemByAltName(name: string): DataItem | null {
+    public getDataItemByAltName(name: string): DataItem | null {
         for (const datum of this.getData()) {
             if (datum.getAlternateName() == name) {
                 return datum;
@@ -111,62 +101,62 @@ export abstract class Task {
         return null;
     }
 
-    getParamData(): DataItem[] {
-        return this.#dataParams;
+    public getParamData(): DataItem[] {
+        return this.dataParams;
     }
 
-    addParamData(dataItem: DataItem): void {
-        this.#dataParams.push(dataItem);
+    public addParamData(dataItem: DataItem): void {
+        this.dataParams.push(dataItem);
     }
 
-    getGlobalRefData(): DataItem[] {
-        return this.#dataGlobalRefs;
+    public getGlobalRefData(): DataItem[] {
+        return this.dataGlobalRefs;
     }
 
-    addGlobalRefData(dataItem: DataItem): void {
-        this.#dataGlobalRefs.push(dataItem);
+    public addGlobalRefData(dataItem: DataItem): void {
+        this.dataGlobalRefs.push(dataItem);
     }
 
-    getNewData(): DataItem[] {
-        return this.#dataNew;
+    public getNewData(): DataItem[] {
+        return this.dataNew;
     }
 
-    addNewData(dataItem: DataItem): void {
-        this.#dataNew.push(dataItem);
+    public addNewData(dataItem: DataItem): void {
+        this.dataNew.push(dataItem);
     }
 
-    getConstantData(): DataItem[] {
-        return this.#dataConstants;
+    public getConstantData(): DataItem[] {
+        return this.dataConstants;
     }
 
-    addConstantData(dataItem: DataItem): void {
-        this.#dataConstants.push(dataItem);
+    public addConstantData(dataItem: DataItem): void {
+        this.dataConstants.push(dataItem);
     }
 
-    getReferencedData(): DataItem[] {
-        return [...this.#dataParams, ...this.#dataGlobalRefs];
+    public getReferencedData(): DataItem[] {
+        return [...this.dataParams, ...this.dataGlobalRefs];
     }
 
     // Communication methods
-    addOutgoingComm(communication: Communication): void {
-        this.#outgoingComm.push(communication);
+    public addOutgoingComm(communication: Communication): void {
+        this.outgoingComm.push(communication);
     }
 
-    addIncomingComm(communication: Communication): void {
-        this.#incomingComm.push(communication);
+    public addIncomingComm(communication: Communication): void {
+        this.incomingComm.push(communication);
     }
 
-    getOutgoingComm(): Communication[] {
-        return this.#outgoingComm;
+    public getOutgoingComm(): Communication[] {
+        return this.outgoingComm;
     }
 
-    getIncomingComm(): Communication[] {
-        return this.#incomingComm;
+    public getIncomingComm(): Communication[] {
+        return this.incomingComm;
     }
 
-    getOutgoingOfData(datum: DataItem): Communication[] {
+    public getOutgoingOfData(datum: DataItem): Communication[] {
         const comm = [];
-        for (const communication of this.#outgoingComm) {
+        for (const communication of this.outgoingComm) {
             if (communication.getSourceData().getName() == datum.getName() ||
                 communication.getSourceData().getAlternateName() == datum.getName()) {
                 comm.push(communication);
@@ -175,8 +165,8 @@ export abstract class Task {
         return comm;
     }
 
-    getIncomingOfData(datum: DataItem): Communication | null {
-        for (const communication of this.#incomingComm) {
+    public getIncomingOfData(datum: DataItem): Communication | null {
+        for (const communication of this.incomingComm) {
             if (communication.getTargetData().getName() == datum.getName() ||
                 communication.getTargetData().getAlternateName() == datum.getName()) {
                 return communication;
@@ -186,35 +176,35 @@ export abstract class Task {
     }
 
     // Control methods
-    getOutgoingControl(): ControlEdge[] {
-        return this.#outgoingControl;
+    public getOutgoingControl(): ControlEdge[] {
+        return this.outgoingControl;
     }
 
-    getIncomingControl(): ControlEdge[] {
-        return this.#incomingControl;
+    public getIncomingControl(): ControlEdge[] {
+        return this.incomingControl;
     }
 
-    addOutgoingControl(control: ControlEdge): void {
-        this.#outgoingControl.push(control);
+    public addOutgoingControl(control: ControlEdge): void {
+        this.outgoingControl.push(control);
     }
 
-    addIncomingControl(control: ControlEdge): void {
-        this.#incomingControl.push(control);
+    public addIncomingControl(control: ControlEdge): void {
+        this.incomingControl.push(control);
     }
 
-    createDataObjects(vars: Vardecl[], originType: DataItemOrigin): void {
+    public createDataObjects(vars: Vardecl[], originType: DataItemOrigin): void {
         for (const vardecl of vars) {
             const data = new DataItem(vardecl, originType);
 
             switch (originType) {
                 case DataItemOrigin.PARAM:
-                    this.#dataParams.push(data);
+                    this.dataParams.push(data);
                     break;
                 case DataItemOrigin.GLOBAL_REF:
-                    this.#dataGlobalRefs.push(data);
+                    this.dataGlobalRefs.push(data);
                     break;
                 case DataItemOrigin.NEW:
-                    this.#dataNew.push(data);
+                    this.dataNew.push(data);
                     break;
                 default:
                     break;
@@ -222,50 +212,50 @@ export abstract class Task {
         }
     }
 
-    createConstantObject(immConst: Literal, funCall: Call): void {
+    public createConstantObject(immConst: Literal, funCall: Call): void {
         const datum = new DataItem(immConst.vardecl, DataItemOrigin.CONSTANT);
         datum.setImmediateFunctionCall(funCall);
-        this.#dataConstants.push(datum);
+        this.dataConstants.push(datum);
     }
 
     // Annotations
-    getAnnotation(key: string): any {
-        return this.#annotations[key];
+    public getAnnotation(key: string): any {
+        return this.annotations[key];
     }
 
-    setAnnotation(key: string, value: any): void {
-        this.#annotations[key] = value;
+    public setAnnotation(key: string, value: any): void {
+        this.annotations[key] = value;
     }
 
-    getAnnotations(): Record<string, any> {
-        return this.#annotations;
+    public getAnnotations(): Record<string, any> {
+        return this.annotations;
     }
 
-    setAnnotations(annotations: Record<string, any>): void {
-        this.#annotations = annotations;
+    public setAnnotations(annotations: Record<string, any>): void {
+        this.annotations = annotations;
     }
 
     // ---------------------------------------------------------------------
-    #getDataByAccessType(accessType: AccessType, origin = DataItemOrigin.ANY): DataItem[] {
+    private getDataByAccessType(accessType: AccessType, origin = DataItemOrigin.ANY): DataItem[] {
         let data: DataItem[] = [];
         if (origin == DataItemOrigin.ANY) {
             data = [
-                ...this.#dataParams,
-                ...this.#dataGlobalRefs,
-                ...this.#dataNew,
-                ...this.#dataConstants];
+                ...this.dataParams,
+                ...this.dataGlobalRefs,
+                ...this.dataNew,
+                ...this.dataConstants];
         }
         if (origin == DataItemOrigin.PARAM) {
-            data = this.#dataParams;
+            data = this.dataParams;
         }
         if (origin == DataItemOrigin.GLOBAL_REF) {
-            data = this.#dataGlobalRefs;
+            data = this.dataGlobalRefs;
         }
         if (origin == DataItemOrigin.NEW) {
-            data = this.#dataNew;
+            data = this.dataNew;
         }
         if (origin == DataItemOrigin.CONSTANT) {
-            data = this.#dataConstants;
+            data = this.dataConstants;
         }
 
         const dataAccessed = [];

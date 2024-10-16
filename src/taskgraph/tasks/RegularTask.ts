@@ -7,50 +7,50 @@ import { DataItemOrigin } from "../DataItemOrigin.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
 
 export class RegularTask extends ConcreteTask {
-    #function: FunctionJp;
+    private function: FunctionJp;
 
     constructor(call: Call | null, fun: FunctionJp, hierParent: Task | null, delimiter = ".") {
         super(TaskType.REGULAR, call, hierParent, fun.name, delimiter, "T");
 
-        this.#function = fun;
+        this.function = fun;
 
-        this.#populateData();
-        this.#updateDataReadWrites();
+        this.populateData();
+        this.updateDataReadWrites();
 
         if (call != null) {
-            this.#updateWithAlternateNames();
+            this.updateWithAlternateNames();
         }
     }
 
-    getFunction(): FunctionJp {
-        return this.#function;
+    public getFunction(): FunctionJp {
+        return this.function;
     }
 
-    #populateData(): void {
+    private populateData(): void {
         // handle data comm'd through function params
-        this.#findDataFromParams();
+        this.findDataFromParams();
 
         // handle data comm'd through global variables
-        this.#findDataFromGlobals();
+        this.findDataFromGlobals();
 
         // handle data created in this function, and comm'd to others
-        this.#findDataFromNewDecls();
+        this.findDataFromNewDecls();
 
         // handle immediate constants in function calls
-        this.#findDataFromConstants();
+        this.findDataFromConstants();
     }
 
-    #findDataFromParams(): void {
+    private findDataFromParams(): void {
         const paramVars: Set<Param> = new Set();
-        for (const param of Query.searchFrom(this.#function, Param)) {
+        for (const param of Query.searchFrom(this.function, Param)) {
             paramVars.add(param);
         }
         this.createDataObjects([...paramVars], DataItemOrigin.PARAM);
     }
 
-    #findDataFromGlobals(): void {
+    private findDataFromGlobals(): void {
         const globalVars = new Map();
-        for (const varref of Query.searchFrom(this.#function.body, Varref)) {
+        for (const varref of Query.searchFrom(this.function.body, Varref)) {
             try {
                 if (!(varref.type instanceof FunctionType)) {
                     const decl = varref.vardecl;
@@ -69,27 +69,27 @@ export class RegularTask extends ConcreteTask {
         this.createDataObjects([...declList], DataItemOrigin.GLOBAL_REF);
     }
 
-    #findDataFromNewDecls(): void {
+    private findDataFromNewDecls(): void {
         const newVars: Set<Vardecl> = new Set();
-        for (const vardecl of Query.searchFrom(this.#function.body, Vardecl)) {
+        for (const vardecl of Query.searchFrom(this.function.body, Vardecl)) {
             newVars.add(vardecl);
         }
         this.createDataObjects([...newVars], DataItemOrigin.NEW);
     }
 
-    #findDataFromConstants(): void {
-        for (const funCall of Query.searchFrom(this.#function.body, Call)) {
+    private findDataFromConstants(): void {
+        for (const funCall of Query.searchFrom(this.function.body, Call)) {
             for (const immConst of Query.searchFrom(funCall, Literal)) {
                 this.createConstantObject(immConst, funCall);
             }
         }
     }
 
-    #updateDataReadWrites(): void {
+    private updateDataReadWrites(): void {
         for (const dataItem of this.getData()) {
             const vardecl = dataItem.getDecl();
 
-            for (const ref of Query.searchFrom(this.#function.body, Varref, { name: vardecl?.name })) {
+            for (const ref of Query.searchFrom(this.function.body, Varref, { name: vardecl?.name })) {
                 if ((ClavaUtils.isDef(ref))) {
                     dataItem.setWritten();
                 }
@@ -100,7 +100,7 @@ export class RegularTask extends ConcreteTask {
         }
     }
 
-    #updateWithAlternateNames(): void {
+    private updateWithAlternateNames(): void {
         const call = this.getCall();
         if (call == null) {
             console.log("RegularTask: call is null");

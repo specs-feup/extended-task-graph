@@ -6,8 +6,8 @@ export enum OutputDirectories {
     // Weaved source code at different stages
     SRC_ORIGINAL = "src/original",
     SRC_SUBSET = "src/subset",
-    SRC_TASKS = "src/transformed",
-    SRC_TASKS_INSTRUMENTED = "src/transformed_instrumented",
+    SRC_TASKS = "src/trans",
+    SRC_TASKS_INSTRUMENTED = "src/trans_instrumented",
 
     // Stats about the task graph
     TASKGRAPH = "taskgraph"

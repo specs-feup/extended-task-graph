@@ -5,22 +5,25 @@ import NormalizeToSubset from "@specs-feup/clava/api/clava/opt/NormalizeToSubset
 import { BinaryOp, Body, FunctionJp, If, Joinpoint, Loop, Scope, Statement, Switch } from "@specs-feup/clava/api/Joinpoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import ArrayFlattener from "clava-code-transformations/ArrayFlattener";
+import FoldingPropagationCombiner from "clava-code-transformations/FoldingPropagationCombiner";
+import StructDecomposer from "clava-code-transformations/StructDecomposer";
 import SwitchToIf from "clava-code-transformations/SwitchToIf";
+import Voidifier from "clava-code-transformations/Voidifier";
 
 export class SubsetReducer extends AStage {
     constructor(topFunction: string) {
         super("TransFlow-Subset-SubsetReducer", topFunction);
     }
 
-    reduce() {
+    public reduce() {
         this.normalizeToSubset();
         this.decomposeStatements();
         this.applyCodeTransforms();
         this.ensureVoidReturns();
     }
 
-    normalizeToSubset() {
-        const funs = this.#getValidFunctions();
+    public normalizeToSubset() {
+        const funs = this.getValidFunctions();
         for (const fun of funs) {
             const body = fun.body;
             NormalizeToSubset(body, { simplifyLoops: { forToWhile: false } });
@@ -28,11 +31,11 @@ export class SubsetReducer extends AStage {
         this.log("Codebase normalized to subset");
     }
 
-    decomposeStatements(maxPasses = 1) {
+    public decomposeStatements(maxPasses = 1) {
         const decomp = new StatementDecomposer();
         let hasChanged = true;
         let nPasses = 0;
-        const funs = this.#getValidFunctions();
+        const funs = this.getValidFunctions();
 
         while (hasChanged && nPasses < maxPasses) {
             hasChanged = false;
@@ -49,8 +52,8 @@ export class SubsetReducer extends AStage {
                         continue;
                     }
 
-                    const hasMatchedTemp = this.#matchesATemplate(stmt);
-                    const hasMatchedEdgeCase = this.#matchesEdgeCase(stmt);
+                    const hasMatchedTemp = this.matchesATemplate(stmt);
+                    const hasMatchedEdgeCase = this.matchesEdgeCase(stmt);
 
                     if (hasMatchedTemp || hasMatchedEdgeCase) {
                         decomp.decomposeAndReplace(stmt);
@@ -63,34 +66,34 @@ export class SubsetReducer extends AStage {
         this.log(`Decomposed statements in ${nPasses} pass${nPasses > 1 ? "es" : ""}`);
     }
 
-    applyCodeTransforms() {
-        this.#applySwitchToIfConversion();
-        this.#applyStructDecomposition();
-        this.#applyConstantFoldingAndPropagation();
-        this.#applyArrayFlattening();
+    public applyCodeTransforms() {
+        this.applySwitchToIfConversion();
+        this.applyStructDecomposition();
+        this.applyConstantFoldingAndPropagation();
+        this.applyArrayFlattening();
     }
 
-    ensureVoidReturns() {
-        // const funs = this.#getValidFunctions();
-        // const vf = new Voidifier();
+    public ensureVoidReturns() {
+        const funs = this.getValidFunctions();
+        const vf = new Voidifier();
 
-        // let count = 0;
-        // for (const fun of funs) {
-        //     if (fun.name == "main") {
-        //         this.log("Skipping voidification of main(), which is part of the valid call graph for subset reduction");
-        //     }
-        //     else {
-        //         const turnedVoid = vf.voidify(fun, "rtr_val");
-        //         count += turnedVoid ? 1 : 0;
-        //     }
-        // }
-        // this.log(`Ensured ${count} function${count > 1 ? "s" : ""} return${count > 1 ? "s" : ""} void`);
+        let count = 0;
+        for (const fun of funs) {
+            if (fun.name == "main") {
+                this.log("Skipping voidification of main(), which is part of the valid call graph for subset reduction");
+            }
+            else {
+                const turnedVoid = vf.voidify(fun, "rtr_val");
+                count += turnedVoid ? 1 : 0;
+            }
+        }
+        this.log(`Ensured ${count} function${count > 1 ? "s" : ""} return${count > 1 ? "s" : ""} void`);
     }
 
-    #applyArrayFlattening() {
+    private applyArrayFlattening() {
         const flattener = new ArrayFlattener();
 
-        const funs = this.#getValidFunctions();
+        const funs = this.getValidFunctions();
         for (const fun of funs) {
             const flattened = flattener.flattenAllInFunction(fun);
             this.log(`Flattened ${flattened} array${flattened > 1 ? "s" : ""} in ${fun.name}()`);
@@ -98,29 +101,29 @@ export class SubsetReducer extends AStage {
         this.log("Flattened all arrays into 1D");
     }
 
-    #applyConstantFoldingAndPropagation(): boolean {
-        // try {
-        //     const foldProg = new FoldingPropagationCombiner();
+    private applyConstantFoldingAndPropagation(): boolean {
+        try {
+            const foldProg = new FoldingPropagationCombiner();
 
-        //     const nPasses = foldProg.doPassesUntilStop();
-        //     this.log(`Applied constant propagation in ${nPasses} pass${nPasses > 1 ? "es" : ""}`);
-        // }
-        // catch (e) {
-        //     this.logTrace(e);
-        //     this.logWarning("Constant folding and propagation may not have been thorough");
-        //     return false;
-        // }
+            const nPasses = foldProg.doPassesUntilStop();
+            this.log(`Applied constant propagation in ${nPasses} pass${nPasses > 1 ? "es" : ""}`);
+        }
+        catch (e) {
+            this.logTrace(e);
+            this.logWarning("Constant folding and propagation may not have been thorough");
+            return false;
+        }
         return true;
     }
 
-    #applyStructDecomposition(): void {
-        // const decomp = new StructDecomposer(true);
+    private applyStructDecomposition(): void {
+        const decomp = new StructDecomposer(true);
 
-        // const structNames = decomp.decomposeAll();
-        // this.log(`Decomposed ${structNames.length} struct${structNames.length > 1 ? "s" : ""}: ${structNames.join(", ")}`);
+        const structNames = decomp.decomposeAll();
+        this.log(`Decomposed ${structNames.length} struct${structNames.length > 1 ? "s" : ""}: ${structNames.join(", ")}`);
     }
 
-    #applySwitchToIfConversion() {
+    private applySwitchToIfConversion() {
         const switchToIf = new SwitchToIf();
         let count = 0;
 
@@ -133,11 +136,11 @@ export class SubsetReducer extends AStage {
         this.log(`Converted ${count} switch statement${count > 1 ? "s" : ""} into if-else statements`);
     }
 
-    #getValidFunctions(): FunctionJp[] {
+    private getValidFunctions(): FunctionJp[] {
         return ClavaUtils.getAllUniqueFunctions(this.getTopFunctionJoinPoint());
     }
 
-    #matchesATemplate(stmt: Statement): boolean {
+    private matchesATemplate(stmt: Statement): boolean {
         const templates = [
             //["exprStmt", ["binaryOp", ["arrayAccess"], ["call"]]]
             ["binaryOp noassign", ["call"], ["_"]],
@@ -161,7 +164,7 @@ export class SubsetReducer extends AStage {
         return hasMatched;
     }
 
-    #matchesEdgeCase(stmt: Statement): boolean {
+    private matchesEdgeCase(stmt: Statement): boolean {
         const assignsInStmt = Query.searchFrom(stmt, BinaryOp, { kind: "assign" }).chain().length;
 
         // A[1] = A[0] = foo(X)
@@ -170,7 +173,7 @@ export class SubsetReducer extends AStage {
         }
 
         // if (X = foo(Y) == 2) {...}
-        if (this.#isInIfCondition(stmt)) {
+        if (this.isInIfCondition(stmt)) {
             if (assignsInStmt > 0) {
                 return true;
             }
@@ -178,7 +181,7 @@ export class SubsetReducer extends AStage {
         return false;
     }
 
-    #isInIfCondition(stmt: Statement): boolean {
+    private isInIfCondition(stmt: Statement): boolean {
         let jp: Joinpoint = stmt as Joinpoint;
         while (jp != null) {
             if (jp instanceof If) {

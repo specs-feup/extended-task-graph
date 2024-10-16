@@ -7,7 +7,7 @@ export class SubsetPreprocessor extends AStage {
         super("TransFlow-Subset", topFunction, outputDir, appName);
     }
 
-    preprocess(): boolean {
+    public preprocess(): boolean {
         this.sanitizeCodePreSubset();
 
         const success = this.reduceToSubset();
@@ -19,13 +19,13 @@ export class SubsetPreprocessor extends AStage {
         return true;
     }
 
-    sanitizeCodePreSubset(): void {
+    public sanitizeCodePreSubset(): void {
         const sanitizer = new CodeSanitizer(this.getTopFunctionName());
         sanitizer.sanitize();
         this.log("Sanitized code before subset reduction");
     }
 
-    reduceToSubset() {
+    public reduceToSubset() {
         const reducer = new SubsetReducer(this.getTopFunctionName());
         try {
             reducer.reduce();
@@ -39,7 +39,7 @@ export class SubsetPreprocessor extends AStage {
         }
     }
 
-    sanitizeCodePostSubset() {
+    public sanitizeCodePostSubset() {
         const sanitizer = new CodeSanitizer(this.getTopFunctionName());
         sanitizer.removeSpuriousStatements();
         sanitizer.removeDuplicatedDecls();

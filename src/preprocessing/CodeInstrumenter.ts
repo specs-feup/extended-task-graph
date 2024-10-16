@@ -8,43 +8,44 @@ import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
 import LoopCharacterizer, { LoopCharacterization } from "clava-code-transformations/LoopCharacterizer";
 
 export class CodeInstrumenter extends AStage {
-    #prefix;
-    #timingsCsv = "task_timings.csv";
-    #iterationsCsv = "loop_iterations.csv";
+    private prefix;
+    private timingsCsv = "task_timings.csv";
+    private iterationsCsv = "loop_iterations.csv";
 
     constructor(topFunction: string, prefix: string = "TASK_TIMING") {
         super("TransFlowPreprocessor-Instrumenter", topFunction);
-        this.#prefix = prefix;
+        this.prefix = prefix;
     }
 
-    instrument(): void {
+    public instrument(): void {
         this.instrumentTaskTimings();
         this.instrumentLoopIterations();
     }
 
-    instrumentTaskTimings(): string[] {
+    public instrumentTaskTimings(): string[] {
         const flags: Set<string> = new Set();
 
         for (const fun of Query.search(FunctionJp)) {
             const body = fun.body;
             if (body != undefined && body.children.length > 0) {
-                const flag = this.#instrumentScope(body, fun.name);
+                const flag = this.instrumentScope(body, fun.name);
                 flags.add(flag);
             }
         }
         return Array.from(flags);
     }
 
-    instrumentLoopIterations(): void {
+    public instrumentLoopIterations(): void {
         for (const loop of Query.search(Loop)) {
-            const props = LoopCharacterizer.characterize(loop);
+            const characterizer = new LoopCharacterizer();
+            const props = characterizer.characterize(loop);
             if (props.tripCount == -1) {
-                this.#instrumentLoop(loop, props);
+                this.instrumentLoop(loop, props);
             }
         }
     }
 
-    #instrumentLoop(loop: Loop, props: LoopCharacterization): void {
+    private instrumentLoop(loop: Loop, props: LoopCharacterization): void {
         const counterName = IdGenerator.next("__iterCounter");
         const preStmt = `int ${counterName} = 0;`;
 
@@ -53,7 +54,7 @@ export class CodeInstrumenter extends AStage {
         const outputFileVarName = IdGenerator.next("__loopIterationsFile");
         const postStmts = [
             `FILE * ${outputFileVarName};`,
-            `${outputFileVarName} = fopen("${this.#iterationsCsv}", "a");`,
+            `${outputFileVarName} = fopen("${this.iterationsCsv}", "a");`,
             `fprintf(${outputFileVarName}, "${loop.location},%d\n", __iterCounter)`,
             `fclose(${outputFileVarName});`
         ];
@@ -61,19 +62,19 @@ export class CodeInstrumenter extends AStage {
         // Missing: insert statements
     }
 
-    #instrumentScope(scope: Scope, name: string) {
+    private instrumentScope(scope: Scope, name: string) {
         const firstStmt = scope.children[0];
         const lastStmt = scope.children[scope.children.length - 1];
 
-        const timer = new Timer(TimerUnit.MICROSECONDS, this.#timingsCsv);
+        const timer = new Timer(TimerUnit.MICROSECONDS, this.timingsCsv);
         timer.time(firstStmt, `${name},`, lastStmt);
 
-        const flag = `${this.#prefix}_${name.toUpperCase()}`;
-        const startGuard1 = ClavaJoinPoints.stmtLiteral(`#ifdef ${flag}`);
-        const startGuard2 = ClavaJoinPoints.stmtLiteral(`#endif // ${flag}`);
+        const flag = `${this.prefix}_${name.toUpperCase()}`;
+        const startGuard1 = ClavaJoinPoints.stmtLiteral(`ifdef ${flag}`);
+        const startGuard2 = ClavaJoinPoints.stmtLiteral(`endif // ${flag}`);
 
-        const endGuard1 = ClavaJoinPoints.stmtLiteral(`#ifdef ${flag}`);
-        const endGuard2 = ClavaJoinPoints.stmtLiteral(`#endif // ${flag}`);
+        const endGuard1 = ClavaJoinPoints.stmtLiteral(`ifdef ${flag}`);
+        const endGuard2 = ClavaJoinPoints.stmtLiteral(`endif // ${flag}`);
 
         scope.children[0].insertBefore(startGuard1);
         firstStmt.insertBefore(startGuard2);

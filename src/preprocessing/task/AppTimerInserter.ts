@@ -6,19 +6,19 @@ import { TimerUnit } from "@specs-feup/lara/api/lara/util/TimeUnits.js";
 export class AppTimerInserter {
     constructor() { }
 
-    insertTimer(topFunction: FunctionJp, filename: string = "app_exec_time.csv"): boolean {
+    public insertTimer(topFunction: FunctionJp, filename: string = "app_exec_time.csv"): boolean {
         if (topFunction.name == "main") {
             return false;
         }
         else {
             for (const call of Query.search(Call, { name: topFunction.name })) {
-                this.#insertTimerAroundCall(call, filename);
+                this.insertTimerAroundCall(call, filename);
             }
             return true;
         }
     }
 
-    #insertTimerAroundCall(call: Call, filename: string): void {
+    private insertTimerAroundCall(call: Call, filename: string): void {
         const timer = new Timer(TimerUnit.MICROSECONDS, filename);
         timer.time(call);
     }

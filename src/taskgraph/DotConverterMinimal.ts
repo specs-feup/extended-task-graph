@@ -6,7 +6,7 @@ export class DotConverterMinimal extends DotConverter {
         super();
     }
 
-    getLabelOfEdge(): string {
+    public getLabelOfEdge(): string {
         return "";
     }
 

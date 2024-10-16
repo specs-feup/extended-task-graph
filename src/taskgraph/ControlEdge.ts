@@ -2,10 +2,10 @@ import { Varref } from "@specs-feup/clava/api/Joinpoints.js";
 import { Task } from "./tasks/Task.js";
 
 export class ControlEdge {
-    source: Task;
-    target: Task;
-    controlVar: Varref;
-    controlValue: number;
+    private source: Task;
+    private target: Task;
+    private controlVar: Varref;
+    private controlValue: number;
 
     constructor(source: Task, target: Task, controlVar: Varref, controlValue: number) {
         this.source = source;
@@ -14,27 +14,27 @@ export class ControlEdge {
         this.controlValue = controlValue;
     }
 
-    getSource(): Task {
+    public getSource(): Task {
         return this.source;
     }
 
-    getTarget(): Task {
+    public getTarget(): Task {
         return this.target;
     }
 
-    getControlVariable(): Varref {
+    public getControlVariable(): Varref {
         return this.controlVar;
     }
 
-    getControlValue(): number {
+    public getControlValue(): number {
         return this.controlValue;
     }
 
-    setControlValue(value: number): void {
+    public setControlValue(value: number): void {
         this.controlValue = value;
     }
 
-    toString(): string {
+    public toString(): string {
         const str = `${this.controlVar.name}\n${this.controlValue ? "TRUE" : "FALSE"}`;
         return str;
     }

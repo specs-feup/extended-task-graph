@@ -12,18 +12,18 @@ import { ConcreteTask } from "./tasks/ConcreteTask.js";
 import LoopCharacterizer from "clava-code-transformations/LoopCharacterizer";
 
 export class TaskGraphBuilder extends AStage {
-    #lastUsedGlobal = new Map();
+    private lastUsedGlobal = new Map();
 
     constructor(topFunction: string, outputDir: string, appName: string) {
         super("GenFlow-TaskGraphBuilder", topFunction, outputDir, appName);
     }
 
-    build(): TaskGraph {
+    public build(): TaskGraph {
         const taskGraph = new TaskGraph();
-        this.#populateGlobalMap(taskGraph);
+        this.populateGlobalMap(taskGraph);
 
         const topFunctionJoinPoint = this.getTopFunctionJoinPoint();
-        const topTask = this.#buildLevel(taskGraph, topFunctionJoinPoint, null, null, true);
+        const topTask = this.buildLevel(taskGraph, topFunctionJoinPoint, null, null, true);
 
         let rank = 1;
         for (const dataItem of topTask.getReferencedData()) {
@@ -45,21 +45,21 @@ export class TaskGraphBuilder extends AStage {
         return taskGraph;
     }
 
-    #populateGlobalMap(taskGraph: TaskGraph): void {
+    private populateGlobalMap(taskGraph: TaskGraph): void {
         const globalTask = taskGraph.getGlobalTask();
 
         for (const dataItem of globalTask.getGlobalDeclData()) {
             // Assume that it is always initialized
             // We can decide on a better policy later
-            this.#lastUsedGlobal.set(dataItem.getName(), globalTask);
+            this.lastUsedGlobal.set(dataItem.getName(), globalTask);
         }
     }
 
-    #buildLevel(taskGraph: TaskGraph, fun: FunctionJp, parent: Task | null, call: Call | null, firstLevel: boolean = false): Task {
+    private buildLevel(taskGraph: TaskGraph, fun: FunctionJp, parent: Task | null, call: Call | null, firstLevel: boolean = false): Task {
         const task = new RegularTask(call, fun, parent);
         if (!firstLevel) {
-            this.#updateWithRepetitions(task, call);
-            this.#addControlEdges(task, call, taskGraph);
+            this.updateWithRepetitions(task, call);
+            this.addControlEdges(task, call, taskGraph);
         }
         taskGraph.addTask(task);
 
@@ -70,7 +70,7 @@ export class TaskGraphBuilder extends AStage {
 
             // Is of type "REGULAR", handle recursively
             if (ClavaUtils.functionHasImplementation(callee)) {
-                const regularTask = this.#buildLevel(taskGraph, callee, task, call);
+                const regularTask = this.buildLevel(taskGraph, callee, task, call);
 
                 task.addHierarchicalChild(regularTask as ConcreteTask);
                 childTasks.push(regularTask);
@@ -80,8 +80,8 @@ export class TaskGraphBuilder extends AStage {
             else if (!ExternalFunctionsMatcher.isValidExternal(callee)) {
                 const externalTask = new ExternalTask(call, task);
 
-                this.#updateWithRepetitions(task, call);
-                this.#addControlEdges(externalTask, call, taskGraph);
+                this.updateWithRepetitions(task, call);
+                this.addControlEdges(externalTask, call, taskGraph);
 
                 task.addHierarchicalChild(externalTask);
                 taskGraph.addTask(externalTask);
@@ -96,15 +96,15 @@ export class TaskGraphBuilder extends AStage {
         }
 
         // Add communications
-        //this.#addParentChildrenComm(taskGraph, task, childTasks);
-        this.#addSubgraphComm(taskGraph, task, childTasks);
+        //this.addParentChildrenComm(taskGraph, task, childTasks);
+        this.addSubgraphComm(taskGraph, task, childTasks);
 
         // update task with R/W data from the children
-        this.#updateTaskWithChildrenData(task, childTasks);
+        this.updateTaskWithChildrenData(task, childTasks);
         return task;
     }
 
-    #addControlEdges(task: Task, call: Call | null, taskGraph: TaskGraph): void {
+    private addControlEdges(task: Task, call: Call | null, taskGraph: TaskGraph): void {
         const ifStmts: Joinpoint[] = [];
         const conditions: boolean[] = [];
 
@@ -155,7 +155,7 @@ export class TaskGraphBuilder extends AStage {
         }
     }
 
-    #updateWithRepetitions(task: Task, call: Call | null): void {
+    private updateWithRepetitions(task: ConcreteTask, call: Call | null): void {
         if (call == null) {
             console.log("updateWithRepetitions: Call is null, skipping");
             return;
@@ -163,7 +163,8 @@ export class TaskGraphBuilder extends AStage {
         const body = call.parent.parent;
         if (body.parent instanceof Loop) {
             const loop = body.parent;
-            const characteristics = LoopCharacterizer.characterize(loop);
+            const characterizer = new LoopCharacterizer();
+            const characteristics = characterizer.characterize(loop);
             const iterCount = characteristics.tripCount == undefined ? -1 : characteristics.tripCount;
 
             task.setRepetitions(iterCount, loop);
@@ -171,7 +172,7 @@ export class TaskGraphBuilder extends AStage {
         }
     }
 
-    #addSubgraphComm(taskGraph: TaskGraph, parent: Task, children: Task[]): void {
+    private addSubgraphComm(taskGraph: TaskGraph, parent: Task, children: Task[]): void {
         // First, we start by building a handy mapping between task and task name
         const nameToTask = new Map();
         for (const task of children) {
@@ -197,13 +198,13 @@ export class TaskGraphBuilder extends AStage {
 
             const childGlobals = child.getGlobalRefData();
             for (const dataItem of childGlobals) {
-                this.#buildCommGlobal(dataItem, child, taskGraph, rank);
+                this.buildCommGlobal(dataItem, child, taskGraph, rank);
                 rank++;
             }
         }
     }
 
-    buildCommParam(dataItem: DataItem, lastUsed: Map<string, string>, nameToTask: Map<string, Task>, child: Task, taskGraph: TaskGraph, rank: number): void {
+    private buildCommParam(dataItem: DataItem, lastUsed: Map<string, string>, nameToTask: Map<string, Task>, child: Task, taskGraph: TaskGraph, rank: number): void {
         const altName = dataItem.getAlternateName();
         const lastUsedTaskName = lastUsed.get(altName)!;
         const lastUsedTask = nameToTask.get(lastUsedTaskName)!;
@@ -219,20 +220,20 @@ export class TaskGraphBuilder extends AStage {
     }
 
     // TODO: implement conditionals for this as well
-    #buildCommGlobal(dataItem: DataItem, task: Task, taskGraph: TaskGraph, rank: number): void {
+    private buildCommGlobal(dataItem: DataItem, task: Task, taskGraph: TaskGraph, rank: number): void {
         const dataName = dataItem.getName();
-        const lastUsedTask = this.#lastUsedGlobal.get(dataName);
+        const lastUsedTask = this.lastUsedGlobal.get(dataName);
         const dataItemInParent = lastUsedTask.getDataItemByName(dataName);
 
         if (lastUsedTask != null && lastUsedTask != task) {
             taskGraph.addCommunication(lastUsedTask, task, dataItemInParent, dataItem, rank);
         }
         if (dataItem.isWritten()) {
-            this.#lastUsedGlobal.set(dataName, task);
+            this.lastUsedGlobal.set(dataName, task);
         }
     }
 
-    #updateTaskWithChildrenData(task: Task, children: Task[]): void {
+    private updateTaskWithChildrenData(task: Task, children: Task[]): void {
         const dataMap = task.getDataAsMap();
 
         for (const child of children) {

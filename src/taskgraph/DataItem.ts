@@ -3,153 +3,153 @@ import { DataItemOrigin } from "./DataItemOrigin.js";
 import { ClavaUtils } from "../util/ClavaUtils.js";
 
 export class DataItem {
-    #ref: Vardecl;
-    #name: string = "<no_name>";
-    #isInit: boolean = false;
-    #isWritten: boolean = false;
-    #isRead: boolean = false;
+    private ref: Vardecl;
+    private name: string = "<no_name>";
+    private isInit: boolean = false;
+    private dataIsWritten: boolean = false;
+    private dataIsRead: boolean = false;
 
-    #isScalar: boolean = false;
-    #dims: number[] = [];
-    #sizeInBytes: number = -1;
-    #datatype: string = "<no_type>";
-    #datatypeSize: number = 4;
+    private dataIsScalar: boolean = false;
+    private dims: number[] = [];
+    private sizeInBytes: number = -1;
+    private datatype: string = "<no_type>";
+    private datatypeSize: number = 4;
 
-    #itemOrigin: DataItemOrigin = DataItemOrigin.NEW;
-    #alternateName: string = "<no_alt_name>";
-    #immediateFunctionCall: Call | null = null;
+    private itemOrigin: DataItemOrigin = DataItemOrigin.NEW;
+    private alternateName: string = "<no_alt_name>";
+    private immediateFunctionCall: Call | null = null;
 
     constructor(ref: Vardecl, origin: DataItemOrigin) {
-        this.#ref = ref;
-        this.#itemOrigin = origin;
-        this.#name = this.#getNameFromRef(ref);
-        this.#alternateName = this.#name;
-        this.#demangleDatatype(ref);
+        this.ref = ref;
+        this.itemOrigin = origin;
+        this.name = this.getNameFromRef(ref);
+        this.alternateName = this.name;
+        this.demangleDatatype(ref);
     }
 
-    getName(): string {
-        return this.#name;
+    public getName(): string {
+        return this.name;
     }
 
-    getItemOriginType(): DataItemOrigin {
-        return this.#itemOrigin;
+    public getItemOriginType(): DataItemOrigin {
+        return this.itemOrigin;
     }
 
-    getDecl(): Vardecl | null {
-        return this.#ref;
+    public getDecl(): Vardecl | null {
+        return this.ref;
     }
 
-    getDatatype(): any {
-        return this.#datatype;
+    public getDatatype(): any {
+        return this.datatype;
     }
 
-    getDimensions(): number[] {
-        return this.#dims;
+    public getDimensions(): number[] {
+        return this.dims;
     }
 
-    getAlternateName(): string {
-        return this.#alternateName;
+    public getAlternateName(): string {
+        return this.alternateName;
     }
 
-    getSizeInBytes(): number {
-        return this.#sizeInBytes;
+    public getSizeInBytes(): number {
+        return this.sizeInBytes;
     }
 
-    setAlternateName(name: string) {
-        this.#alternateName = name;
+    public setAlternateName(name: string) {
+        this.alternateName = name;
     }
 
-    setWritten(): void {
-        this.#isInit = true;
-        this.#isWritten = true;
+    public setWritten(): void {
+        this.isInit = true;
+        this.dataIsWritten = true;
     }
 
-    setRead(): void {
-        this.#isInit = true;
-        this.#isRead = true;
+    public setRead(): void {
+        this.isInit = true;
+        this.dataIsRead = true;
     }
 
-    setInitialized(): void {
-        this.#isInit = true;
+    public setInitialized(): void {
+        this.isInit = true;
     }
 
-    isWritten(): boolean {
-        return this.#isWritten;
+    public isWritten(): boolean {
+        return this.dataIsWritten;
     }
 
-    isRead(): boolean {
-        return this.#isRead;
+    public isRead(): boolean {
+        return this.dataIsRead;
     }
 
-    isInitialized(): boolean {
-        return this.#isInit;
+    public isInitialized(): boolean {
+        return this.isInit;
     }
 
-    isOnlyRead(): boolean {
-        return this.#isRead && !this.#isWritten;
+    public isOnlyRead(): boolean {
+        return this.dataIsRead && !this.dataIsWritten;
     }
 
-    isOnlyWritten(): boolean {
-        return !this.#isRead && this.#isWritten;
+    public isOnlyWritten(): boolean {
+        return !this.dataIsRead && this.dataIsWritten;
     }
 
-    getDatatypeSize(): number {
-        return this.#datatypeSize;
+    public getDatatypeSize(): number {
+        return this.datatypeSize;
     }
 
-    getImmediateFunctionCall(): Call | null {
-        return this.#immediateFunctionCall;
+    public getImmediateFunctionCall(): Call | null {
+        return this.immediateFunctionCall;
     }
 
-    setImmediateFunctionCall(call: Call): void {
-        if (this.#itemOrigin !== DataItemOrigin.CONSTANT) {
+    public setImmediateFunctionCall(call: Call): void {
+        if (this.itemOrigin !== DataItemOrigin.CONSTANT) {
             throw new Error("You can only specify an immediate function call for immediate constants!");
         }
-        this.#immediateFunctionCall = call;
+        this.immediateFunctionCall = call;
     }
 
-    isNewlyCreated(): boolean {
-        return this.#itemOrigin === DataItemOrigin.NEW;
+    public isNewlyCreated(): boolean {
+        return this.itemOrigin === DataItemOrigin.NEW;
     }
 
-    isFromParam(): boolean {
-        return this.#itemOrigin === DataItemOrigin.PARAM;
+    public isFromParam(): boolean {
+        return this.itemOrigin === DataItemOrigin.PARAM;
     }
 
-    isFromGlobal(): boolean {
-        return this.#itemOrigin === DataItemOrigin.GLOBAL_REF;
+    public isFromGlobal(): boolean {
+        return this.itemOrigin === DataItemOrigin.GLOBAL_REF;
     }
 
-    isConstant(): boolean {
-        return this.#itemOrigin === DataItemOrigin.CONSTANT;
+    public isConstant(): boolean {
+        return this.itemOrigin === DataItemOrigin.CONSTANT;
     }
 
-    isScalar(): boolean {
-        return this.#isScalar;
+    public isScalar(): boolean {
+        return this.dataIsScalar;
     }
 
-    toString(): string {
-        const status = !this.#isInit ? "U" : (this.#isRead ? "R" : "") + (this.#isWritten ? "W" : "");
-        const refName = this.#ref ? this.#ref.name : "<null_ref>";
-        return `${refName} {${this.#sizeInBytes}} ${status}`;
+    public toString(): string {
+        const status = !this.isInit ? "U" : (this.dataIsRead ? "R" : "") + (this.dataIsWritten ? "W" : "");
+        const refName = this.ref ? this.ref.name : "<null_ref>";
+        return `${refName} {${this.sizeInBytes}} ${status}`;
     }
 
-    #demangleDatatype(decl: Vardecl): void {
+    private demangleDatatype(decl: Vardecl): void {
         const type = decl.type;
         const typeCode = type.code;
 
         if (type.isArray) {
-            this.#demangleArray(typeCode);
+            this.demangleArray(typeCode);
         }
         else if (type.isPointer) {
-            this.#demanglePointer(typeCode);
+            this.demanglePointer(typeCode);
         }
         else {
-            this.#demangleScalar(typeCode);
+            this.demangleScalar(typeCode);
         }
     }
 
-    #getNameFromRef(ref: Vardecl): string {
+    private getNameFromRef(ref: Vardecl): string {
         if (ref instanceof IntLiteral || ref instanceof FloatLiteral) {
             return "imm(" + ref.value + ")";
         }
@@ -158,14 +158,14 @@ export class DataItem {
         }
     }
 
-    #demangleScalar(typeCode: string): void {
-        this.#datatype = typeCode;
-        this.#datatypeSize = ClavaUtils.getDatatypeSize(typeCode);
-        this.#sizeInBytes = this.#datatypeSize;
-        this.#isScalar = true;
+    private demangleScalar(typeCode: string): void {
+        this.datatype = typeCode;
+        this.datatypeSize = ClavaUtils.getDatatypeSize(typeCode);
+        this.sizeInBytes = this.datatypeSize;
+        this.dataIsScalar = true;
     }
 
-    #demanglePointer(typeCode: string): void {
+    private demanglePointer(typeCode: string): void {
         const datatype = typeCode.substring(0, typeCode.indexOf("*"));
         const datatypeSize = ClavaUtils.getDatatypeSize(datatype);
 
@@ -173,13 +173,13 @@ export class DataItem {
         const refCount = match ? match.length : 0;
         const dims = Array.from({ length: refCount }, () => -1);
 
-        this.#dims = dims;
-        this.#datatype = datatype;
-        this.#datatypeSize = datatypeSize;
-        this.#isScalar = false;
+        this.dims = dims;
+        this.datatype = datatype;
+        this.datatypeSize = datatypeSize;
+        this.dataIsScalar = false;
     }
 
-    #demangleArray(typeCode: string): void {
+    private demangleArray(typeCode: string): void {
         const datatype = typeCode.substring(0, typeCode.indexOf("["));
         const datatypeSize = ClavaUtils.getDatatypeSize(datatype);
 
@@ -191,12 +191,12 @@ export class DataItem {
             for (const dim of dims) {
                 size += dim * datatypeSize;
             }
-            this.#dims = dims;
-            this.#sizeInBytes = size;
+            this.dims = dims;
+            this.sizeInBytes = size;
         }
 
-        this.#datatype = datatype;
-        this.#datatypeSize = datatypeSize;
-        this.#isScalar = false;
+        this.datatype = datatype;
+        this.datatypeSize = datatypeSize;
+        this.dataIsScalar = false;
     }
 }

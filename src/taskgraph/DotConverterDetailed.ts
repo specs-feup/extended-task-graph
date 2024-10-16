@@ -7,7 +7,7 @@ export class DotConverterDetailed extends DotConverter {
         super();
     }
 
-    getLabelOfTask(task: Task): string {
+    public getLabelOfTask(task: Task): string {
         let label = super.getLabelOfTask(task);
 
         if (task.getParamData().length > 0) {

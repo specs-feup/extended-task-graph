@@ -12,7 +12,7 @@ export class TaskGraphGenerationFlow extends AStage {
         super("GenFlow", topFunctionName, outputDir, appName);
     }
 
-    run(dumpGraph = true, gatherMetrics = true): TaskGraph | null {
+    public run(dumpGraph = true, gatherMetrics = true): TaskGraph | null {
         this.logStart();
         this.log("Running Extended Task Graph Generation flow");
 
@@ -35,7 +35,7 @@ export class TaskGraphGenerationFlow extends AStage {
         return tg;
     }
 
-    buildTaskGraph(): TaskGraph | null {
+    public buildTaskGraph(): TaskGraph | null {
         this.log("Running task graph building process");
         const topFun = this.getTopFunctionName();
         const outDir = this.getOutputDir() + "/" + OutputDirectories.TASKGRAPH;
@@ -46,7 +46,7 @@ export class TaskGraphGenerationFlow extends AStage {
         return taskGraph;
     }
 
-    dumpTaskGraph(taskGraph: TaskGraph): void {
+    public dumpTaskGraph(taskGraph: TaskGraph): void {
         this.log("Running task graph dumping process");
 
         const conv1 = new DotConverter();
@@ -67,7 +67,7 @@ export class TaskGraphGenerationFlow extends AStage {
         this.log("Task graph successfully dumped!");
     }
 
-    analyzeTaskGraph(taskGraph: TaskGraph): void {
+    public analyzeTaskGraph(taskGraph: TaskGraph): void {
         this.log("Running task graph analysis process");
         const topFun = this.getTopFunctionName();
         const outDir = this.getOutputDir() + "/" + OutputDirectories.TASKGRAPH;

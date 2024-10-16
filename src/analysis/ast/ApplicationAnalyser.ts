@@ -12,7 +12,7 @@ export class ApplicationAnalyser extends AStage {
         super("TransFlow-ApplicationAnalyser", topFunction, outputDir, appName);
     }
 
-    runAllTasks(dumpCallGraph = true, dumpAST = true, generateStatistics = true) {
+    public runAllTasks(dumpCallGraph = true, dumpAST = true, generateStatistics = true) {
         if (dumpCallGraph) {
             try {
                 this.dumpCallGraph(true);
@@ -46,7 +46,7 @@ export class ApplicationAnalyser extends AStage {
         }
     }
 
-    dumpAST(): void {
+    public dumpAST(): void {
         const dumper = new AstDumper();
         const str = dumper.dump();
 
@@ -54,7 +54,7 @@ export class ApplicationAnalyser extends AStage {
         this.logOutput("AST dumped to", path);
     }
 
-    dumpCallGraph(startFromMain = true): void {
+    public dumpCallGraph(startFromMain = true): void {
         const dumper = new CallGraphDumper();
         const topFun = startFromMain ?
             Query.search(FunctionJp, { name: "main" }).first()! :
@@ -69,7 +69,7 @@ export class ApplicationAnalyser extends AStage {
         this.logOutput("Call graph LR dumped to", path2);
     }
 
-    dumpCallTree(startFromMain = true): void {
+    public dumpCallTree(startFromMain = true): void {
         const dumper = new CallTreeDumper();
         const topFun = startFromMain ?
             Query.search(FunctionJp, { name: "main" }).first()! :
@@ -84,7 +84,7 @@ export class ApplicationAnalyser extends AStage {
         this.logOutput("Call tree LR dumped to", path1);
     }
 
-    generateStatistics(): void {
+    public generateStatistics(): void {
         const codeStats = new SourceCodeStats();
         codeStats.generateAll();
         const str = codeStats.asCsv();

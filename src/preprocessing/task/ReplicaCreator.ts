@@ -9,7 +9,7 @@ export class ReplicaCreator extends AStage {
         super("TransFlow-TaskPrep-Replicator", topFunctionName);
     }
 
-    replicateAll(): [number, number] {
+    public replicateAll(): [number, number] {
         const replicas: Map<string, Call[]> = this.findReplicas();
 
         if (Object.keys(replicas).length == 0) {
@@ -40,7 +40,7 @@ export class ReplicaCreator extends AStage {
         return [nReplicas, nUnique];
     }
 
-    findReplicas(): Map<string, Call[]> {
+    public findReplicas(): Map<string, Call[]> {
         const topFun = this.getTopFunctionJoinPoint();
         const uniqueFuns = ClavaUtils.getAllUniqueFunctions(topFun);
         const uniqueFunNames = uniqueFuns.map(fun => fun.name);
@@ -70,7 +70,7 @@ export class ReplicaCreator extends AStage {
         return replicas;
     }
 
-    createReplicas(calls: Call[]): number {
+    public createReplicas(calls: Call[]): number {
         let id = 0;
         for (const call of calls) {
             const success = this.replicate(call, id);
@@ -81,7 +81,7 @@ export class ReplicaCreator extends AStage {
         return id;
     }
 
-    replicate(call: Call, id: number) {
+    public replicate(call: Call, id: number) {
         const fun = call.function;
         const clone = fun.clone(`${fun.name}_rep${id}`);
 

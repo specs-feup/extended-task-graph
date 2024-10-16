@@ -6,35 +6,35 @@ import { DataItem } from "../DataItem.js";
 import { DataItemOrigin } from "../DataItemOrigin.js";
 
 export class GlobalTask extends Task {
-    #dataGlobalDecls: DataItem[] = [];
+    private dataGlobalDecls: DataItem[] = [];
 
     constructor() {
         super(TaskType.GLOBALSOURCE);
         this.setId("TG");
         this.setName("<globals_source>");
 
-        this.#populateGlobalData();
-        this.#setDataInitStatus();
+        this.populateGlobalData();
+        this.setDataInitStatus();
     }
 
-    getGlobalDeclData(): DataItem[] {
-        return this.#dataGlobalDecls;
+    public getGlobalDeclData(): DataItem[] {
+        return this.dataGlobalDecls;
     }
 
-    getData(): DataItem[] {
+    public getData(): DataItem[] {
         const otherData = super.getData();  // always empty... in theory
-        return [...otherData, ...this.#dataGlobalDecls];
+        return [...otherData, ...this.dataGlobalDecls];
     }
 
-    #populateGlobalData(): void {
+    private populateGlobalData(): void {
         for (const global of Query.search(Vardecl, { isGlobal: true })) {
             const data = new DataItem(global, DataItemOrigin.GLOBAL_DECL);
-            this.#dataGlobalDecls.push(data);
+            this.dataGlobalDecls.push(data);
         }
     }
 
-    #setDataInitStatus(): void {
-        for (const data of this.#dataGlobalDecls) {
+    private setDataInitStatus(): void {
+        for (const data of this.dataGlobalDecls) {
             data.setRead();
         }
     }

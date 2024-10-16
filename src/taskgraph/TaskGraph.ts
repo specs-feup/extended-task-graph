@@ -10,38 +10,38 @@ import { Task } from "./tasks/Task.js";
 import { DataItem } from "./DataItem.js";
 
 export class TaskGraph {
-    #tasks: ConcreteTask[] = [];
-    #comms: Communication[] = [];
-    #control: ControlEdge[] = [];
-    #sourceTask: SourceTask;
-    #sinkTask: SinkTask;
-    #globalTask: GlobalTask;
-    #inlinables: Call[] = [];
+    private tasks: ConcreteTask[] = [];
+    private comms: Communication[] = [];
+    private control: ControlEdge[] = [];
+    private sourceTask: SourceTask;
+    private sinkTask: SinkTask;
+    private globalTask: GlobalTask;
+    private inlinables: Call[] = [];
 
     constructor() {
-        this.#sourceTask = new SourceTask();
-        this.#sinkTask = new SinkTask();
-        this.#globalTask = new GlobalTask();
+        this.sourceTask = new SourceTask();
+        this.sinkTask = new SinkTask();
+        this.globalTask = new GlobalTask();
     }
 
-    addTasks(tasks: ConcreteTask[]): void {
-        this.#tasks.push(...tasks);
+    public addTasks(tasks: ConcreteTask[]): void {
+        this.tasks.push(...tasks);
     }
 
-    addTask(task: ConcreteTask): void {
-        this.#tasks.push(task);
+    public addTask(task: ConcreteTask): void {
+        this.tasks.push(task);
     }
 
-    addInlinable(call: Call): void {
-        this.#inlinables.push(call);
+    public addInlinable(call: Call): void {
+        this.inlinables.push(call);
     }
 
-    getTasks(): ConcreteTask[] {
-        return this.#tasks;
+    public getTasks(): ConcreteTask[] {
+        return this.tasks;
     }
 
-    getTaskById(id: string): ConcreteTask | null {
-        for (const task of this.#tasks) {
+    public getTaskById(id: string): ConcreteTask | null {
+        for (const task of this.tasks) {
             if (task.getId() === id) {
                 return task;
             }
@@ -49,9 +49,9 @@ export class TaskGraph {
         return null;
     }
 
-    getTasksByType(type: TaskType): ConcreteTask[] {
+    public getTasksByType(type: TaskType): ConcreteTask[] {
         const tasks = [];
-        for (const task of this.#tasks) {
+        for (const task of this.tasks) {
             if (task.getType() === type) {
                 tasks.push(task);
             }
@@ -59,32 +59,32 @@ export class TaskGraph {
         return tasks;
     }
 
-    getSourceTask(): SourceTask {
-        return this.#sourceTask;
+    public getSourceTask(): SourceTask {
+        return this.sourceTask;
     }
 
-    getSinkTask(): SinkTask {
-        return this.#sinkTask;
+    public getSinkTask(): SinkTask {
+        return this.sinkTask;
     }
 
-    getGlobalTask(): GlobalTask {
-        return this.#globalTask;
+    public getGlobalTask(): GlobalTask {
+        return this.globalTask;
     }
 
-    getCommunications(): Communication[] {
-        return this.#comms;
+    public getCommunications(): Communication[] {
+        return this.comms;
     }
 
-    getControlEdges(): ControlEdge[] {
-        return this.#control;
+    public getControlEdges(): ControlEdge[] {
+        return this.control;
     }
 
-    getInlinables(): Call[] {
-        return this.#inlinables;
+    public getInlinables(): Call[] {
+        return this.inlinables;
     }
 
-    getTopHierarchicalTask(): ConcreteTask | null {
-        for (const task of this.#tasks) {
+    public getTopHierarchicalTask(): ConcreteTask | null {
+        for (const task of this.tasks) {
             if (task.getHierarchicalParent() == null) {
                 return task;
             }
@@ -92,18 +92,18 @@ export class TaskGraph {
         return null;
     }
 
-    addCommunication(source: Task, target: Task, sourceData: DataItem, targetData: DataItem, rank: number): void {
+    public addCommunication(source: Task, target: Task, sourceData: DataItem, targetData: DataItem, rank: number): void {
         const comm = new Communication(source, target, sourceData, targetData, rank);
-        this.#comms.push(comm);
+        this.comms.push(comm);
         source.addOutgoingComm(comm);
         target.addIncomingComm(comm);
     }
 
-    addControlEdge(source: Task, target: Task, controlVar: Varref, controlValue: number | boolean): void {
+    public addControlEdge(source: Task, target: Task, controlVar: Varref, controlValue: number | boolean): void {
         const val = (typeof controlValue === "number") ? controlValue : (controlValue ? 1 : 0);
 
         const control = new ControlEdge(source, target, controlVar, val);
-        this.#control.push(control);
+        this.control.push(control);
         source.addOutgoingControl(control);
         target.addIncomingControl(control);
     }

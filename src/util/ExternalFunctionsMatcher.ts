@@ -1,7 +1,7 @@
 import { Call, FunctionJp } from "@specs-feup/clava/api/Joinpoints.js";
 
 export class ExternalFunctionsMatcher {
-    static mathHFuns = {
+    public static readonly mathHFuns = {
         "acos": [
             "double"
         ],
@@ -465,34 +465,34 @@ export class ExternalFunctionsMatcher {
             "long double"
         ]
     }
-    static stdlibHFuns = {
+    public static readonly stdlibHFuns = {
         "abs": [["int"], ["long"], ["long long"]],
     }
-    static cmathFuns = {
+    public static readonly cmathFuns = {
         "floor": ["float"],
     }
 
-    static cppBuiltins = ["__builtin_memcpy", "operator"];
+    public static readonly cppBuiltins = ["__builtin_memcpy", "operator"];
 
-    static isFromMathH(funOrCall: FunctionJp | Call): boolean {
-        return ExternalFunctionsMatcher.#isFromGeneric(funOrCall, ExternalFunctionsMatcher.mathHFuns);
+    public static isFromMathH(funOrCall: FunctionJp | Call): boolean {
+        return ExternalFunctionsMatcher.isFromGeneric(funOrCall, ExternalFunctionsMatcher.mathHFuns);
     }
 
-    static isFromStdlibH(funOrCall: FunctionJp | Call): boolean {
-        return ExternalFunctionsMatcher.#isFromGeneric(funOrCall, ExternalFunctionsMatcher.stdlibHFuns);
+    public static isFromStdlibH(funOrCall: FunctionJp | Call): boolean {
+        return ExternalFunctionsMatcher.isFromGeneric(funOrCall, ExternalFunctionsMatcher.stdlibHFuns);
     }
 
-    static isFromCmath(funOrCall: FunctionJp | Call): boolean {
-        return ExternalFunctionsMatcher.#isFromGeneric(funOrCall, ExternalFunctionsMatcher.cmathFuns);
+    public static isFromCmath(funOrCall: FunctionJp | Call): boolean {
+        return ExternalFunctionsMatcher.isFromGeneric(funOrCall, ExternalFunctionsMatcher.cmathFuns);
     }
 
-    static isCppBuiltin(funOrCall: FunctionJp | Call): boolean {
+    public static isCppBuiltin(funOrCall: FunctionJp | Call): boolean {
         const name = funOrCall.name;
         const builtins = ExternalFunctionsMatcher.cppBuiltins;
         return builtins.some(builtin => name.startsWith(builtin));
     }
 
-    static isValidExternal(funOrCall: FunctionJp | Call): boolean {
+    public static isValidExternal(funOrCall: FunctionJp | Call): boolean {
         if (ExternalFunctionsMatcher.isFromMathH(funOrCall)) {
             return true;
         }
@@ -508,8 +508,8 @@ export class ExternalFunctionsMatcher {
         return false;
     }
 
-    static #isFromGeneric(funOrCall: FunctionJp | Call, funList: Record<string, string[] | string[][]>): boolean {
-        const fun = ExternalFunctionsMatcher.#sanitize(funOrCall);
+    private static isFromGeneric(funOrCall: FunctionJp | Call, funList: Record<string, string[] | string[][]>): boolean {
+        const fun = ExternalFunctionsMatcher.sanitize(funOrCall);
 
         if (funList.hasOwnProperty(fun.name)) {
             const funParams = fun.params;
@@ -540,7 +540,7 @@ export class ExternalFunctionsMatcher {
         return false;
     }
 
-    static #sanitize(funOrCall: FunctionJp | Call) {
+    private static sanitize(funOrCall: FunctionJp | Call) {
         if (funOrCall instanceof Call) {
             return funOrCall.function;
         }

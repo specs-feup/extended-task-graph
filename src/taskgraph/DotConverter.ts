@@ -8,7 +8,7 @@ import { TaskType } from "./tasks/TaskType.js";
 export class DotConverter {
     constructor() { }
 
-    static hierarchicalColors = [
+    public static hierarchicalColors = [
         "bisque",
         "lightpink",
         "aquamarine2",
@@ -18,7 +18,7 @@ export class DotConverter {
         "yellowgreen"
     ];
 
-    convert(taskGraph: TaskGraph): string {
+    public convert(taskGraph: TaskGraph): string {
         let dot = "digraph G {\n";
         dot += "\trankdir=TB;\n";
         dot += "\tnode [shape=box];\n";
@@ -39,23 +39,24 @@ export class DotConverter {
             dot += "}";
             return dot;
         }
-        dot += this.#getDotOfCluster(topHierTask);
+        dot += this.getDotOfCluster(topHierTask);
 
         dot += "\n";
-        dot += this.#getDotOfEdges(taskGraph.getCommunications());
+        dot += this.getDotOfEdges(taskGraph.getCommunications());
 
         dot += "\n";
-        dot += this.#getDotOfEdges(taskGraph.getControlEdges(), "red");
+        dot += this.getDotOfEdges(taskGraph.getControlEdges(), "red");
 
         dot += "}";
         return dot;
     }
 
-    getLabelOfTask(task: Task): string {
+    public getLabelOfTask(task: Task): string {
         let label = `${task.getId()}: ${task.getName()}`;
 
         if (task.getType() == TaskType.REGULAR || task.getType() == TaskType.EXTERNAL) {
-            const reps = task.getRepetitions();
+            const concreteTask = task as ConcreteTask;
+            const reps = concreteTask.getRepetitions();
             if (reps > 1) {
                 label += ` (x${reps})`;
             }
@@ -66,29 +67,29 @@ export class DotConverter {
         return label;
     }
 
-    getLabelOfEdge(edge: Communication | ControlEdge): string {
+    public getLabelOfEdge(edge: Communication | ControlEdge): string {
         return edge.toString();
     }
 
-    #getColor(index: number) {
+    private getColor(index: number) {
         const len = DotConverter.hierarchicalColors.length;
         const color = DotConverter.hierarchicalColors[index % len];
         return color;
     }
 
-    #getDotOfCluster(task: ConcreteTask, colorIndex = 0): string {
+    private getDotOfCluster(task: ConcreteTask, colorIndex = 0): string {
         let dot = "";
         if (task.getHierarchicalChildren().length > 0) {
             dot += `\tsubgraph "cluster_${task.getId()}" {\n`;
             dot += `\tlabel = "${this.getLabelOfTask(task)}";\n`;
-            dot += `\tbgcolor = ${this.#getColor(colorIndex)};\n`;
+            dot += `\tbgcolor = ${this.getColor(colorIndex)};\n`;
 
             dot += `\t"${task.getId()}_src" [shape=circle, label=""];\n`;
             dot += `\t"${task.getId()}_target" [shape=diamond, label=""];\n`;
             dot += `\t"${task.getId()}_src" -> "${task.getId()}_target" [style=invis];\n`;
 
             for (const child of task.getHierarchicalChildren()) {
-                const next = this.#getDotOfCluster(child, colorIndex + 1);
+                const next = this.getDotOfCluster(child, colorIndex + 1);
                 dot += next;
 
                 if (next.startsWith("\tsubgraph")) {
@@ -101,12 +102,12 @@ export class DotConverter {
             dot += "\t}\n";
         }
         else {
-            dot += `\t"${task.getId()}" [label="${this.getLabelOfTask(task)}", style="filled", fillcolor=${this.#getColor(colorIndex)}];\n`;
+            dot += `\t"${task.getId()}" [label="${this.getLabelOfTask(task)}", style="filled", fillcolor=${this.getColor(colorIndex)}];\n`;
         }
         return dot;
     }
 
-    #getDotOfEdges(edgeList: Communication[] | ControlEdge[], color = "black") {
+    private getDotOfEdges(edgeList: Communication[] | ControlEdge[], color = "black") {
         let dot = "";
 
         for (const edge of edgeList) {

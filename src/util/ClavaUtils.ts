@@ -4,7 +4,7 @@ import Io from "@specs-feup/lara/api/lara/Io.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 
 export class ClavaUtils {
-    static verifySyntax() {
+    public static verifySyntax() {
         let valid = true;
         Clava.pushAst();
         try {
@@ -17,7 +17,7 @@ export class ClavaUtils {
         return valid;
     }
 
-    static generateCode(weaveDir: string, folder: string) {
+    public static generateCode(weaveDir: string, folder: string) {
         const path = weaveDir + "/" + folder;
 
         Io.deleteFolderContents(path);
@@ -27,7 +27,7 @@ export class ClavaUtils {
 
     // The template matcher needs to be rewritten from scratch,
     // so we'll facilitate and use a little "any" type for now
-    static matchTemplate(jp: Joinpoint, template: any) {
+    public static matchTemplate(jp: Joinpoint, template: any) {
         const split = template[0].split(" ");
         const type = split[0];
         const cond = split.length == 2 ? split[1] : "none";
@@ -64,7 +64,7 @@ export class ClavaUtils {
         return true;
     }
 
-    static getAllUniqueFunctions(topFunction: FunctionJp, includeExternals = false) {
+    public static getAllUniqueFunctions(topFunction: FunctionJp, includeExternals = false) {
         const funs = [];
 
         funs.push(topFunction);
@@ -80,7 +80,7 @@ export class ClavaUtils {
         return uniqueFuns;
     }
 
-    static getEligibleFunctionsFrom(parent: Joinpoint, includeExternals = false): FunctionJp[] {
+    public static getEligibleFunctionsFrom(parent: Joinpoint, includeExternals = false): FunctionJp[] {
         const funs: FunctionJp[] = [];
 
         for (const call of Query.searchFrom(parent, Call)) {
@@ -88,7 +88,7 @@ export class ClavaUtils {
             if (fun == undefined) {
                 continue;
             }
-            const valid = includeExternals ? fun : fun.hasDefinition && fun.isImplementation;
+            const valid = includeExternals ? fun : fun.isImplementation;
 
             if (valid) {
                 funs.push(fun);
@@ -99,14 +99,14 @@ export class ClavaUtils {
         return funs;
     }
 
-    static functionHasImplementation(fun: FunctionJp) {
+    public static functionHasImplementation(fun: FunctionJp) {
         if (fun.name.startsWith("operator")) {
             return false;
         }
         return fun.isImplementation && fun.body.children.length > 0;
     }
 
-    static isDef(varref: Varref) {
+    public static isDef(varref: Varref) {
         if (varref.parent instanceof BinaryOp) {
             const binOp = varref.parent;
             return binOp.kind == "assign" && binOp.left.code == varref.code;
@@ -138,7 +138,7 @@ export class ClavaUtils {
         return false;
     }
 
-    static getDatatypeSize(datatype: string) {
+    public static getDatatypeSize(datatype: string) {
         const cDataTypes = new Map([
             ['char', 1],
             ['unsigned char', 1],

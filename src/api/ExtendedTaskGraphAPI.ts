@@ -9,9 +9,9 @@ export class ExtendedTaskGraphAPI extends AStage {
         super("API", topFunctionName, `${outputDir}/${appName}`, appName);
     }
 
-    runCodeTransformationFlow(dumpCallGraph: boolean = true, dumpAST: boolean = true, doTransformations: boolean = true): boolean {
+    public runCodeTransformationFlow(dumpCallGraph: boolean = true, dumpAST: boolean = true, doTransformations: boolean = true): boolean {
         this.logLine();
-        this.#ensureLinux();
+        this.ensureLinux();
 
         const flow = new CodeTransformationFlow(this.getTopFunctionName(), this.getOutputDir(), this.getAppName());
         const res = flow.run(dumpCallGraph, dumpAST, doTransformations);
@@ -19,9 +19,9 @@ export class ExtendedTaskGraphAPI extends AStage {
         return res;
     }
 
-    runTaskGraphGenerationFlow(dumpGraph: boolean = true, gatherMetrics: boolean = true): TaskGraph | null {
+    public runTaskGraphGenerationFlow(dumpGraph: boolean = true, gatherMetrics: boolean = true): TaskGraph | null {
         this.logLine();
-        this.#ensureLinux();
+        this.ensureLinux();
 
         const flow = new TaskGraphGenerationFlow(this.getTopFunctionName(), this.getOutputDir(), this.getAppName());
         const tg = flow.run(dumpGraph, gatherMetrics);
@@ -30,7 +30,7 @@ export class ExtendedTaskGraphAPI extends AStage {
         return tg;
     }
 
-    #ensureLinux(): void {
+    private ensureLinux(): void {
         if (!Platforms.isLinux()) {
             const platName = Platforms.getPlatformName();
             this.log(`Current OS is "${platName}", but the ETG only outputs Linux-ready code!`);
