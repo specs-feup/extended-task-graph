@@ -1,5 +1,5 @@
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
-import { ArrayAccess, BinaryOp, Call, FunctionJp, Joinpoint, PointerType, UnaryExprOrType, UnaryOp, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { ArrayAccess, BinaryOp, Call, FunctionJp, Joinpoint, PointerType, UnaryOp, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 import Io from "@specs-feup/lara/api/lara/Io.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 

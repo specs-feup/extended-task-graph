@@ -1,5 +1,5 @@
 import { FunctionJp, Loop, Scope } from "@specs-feup/clava/api/Joinpoints.js";
-import { AStage } from "../AStage.js";
+import { AStage } from "../../AStage.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import IdGenerator from "@specs-feup/lara/api/lara/util/IdGenerator.js";
 import Timer from "@specs-feup/clava/api/lara/code/Timer.js";

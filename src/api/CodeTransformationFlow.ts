@@ -1,6 +1,6 @@
 import { AStage } from "../AStage.js";
 import { OutputDirectories } from "./OutputDirectories.js";
-import { CodeInstrumenter } from "../preprocessing/CodeInstrumenter.js";
+import { CodeInstrumenter } from "../preprocessing/profiling/CodeInstrumenter.js";
 import { SubsetPreprocessor } from "../preprocessing/subset/SubsetPreprocessor.js";
 import { TaskPreprocessor } from "../preprocessing/task/TaskPreprocessor.js";
 import { ClavaUtils } from "../util/ClavaUtils.js";
@@ -40,6 +40,10 @@ export class CodeTransformationFlow extends AStage {
         this.taskPreprocessing();
         this.generateTaskCode();
         this.logSuccess("Task preprocessing finished successfully!");
+        this.logLine();
+
+        this.applyInstrumentation();
+        this.logSuccess("Instrumentation finished successfully!");
         this.logLine();
 
         this.intermediateAnalysis(dumpCallGraph, dumpAST);
@@ -112,14 +116,18 @@ export class CodeTransformationFlow extends AStage {
         this.log(`Intermediate task-based source code written to "${OutputDirectories.SRC_TASKS}"`);
     }
 
-    public generateInstrumentedTaskCode(): void {
+    public applyInstrumentation(): void {
+        this.log("Running instrumentation step");
         // push AST
         const instrumenter = new CodeInstrumenter(this.getTopFunctionName());
         //instrumenter.instrument();
 
+        // pop ASTs
+    }
+
+    public generateInstrumentedCode(): void {
         ClavaUtils.generateCode(this.getOutputDir(), OutputDirectories.SRC_TASKS_INSTRUMENTED);
         this.log(`Instrumented task-based source code written to "${OutputDirectories.SRC_TASKS_INSTRUMENTED}"`);
-        // pop ASTs
     }
 
     private genericAnalysisStep(folder: string, dumpCallGraph: boolean, dumpAST: boolean, generateStatistics: boolean): void {
