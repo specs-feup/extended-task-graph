@@ -1,10 +1,14 @@
-# Flextask
+# Extended Task Graph
 
-Flextask is an extension for the [Clava](https://github.com/specs-feup/clava) C/C++ to C/C++ Source-to-source compiler that creates a task graph for any generic C/C++ application. These task graphs are automatically analyzed and characterized by several metrics, and through a highly flexible granularity mechanism we can perform extensive graph operations, such as task merging, splitting and clustering, while always outputting valid and readable C/C++ source code.
+## Notice: development of the ETG has moved to [this fork](https://github.com/specs-feup/extended-task-graph) after converting the codebase to TypeScript and NPM. This repository has been archived at the latest release, dating from July 2023
+
+The Extended Task Graph (previously known as _flextask_) is an extension for the [Clava](https://github.com/specs-feup/clava) C/C++ to C/C++ Source-to-source compiler, whose main purpose is generating a task graph for any generic C/C++ application. These task graphs are automatically analyzed and characterized by several metrics, and through a highly flexible granularity mechanism we can perform extensive graph operations, such as task merging, splitting and clustering, while always outputting valid and readable C/C++ source code.
+
+This is the original repository, developed from April 2023 to July 2024. After that, the codebase was converted to TypeScript and the build system was moved to NPM. The default branch, _etg-legacy_, preserves the ETG extension as-is before the conversion was made and merged onto _main_. Development of the modern TypeScript version continues over at [this fork](https://github.com/specs-feup/extended-task-graph).
 
 ### How to use
 
-We provide a high-level API for interacting with Flextask:
+We provide a high-level API for interacting with the ETG:
 
 ```
 laraImport("flextask.FlextaskAPI");
@@ -23,12 +27,6 @@ const success = api.runCodeTransformationFlow();
 const taskGraph = api.runTaskGraphGenerationFlow();
 
 // Or, alternatively, to do both in one go with api.runBothFlows()
-```
-
-The task graph can then be manipulated using another high-level API (while it is possible to directly manipulate add/remove nodes and edges to the graph, we discourage that approach):
-
-```
-// TBA
 ```
 
 ### Outputs
