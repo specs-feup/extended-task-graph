@@ -20,12 +20,13 @@ export class CodeTransformationFlow extends AStage {
 
         this.generateOriginalCode();
         this.initialAnalysis(dumpCallGraph, dumpAST);
-        this.logLine();
 
         if (!doTransformations) {
-            this.log("Transformations disabled, skipping to the end");
+            this.log("Transformations disabled, ending here");
+            this.logEnd();
             return true;
         }
+        this.logLine();
 
         const valid = this.subsetPreprocessing();
         if (!valid) {

@@ -5,8 +5,8 @@
   "description": "An Extended Task Graph implementation for the Clava C/C++ to C/C++ source-to-source compiler",
   "type": "module",
   "scripts": {
-    "simple-appdump": "clava dist/test/simple-use-cases/AppDumping.js -- clang inputs/edgedetect-transformed/",
-    "simple-etg": "clava dist/test/simple-use-cases/TaskGraphGeneration.js -- clang inputs/edgedetect-transformed/",
+    "simple:appdump": "clava dist/test/simple-use-cases/AppDumping.js -- clang inputs/edgedetect-transformed/",
+    "simple:etg": "clava dist/test/simple-use-cases/TaskGraphGeneration.js -- clang inputs/edgedetect-transformed/",
     "bench:rosetta": "clava dist/test/benchmark-testing/TestRosetta.js",
     "build": "tsc",
     "build:watch": "tsc --watch",

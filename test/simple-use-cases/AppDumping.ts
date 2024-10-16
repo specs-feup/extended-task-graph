@@ -21,7 +21,7 @@ const api = new ExtendedTaskGraphAPI(topFunctionName, outputDir, appName);
 
 const dumpAST = true;
 const dumpCallGraph = true;
-const doTransformations = false;
+const doTransformations = true;
 const success = api.runCodeTransformationFlow(dumpCallGraph, dumpAST, doTransformations);
 
 console.log(success ? "Code transformation succeeded" : "Code transformation failed");
