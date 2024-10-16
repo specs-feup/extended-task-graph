@@ -1,0 +1,43 @@
+{
+  "name": "extended-task-graph",
+  "version": "1.0.0",
+  "author": "tiagolascasas",
+  "description": "An Extended Task Graph implementation for the Clava C/C++ to C/C++ source-to-source compiler",
+  "type": "module",
+  "scripts": {
+    "simple:appdump": "clava dist/test/simple-use-cases/AppDumping.js -- clang inputs/edgedetect-transformed/",
+    "simple:etg": "clava dist/test/simple-use-cases/TaskGraphGeneration.js -- clang inputs/edgedetect-transformed/",
+    "bench:rosetta": "clava dist/test/benchmark-testing/TestRosetta.js",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "clean": "rm -rf node_modules package-lock.json dist/ woven_code/ output/",
+    "lint": "eslint .",
+    "docs": "typedoc"
+  },
+  "dependencies": {
+    "@specs-feup/clava": "^3.0.1",
+    "chalk": "^5.3.0",
+    "clava-code-transformations": "^1.0.0",
+    "fs": "^0.0.1-security",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.12.0",
+    "@jest/globals": "^29.7.0",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^22.7.5",
+    "@typescript-eslint/eslint-plugin": "^7.16.0",
+    "@typescript-eslint/parser": "^7.16.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-jest": "^28.6.0",
+    "eslint-plugin-tsdoc": "^0.2.17",
+    "globals": "^15.11.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.2",
+    "typedoc": "^0.26.4",
+    "typescript": "^5.5.3",
+    "typescript-eslint": "^8.9.0"
+  }
+}

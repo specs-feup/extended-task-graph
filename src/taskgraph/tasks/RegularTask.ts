@@ -1,0 +1,141 @@
+import { Call, FloatLiteral, FunctionJp, FunctionType, IntLiteral, Literal, Param, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import Query from "@specs-feup/lara/api/weaver/Query.js";
+import { ConcreteTask } from "./ConcreteTask.js";
+import { Task } from "./Task.js";
+import { TaskType } from "./TaskType.js";
+import { DataItemOrigin } from "../DataItemOrigin.js";
+import { ClavaUtils } from "../../util/ClavaUtils.js";
+
+export class RegularTask extends ConcreteTask {
+    private function: FunctionJp;
+
+    constructor(call: Call | null, fun: FunctionJp, hierParent: Task | null, delimiter = ".") {
+        super(TaskType.REGULAR, call, hierParent, fun.name, delimiter, "T");
+
+        this.function = fun;
+
+        this.populateData();
+        this.updateDataReadWrites();
+
+        if (call != null) {
+            this.updateWithAlternateNames();
+        }
+    }
+
+    public getFunction(): FunctionJp {
+        return this.function;
+    }
+
+    private populateData(): void {
+        // handle data comm'd through function params
+        this.findDataFromParams();
+
+        // handle data comm'd through global variables
+        this.findDataFromGlobals();
+
+        // handle data created in this function, and comm'd to others
+        this.findDataFromNewDecls();
+
+        // handle immediate constants in function calls
+        this.findDataFromConstants();
+    }
+
+    private findDataFromParams(): void {
+        const paramVars: Set<Param> = new Set();
+        for (const param of Query.searchFrom(this.function, Param)) {
+            paramVars.add(param);
+        }
+        this.createDataObjects([...paramVars], DataItemOrigin.PARAM);
+    }
+
+    private findDataFromGlobals(): void {
+        const globalVars = new Map();
+        for (const varref of Query.searchFrom(this.function.body, Varref)) {
+            try {
+                if (!(varref.type instanceof FunctionType)) {
+                    const decl = varref.vardecl;
+
+                    if (decl != null && decl.isGlobal) {
+                        globalVars.set(decl.name, decl);
+                    }
+                }
+            }
+            catch (e) {
+                // As far as I understand, this error can be ignored. These varrefs are from function names
+                //println(`Could not find vardecl for varref ${varref.name} of type ${varref.type}`);
+            }
+        }
+        const declList = globalVars.values();
+        this.createDataObjects([...declList], DataItemOrigin.GLOBAL_REF);
+    }
+
+    private findDataFromNewDecls(): void {
+        const newVars: Set<Vardecl> = new Set();
+        for (const vardecl of Query.searchFrom(this.function.body, Vardecl)) {
+            newVars.add(vardecl);
+        }
+        this.createDataObjects([...newVars], DataItemOrigin.NEW);
+    }
+
+    private findDataFromConstants(): void {
+        for (const funCall of Query.searchFrom(this.function.body, Call)) {
+            for (const immConst of Query.searchFrom(funCall, Literal)) {
+                this.createConstantObject(immConst, funCall);
+            }
+        }
+    }
+
+    private updateDataReadWrites(): void {
+        for (const dataItem of this.getData()) {
+            const vardecl = dataItem.getDecl();
+
+            for (const ref of Query.searchFrom(this.function.body, Varref, { name: vardecl?.name })) {
+                if ((ClavaUtils.isDef(ref))) {
+                    dataItem.setWritten();
+                }
+                else {
+                    dataItem.setRead();
+                }
+            };
+        }
+    }
+
+    private updateWithAlternateNames(): void {
+        const call = this.getCall();
+        if (call == null) {
+            console.log("RegularTask: call is null");
+            return;
+        }
+        const args = [];
+        for (let i = 1; i < call.children.length; i++) {
+            const child = call.children[i];
+
+            // Two types of parameter: varrefs and literals (int/float)
+            // we use .get()[0] because .first() emits an annoying warning when it doesn't find anything
+            const varref = Query.searchFromInclusive(child, Varref).get()[0];
+            if (varref != null) {
+                args.push(varref.name);
+            }
+            else {
+                const intLit = Query.searchFromInclusive(child, IntLiteral).get()[0];
+                if (intLit != null) {
+                    args.push(`imm(${intLit.value})`);
+                }
+                else {
+                    const floatLit = Query.searchFromInclusive(child, FloatLiteral).get()[0];
+                    if (floatLit != null) {
+                        args.push(`imm(${floatLit.value})`);
+                    }
+                }
+            }
+        }
+
+        const dataParams = this.getParamData();
+        if (dataParams.length != args.length) {
+            throw new Error(`Mismatch between number of arguments and parameters when setting alternate names for Task data`);
+        }
+        for (let i = 0; i < dataParams.length; i++) {
+            dataParams[i].setAlternateName(args[i]);
+        }
+    }
+}

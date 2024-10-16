@@ -1,0 +1,27 @@
+/**
+ * This is a simple use case that demonstrates how to dump the AST and the call graphs of an application.
+ * i.e., the first two stages of the Code Transformation Flow (we are skipping the last stage, which is the code transformation itself).
+ * 
+ * To run as a test: `npm run simple-appdump`
+ * To run directly on clava, if you have it installed globally: `clava dist/test/simple-use-cases/AppDumping.js -- clang inputs/edgedetect/`
+ * 
+ * It uses the edge detection application in `inputs/edgedetect/`. Replace as needed.
+ * 
+ * Check the output in the output/apps/edgedetect-simple-appdump folder. You can set this to whatever you want, but you may want to organize
+ * it in a way that makes sense for your project and the amount and type of applications you are analyzing.
+ */
+import { ExtendedTaskGraphAPI } from "../../src/api/ExtendedTaskGraphAPI.js";
+
+console.log("Test: dump the AST and call graph of edgedetect");
+
+const topFunctionName = "edgedetect";
+const outputDir = "output/apps";
+const appName = "edgedetect-appdump";
+const api = new ExtendedTaskGraphAPI(topFunctionName, outputDir, appName);
+
+const dumpAST = true;
+const dumpCallGraph = true;
+const doTransformations = false;
+const success = api.runCodeTransformationFlow(dumpCallGraph, dumpAST, doTransformations);
+
+console.log(success ? "Test passed: dumping succeeded" : "Test failed: dumping failed");
