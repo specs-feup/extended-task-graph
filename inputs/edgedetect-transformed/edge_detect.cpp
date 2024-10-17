@@ -3,44 +3,32 @@
 #include <cmath>
 #include <chrono>
 #include <iostream>
-
+#include <fstream>
 using namespace std;
 using namespace std::chrono;
-
-// Universal params
-#define ITER 0 // 1000
-
-#define K 3
-#define N 512 // 128
-#define T 50  // 127
-
-#define H N
-#define W N
-
-#define FORCE_EXTERNAL
-
-void rgbToGrayscale(int input_image[H * W * 3], int output_image[H * W])
+void rgbToGrayscale(int input_image[786432], int output_image[262144])
 {
-    for (int i = 0; i < H; i++)
+    for (int i = 0; i < 512; i++)
     {
-        int jj = 0;
-        for (int j = 0; j < W; j++)
+        int jj;
+        jj = 0;
+        for (int j = 0; j < 512; j++)
         {
-            int r = input_image[i * W * 3 + jj];
-            int g = input_image[i * W * 3 + jj + 1];
-            int b = input_image[i * W * 3 + jj + 2];
-            jj += 3;
-
-            float gray = 0.299 * r + 0.587 * g + 0.114 * b;
-            output_image[i * W + j] = (int)floor(gray);
+            int r;
+            r = input_image[i * 512 * 3 + jj];
+            int g;
+            g = input_image[i * 512 * 3 + jj + 1];
+            int b;
+            b = input_image[i * 512 * 3 + jj + 2];
+            jj = jj + 3;
+            float gray;
+            gray = 0.299 * r + 0.587 * g + 0.114 * b;
+            output_image[i * 512 + j] = (int)floor(gray);
         }
     }
 }
 
-void convolve2d_smooth(
-    int input_image[H * W],
-    int filter[K * K],
-    int output_image[H * W])
+void convolve2d(int input_image[262144], int filter[9], int output_image[262144])
 {
     int i;
     int j;
@@ -50,43 +38,44 @@ void convolve2d_smooth(
     int sum;
     int dead_rows;
     int dead_cols;
-
-    dead_rows = K / 2;
-    dead_cols = K / 2;
-
+    dead_rows = 1;
+    dead_cols = 1;
     normal_factor = 0;
-    for (r = 0; r < K; r++)
+    for (r = 0; r < 3; r++)
     {
-        for (c = 0; c < K; c++)
+        for (c = 0; c < 3; c++)
         {
-            normal_factor += abs(filter[r * K + c]);
+            int decomp_0;
+            decomp_0 = abs(filter[r * 3 + c]);
+            int decomp_1;
+            decomp_1 = normal_factor + decomp_0;
+            normal_factor = decomp_1;
         }
     }
-
-    if (normal_factor == 0)
-        normal_factor = 1;
-
-    for (r = 0; r < H - K + 1; r++)
+    bool decomp_0;
+    decomp_0 = normal_factor == 0;
+    if (decomp_0)
     {
-        for (c = 0; c < W - K + 1; c++)
+        normal_factor = 1;
+    }
+    for (r = 0; r < 510; r++)
+    {
+        for (c = 0; c < 510; c++)
         {
             sum = 0;
-            for (i = 0; i < K; i++)
+            for (i = 0; i < 3; i++)
             {
-                for (j = 0; j < K; j++)
+                for (j = 0; j < 3; j++)
                 {
-                    sum += input_image[(r + i) * W + (c + j)] * filter[i * K + j];
+                    sum = sum + input_image[(r + i) * 512 + (c + j)] * filter[i * 3 + j];
                 }
             }
-            output_image[(r + dead_rows) * W + (c + dead_cols)] = (sum / normal_factor);
+            output_image[(r + dead_rows) * 512 + (c + dead_cols)] = (sum / normal_factor);
         }
     }
 }
 
-void convolve2d_vert(
-    int input_image[H * W],
-    int filter[K * K],
-    int output_image[H * W])
+void convolve2d_rep2(int input_image[262144], int filter[9], int output_image[262144])
 {
     int i;
     int j;
@@ -96,43 +85,44 @@ void convolve2d_vert(
     int sum;
     int dead_rows;
     int dead_cols;
-
-    dead_rows = K / 2;
-    dead_cols = K / 2;
-
+    dead_rows = 1;
+    dead_cols = 1;
     normal_factor = 0;
-    for (r = 0; r < K; r++)
+    for (r = 0; r < 3; r++)
     {
-        for (c = 0; c < K; c++)
+        for (c = 0; c < 3; c++)
         {
-            normal_factor += abs(filter[r * K + c]);
+            int decomp_0;
+            decomp_0 = abs(filter[r * 3 + c]);
+            int decomp_1;
+            decomp_1 = normal_factor + decomp_0;
+            normal_factor = decomp_1;
         }
     }
-
-    if (normal_factor == 0)
-        normal_factor = 1;
-
-    for (r = 0; r < H - K + 1; r++)
+    bool decomp_0;
+    decomp_0 = normal_factor == 0;
+    if (decomp_0)
     {
-        for (c = 0; c < W - K + 1; c++)
+        normal_factor = 1;
+    }
+    for (r = 0; r < 510; r++)
+    {
+        for (c = 0; c < 510; c++)
         {
             sum = 0;
-            for (i = 0; i < K; i++)
+            for (i = 0; i < 3; i++)
             {
-                for (j = 0; j < K; j++)
+                for (j = 0; j < 3; j++)
                 {
-                    sum += input_image[(r + i) * W + (c + j)] * filter[i * K + j];
+                    sum = sum + input_image[(r + i) * 512 + (c + j)] * filter[i * 3 + j];
                 }
             }
-            output_image[(r + dead_rows) * W + (c + dead_cols)] = (sum / normal_factor);
+            output_image[(r + dead_rows) * 512 + (c + dead_cols)] = (sum / normal_factor);
         }
     }
 }
 
-void convolve2d_horiz(
-    int input_image[H * W],
-    int filter[K * K],
-    int output_image[H * W])
+void convolve2d_rep1(int input_image[262144], int filter[9], int output_image[262144])
 {
     int i;
     int j;
@@ -142,59 +132,110 @@ void convolve2d_horiz(
     int sum;
     int dead_rows;
     int dead_cols;
-
-    dead_rows = K / 2;
-    dead_cols = K / 2;
-
+    dead_rows = 1;
+    dead_cols = 1;
     normal_factor = 0;
-    for (r = 0; r < K; r++)
+    for (r = 0; r < 3; r++)
     {
-        for (c = 0; c < K; c++)
+        for (c = 0; c < 3; c++)
         {
-            normal_factor += abs(filter[r * K + c]);
+            int decomp_0;
+            decomp_0 = abs(filter[r * 3 + c]);
+            int decomp_1;
+            decomp_1 = normal_factor + decomp_0;
+            normal_factor = decomp_1;
         }
     }
-
-    if (normal_factor == 0)
-        normal_factor = 1;
-
-    for (r = 0; r < H - K + 1; r++)
+    bool decomp_0;
+    decomp_0 = normal_factor == 0;
+    if (decomp_0)
     {
-        for (c = 0; c < W - K + 1; c++)
+        normal_factor = 1;
+    }
+    for (r = 0; r < 510; r++)
+    {
+        for (c = 0; c < 510; c++)
         {
             sum = 0;
-            for (i = 0; i < K; i++)
+            for (i = 0; i < 3; i++)
             {
-                for (j = 0; j < K; j++)
+                for (j = 0; j < 3; j++)
                 {
-                    sum += input_image[(r + i) * W + (c + j)] * filter[i * K + j];
+                    sum = sum + input_image[(r + i) * 512 + (c + j)] * filter[i * 3 + j];
                 }
             }
-            output_image[(r + dead_rows) * W + (c + dead_cols)] = (sum / normal_factor);
+            output_image[(r + dead_rows) * 512 + (c + dead_cols)] = (sum / normal_factor);
         }
     }
 }
 
-void combthreshold(int image_gray[H * W], int temp_buf[H * W], int output[H * W])
+void convolve2d_rep0(int input_image[262144], int filter[9], int output_image[262144])
 {
-    int i, j;
+    int i;
+    int j;
+    int c;
+    int r;
+    int normal_factor;
+    int sum;
+    int dead_rows;
+    int dead_cols;
+    dead_rows = 1;
+    dead_cols = 1;
+    normal_factor = 0;
+    for (r = 0; r < 3; r++)
+    {
+        for (c = 0; c < 3; c++)
+        {
+            int decomp_0;
+            decomp_0 = abs(filter[r * 3 + c]);
+            int decomp_1;
+            decomp_1 = normal_factor + decomp_0;
+            normal_factor = decomp_1;
+        }
+    }
+    bool decomp_0;
+    decomp_0 = normal_factor == 0;
+    if (decomp_0)
+    {
+        normal_factor = 1;
+    }
+    for (r = 0; r < 510; r++)
+    {
+        for (c = 0; c < 510; c++)
+        {
+            sum = 0;
+            for (i = 0; i < 3; i++)
+            {
+                for (j = 0; j < 3; j++)
+                {
+                    sum = sum + input_image[(r + i) * 512 + (c + j)] * filter[i * 3 + j];
+                }
+            }
+            output_image[(r + dead_rows) * 512 + (c + dead_cols)] = (sum / normal_factor);
+        }
+    }
+}
+
+void combthreshold(int image_gray[262144], int temp_buf[262144], int output[262144])
+{
+    int i;
+    int j;
     int temp1;
     int temp2;
     int temp3;
-
-    for (i = 0; i < H; i++)
+    for (i = 0; i < 512; i++)
     {
-        for (j = 0; j < W; ++j)
+        for (j = 0; j < 512; ++j)
         {
-            temp1 = abs(image_gray[i * W + j]);
-            temp2 = abs(temp_buf[i * W + j]);
+            temp1 = abs(image_gray[i * 512 + j]);
+            temp2 = abs(temp_buf[i * 512 + j]);
             temp3 = (temp1 > temp2) ? temp1 : temp2;
-            output[i * W + j] = (temp3 > T) ? 255 : 0;
+            output[i * 512 + j] = (temp3 > 50) ? 255 : 0;
         }
     }
 }
 
-void set_filter_smooth(int filter[K * K])
+void outlined_fun_0(int filter[9])
 {
     filter[0] = 1;
     filter[1] = 2;
@@ -207,7 +248,7 @@ void set_filter_smooth(int filter[K * K])
     filter[8] = 1;
 }
 
-void set_filter_vert(int filter[K * K])
+void outlined_fun_1(int filter[9])
 {
     filter[0] = 1;
     filter[1] = 0;
@@ -220,7 +261,7 @@ void set_filter_vert(int filter[K * K])
     filter[8] = -1;
 }
 
-void set_filter_horiz(int filter[K * K])
+void outlined_fun_2(int filter[9])
 {
     filter[0] = 1;
     filter[1] = 2;
@@ -233,59 +274,39 @@ void set_filter_horiz(int filter[K * K])
     filter[8] = -1;
 }
 
-void edge_detect(int image_rgb[H * W * 3],
-                 int image_gray[H * W],
-                 int temp_buf[H * W],
-                 int filter[K * K],
-                 int output[H * W])
+void edge_detect(int image_rgb[786432], int image_gray[262144], int temp_buf[262144], int filter[9], int output[262144])
 {
-
     rgbToGrayscale(image_rgb, image_gray);
-
-    set_filter_smooth(filter);
-
-    convolve2d_smooth(image_gray, filter, output);
-
-    set_filter_vert(filter);
-
-    convolve2d_vert(output, filter, image_gray);
-
-    set_filter_horiz(filter);
-
-    convolve2d_horiz(output, filter, temp_buf);
-
+    outlined_fun_0(filter);
+    convolve2d_rep0(image_gray, filter, output);
+    printf("This is just here to force an external call, don't mind me. Here's a number: %d\n", filter[4]);
+    outlined_fun_1(filter);
+    convolve2d_rep1(output, filter, image_gray);
+    outlined_fun_2(filter);
+    convolve2d_rep2(output, filter, temp_buf);
     combthreshold(image_gray, temp_buf, output);
 }
 
 int main()
 {
-    int image_rgb[H * W * 3] = {
-        // #include "img_512_512.dat"
-        0};
-    int image_gray[H * W] = {0};
-    int temp_buf[H * W] = {0};
-    int filter[K * K] = {0};
-    int output[H * W] = {0};
-
+    std::ofstream log_file_0;
+    log_file_0.open("app_exec_time.csv", std::ios_base::app);
+    int image_rgb[786432] = {0};
+    int image_gray[262144] = {0};
+    int temp_buf[262144] = {0};
+    int filter[9] = {0};
+    int output[262144] = {0};
     auto start = high_resolution_clock::now();
-#if ITER > 0
-    int i;
-    for (i = 0; i < ITER; i++)
-    {
-#endif
-        edge_detect(
-            image_rgb,
-            image_gray,
-            temp_buf,
-            filter,
-            output);
-#if ITER > 0
-    }
-#endif
+    std::chrono::high_resolution_clock::time_point clava_timing_start_0;
+    std::chrono::high_resolution_clock::time_point clava_timing_end_0;
+    clava_timing_start_0 = std::chrono::high_resolution_clock::now();
+    edge_detect(image_rgb, image_gray, temp_buf, filter, output);
+    clava_timing_end_0 = std::chrono::high_resolution_clock::now();
+    long long clava_timing_duration_0 = std::chrono::duration_cast<std::chrono::microseconds>(clava_timing_end_0 - clava_timing_start_0).count();
+    log_file_0 << clava_timing_duration_0 << "us" << "\n";
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
     std::cout << "Duration: " << duration.count() << std::endl;
-
     int actual = 0;
     int real = 2455650;
     for (int i = 0; i < 262144; i++)
