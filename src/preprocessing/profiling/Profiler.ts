@@ -12,7 +12,7 @@ export class Profiler extends AStage {
         const funCount = funInst.instrument();
         this.log(`Instrumented ${funCount} functions with timing guards`);
 
-        const loopInst = new LoopIterationInstrumenter(this.getTopFunctionName());
+        const loopInst = new LoopIterationInstrumenter(this.getTopFunctionName(), false);
         const loopCnt = loopInst.instrumentLoopIterations();
         this.log(`Instrumented ${loopCnt} dynamic loops with iteration counters`);
     }
