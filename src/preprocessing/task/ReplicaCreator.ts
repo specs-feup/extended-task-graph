@@ -10,19 +10,35 @@ export class ReplicaCreator extends AStage {
     }
 
     public replicateAll(): [number, number] {
-        const replicas: Map<string, Call[]> = this.findReplicas();
+        let nReplicas = 0, nUnique = 0;
 
-        if (Object.keys(replicas).length == 0) {
+        for (let i = 0; i < 99; i++) {
+            const [rep, uniq] = this.doPass();
+
+            nReplicas += rep;
+            nUnique += uniq;
+
+            if (rep == 0) {
+                break;
+            }
+        }
+        return [nReplicas, nUnique];
+    }
+
+    public doPass(): [number, number] {
+        const instances: Map<string, Call[]> = this.findReplicas();
+
+        if (instances.size == 0) {
             this.log("Found no replicable functions");
             return [0, 0];
         }
         else {
-            this.log(`Found ${Object.keys(replicas).length} replicable functions`);
+            this.log(`Found ${instances.size} replicable functions`);
         }
 
         let nReplicas = 0, nUnique = 0;
-        for (const key in replicas) {
-            const calls = replicas.get(key)!;
+        for (const key of instances.keys()) {
+            const calls = instances.get(key)!;
             const nCalls = calls.length;
             const name = calls[0].name;
             this.log(`Found ${nCalls} call sites for function ${name}`);
@@ -44,30 +60,30 @@ export class ReplicaCreator extends AStage {
         const topFun = this.getTopFunctionJoinPoint();
         const uniqueFuns = ClavaUtils.getAllUniqueFunctions(topFun);
         const uniqueFunNames = uniqueFuns.map(fun => fun.name);
-        const replicas: Map<string, Call[]> = new Map();
+
+        const instances: Map<string, Call[]> = new Map();
 
         for (const uniqueFun of uniqueFuns) {
             for (const call of Query.searchFrom(uniqueFun, Call)) {
-                const name = call.name;
-                if (!uniqueFunNames.includes(name)) {
+                const callName = call.name;
+                if (!uniqueFunNames.includes(callName)) {
                     continue;
                 }
 
-                if (replicas.get(name) == null) {
-                    replicas.set(name, [call]);
-                }
-                else {
-                    replicas.get(name)!.push(call);
+                if (!instances.has(callName)) {
+                    instances.set(callName, [call]);
+                } else {
+                    instances.get(callName)!.push(call);
                 }
             }
-        }
 
-        for (const key of replicas.keys()) {
-            if (replicas.get(key)!.length == 1) {
-                replicas.delete(key);
+            for (const key of instances.keys()) {
+                if (instances.get(key)!.length == 1) {
+                    instances.delete(key);
+                }
             }
         }
-        return replicas;
+        return instances;
     }
 
     public createReplicas(calls: Call[]): number {
