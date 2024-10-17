@@ -2,7 +2,7 @@ import { FunctionJp } from "@specs-feup/clava/api/Joinpoints.js";
 import Io from "@specs-feup/lara/api/lara/Io.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { OutputDirectories } from "./api/OutputDirectories.js";
-import chalk, { Chalk } from "chalk";
+import chalk from "chalk";
 
 
 export abstract class AStage {
@@ -16,7 +16,7 @@ export abstract class AStage {
     private startTimestamp: Date = new Date();
     private static isLogFileInitialized: boolean = false;
     private static currentLog: string = "";
-    private static maxLogSize: number = 2048;
+    private static maxLogSize: number = 248;
 
     constructor(stageName: string, topFunctionName: string, outputDir = "output", appName = "default_app_name") {
         this.stageName = stageName;
@@ -60,9 +60,9 @@ export abstract class AStage {
         return this.topFunctionName;
     }
 
-    protected log(message: string): void {
+    protected log(message: string, forceFlush: boolean = false): void {
         const header = this.getStageOutputHeader();
-        this.writeMessage(`${header} ${message}`);
+        this.writeMessage(`${header} ${message}`, forceFlush);
     }
 
     protected logStart(): void {
@@ -85,7 +85,7 @@ export abstract class AStage {
         const timestamp = date.toISOString();
         const msg = `Finished ${stage} at ${timestamp} (elapsed time: ${diff2Decimals}s)`;
 
-        this.log(msg);
+        this.log(msg, true);
     }
 
     protected logOutput(message: string, path: string): void {
@@ -100,8 +100,7 @@ export abstract class AStage {
             }
         }
 
-        let prettyPath = chalk.blue.italic(minPath);
-
+        const prettyPath = chalk.blue.italic(minPath);
         this.writeMessage(`${header} ${message} ${prettyPath}`);
     }
 
@@ -164,6 +163,8 @@ export abstract class AStage {
     }
 
     private writeMessage(message: string, forceFlush = false): void {
+        console.log(message);
+
         const strippedMsg = chalk.reset(message) + "\n";
         AStage.currentLog += strippedMsg;
 
@@ -171,7 +172,5 @@ export abstract class AStage {
             Io.appendFile(this.logFile, AStage.currentLog);
             AStage.currentLog = "";
         }
-
-        console.log(message);
     }
 }
