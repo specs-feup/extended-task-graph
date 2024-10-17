@@ -2,7 +2,7 @@ import chalk from "chalk";
 import { ExtendedTaskGraphAPI } from "../../src/api/ExtendedTaskGraphAPI.js";
 import { TaskGraph } from "../../src/taskgraph/TaskGraph.js";
 
-const api = new ExtendedTaskGraphAPI("edgedetect", "output/apps", "edgedetect-etgflow");
+const api = new ExtendedTaskGraphAPI("edge_detect", "output/apps", "edgedetect-etgflow");
 
 let etg: TaskGraph | null = null;
 try {

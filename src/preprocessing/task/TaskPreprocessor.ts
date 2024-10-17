@@ -62,7 +62,7 @@ export class TaskPreprocessor extends AStage {
 
     public insertTimer() {
         const timerInserter = new AppTimerInserter();
-        const couldInsert = timerInserter.insertTimer(this.getTopFunctionJoinPoint());
+        const couldInsert = timerInserter.insertTimer(this.getTopFunctionName());
 
         const topFunName = this.getTopFunctionName();
         if (!couldInsert) {
