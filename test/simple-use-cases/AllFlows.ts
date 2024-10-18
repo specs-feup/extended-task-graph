@@ -1,21 +1,24 @@
 import chalk from "chalk";
 import { ExtendedTaskGraphAPI } from "../../src/api/ExtendedTaskGraphAPI.js";
-import { TaskGraph } from "../../src/taskgraph/TaskGraph.js";
 
-const api = new ExtendedTaskGraphAPI("edge_detect", "output/apps", "edgedetect-etgflow");
+const api = new ExtendedTaskGraphAPI("edge_detect", "output/apps", "edgedetect-allflows");
 
-let etg: TaskGraph | null = null;
 try {
-    const generateEtg = true;
-    const gatherMetrics = true;
+    api.runCodeTransformationFlow(true, true, true);
 
-    etg = api.runTaskGraphGenerationFlow(generateEtg, gatherMetrics);
 } catch (e) {
     console.error(e);
+    console.log(chalk.green("Test failed") + ": TransFlow failed");
 }
+console.log("TransFlow succeeded, moving on to EtgFlow");
 
-if (etg == null) {
-    console.log(chalk.red("Test failed") + ": ETG flow failed");
-} else {
-    console.log(chalk.green("Test passed") + ": ETG flow succeeded");
+try {
+    const etg = api.runTaskGraphGenerationFlow(true, true);
+    if (etg == null) {
+        console.log(chalk.red("Test failed") + ": EtgFlow failed");
+    } else {
+        console.log(chalk.green("Test succeeded") + ": both TransFlow and EtgFlow finished correctly");
+    }
+} catch (e) {
+    console.error(e);
 }

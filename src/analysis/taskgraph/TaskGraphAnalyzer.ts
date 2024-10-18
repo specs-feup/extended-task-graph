@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { AStage } from "../../AStage.js";
 import { TaskGraph } from "../../taskgraph/TaskGraph.js";
 import { CriticalPathFinder } from "./CriticalPathFinder.js";
@@ -33,7 +34,7 @@ export class TaskGraphAnalyzer extends AStage {
 
     public saveMetrics(): void {
         const jsonMetrics = this.getMetricsAsJson();
-        const fname = this.saveToFile(jsonMetrics, "task_graph_metrics.json");
+        const fname = this.saveToFile(jsonMetrics, "etg_metrics.json");
         this.log(`Saved ETG metrics to file "${fname}"`);
     }
 
