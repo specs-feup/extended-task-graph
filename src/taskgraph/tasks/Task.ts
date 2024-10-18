@@ -1,4 +1,4 @@
-import { Call, Literal, Loop, Param, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { Call, Literal, Loop, Vardecl } from "@specs-feup/clava/api/Joinpoints.js";
 import { TaskType } from "./TaskType.js";
 import { DataItem } from "../DataItem.js";
 import { Communication } from "../Communication.js";
@@ -213,7 +213,7 @@ export abstract class Task {
     }
 
     public createConstantObject(immConst: Literal, funCall: Call): void {
-        const datum = new DataItem(immConst.vardecl, DataItemOrigin.CONSTANT);
+        const datum = new DataItem(immConst, DataItemOrigin.CONSTANT);
         datum.setImmediateFunctionCall(funCall);
         this.dataConstants.push(datum);
     }

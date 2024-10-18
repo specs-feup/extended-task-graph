@@ -1,9 +1,11 @@
-import { Call, FloatLiteral, IntLiteral, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { Call, FloatLiteral, IntLiteral, Literal, Type, Vardecl } from "@specs-feup/clava/api/Joinpoints.js";
 import { DataItemOrigin } from "./DataItemOrigin.js";
 import { ClavaUtils } from "../util/ClavaUtils.js";
 
 export class DataItem {
-    private ref: Vardecl;
+    private ref: Vardecl | null = null;
+    private literal: Literal | null = null;
+
     private name: string = "<no_name>";
     private isInit: boolean = false;
     private dataIsWritten: boolean = false;
@@ -19,12 +21,23 @@ export class DataItem {
     private alternateName: string = "<no_alt_name>";
     private immediateFunctionCall: Call | null = null;
 
-    constructor(ref: Vardecl, origin: DataItemOrigin) {
-        this.ref = ref;
+    constructor(ref: Vardecl | Literal, origin: DataItemOrigin) {
+        if (ref instanceof Vardecl) {
+            const vardecl = ref as Vardecl;
+
+            this.ref = vardecl;
+            this.name = vardecl.name;
+            this.demangleDatatype(vardecl.type);
+        }
+        if (ref instanceof IntLiteral || ref instanceof FloatLiteral) {
+            const lit = ref as Literal;
+
+            this.literal = lit;
+            this.name = "imm(" + ref.value + ")";
+            this.demangleDatatype(lit.type);
+        }
         this.itemOrigin = origin;
-        this.name = this.getNameFromRef(ref);
         this.alternateName = this.name;
-        this.demangleDatatype(ref);
     }
 
     public getName(): string {
@@ -39,7 +52,11 @@ export class DataItem {
         return this.ref;
     }
 
-    public getDatatype(): any {
+    public getLiteral(): Literal | null {
+        return this.literal;
+    }
+
+    public getDatatype(): string {
         return this.datatype;
     }
 
@@ -134,8 +151,7 @@ export class DataItem {
         return `${refName} {${this.sizeInBytes}} ${status}`;
     }
 
-    private demangleDatatype(decl: Vardecl): void {
-        const type = decl.type;
+    private demangleDatatype(type: Type): void {
         const typeCode = type.code;
 
         if (type.isArray) {
@@ -146,15 +162,6 @@ export class DataItem {
         }
         else {
             this.demangleScalar(typeCode);
-        }
-    }
-
-    private getNameFromRef(ref: Vardecl): string {
-        if (ref instanceof IntLiteral || ref instanceof FloatLiteral) {
-            return "imm(" + ref.value + ")";
-        }
-        else {
-            return ref.name;
         }
     }
 
