@@ -1,6 +1,6 @@
 import { Vardecl } from "@specs-feup/clava/api/Joinpoints.js";
 import { DataItem } from "./DataItem.js";
-import { DataItemOrigin } from "./DataItemOrigin.js";
+import { DataItemOrigin } from "../DataItemOrigin.js";
 
 export class VariableDataItem extends DataItem {
     private ref: Vardecl;

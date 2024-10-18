@@ -1,5 +1,5 @@
 import { FloatLiteral, IntLiteral, Literal } from "@specs-feup/clava/api/Joinpoints.js";
-import { DataItemOrigin } from "./DataItemOrigin.js";
+import { DataItemOrigin } from "../DataItemOrigin.js";
 import { DataItem } from "./DataItem.js";
 
 export class ConstantDataItem extends DataItem {

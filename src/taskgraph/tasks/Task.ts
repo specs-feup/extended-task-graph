@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Call, FloatLiteral, IntLiteral, Loop, Vardecl } from "@specs-feup/clava/api/Joinpoints.js";
 import { TaskType } from "./TaskType.js";
-import { DataItem } from "../DataItem.js";
+import { DataItem } from "../dataitems/DataItem.js";
 import { Communication } from "../Communication.js";
 import { ControlEdge } from "../ControlEdge.js";
 import { DataItemOrigin } from "../DataItemOrigin.js";
 import { AccessType } from "../AccessType.js";
-import { VariableDataItem } from "../VariableDataItem.js";
-import { ConstantDataItem } from "../ConstantDataItem.js";
+import { VariableDataItem } from "../dataitems/VariableDataItem.js";
+import { ConstantDataItem } from "../dataitems/ConstantDataItem.js";
 
 export abstract class Task {
     // Basic task details

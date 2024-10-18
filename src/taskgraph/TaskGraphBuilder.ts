@@ -7,10 +7,10 @@ import { RegularTask } from "./tasks/RegularTask.js";
 import { ClavaUtils } from "../util/ClavaUtils.js";
 import { ExternalFunctionsMatcher } from "../util/ExternalFunctionsMatcher.js";
 import { ExternalTask } from "./tasks/ExternalTask.js";
-import { DataItem } from "./DataItem.js";
+import { DataItem } from "./dataitems/DataItem.js";
 import { ConcreteTask } from "./tasks/ConcreteTask.js";
 import LoopCharacterizer from "clava-code-transformations/LoopCharacterizer";
-import { VariableDataItem } from "./VariableDataItem.js";
+import { VariableDataItem } from "./dataitems/VariableDataItem.js";
 
 export class TaskGraphBuilder extends AStage {
     private lastUsedGlobal = new Map();

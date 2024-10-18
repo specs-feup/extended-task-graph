@@ -1,6 +1,6 @@
 import { Call, Type } from "@specs-feup/clava/api/Joinpoints.js";
-import { DataItemOrigin } from "./DataItemOrigin.js";
-import { ClavaUtils } from "../util/ClavaUtils.js";
+import { DataItemOrigin } from "../DataItemOrigin.js";
+import { ClavaUtils } from "../../util/ClavaUtils.js";
 
 export abstract class DataItem {
     protected name: string = "<no_name>";

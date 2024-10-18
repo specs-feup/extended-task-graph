@@ -5,8 +5,8 @@ import { Task } from "./Task.js";
 import { TaskType } from "./TaskType.js";
 import { DataItemOrigin } from "../DataItemOrigin.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
-import { ConstantDataItem } from "../ConstantDataItem.js";
-import { VariableDataItem } from "../VariableDataItem.js";
+import { ConstantDataItem } from "../dataitems/ConstantDataItem.js";
+import { VariableDataItem } from "../dataitems/VariableDataItem.js";
 
 export class RegularTask extends ConcreteTask {
     private function: FunctionJp;

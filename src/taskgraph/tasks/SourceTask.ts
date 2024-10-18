@@ -1,9 +1,9 @@
 import { Vardecl } from "@specs-feup/clava/api/Joinpoints.js";
-import { DataItem } from "../DataItem.js";
+import { DataItem } from "../dataitems/DataItem.js";
 import { DataItemOrigin } from "../DataItemOrigin.js";
 import { Task } from "./Task.js";
 import { TaskType } from "./TaskType.js";
-import { VariableDataItem } from "../VariableDataItem.js";
+import { VariableDataItem } from "../dataitems/VariableDataItem.js";
 
 export class SourceTask extends Task {
     private graphInputData: VariableDataItem[] = [];

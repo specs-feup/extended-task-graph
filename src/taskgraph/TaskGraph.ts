@@ -7,7 +7,7 @@ import { SinkTask } from "./tasks/SinkTask.js";
 import { SourceTask } from "./tasks/SourceTask.js";
 import { TaskType } from "./tasks/TaskType.js";
 import { Task } from "./tasks/Task.js";
-import { DataItem } from "./DataItem.js";
+import { DataItem } from "./dataitems/DataItem.js";
 
 export class TaskGraph {
     private tasks: ConcreteTask[] = [];
