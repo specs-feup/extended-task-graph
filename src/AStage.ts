@@ -4,7 +4,6 @@ import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { OutputDirectories } from "./api/OutputDirectories.js";
 import chalk from "chalk";
 
-
 export abstract class AStage {
     private stageName: string = "DefaultStage";
     private commonPrefix: string = "ETG"
@@ -12,9 +11,10 @@ export abstract class AStage {
     private topFunctionName: string;
     private appName: string;
     private outputDir: string;
-    private logFile: string;
     private startTimestamp: Date = new Date();
+
     private static isLogFileInitialized: boolean = false;
+    private static logFile: string = "";
     private static currentLog: string = "";
     private static maxLogSize: number = 248;
 
@@ -23,10 +23,10 @@ export abstract class AStage {
         this.topFunctionName = topFunctionName;
         this.appName = appName;
         this.outputDir = outputDir;
-        this.logFile = `${this.outputDir}/log_${this.appName}.txt`;
 
         if (!AStage.isLogFileInitialized) {
-            Io.writeFile(this.logFile, "");
+            AStage.logFile = `${this.outputDir}/log_${this.appName}.txt`;
+            Io.writeFile(AStage.logFile, "");
             AStage.isLogFileInitialized = true;
         }
     }
@@ -165,11 +165,12 @@ export abstract class AStage {
     private writeMessage(message: string, forceFlush = false): void {
         console.log(message);
 
-        const strippedMsg = chalk.reset(message) + "\n";
+        // eslint-disable-next-line no-control-regex
+        const strippedMsg = message.replace(/\u001b\[[0-9;]*m/g, '').replace("[ETG", "\n[ETG");
         AStage.currentLog += strippedMsg;
 
         if (AStage.currentLog.length > AStage.maxLogSize || forceFlush) {
-            Io.appendFile(this.logFile, AStage.currentLog);
+            Io.appendFile(AStage.logFile, AStage.currentLog);
             AStage.currentLog = "";
         }
     }
