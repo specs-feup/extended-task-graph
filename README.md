@@ -4,7 +4,9 @@ This is an implementation of the [Extended Task Graph (ETG)](https://dl.acm.org/
 
  These task graphs are automatically analyzed and characterized by several metrics, and through a highly flexible granularity mechanism we can perform extensive graph operations, such as task merging, splitting and clustering, while always outputting valid and readable C/C++ source code.
 
- ![task graph example using an edge detection application](edgedetect.png "Extended Task Graph example using the _edgedetect_ application in inputs/edgedetect")
+<p align="center">
+<img src="edgedetect.png" width="300"  />
+</p>
 
 ## How to Use
 
