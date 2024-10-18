@@ -4,9 +4,10 @@ import { TaskType } from "./TaskType.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { DataItem } from "../DataItem.js";
 import { DataItemOrigin } from "../DataItemOrigin.js";
+import { VariableDataItem } from "../VariableDataItem.js";
 
 export class GlobalTask extends Task {
-    private dataGlobalDecls: DataItem[] = [];
+    private dataGlobalDecls: VariableDataItem[] = [];
 
     constructor() {
         super(TaskType.GLOBALSOURCE);
@@ -17,7 +18,7 @@ export class GlobalTask extends Task {
         this.setDataInitStatus();
     }
 
-    public getGlobalDeclData(): DataItem[] {
+    public getGlobalDeclData(): VariableDataItem[] {
         return this.dataGlobalDecls;
     }
 
@@ -28,7 +29,7 @@ export class GlobalTask extends Task {
 
     private populateGlobalData(): void {
         for (const global of Query.search(Vardecl, { isGlobal: true })) {
-            const data = new DataItem(global, DataItemOrigin.GLOBAL_DECL);
+            const data = new VariableDataItem(global, DataItemOrigin.GLOBAL_DECL);
             this.dataGlobalDecls.push(data);
         }
     }

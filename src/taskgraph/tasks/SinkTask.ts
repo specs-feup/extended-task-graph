@@ -3,9 +3,10 @@ import { DataItem } from "../DataItem.js";
 import { DataItemOrigin } from "../DataItemOrigin.js";
 import { Task } from "./Task.js";
 import { TaskType } from "./TaskType.js";
+import { VariableDataItem } from "../VariableDataItem.js";
 
 export class SinkTask extends Task {
-    private graphOutputData: DataItem[] = [];
+    private graphOutputData: VariableDataItem[] = [];
 
     constructor() {
         super(TaskType.SINK);
@@ -14,12 +15,9 @@ export class SinkTask extends Task {
 
     }
 
-    public addDataToSink(dataItem: DataItem): DataItem {
-        if (dataItem.getDecl() == null) {
-            throw new Error("Data item cannot be null");
-        }
+    public addDataToSink(dataItem: VariableDataItem): VariableDataItem {
         const vardecl = dataItem.getDecl() as Vardecl;
-        const dataCopy = new DataItem(vardecl, DataItemOrigin.GRAPH_OUTPUT);
+        const dataCopy = new VariableDataItem(vardecl, DataItemOrigin.GRAPH_OUTPUT);
         this.graphOutputData.push(dataCopy);
         return dataCopy;
     }
