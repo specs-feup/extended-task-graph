@@ -10,11 +10,12 @@
  * Check the output in the output/apps/edgedetect-simple-appdump folder. You can set this to whatever you want, but you may want to organize
  * it in a way that makes sense for your project and the amount and type of applications you are analyzing.
  */
+import chalk from "chalk";
 import { ExtendedTaskGraphAPI } from "../../src/api/ExtendedTaskGraphAPI.js";
 
 console.log("Test: dump the AST and call graph of edgedetect");
 
-const topFunctionName = "edgedetect";
+const topFunctionName = "edge_detect";
 const outputDir = "output/apps";
 const appName = "edgedetect-appdump";
 const api = new ExtendedTaskGraphAPI(topFunctionName, outputDir, appName);
@@ -24,4 +25,6 @@ const dumpCallGraph = true;
 const doTransformations = false;
 const success = api.runCodeTransformationFlow(dumpCallGraph, dumpAST, doTransformations);
 
-console.log(success ? "Test passed: dumping succeeded" : "Test failed: dumping failed");
+console.log(success ?
+    chalk.green("Test passed") + ": dumping succeeded" :
+    chalk.red("Test failed") + ": dumping failed");

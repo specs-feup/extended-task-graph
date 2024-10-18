@@ -1,11 +1,12 @@
 import { Vardecl } from "@specs-feup/clava/api/Joinpoints.js";
-import { DataItem } from "../DataItem.js";
+import { DataItem } from "../dataitems/DataItem.js";
 import { DataItemOrigin } from "../DataItemOrigin.js";
 import { Task } from "./Task.js";
 import { TaskType } from "./TaskType.js";
+import { VariableDataItem } from "../dataitems/VariableDataItem.js";
 
 export class SourceTask extends Task {
-    private graphInputData: DataItem[] = [];
+    private graphInputData: VariableDataItem[] = [];
 
     constructor() {
         super(TaskType.SOURCE);
@@ -13,12 +14,9 @@ export class SourceTask extends Task {
         this.setName("<task_graph_source>");
     }
 
-    public addDataToSource(dataItem: DataItem): DataItem {
-        if (dataItem.getDecl() == null) {
-            throw new Error("Data item cannot be null");
-        }
+    public addDataToSource(dataItem: VariableDataItem): VariableDataItem {
         const vardecl = dataItem.getDecl() as Vardecl;
-        const dataCopy = new DataItem(vardecl, DataItemOrigin.GRAPH_INPUT);
+        const dataCopy = new VariableDataItem(vardecl, DataItemOrigin.GRAPH_INPUT);
         this.graphInputData.push(dataCopy);
         return dataCopy;
     }

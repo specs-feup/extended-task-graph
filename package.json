@@ -5,14 +5,17 @@
   "description": "An Extended Task Graph implementation for the Clava C/C++ to C/C++ source-to-source compiler",
   "type": "module",
   "scripts": {
-    "simple:appdump": "clava dist/test/simple-use-cases/AppDumping.js -- clang inputs/edgedetect-transformed/",
-    "simple:etg": "clava dist/test/simple-use-cases/TaskGraphGeneration.js -- clang inputs/edgedetect-transformed/",
-    "bench:rosetta": "clava dist/test/benchmark-testing/TestRosetta.js",
     "build": "tsc",
     "build:watch": "tsc --watch",
     "clean": "rm -rf node_modules package-lock.json dist/ woven_code/ output/",
     "lint": "eslint .",
-    "docs": "typedoc"
+    "docs": "typedoc",
+    "simple:appdump": "clava dist/test/simple-use-cases/AppDumping.js -- clang inputs/edgedetect-transformed/",
+    "simple:transflow": "clava dist/test/simple-use-cases/CodeTransformationFlow.js -- clang inputs/edgedetect/",
+    "simple:etg": "clava dist/test/simple-use-cases/TaskGraphGeneration.js -- clang inputs/edgedetect-transformed/",
+    "simple:etgflow": "clava dist/test/simple-use-cases/TaskGraphFlow.js -- clang inputs/edgedetect-transformed/",
+    "simple:allflows": "clava dist/test/simple-use-cases/AllFlows.js -- clang inputs/edgedetect/",
+    "bench:rosetta": "clava dist/test/benchmark-testing/TestRosetta.js"
   },
   "dependencies": {
     "@specs-feup/clava": "^3.0.1",

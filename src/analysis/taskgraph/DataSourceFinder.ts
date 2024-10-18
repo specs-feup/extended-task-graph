@@ -1,4 +1,4 @@
-import { DataItem } from "../../taskgraph/DataItem.js";
+import { DataItem } from "../../taskgraph/dataitems/DataItem.js";
 import { TaskGraph } from "../../taskgraph/TaskGraph.js";
 import { Task } from "../../taskgraph/tasks/Task.js";
 import { TaskType } from "../../taskgraph/tasks/TaskType.js";

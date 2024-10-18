@@ -4,21 +4,24 @@ import Io from "@specs-feup/lara/api/lara/Io.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 
 export class ClavaUtils {
-    public static verifySyntax() {
+    public static verifySyntax(): boolean {
         let valid = true;
         Clava.pushAst();
         try {
             Clava.rebuild();
         }
-        catch (e) {
+        catch (e: unknown) {
+            console.log(e);
             valid = false;
         }
         Clava.popAst();
         return valid;
     }
 
-    public static generateCode(weaveDir: string, folder: string) {
+    public static generateCode(weaveDir: string, folder: string): string {
         const path = weaveDir + "/" + folder;
+
+        //ClavaUtils.verifySyntax();
 
         Io.deleteFolderContents(path);
         Clava.writeCode(path);
@@ -27,8 +30,8 @@ export class ClavaUtils {
 
     // The template matcher needs to be rewritten from scratch,
     // so we'll facilitate and use a little "any" type for now
-    public static matchTemplate(jp: Joinpoint, template: any) {
-        const split = template[0].split(" ");
+    public static matchTemplate(jp: Joinpoint, template: (string | any)[]): boolean {
+        const split = template[0].split(" ") as string;
         const type = split[0];
         const cond = split.length == 2 ? split[1] : "none";
 
@@ -64,7 +67,7 @@ export class ClavaUtils {
         return true;
     }
 
-    public static getAllUniqueFunctions(topFunction: FunctionJp, includeExternals = false) {
+    public static getAllUniqueFunctions(topFunction: FunctionJp, includeExternals = false): FunctionJp[] {
         const funs = [];
 
         funs.push(topFunction);
@@ -99,14 +102,14 @@ export class ClavaUtils {
         return funs;
     }
 
-    public static functionHasImplementation(fun: FunctionJp) {
+    public static functionHasImplementation(fun: FunctionJp): boolean {
         if (fun.name.startsWith("operator")) {
             return false;
         }
         return fun.isImplementation && fun.body.children.length > 0;
     }
 
-    public static isDef(varref: Varref) {
+    public static isDef(varref: Varref): boolean {
         if (varref.parent instanceof BinaryOp) {
             const binOp = varref.parent;
             return binOp.kind == "assign" && binOp.left.code == varref.code;
@@ -138,7 +141,7 @@ export class ClavaUtils {
         return false;
     }
 
-    public static getDatatypeSize(datatype: string) {
+    public static getDatatypeSize(datatype: string): number {
         const cDataTypes = new Map([
             ['char', 1],
             ['unsigned char', 1],

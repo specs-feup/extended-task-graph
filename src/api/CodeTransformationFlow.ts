@@ -1,10 +1,11 @@
 import { AStage } from "../AStage.js";
 import { OutputDirectories } from "./OutputDirectories.js";
-import { CodeInstrumenter } from "../preprocessing/profiling/CodeInstrumenter.js";
+import { Profiler } from "../preprocessing/profiling/Profiler.js";
 import { SubsetPreprocessor } from "../preprocessing/subset/SubsetPreprocessor.js";
 import { TaskPreprocessor } from "../preprocessing/task/TaskPreprocessor.js";
 import { ClavaUtils } from "../util/ClavaUtils.js";
 import { ApplicationAnalyser } from "../analysis/ast/ApplicationAnalyser.js";
+import Clava from "@specs-feup/clava/api/clava/Clava.js";
 
 export class CodeTransformationFlow extends AStage {
     constructor(topFunctionName: string, outputDir: string, appName: string) {
@@ -42,9 +43,12 @@ export class CodeTransformationFlow extends AStage {
         this.logSuccess("Task preprocessing finished successfully!");
         this.logLine();
 
-        this.applyInstrumentation();
+        Clava.pushAst();
+        this.applyProfilingInstrumentation();
+        this.generateInstrumentedCode();
         this.logSuccess("Instrumentation finished successfully!");
         this.logLine();
+        Clava.popAst();
 
         this.intermediateAnalysis(dumpCallGraph, dumpAST);
         this.logLine();
@@ -116,13 +120,11 @@ export class CodeTransformationFlow extends AStage {
         this.log(`Intermediate task-based source code written to "${OutputDirectories.SRC_TASKS}"`);
     }
 
-    public applyInstrumentation(): void {
-        this.log("Running instrumentation step");
-        // push AST
-        const instrumenter = new CodeInstrumenter(this.getTopFunctionName());
-        //instrumenter.instrument();
+    public applyProfilingInstrumentation(): void {
+        this.log("Running profiling instrumentation step");
 
-        // pop ASTs
+        const instrumenter = new Profiler(this.getTopFunctionName());
+        instrumenter.instrumentAll();
     }
 
     public generateInstrumentedCode(): void {

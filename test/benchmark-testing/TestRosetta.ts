@@ -3,11 +3,17 @@ import { SuiteSelector } from "./SuiteSelector.js";
 import { ExtendedTaskGraphAPI } from "../../src/api/ExtendedTaskGraphAPI.js";
 
 const rosettaSuite: BenchmarkSuite = SuiteSelector.ROSETTA;
+//const apps = rosettaSuite.apps;
+const apps = [
+    //"3d-rendering",
+    //"digit-recognition",
+    //"face-detection",
+    //"optical-flow",
+    "spam-filter"
+];
 
-for (const app of rosettaSuite.apps) {
+for (const app of apps) {
     console.log(app);
-
-    console.log("Running the code transformation flow...");
 
     const topFunctionName = LiteBenchmarkLoader.load(rosettaSuite, app);
     const outputDir = "output/rosetta";
@@ -16,7 +22,9 @@ for (const app of rosettaSuite.apps) {
     const dumpAST = true;
     const dumpCallGraph = true;
     const doTransformations = false;
-    const success = api.runCodeTransformationFlow(dumpCallGraph, dumpAST, doTransformations);
+    const generateGraph = false;
+    const gatherMetrics = false;
 
-    console.log(success ? "Code transformation succeeded" : "Code transformation failed");
+    api.runCodeTransformationFlow(dumpCallGraph, dumpAST, doTransformations);
+    api.runTaskGraphGenerationFlow(generateGraph, gatherMetrics);
 }

@@ -36,7 +36,7 @@ export class OutlineRegionFinder extends AStage {
         const filteredRegions = this.filterRegions(regions);
 
         // finally, wrap all the regions we found
-        const wrappedRegions = [];
+        const wrappedRegions: Statement[][] = [];
         for (const region of filteredRegions) {
             const wrappedRegion = this.wrapRegion(region);
             wrappedRegions.push(wrappedRegion);
@@ -118,6 +118,7 @@ export class OutlineRegionFinder extends AStage {
             hasOneUsefulStmt ||= stmt instanceof WrapperStmt;
             hasOneUsefulStmt ||= stmt instanceof DeclStmt;
             hasOneUsefulStmt ||= stmt instanceof ReturnStmt;
+            hasOneUsefulStmt ||= stmt instanceof ExprStmt;
 
             if (hasOneUsefulStmt) {
                 break;

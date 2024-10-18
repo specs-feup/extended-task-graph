@@ -1,10 +1,13 @@
-import { Call, Literal, Loop, Param, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Call, FloatLiteral, IntLiteral, Loop, Vardecl } from "@specs-feup/clava/api/Joinpoints.js";
 import { TaskType } from "./TaskType.js";
-import { DataItem } from "../DataItem.js";
+import { DataItem } from "../dataitems/DataItem.js";
 import { Communication } from "../Communication.js";
 import { ControlEdge } from "../ControlEdge.js";
 import { DataItemOrigin } from "../DataItemOrigin.js";
 import { AccessType } from "../AccessType.js";
+import { VariableDataItem } from "../dataitems/VariableDataItem.js";
+import { ConstantDataItem } from "../dataitems/ConstantDataItem.js";
 
 export abstract class Task {
     // Basic task details
@@ -14,10 +17,10 @@ export abstract class Task {
     private loopReference: Loop | null = null;
 
     // Data properties
-    private dataParams: DataItem[] = [];
-    private dataGlobalRefs: DataItem[] = [];
-    private dataNew: DataItem[] = [];
-    private dataConstants: DataItem[] = [];
+    private dataParams: VariableDataItem[] = [];
+    private dataGlobalRefs: VariableDataItem[] = [];
+    private dataNew: VariableDataItem[] = [];
+    private dataConstants: ConstantDataItem[] = [];
 
     // Data communication properties
     private incomingComm: Communication[] = [];
@@ -101,39 +104,39 @@ export abstract class Task {
         return null;
     }
 
-    public getParamData(): DataItem[] {
+    public getParamData(): VariableDataItem[] {
         return this.dataParams;
     }
 
-    public addParamData(dataItem: DataItem): void {
+    public addParamData(dataItem: VariableDataItem): void {
         this.dataParams.push(dataItem);
     }
 
-    public getGlobalRefData(): DataItem[] {
+    public getGlobalRefData(): VariableDataItem[] {
         return this.dataGlobalRefs;
     }
 
-    public addGlobalRefData(dataItem: DataItem): void {
+    public addGlobalRefData(dataItem: VariableDataItem): void {
         this.dataGlobalRefs.push(dataItem);
     }
 
-    public getNewData(): DataItem[] {
+    public getNewData(): VariableDataItem[] {
         return this.dataNew;
     }
 
-    public addNewData(dataItem: DataItem): void {
+    public addNewData(dataItem: VariableDataItem): void {
         this.dataNew.push(dataItem);
     }
 
-    public getConstantData(): DataItem[] {
+    public getConstantData(): ConstantDataItem[] {
         return this.dataConstants;
     }
 
-    public addConstantData(dataItem: DataItem): void {
+    public addConstantData(dataItem: ConstantDataItem): void {
         this.dataConstants.push(dataItem);
     }
 
-    public getReferencedData(): DataItem[] {
+    public getReferencedData(): VariableDataItem[] {
         return [...this.dataParams, ...this.dataGlobalRefs];
     }
 
@@ -194,7 +197,7 @@ export abstract class Task {
 
     public createDataObjects(vars: Vardecl[], originType: DataItemOrigin): void {
         for (const vardecl of vars) {
-            const data = new DataItem(vardecl, originType);
+            const data = new VariableDataItem(vardecl, originType);
 
             switch (originType) {
                 case DataItemOrigin.PARAM:
@@ -212,8 +215,8 @@ export abstract class Task {
         }
     }
 
-    public createConstantObject(immConst: Literal, funCall: Call): void {
-        const datum = new DataItem(immConst.vardecl, DataItemOrigin.CONSTANT);
+    public createConstantObject(immConst: IntLiteral | FloatLiteral, funCall: Call): void {
+        const datum = new ConstantDataItem(immConst);
         datum.setImmediateFunctionCall(funCall);
         this.dataConstants.push(datum);
     }

@@ -27,7 +27,7 @@ export class TaskGraphGenerationFlow extends AStage {
         }
 
         if (gatherMetrics) {
-            //this.analyzeTaskGraph(tg);
+            this.analyzeTaskGraph(tg);
         }
 
         this.log("Task Graph Generation flow finished successfully!");

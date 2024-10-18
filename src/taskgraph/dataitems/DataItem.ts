@@ -1,30 +1,28 @@
-import { Call, FloatLiteral, IntLiteral, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
-import { DataItemOrigin } from "./DataItemOrigin.js";
-import { ClavaUtils } from "../util/ClavaUtils.js";
+import { Call, Type } from "@specs-feup/clava/api/Joinpoints.js";
+import { DataItemOrigin } from "../DataItemOrigin.js";
+import { ClavaUtils } from "../../util/ClavaUtils.js";
 
-export class DataItem {
-    private ref: Vardecl;
-    private name: string = "<no_name>";
-    private isInit: boolean = false;
-    private dataIsWritten: boolean = false;
-    private dataIsRead: boolean = false;
+export abstract class DataItem {
+    protected name: string = "<no_name>";
+    protected isInit: boolean = false;
+    protected dataIsWritten: boolean = false;
+    protected dataIsRead: boolean = false;
 
-    private dataIsScalar: boolean = false;
-    private dims: number[] = [];
-    private sizeInBytes: number = -1;
-    private datatype: string = "<no_type>";
-    private datatypeSize: number = 4;
+    protected dataIsScalar: boolean = false;
+    protected dims: number[] = [];
+    protected sizeInBytes: number = -1;
+    protected datatype: string = "<no_type>";
+    protected datatypeSize: number = 4;
 
-    private itemOrigin: DataItemOrigin = DataItemOrigin.NEW;
-    private alternateName: string = "<no_alt_name>";
-    private immediateFunctionCall: Call | null = null;
+    protected itemOrigin: DataItemOrigin = DataItemOrigin.NEW;
+    protected alternateName: string = "<no_alt_name>";
+    protected immediateFunctionCall: Call | null = null;
 
-    constructor(ref: Vardecl, origin: DataItemOrigin) {
-        this.ref = ref;
+    constructor(name: string, type: Type, origin: DataItemOrigin) {
+        this.name = name;
+        this.demangleDatatype(type);
         this.itemOrigin = origin;
-        this.name = this.getNameFromRef(ref);
         this.alternateName = this.name;
-        this.demangleDatatype(ref);
     }
 
     public getName(): string {
@@ -35,11 +33,7 @@ export class DataItem {
         return this.itemOrigin;
     }
 
-    public getDecl(): Vardecl | null {
-        return this.ref;
-    }
-
-    public getDatatype(): any {
+    public getDatatype(): string {
         return this.datatype;
     }
 
@@ -130,12 +124,11 @@ export class DataItem {
 
     public toString(): string {
         const status = !this.isInit ? "U" : (this.dataIsRead ? "R" : "") + (this.dataIsWritten ? "W" : "");
-        const refName = this.ref ? this.ref.name : "<null_ref>";
+        const refName = this.name;
         return `${refName} {${this.sizeInBytes}} ${status}`;
     }
 
-    private demangleDatatype(decl: Vardecl): void {
-        const type = decl.type;
+    private demangleDatatype(type: Type): void {
         const typeCode = type.code;
 
         if (type.isArray) {
@@ -146,15 +139,6 @@ export class DataItem {
         }
         else {
             this.demangleScalar(typeCode);
-        }
-    }
-
-    private getNameFromRef(ref: Vardecl): string {
-        if (ref instanceof IntLiteral || ref instanceof FloatLiteral) {
-            return "imm(" + ref.value + ")";
-        }
-        else {
-            return ref.name;
         }
     }
 

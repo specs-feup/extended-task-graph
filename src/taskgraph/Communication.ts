@@ -1,4 +1,4 @@
-import { DataItem } from "./DataItem.js";
+import { DataItem } from "./dataitems/DataItem.js";
 import { Task } from "./tasks/Task.js";
 
 export class Communication {

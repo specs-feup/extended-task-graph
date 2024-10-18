@@ -1,4 +1,4 @@
-import { Call, FunctionJp, If, Joinpoint, Loop, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { Call, FunctionJp, If, Joinpoint, Loop, VariableArrayType, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { AStage } from "../AStage.js";
 import { TaskGraph } from "./TaskGraph.js";
@@ -7,9 +7,10 @@ import { RegularTask } from "./tasks/RegularTask.js";
 import { ClavaUtils } from "../util/ClavaUtils.js";
 import { ExternalFunctionsMatcher } from "../util/ExternalFunctionsMatcher.js";
 import { ExternalTask } from "./tasks/ExternalTask.js";
-import { DataItem } from "./DataItem.js";
+import { DataItem } from "./dataitems/DataItem.js";
 import { ConcreteTask } from "./tasks/ConcreteTask.js";
 import LoopCharacterizer from "clava-code-transformations/LoopCharacterizer";
+import { VariableDataItem } from "./dataitems/VariableDataItem.js";
 
 export class TaskGraphBuilder extends AStage {
     private lastUsedGlobal = new Map();
@@ -36,7 +37,7 @@ export class TaskGraphBuilder extends AStage {
         rank = 1;
         for (const dataItem of topTask.getDataWritten()) {
             const sinkTask = taskGraph.getSinkTask();
-            const itemInSink = sinkTask.addDataToSink(dataItem);
+            const itemInSink = sinkTask.addDataToSink(dataItem as VariableDataItem);
 
             taskGraph.addCommunication(topTask, sinkTask, dataItem, itemInSink, rank);
             rank++;

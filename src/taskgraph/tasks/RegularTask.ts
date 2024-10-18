@@ -5,6 +5,8 @@ import { Task } from "./Task.js";
 import { TaskType } from "./TaskType.js";
 import { DataItemOrigin } from "../DataItemOrigin.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
+import { ConstantDataItem } from "../dataitems/ConstantDataItem.js";
+import { VariableDataItem } from "../dataitems/VariableDataItem.js";
 
 export class RegularTask extends ConcreteTask {
     private function: FunctionJp;
@@ -60,9 +62,11 @@ export class RegularTask extends ConcreteTask {
                     }
                 }
             }
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             catch (e) {
                 // As far as I understand, this error can be ignored. These varrefs are from function names
                 //println(`Could not find vardecl for varref ${varref.name} of type ${varref.type}`);
+                //console.log(e);
             }
         }
         const declList = globalVars.values();
@@ -79,15 +83,21 @@ export class RegularTask extends ConcreteTask {
 
     private findDataFromConstants(): void {
         for (const funCall of Query.searchFrom(this.function.body, Call)) {
-            for (const immConst of Query.searchFrom(funCall, Literal)) {
-                this.createConstantObject(immConst, funCall);
+            for (const intConst of Query.searchFrom(funCall, IntLiteral)) {
+                this.createConstantObject(intConst, funCall);
+            }
+            for (const floatConst of Query.searchFrom(funCall, FloatLiteral)) {
+                this.createConstantObject(floatConst, funCall);
             }
         }
     }
 
     private updateDataReadWrites(): void {
         for (const dataItem of this.getData()) {
-            const vardecl = dataItem.getDecl();
+            if (dataItem instanceof ConstantDataItem) {
+                continue;
+            }
+            const vardecl = (dataItem as VariableDataItem).getDecl();
 
             for (const ref of Query.searchFrom(this.function.body, Varref, { name: vardecl?.name })) {
                 if ((ClavaUtils.isDef(ref))) {
