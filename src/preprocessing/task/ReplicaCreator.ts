@@ -37,6 +37,7 @@ export class ReplicaCreator extends AStage {
         }
 
         let nReplicas = 0, nUnique = 0;
+
         for (const key of instances.keys()) {
             const calls = instances.get(key)!;
             const nCalls = calls.length;
@@ -53,6 +54,7 @@ export class ReplicaCreator extends AStage {
                 this.log(`Could not create replicas for function ${name}`);
             }
         }
+
         return [nReplicas, nUnique];
     }
 
@@ -87,6 +89,8 @@ export class ReplicaCreator extends AStage {
     }
 
     public createReplicas(calls: Call[]): number {
+        const fun = calls[0].function;
+
         let id = 0;
         for (const call of calls) {
             const success = this.replicate(call, id);
@@ -94,6 +98,8 @@ export class ReplicaCreator extends AStage {
                 id++;
             }
         }
+        fun.detach();
+
         return id;
     }
 

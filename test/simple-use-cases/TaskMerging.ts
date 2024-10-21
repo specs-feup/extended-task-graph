@@ -11,6 +11,7 @@ try {
     const generateEtg = true;
     const gatherMetrics = false;
 
+    api.runCodeTransformationFlow(true, true, true);
     etg = api.runTaskGraphGenerationFlow(generateEtg, gatherMetrics);
 } catch (e) {
     console.error(e);
