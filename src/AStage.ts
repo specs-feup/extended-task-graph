@@ -150,6 +150,7 @@ export abstract class AStage {
 
     protected saveToFileInSubfolder(content: string, filename: string, subfolder: string): string {
         const fullName = `${this.outputDir}/${subfolder}/${this.appName}_${filename}`;
+        console.log(fullName);
         Io.writeFile(fullName, content);
         return fullName;
     }
