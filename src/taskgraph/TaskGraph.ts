@@ -49,6 +49,15 @@ export class TaskGraph {
         return null;
     }
 
+    public getTaskByName(name: string): ConcreteTask | null {
+        for (const task of this.tasks) {
+            if (task.getName() === name) {
+                return task;
+            }
+        }
+        return null;
+    }
+
     public getTasksByType(type: TaskType): ConcreteTask[] {
         const tasks = [];
         for (const task of this.tasks) {
