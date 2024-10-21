@@ -1,8 +1,8 @@
 import chalk from "chalk";
 import { ExtendedTaskGraphAPI } from "../../src/api/ExtendedTaskGraphAPI.js";
 import { TaskGraph } from "../../src/taskgraph/TaskGraph.js";
-import { mergeTasks } from "../../src/taskgraph/TaskGraphTransform.js";
 import { RegularTask } from "../../src/taskgraph/tasks/RegularTask.js";
+import { TaskMerger } from "../../src/taskgraph/TaskMerger.js";
 
 const api = new ExtendedTaskGraphAPI("edge_detect", "output/apps", "edgedetect-mergesplit");
 
@@ -26,12 +26,17 @@ if (etg == null) {
     const t1 = etg.getTaskByName("convolve2d_rep2")! as RegularTask;
     const t2 = etg.getTaskByName("combthreshold")! as RegularTask;
 
-    const merged = mergeTasks(etg, t1, t2);
+    const merger = new TaskMerger();
+    const merged = merger.mergeTasks(etg, t1, t2);
 
     if (merged != null) {
         console.log(merged.getName());
         console.log(merged.getId());
         console.log(merged.getFunction().code);
+
+        console.log("Dumping ETG to output/apps/new-etg");
+        api.dumpTaskGraph(etg, "output/apps/new-etg");
+        console.log("Dumped ETG to output/apps/new-etg");
 
         console.log(chalk.green("Test passed") + ": Merging succeeded");
     } else {

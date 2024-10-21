@@ -24,6 +24,14 @@ export class Communication {
         return this.target;
     }
 
+    public setSource(source: Task): void {
+        this.source = source;
+    }
+
+    public setTarget(target: Task): void {
+        this.target = target;
+    }
+
     public getSourceData(): DataItem {
         return this.sourceData;
     }

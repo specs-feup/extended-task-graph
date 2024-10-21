@@ -32,6 +32,20 @@ export class TaskGraph {
         this.tasks.push(task);
     }
 
+    public removeTask(task: ConcreteTask): void {
+        if (task.getIncomingComm().length > 0 || task.getOutgoingComm().length > 0) {
+            console.log(task.getName() + " " + task.getIncomingComm().length + " " + task.getOutgoingComm().length);
+            throw new Error("Cannot remove task with communications");
+        }
+
+        const index = this.tasks.indexOf(task);
+        if (index >= 0) {
+            this.tasks.splice(index, 1);
+        }
+
+        task.getHierarchicalParent()?.removeHierarchicalChild(task);
+    }
+
     public addInlinable(call: Call): void {
         this.inlinables.push(call);
     }
@@ -115,5 +129,14 @@ export class TaskGraph {
         this.control.push(control);
         source.addOutgoingControl(control);
         target.addIncomingControl(control);
+    }
+
+    public removeCommunication(comm: Communication): void {
+        const index = this.comms.indexOf(comm);
+        if (index >= 0) {
+            this.comms.splice(index, 1);
+        }
+        comm.getSource().removeOutgoingComm(comm);
+        comm.getTarget().removeIncomingComm(comm);
     }
 }

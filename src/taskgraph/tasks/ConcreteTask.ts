@@ -5,12 +5,12 @@ import IdGenerator from "@specs-feup/lara/api/lara/util/IdGenerator.js";
 
 export class ConcreteTask extends Task {
     private call: Call | null;
-    private hierParent: Task | null = null;
+    private hierParent: ConcreteTask | null = null;
     private hierChildren: Set<ConcreteTask> = new Set();
     private repetitions = 1;
     private loopRef: Loop | null = null;
 
-    constructor(type: TaskType.REGULAR | TaskType.EXTERNAL, call: Call | null, hierParent: Task | null, name: string, delimiter = ".", prefix = "T") {
+    constructor(type: TaskType.REGULAR | TaskType.EXTERNAL, call: Call | null, hierParent: ConcreteTask | null, name: string, delimiter = ".", prefix = "T") {
         super(type);
 
         const idPrefix = (hierParent != null && hierParent.getType() == TaskType.REGULAR) ?
@@ -44,7 +44,7 @@ export class ConcreteTask extends Task {
     }
 
     // Hierarchical stuff
-    public getHierarchicalParent(): Task | null {
+    public getHierarchicalParent(): ConcreteTask | null {
         return this.hierParent;
     }
 

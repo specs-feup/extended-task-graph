@@ -141,12 +141,12 @@ export abstract class Task {
     }
 
     // Communication methods
-    public addOutgoingComm(communication: Communication): void {
-        this.outgoingComm.push(communication);
+    public addOutgoingComm(...communication: Communication[]): void {
+        this.outgoingComm.push(...communication);
     }
 
-    public addIncomingComm(communication: Communication): void {
-        this.incomingComm.push(communication);
+    public addIncomingComm(...communication: Communication[]): void {
+        this.incomingComm.push(...communication);
     }
 
     public getOutgoingComm(): Communication[] {
@@ -155,6 +155,22 @@ export abstract class Task {
 
     public getIncomingComm(): Communication[] {
         return this.incomingComm;
+    }
+
+    public removeOutgoingComm(...toRemove: Communication[]): void {
+        this.outgoingComm = this.outgoingComm.filter((comm) => !toRemove.includes(comm));
+    }
+
+    public removeIncomingComm(...toRemove: Communication[]): void {
+        this.incomingComm = this.incomingComm.filter((comm) => !toRemove.includes(comm));
+    }
+
+    public removeAllOutgoingComm(): void {
+        this.outgoingComm = [];
+    }
+
+    public removeAllIncomingComm(): void {
+        this.incomingComm = [];
     }
 
     public getOutgoingOfData(datum: DataItem): Communication[] {

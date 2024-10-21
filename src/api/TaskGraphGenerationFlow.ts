@@ -67,16 +67,18 @@ export class TaskGraphGenerationFlow extends AStage {
         this.log("Task graph successfully dumped!");
     }
 
-    public analyzeTaskGraph(taskGraph: TaskGraph): void {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    public analyzeTaskGraph(taskGraph: TaskGraph): Record<string, any> {
         this.log("Running task graph analysis process");
         const topFun = this.getTopFunctionName();
         const outDir = this.getOutputDir() + "/" + OutputDirectories.TASKGRAPH;
         const appName = this.getAppName();
 
         const analyzer = new TaskGraphAnalyzer(topFun, outDir, appName, taskGraph);
-        analyzer.updateMetrics();
+        const metrics = analyzer.updateMetrics();
         analyzer.saveMetrics();
 
         this.log("Task graph successfully analyzed!");
+        return metrics;
     }
 }

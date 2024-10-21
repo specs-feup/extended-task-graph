@@ -30,6 +30,21 @@ export class ExtendedTaskGraphAPI extends AStage {
         return tg;
     }
 
+    public generateTaskGraph(): TaskGraph | null {
+        return this.runTaskGraphGenerationFlow(false, false);
+    }
+
+    public dumpTaskGraph(etg: TaskGraph, outputDir: string): void {
+        const flow = new TaskGraphGenerationFlow(this.getTopFunctionName(), outputDir, this.getAppName());
+        flow.dumpTaskGraph(etg);
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    public gatherTaskGraphMetrics(etg: TaskGraph, outputDir: string): Record<string, any> {
+        const flow = new TaskGraphGenerationFlow(this.getTopFunctionName(), outputDir, this.getAppName());
+        return flow.analyzeTaskGraph(etg);
+    }
+
     private ensureLinux(): void {
         if (!Platforms.isLinux()) {
             const platName = Platforms.getPlatformName();

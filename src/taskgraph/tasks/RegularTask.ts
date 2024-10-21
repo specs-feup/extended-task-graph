@@ -1,7 +1,6 @@
-import { Call, FloatLiteral, FunctionJp, FunctionType, IntLiteral, Literal, Param, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { Call, FloatLiteral, FunctionJp, FunctionType, IntLiteral, Param, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { ConcreteTask } from "./ConcreteTask.js";
-import { Task } from "./Task.js";
 import { TaskType } from "./TaskType.js";
 import { DataItemOrigin } from "../DataItemOrigin.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
@@ -11,7 +10,7 @@ import { VariableDataItem } from "../dataitems/VariableDataItem.js";
 export class RegularTask extends ConcreteTask {
     private function: FunctionJp;
 
-    constructor(call: Call | null, fun: FunctionJp, hierParent: Task | null, delimiter = ".") {
+    constructor(call: Call | null, fun: FunctionJp, hierParent: ConcreteTask | null, delimiter = ".") {
         super(TaskType.REGULAR, call, hierParent, fun.name, delimiter, "T");
 
         this.function = fun;
@@ -106,7 +105,7 @@ export class RegularTask extends ConcreteTask {
                 else {
                     dataItem.setRead();
                 }
-            };
+            }
         }
     }
 

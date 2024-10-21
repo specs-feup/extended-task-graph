@@ -1,4 +1,4 @@
-import { Call, FunctionJp, If, Joinpoint, Loop, VariableArrayType, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { Call, FunctionJp, If, Joinpoint, Loop, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { AStage } from "../AStage.js";
 import { TaskGraph } from "./TaskGraph.js";
@@ -56,7 +56,7 @@ export class TaskGraphBuilder extends AStage {
         }
     }
 
-    private buildLevel(taskGraph: TaskGraph, fun: FunctionJp, parent: Task | null, call: Call | null, firstLevel: boolean = false): Task {
+    private buildLevel(taskGraph: TaskGraph, fun: FunctionJp, parent: ConcreteTask | null, call: Call | null, firstLevel: boolean = false): Task {
         const task = new RegularTask(call, fun, parent);
         if (!firstLevel) {
             this.updateWithRepetitions(task, call);

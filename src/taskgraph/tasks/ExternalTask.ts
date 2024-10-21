@@ -1,6 +1,5 @@
 import { Call, FunctionType, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 import { ConcreteTask } from "./ConcreteTask.js";
-import { Task } from "./Task.js";
 import { TaskType } from "./TaskType.js";
 import { ExternalTaskDataPolicy } from "./ExternalTaskDataPolicy.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
@@ -9,7 +8,7 @@ import { DataItemOrigin } from "../DataItemOrigin.js";
 export class ExternalTask extends ConcreteTask {
     private externalTaskDataPolicy: ExternalTaskDataPolicy;
 
-    constructor(call: Call, hierParent: Task, delimiter = ".") {
+    constructor(call: Call, hierParent: ConcreteTask, delimiter = ".") {
         super(TaskType.EXTERNAL, call, hierParent, call.name, delimiter, "TEx");
 
         this.populateExternalCallData();
