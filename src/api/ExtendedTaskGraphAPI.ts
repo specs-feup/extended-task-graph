@@ -3,7 +3,6 @@ import { CodeTransformationFlow } from "./CodeTransformationFlow.js";
 import { TaskGraph } from "../taskgraph/TaskGraph.js";
 import { TaskGraphGenerationFlow } from "./TaskGraphGenerationFlow.js";
 import Platforms from "@specs-feup/lara/api/lara/Platforms.js";
-import Clava from "@specs-feup/clava/api/clava/Clava.js";
 
 export class ExtendedTaskGraphAPI extends AStage {
     constructor(topFunctionName: string, outputDir: string = "output", appName: string = "default_app_name") {
@@ -35,14 +34,16 @@ export class ExtendedTaskGraphAPI extends AStage {
         return this.runTaskGraphGenerationFlow(false, false);
     }
 
-    public dumpTaskGraph(etg: TaskGraph, outputDir: string): void {
-        const flow = new TaskGraphGenerationFlow(this.getTopFunctionName(), outputDir, this.getAppName());
+    public dumpTaskGraph(etg: TaskGraph, subfolderName: string = "."): void {
+        const newOutputDir = `${this.getOutputDir()}/${subfolderName}`;
+        const flow = new TaskGraphGenerationFlow(this.getTopFunctionName(), newOutputDir, this.getAppName());
         flow.dumpTaskGraph(etg);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    public gatherTaskGraphMetrics(etg: TaskGraph, outputDir: string): Record<string, any> {
-        const flow = new TaskGraphGenerationFlow(this.getTopFunctionName(), outputDir, this.getAppName());
+    public gatherTaskGraphMetrics(etg: TaskGraph, subfolderName: string = "."): Record<string, any> {
+        const newOutputDir = `${this.getOutputDir()}/${subfolderName}`;
+        const flow = new TaskGraphGenerationFlow(this.getTopFunctionName(), newOutputDir, this.getAppName());
         return flow.analyzeTaskGraph(etg);
     }
 

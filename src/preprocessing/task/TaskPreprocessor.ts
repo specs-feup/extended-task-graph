@@ -4,6 +4,7 @@ import { ReplicaCreator } from "./ReplicaCreator.js";
 import { Statement } from "@specs-feup/clava/api/Joinpoints.js";
 import { OutlineRegionFinder } from "./OutlineRegionFinder.js";
 import Outliner from "clava-code-transformations/Outliner";
+import { DefaultPrefix } from "../../api/PreSuffixDefaults.js";
 
 export class TaskPreprocessor extends AStage {
     constructor(topFunction: string, outputDir: string, appName: string) {
@@ -21,7 +22,7 @@ export class TaskPreprocessor extends AStage {
         const annotator = new OutlineRegionFinder(this.getTopFunctionName());
 
         const genericRegions = annotator.annotateGenericPass();
-        const genCnt = this.applyOutlining(genericRegions, "outlined_fun_");
+        const genCnt = this.applyOutlining(genericRegions, DefaultPrefix.OUTLINED_FUN);
         this.log(`Outlined ${genCnt} generic regions`);
 
         // annotator also does the outlining

@@ -6,6 +6,7 @@ import IdGenerator from "@specs-feup/lara/api/lara/util/IdGenerator.js";
 import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
 import { ExternalFunctionsMatcher } from "../../util/ExternalFunctionsMatcher.js";
 import Outliner from "clava-code-transformations/Outliner";
+import { DefaultPrefix } from "../../api/PreSuffixDefaults.js";
 
 export class OutlineRegionFinder extends AStage {
     constructor(topFunction: string) {
@@ -93,7 +94,7 @@ export class OutlineRegionFinder extends AStage {
         }
         else {
             const wrappedRegion = this.wrapRegion(scope.children as Statement[]);
-            this.outlineRegion(wrappedRegion, "outlined_loop_");
+            this.outlineRegion(wrappedRegion, DefaultPrefix.OUTLINED_LOOP);
 
             return outlinedCount + 1;
         }
@@ -131,7 +132,7 @@ export class OutlineRegionFinder extends AStage {
         // having at least one useful statement is not enough
         // we need to check a few more things
         if (region.length == 2 && region[1] instanceof ReturnStmt) {
-            const isTrivialReturn = Query.searchFrom(region[0], Varref, { name: "rtr_val" }).chain().length > 0;
+            const isTrivialReturn = Query.searchFrom(region[0], Varref, { name: DefaultPrefix.RETURN_VAR }).chain().length > 0;
             if (isTrivialReturn) {
                 return false;
             }
@@ -153,7 +154,7 @@ export class OutlineRegionFinder extends AStage {
 
     private isTrivialIf(scope: Scope): boolean {
         if (scope.children.length == 2 && scope.children[1] instanceof ReturnStmt) {
-            const isTrivialReturn = Query.searchFrom(scope.children[0], Varref, { name: "rtr_val" }).chain().length > 0;
+            const isTrivialReturn = Query.searchFrom(scope.children[0], Varref, { name: DefaultPrefix.RETURN_VAR }).chain().length > 0;
 
             if (isTrivialReturn) {
                 const stmt = scope.children[0].code.replace(/\n/g, '\\n');

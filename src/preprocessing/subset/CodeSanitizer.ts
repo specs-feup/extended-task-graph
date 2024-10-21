@@ -1,4 +1,4 @@
-import { BinaryOp, Comment, DeclStmt, LabelStmt, Scope, StorageClass, Vardecl, Varref, WrapperStmt } from "@specs-feup/clava/api/Joinpoints.js";
+import { BinaryOp, Comment, DeclStmt, Joinpoint, LabelStmt, Scope, StorageClass, Vardecl, Varref, WrapperStmt } from "@specs-feup/clava/api/Joinpoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { AStage } from "../../AStage.js";
 
@@ -105,6 +105,7 @@ export class CodeSanitizer extends AStage {
         return count;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private nukeAll(jpType: any): number {
         let count: number = 0;
 

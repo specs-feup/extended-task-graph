@@ -3,11 +3,12 @@ import { TaskGraph } from "./TaskGraph.js";
 import { RegularTask } from "./tasks/RegularTask.js";
 import Outliner from "clava-code-transformations/Outliner";
 import Inliner from "@specs-feup/clava/api/clava/code/Inliner.js";
+import { DefaultPrefix, DefaultSuffix } from "../api/PreSuffixDefaults.js";
 
 export class TaskSplitter {
     private suffix: string;
 
-    constructor(suffix: string = "_shard") {
+    constructor(suffix: string = DefaultSuffix.SPLIT_TASK) {
         this.suffix = suffix;
     }
 
@@ -51,7 +52,7 @@ export class TaskSplitter {
         const callExpr = oldCall.parent as ExprStmt;
         const scope = callExpr.parent as Scope;
 
-        const inliner = new Inliner({ prefix: "_shard_" });
+        const inliner = new Inliner({ prefix: DefaultPrefix.INLINE_VAR });
         inliner.inline(oldCall.parent as ExprStmt);
 
         const innerScope = scope.stmts.find(stmt => stmt instanceof Scope) as Scope;

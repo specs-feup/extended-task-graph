@@ -9,6 +9,7 @@ import FoldingPropagationCombiner from "clava-code-transformations/FoldingPropag
 import StructDecomposer from "clava-code-transformations/StructDecomposer";
 import SwitchToIf from "clava-code-transformations/SwitchToIf";
 import Voidifier from "clava-code-transformations/Voidifier";
+import { DefaultPrefix } from "../../api/PreSuffixDefaults.js";
 
 export class SubsetReducer extends AStage {
     constructor(topFunction: string) {
@@ -83,7 +84,7 @@ export class SubsetReducer extends AStage {
                 this.log("Skipping voidification of main(), which is part of the valid call graph for subset reduction");
             }
             else {
-                const turnedVoid = vf.voidify(fun, "rtr_val");
+                const turnedVoid = vf.voidify(fun, DefaultPrefix.RETURN_VAR);
                 count += turnedVoid ? 1 : 0;
             }
         }

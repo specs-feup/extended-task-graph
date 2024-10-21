@@ -3,6 +3,7 @@ import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js"
 import { AStage } from "../../AStage.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
+import { DefaultSuffix } from "../../api/PreSuffixDefaults.js";
 
 export class ReplicaCreator extends AStage {
     constructor(topFunctionName: string) {
@@ -105,7 +106,7 @@ export class ReplicaCreator extends AStage {
 
     public replicate(call: Call, id: number) {
         const fun = call.function;
-        const clone = fun.clone(`${fun.name}_rep${id}`);
+        const clone = fun.clone(`${fun.name}${DefaultSuffix.REPLICA_FUN}${id}`);
 
         const argList = call.argList;
         const newCall = ClavaJoinPoints.call(clone, ...argList);

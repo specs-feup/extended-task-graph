@@ -5,12 +5,13 @@ import { RegularTask } from "./tasks/RegularTask.js";
 import Outliner from "clava-code-transformations/Outliner";
 import { Communication } from "./Communication.js";
 import { ConcreteTask } from "./tasks/ConcreteTask.js";
+import { DefaultPrefix } from "../api/PreSuffixDefaults.js";
 
 export class TaskMerger {
     private inliningPrefix;
     private outliningPrefix;
 
-    constructor(inliningPrefix: string = "_iln", outliningPrefix: string = "_merged_") {
+    constructor(inliningPrefix: string = DefaultPrefix.INLINE_VAR, outliningPrefix: string = DefaultPrefix.MERGED_FUN) {
         this.inliningPrefix = inliningPrefix;
         this.outliningPrefix = outliningPrefix;
 
