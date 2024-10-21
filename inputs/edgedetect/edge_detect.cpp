@@ -108,7 +108,6 @@ void edge_detect(int image_rgb[H * W * 3],
                  int filter[K * K],
                  int output[H * W])
 {
-
     rgbToGrayscale(image_rgb, image_gray);
 
     filter[0] = 1;

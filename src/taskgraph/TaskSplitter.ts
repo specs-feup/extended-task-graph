@@ -13,12 +13,14 @@ export class TaskSplitter {
     }
 
     public splitTask(etg: TaskGraph, task: RegularTask, stmt: Statement): [RegularTask, RegularTask] {
+        const hierParent = task.getHierarchicalParent()! as RegularTask;
         const oldCall = task.getCall()!;
         const oldFun = task.getFunction();
         const oldBody = oldFun.body as Scope;
 
         const regions = this.getRegions(oldBody, stmt);
         const outliner = new Outliner();
+        outliner.setVerbosity(false);
 
         const nameA = `${oldFun.name}${this.suffix}_A`;
         const [funA, callA] = outliner.outlineWithName(regions[0], regions[1], nameA);
@@ -28,7 +30,18 @@ export class TaskSplitter {
 
         this.inlineOldCall(oldCall);
 
-        return [task, task];
+        const taskA = new RegularTask(callA, funA!, hierParent);
+        const taskB = new RegularTask(callB, funB!, hierParent);
+
+        this.rearrangeCommunication(etg, task, taskA, taskB);
+
+        etg.removeTask(task);
+        etg.addTask(taskA);
+        etg.addTask(taskB);
+        hierParent.addHierarchicalChild(taskA);
+        hierParent.addHierarchicalChild(taskB);
+
+        return [taskA, taskB];
     }
 
     private getRegions(body: Scope, stmt: Statement): [Statement, Statement, Statement, Statement] {
@@ -60,5 +73,10 @@ export class TaskSplitter {
             innerScope.insertBefore(stmt);
         }
         innerScope.detach();
+    }
+
+    private rearrangeCommunication(etg: TaskGraph, task: RegularTask, taskA: RegularTask, taskB: RegularTask): void {
+        task.removeAllIncomingComm();
+        task.removeAllOutgoingComm();
     }
 }

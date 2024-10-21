@@ -8,6 +8,6 @@ export enum DefaultPrefix {
 }
 
 export enum DefaultSuffix {
-    SPLIT_TASK = "_shard_",
+    SPLIT_TASK = "_shard",
     REPLICA_FUN = "_rep"
 }
