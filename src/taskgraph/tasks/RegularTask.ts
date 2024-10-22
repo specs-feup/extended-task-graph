@@ -6,6 +6,7 @@ import { DataItemOrigin } from "../DataItemOrigin.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
 import { ConstantDataItem } from "../dataitems/ConstantDataItem.js";
 import { VariableDataItem } from "../dataitems/VariableDataItem.js";
+import { VarrefWriteChecker } from "../../util/VarrefWriteChecker.js";
 
 export class RegularTask extends ConcreteTask {
     private function: FunctionJp;
@@ -99,7 +100,9 @@ export class RegularTask extends ConcreteTask {
             const vardecl = (dataItem as VariableDataItem).getDecl();
 
             for (const ref of Query.searchFrom(this.function.body, Varref, { name: vardecl?.name })) {
-                if ((ClavaUtils.isWrittenTo(ref))) {
+                const checker = new VarrefWriteChecker();
+
+                if ((checker.isWrittenTo(ref))) {
                     dataItem.setWritten();
                 }
                 else {

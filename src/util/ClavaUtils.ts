@@ -109,51 +109,6 @@ export class ClavaUtils {
         return fun.isImplementation && fun.body.children.length > 0;
     }
 
-    public static isWrittenTo(varref: Varref): boolean {
-        if (varref.parent instanceof BinaryOp) {
-            const binOp = varref.parent;
-            return binOp.kind == "assign" && binOp.left.code == varref.code;
-        }
-        if (varref.parent instanceof ArrayAccess) {
-            const arrAccess = varref.parent;
-
-            if (arrAccess.parent instanceof BinaryOp) {
-                const binOp = arrAccess.parent;
-                return binOp.kind == "assign" && binOp.left.code == arrAccess.code;
-            }
-            if (arrAccess.parent instanceof Vardecl) {
-                return arrAccess.numChildren > 1;
-            }
-        }
-        if (varref.type instanceof PointerType) {
-            const parent = varref.parent;
-            const grandparent = parent.parent;
-
-            const cond1 = parent instanceof UnaryOp && parent.kind == "deref";
-            if (cond1) {
-                const cond2 = grandparent instanceof BinaryOp && grandparent.kind == "assign";
-                if (cond2) {
-                    return grandparent.left.code == parent.code;
-                }
-            }
-        }
-        // special case: (*foo) = bar;
-        if (varref.parent instanceof UnaryOp) {
-            const unaryOp = varref.parent;
-            if (unaryOp.kind == "deref") {
-                if (unaryOp.parent instanceof ParenExpr) {
-                    const parenExpr = unaryOp.parent;
-                    if (parenExpr.parent instanceof BinaryOp) {
-                        const binOp = parenExpr.parent;
-                        return binOp.kind == "assign" && binOp.left.code == parenExpr.code;
-                    }
-                }
-            }
-        }
-
-        return false;
-    }
-
     public static getDatatypeSize(datatype: string): number {
         const cDataTypes = new Map([
             ['char', 1],
