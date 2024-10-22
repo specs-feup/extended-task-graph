@@ -17,6 +17,7 @@
     "simple:allflows": "clava dist/test/simple-use-cases/AllFlows.js -- clang inputs/edgedetect/",
     "simple:merging": "clava dist/test/simple-use-cases/TaskMerging.js -- clang inputs/edgedetect/",
     "simple:splitting": "clava dist/test/simple-use-cases/TaskSplitting.js -- clang inputs/edgedetect/",
+    "simple:clusterextract": "clava dist/test/simple-use-cases/ClusterExtraction.js -- clang inputs/cluster-scenario/",
     "bench:rosetta": "clava dist/test/benchmark-testing/TestRosetta.js"
   },
   "dependencies": {
