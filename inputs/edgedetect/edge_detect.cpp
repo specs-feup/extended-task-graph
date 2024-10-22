@@ -17,7 +17,7 @@ using namespace std::chrono;
 #define H N
 #define W N
 
-#define FORCE_EXTERNAL
+// #define FORCE_EXTERNAL
 
 void rgbToGrayscale(int input_image[H * W * 3], int output_image[H * W])
 {

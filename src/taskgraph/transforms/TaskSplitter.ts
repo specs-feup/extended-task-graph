@@ -35,14 +35,15 @@ export class TaskSplitter {
         const funA = callA.function;
         const funB = callB.function;
 
-        this.addDeclsToParent(outsideDecls, hierParent);
+        const declNames = this.addDeclsToParent(outsideDecls, hierParent);
 
         const taskA = new RegularTask(callA, funA!, hierParent);
         const taskB = new RegularTask(callB, funB!, hierParent);
 
-        this.createInterTaskComm(etg, taskA, taskB);
+        this.reassignIncomingEdges(etg, task, taskA, taskB);
+        this.reassignOutgoingEdges(task, taskB, taskA);
 
-        this.reassignOldTaskEdges(etg, task, taskA, taskB);
+        this.createInterTaskComm(etg, taskA, taskB, declNames);
 
         etg.removeTask(task);
         etg.addTask(taskA);
@@ -118,7 +119,7 @@ export class TaskSplitter {
         return declNames;
     }
 
-    private createInterTaskComm(etg: TaskGraph, taskA: RegularTask, taskB: RegularTask): void {
+    private createInterTaskComm(etg: TaskGraph, taskA: RegularTask, taskB: RegularTask, declNames: string[]): void {
         // no need to bother with the args and param having different names,
         // as the inlining already assures us that the names are the same
         const parent = taskA.getHierarchicalParent()!;
@@ -128,7 +129,11 @@ export class TaskSplitter {
         const writtenByA: Set<string> = new Set();
         for (let i = 0; i < paramsA.length; i++) {
             const param = paramsA[i];
+
             const arg = argsA[i].getDescendantsAndSelf("varref").find(jp => jp instanceof Varref) as Varref;
+            if (!declNames.includes(arg.name)) {
+                continue;
+            }
 
             const dataItemInParent = parent.getDataItemByName(arg.name)!;
             const dataItemInA = taskA.getDataItemByName(param.name)!;
@@ -146,7 +151,12 @@ export class TaskSplitter {
         const writtenByB: Set<string> = new Set();
         for (let i = 0; i < paramsB.length; i++) {
             const param = paramsB[i];
+
             const arg = argsB[i].getDescendantsAndSelf("varref").find(jp => jp instanceof Varref) as Varref;
+            if (!declNames.includes(arg.name)) {
+                continue;
+            }
+
 
             const dataItemInB = taskB.getDataItemByName(param.name)!;
 
@@ -165,29 +175,42 @@ export class TaskSplitter {
         }
     }
 
-    private reassignOldTaskEdges(etg: TaskGraph, oldTask: RegularTask, taskA: RegularTask, taskB: RegularTask): void {
+    private reassignIncomingEdges(etg: TaskGraph, oldTask: RegularTask, firstTask: RegularTask, secondTask: RegularTask) {
         const oldIncoming = oldTask.getIncomingComm();
 
         for (const comm of oldIncoming) {
             const targetDataName = comm.getTargetData().getName();
 
-            for (const dataItem of taskA.getData()) {
-                const newTaskDataName = dataItem.getName();
+            const firstTaskData = firstTask.getDataItemByName(targetDataName);
 
-                if (targetDataName == newTaskDataName) {
-                    comm.setTarget(taskA);
+            // if the data item is not found in the first task, it may be in the second
+            if (firstTaskData == null) {
+                const secondTaskData = secondTask.getDataItemByName(targetDataName);
+
+                if (secondTaskData !== null) {
+                    comm.setTarget(secondTask);
                 }
             }
-            for (const dataItem of taskB.getData()) {
-                const newTaskDataName = dataItem.getName();
+            else {
+                comm.setTarget(firstTask);
 
-                if (targetDataName == newTaskDataName) {
-                    comm.setTarget(taskB);
+                // if the first task only reads the item, and the second task also needs it,
+                // create a new edge
+                if (!firstTaskData.isWritten()) {
+                    const secondTaskData = secondTask.getDataItemByName(targetDataName);
+
+                    if (secondTaskData !== null) {
+                        const n = secondTask.getData().length;
+                        const source = comm.getSource();
+                        etg.addCommunication(source, secondTask, firstTaskData, secondTaskData, n);
+                    }
                 }
             }
         }
         oldTask.removeAllIncomingComm();
+    }
 
+    private reassignOutgoingEdges(oldTask: RegularTask, taskB: RegularTask, taskA: RegularTask) {
         const oldOutgoing = oldTask.getOutgoingComm();
 
         for (const comm of oldOutgoing) {
@@ -210,8 +233,8 @@ export class TaskSplitter {
                     comm.setSource(taskA);
                 }
             }
+            oldTask.removeAllOutgoingComm();
         }
-        oldTask.removeAllOutgoingComm();
     }
 
     private finalCleanup(oldTask: RegularTask, funA: FunctionJp, funB: FunctionJp): void {
