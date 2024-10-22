@@ -2,7 +2,7 @@ import chalk from "chalk";
 import { ExtendedTaskGraphAPI } from "../../src/api/ExtendedTaskGraphAPI.js";
 import { TaskGraph } from "../../src/taskgraph/TaskGraph.js";
 import { RegularTask } from "../../src/taskgraph/tasks/RegularTask.js";
-import { TaskMerger } from "../../src/taskgraph/TaskMerger.js";
+import { TaskMerger } from "../../src/taskgraph/transforms/TaskMerger.js";
 
 const api = new ExtendedTaskGraphAPI("edge_detect", "output/apps", "edgedetect-merge");
 

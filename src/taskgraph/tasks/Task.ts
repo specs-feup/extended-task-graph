@@ -125,6 +125,9 @@ export abstract class Task {
     }
 
     public addNewData(dataItem: VariableDataItem): void {
+        if (dataItem.getItemOriginType() != DataItemOrigin.NEW) {
+            throw new Error("Data item must be of origin NEW");
+        }
         this.dataNew.push(dataItem);
     }
 

@@ -3,7 +3,7 @@ import { ExtendedTaskGraphAPI } from "../../src/api/ExtendedTaskGraphAPI.js";
 import { TaskGraph } from "../../src/taskgraph/TaskGraph.js";
 import { RegularTask } from "../../src/taskgraph/tasks/RegularTask.js";
 import { Loop } from "@specs-feup/clava/api/Joinpoints.js";
-import { TaskSplitter } from "../../src/taskgraph/TaskSplitter.js";
+import { TaskSplitter } from "../../src/taskgraph/transforms/TaskSplitter.js";
 
 const api = new ExtendedTaskGraphAPI("edge_detect", "output/apps", "edgedetect-split");
 
