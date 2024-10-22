@@ -2,13 +2,14 @@ import { RegularTask } from "../tasks/RegularTask.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
 import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
-import { FileJp, FunctionJp, Joinpoint } from "@specs-feup/clava/api/Joinpoints.js";
+import { FileJp, FunctionJp } from "@specs-feup/clava/api/Joinpoints.js";
 
 export class ClusterExtractor {
     constructor() { }
 
     public extractCluster(task: RegularTask, fileName?: string): boolean {
         const fun = task.getFunction();
+        const originalFile = fun.getAncestor("file") as FileJp;
 
         if (fileName == undefined) {
             fileName = `${fun.name}.${ClavaUtils.getCurrentFileExt()}`
@@ -24,7 +25,14 @@ export class ClusterExtractor {
             }
         }
 
-        const fileJp = ClavaJoinPoints.file(fileName);
+        const decl = fun.getDeclaration(true);
+        const declStmt = ClavaJoinPoints.stmtLiteral(`extern ${decl};`);
+        const call = task.getCall()!;
+        const callFun = call.function;
+        callFun.insertBefore(declStmt);
+
+        const subDir = originalFile.sourceFoldername;
+        const fileJp = ClavaJoinPoints.file(fileName, subDir);
         Clava.addFile(fileJp);
 
         const funs = this.getAllFunctionsInCluster(task);
@@ -48,6 +56,7 @@ export class ClusterExtractor {
     private moveToNewFile(funs: FunctionJp[], fileJp: FileJp): void {
         for (const fun of funs) {
             fileJp.insertBegin(fun);
+            fun.detach();
         }
     }
 }

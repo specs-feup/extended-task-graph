@@ -40,7 +40,7 @@ void start(int *A, int *B, int n)
 {
     foo(A, B, n);
     fizzbuzz(A, B, n);
-    buzz(A, B, n);
+    bar(A, B, n);
 }
 
 int main()
