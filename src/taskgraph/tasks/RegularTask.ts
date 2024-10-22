@@ -3,7 +3,6 @@ import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { ConcreteTask } from "./ConcreteTask.js";
 import { TaskType } from "./TaskType.js";
 import { DataItemOrigin } from "../DataItemOrigin.js";
-import { ClavaUtils } from "../../util/ClavaUtils.js";
 import { ConstantDataItem } from "../dataitems/ConstantDataItem.js";
 import { VariableDataItem } from "../dataitems/VariableDataItem.js";
 import { VarrefWriteChecker } from "../../util/VarrefWriteChecker.js";

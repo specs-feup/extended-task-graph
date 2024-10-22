@@ -1,4 +1,4 @@
-import { Call, DeclStmt, ExprStmt, Scope, Statement, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { Call, DeclStmt, ExprStmt, FunctionJp, Scope, Statement, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 import { TaskGraph } from "../TaskGraph.js";
 import { RegularTask } from "../tasks/RegularTask.js";
 import Outliner from "clava-code-transformations/Outliner";
@@ -6,6 +6,7 @@ import Inliner from "@specs-feup/clava/api/clava/code/Inliner.js";
 import { DefaultPrefix, DefaultSuffix } from "../../api/PreSuffixDefaults.js";
 import { VariableDataItem } from "../dataitems/VariableDataItem.js";
 import { DataItemOrigin } from "../DataItemOrigin.js";
+import Query from "@specs-feup/lara/api/weaver/Query.js";
 
 export class TaskSplitter {
     private suffix: string;
@@ -48,6 +49,8 @@ export class TaskSplitter {
         etg.addTask(taskB);
         hierParent.addHierarchicalChild(taskA);
         hierParent.addHierarchicalChild(taskB);
+
+        this.finalCleanup(task, funA, funB);
 
         return [taskA, taskB];
     }
@@ -209,5 +212,18 @@ export class TaskSplitter {
             }
         }
         oldTask.removeAllOutgoingComm();
+    }
+
+    private finalCleanup(oldTask: RegularTask, funA: FunctionJp, funB: FunctionJp): void {
+        const file = oldTask.getFunction().getAncestor("file");
+        oldTask.getFunction().detach();
+
+        for (const fun of Query.searchFrom(file, FunctionJp)) {
+            const cond1 = fun.name == funA.name || fun.name == funB.name;
+            const cond2 = !fun.isImplementation;
+            if (cond1 && cond2) {
+                fun.detach();
+            }
+        }
     }
 }
