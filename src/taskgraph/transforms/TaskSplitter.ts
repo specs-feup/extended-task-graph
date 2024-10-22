@@ -34,14 +34,16 @@ export class TaskSplitter {
         const funA = callA.function;
         const funB = callB.function;
 
-        const declNames = this.addDeclsToParent(outsideDecls, hierParent);
+        this.addDeclsToParent(outsideDecls, hierParent);
 
         const taskA = new RegularTask(callA, funA!, hierParent);
         const taskB = new RegularTask(callB, funB!, hierParent);
 
-        this.rearrangeCommunication(etg, task, taskA, taskB, declNames);
+        this.createInterTaskComm(etg, taskA, taskB);
 
-        //etg.removeTask(task);
+        this.reassignOldTaskEdges(etg, task, taskA, taskB);
+
+        etg.removeTask(task);
         etg.addTask(taskA);
         etg.addTask(taskB);
         hierParent.addHierarchicalChild(taskA);
@@ -113,7 +115,7 @@ export class TaskSplitter {
         return declNames;
     }
 
-    private rearrangeCommunication(etg: TaskGraph, task: RegularTask, taskA: RegularTask, taskB: RegularTask, declNames: string[]): void {
+    private createInterTaskComm(etg: TaskGraph, taskA: RegularTask, taskB: RegularTask): void {
         // no need to bother with the args and param having different names,
         // as the inlining already assures us that the names are the same
         const parent = taskA.getHierarchicalParent()!;
@@ -158,6 +160,54 @@ export class TaskSplitter {
                 writtenByB.add(param.name);
             }
         }
+    }
 
+    private reassignOldTaskEdges(etg: TaskGraph, oldTask: RegularTask, taskA: RegularTask, taskB: RegularTask): void {
+        const oldIncoming = oldTask.getIncomingComm();
+
+        for (const comm of oldIncoming) {
+            const targetDataName = comm.getTargetData().getName();
+
+            for (const dataItem of taskA.getData()) {
+                const newTaskDataName = dataItem.getName();
+
+                if (targetDataName == newTaskDataName) {
+                    comm.setTarget(taskA);
+                }
+            }
+            for (const dataItem of taskB.getData()) {
+                const newTaskDataName = dataItem.getName();
+
+                if (targetDataName == newTaskDataName) {
+                    comm.setTarget(taskB);
+                }
+            }
+        }
+        oldTask.removeAllIncomingComm();
+
+        const oldOutgoing = oldTask.getOutgoingComm();
+
+        for (const comm of oldOutgoing) {
+            const sourceDataName = comm.getSourceData().getName();
+
+            const taskBmodified: Set<string> = new Set();
+            for (const dataItem of taskB.getData()) {
+                const newTaskDataName = dataItem.getName();
+
+                if (sourceDataName == newTaskDataName && dataItem.isWritten()) {
+                    comm.setSource(taskB);
+                    taskBmodified.add(newTaskDataName);
+                }
+            }
+
+            for (const dataItem of taskA.getData()) {
+                const newTaskDataName = dataItem.getName();
+
+                if (sourceDataName == newTaskDataName && dataItem.isWritten() && !taskBmodified.has(newTaskDataName)) {
+                    comm.setSource(taskA);
+                }
+            }
+        }
+        oldTask.removeAllOutgoingComm();
     }
 }
