@@ -30,21 +30,38 @@ export class ExtendedTaskGraphAPI extends AStage {
         return tg;
     }
 
-    public generateTaskGraph(): TaskGraph | null {
-        return this.runTaskGraphGenerationFlow(false, false);
+    public generateTaskGraph(subfolder?: string): TaskGraph | null {
+        const flow = new TaskGraphGenerationFlow(this.getTopFunctionName(), this.getOutputDir(), this.getAppName());
+
+        if (subfolder == undefined) {
+            return flow.buildTaskGraph();
+        }
+        else {
+            return flow.buildTaskGraph(subfolder);
+        }
     }
 
-    public dumpTaskGraph(etg: TaskGraph, subfolderName: string = "."): void {
-        const newOutputDir = `${this.getOutputDir()}/${subfolderName}`;
-        const flow = new TaskGraphGenerationFlow(this.getTopFunctionName(), newOutputDir, this.getAppName());
-        flow.dumpTaskGraph(etg);
+    public dumpTaskGraph(etg: TaskGraph, subfolder?: string): void {
+        const flow = new TaskGraphGenerationFlow(this.getTopFunctionName(), this.getOutputDir(), this.getAppName());
+
+        if (subfolder == undefined) {
+            flow.dumpTaskGraph(etg);
+        }
+        else {
+            flow.dumpTaskGraph(etg, subfolder);
+        }
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    public gatherTaskGraphMetrics(etg: TaskGraph, subfolderName: string = "."): Record<string, any> {
-        const newOutputDir = `${this.getOutputDir()}/${subfolderName}`;
-        const flow = new TaskGraphGenerationFlow(this.getTopFunctionName(), newOutputDir, this.getAppName());
-        return flow.analyzeTaskGraph(etg);
+    public gatherTaskGraphMetrics(etg: TaskGraph, subfolder?: string): Record<string, any> {
+        const flow = new TaskGraphGenerationFlow(this.getTopFunctionName(), this.getOutputDir(), this.getAppName());
+
+        if (subfolder == undefined) {
+            return flow.analyzeTaskGraph(etg);
+        }
+        else {
+            return flow.analyzeTaskGraph(etg, subfolder);
+        }
     }
 
     private ensureLinux(): void {

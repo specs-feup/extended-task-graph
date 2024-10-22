@@ -43,13 +43,7 @@ if (etg == null) {
     const [oldTask, newTask] = splitter.splitTask(etg, task, loop!);
 
     if (newTask != null) {
-        console.log(oldTask.getName() + ", " + oldTask.getId());
-        console.log(newTask.getName() + ", " + newTask.getId());
-        console.log("--------------------------");
-        console.log(oldTask.getFunction().code);
-        console.log(newTask.getFunction().code);
-
-        api.dumpTaskGraph(etg, "../edgedetect-split-result");
+        api.dumpTaskGraph(etg, "split");
 
         console.log(chalk.green("Test passed") + ": Merging succeeded");
     } else {

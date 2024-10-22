@@ -35,10 +35,14 @@ export class TaskGraphGenerationFlow extends AStage {
         return tg;
     }
 
-    public buildTaskGraph(): TaskGraph | null {
+    public buildTaskGraph(subfolder: string = OutputDirectories.ETG_DEFAULT): TaskGraph | null {
+        if (subfolder != OutputDirectories.ETG_DEFAULT) {
+            subfolder = `${OutputDirectories.ETG_PARENT}/${subfolder}`;
+        }
+
         this.log("Running task graph building process");
         const topFun = this.getTopFunctionName();
-        const outDir = this.getOutputDir() + "/" + OutputDirectories.TASKGRAPH;
+        const outDir = `${this.getOutputDir()}/${subfolder}`;
         const appName = this.getAppName();
 
         const builder = new TaskGraphBuilder(topFun, outDir, appName);
@@ -46,32 +50,40 @@ export class TaskGraphGenerationFlow extends AStage {
         return taskGraph;
     }
 
-    public dumpTaskGraph(taskGraph: TaskGraph): void {
+    public dumpTaskGraph(taskGraph: TaskGraph, subfolder: string = OutputDirectories.ETG_DEFAULT): void {
+        if (subfolder != OutputDirectories.ETG_DEFAULT) {
+            subfolder = `${OutputDirectories.ETG_PARENT}/${subfolder}`;
+        }
+
         this.log("Running task graph dumping process");
 
         const conv1 = new DotConverter();
         const dotNormal = conv1.convert(taskGraph);
-        const fname1 = this.saveToFileInSubfolder(dotNormal, "taskgraph.dot", OutputDirectories.TASKGRAPH);
+        const fname1 = this.saveToFileInSubfolder(dotNormal, "taskgraph.dot", subfolder);
         this.logOutput("Dumped regular task graph to", fname1);
 
         const conv2 = new DotConverterMinimal();
         const dotMinimal = conv2.convert(taskGraph);
-        const fname2 = this.saveToFileInSubfolder(dotMinimal, "taskgraph_min.dot", OutputDirectories.TASKGRAPH);
+        const fname2 = this.saveToFileInSubfolder(dotMinimal, "taskgraph_min.dot", subfolder);
         this.logOutput("Dumped mini task graph to", fname2);
 
         const conv3 = new DotConverterDetailed();
         const dotDetailed = conv3.convert(taskGraph);
-        const fname3 = this.saveToFileInSubfolder(dotDetailed, "taskgraph_det.dot", OutputDirectories.TASKGRAPH);
+        const fname3 = this.saveToFileInSubfolder(dotDetailed, "taskgraph_det.dot", subfolder);
         this.logOutput("Dumped detailed task graph to", fname3);
 
         this.log("Task graph successfully dumped!");
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    public analyzeTaskGraph(taskGraph: TaskGraph): Record<string, any> {
+    public analyzeTaskGraph(taskGraph: TaskGraph, subfolder: string = OutputDirectories.ETG_DEFAULT): Record<string, any> {
+        if (subfolder != OutputDirectories.ETG_DEFAULT) {
+            subfolder = `${OutputDirectories.ETG_PARENT}/${subfolder}`;
+        }
+
         this.log("Running task graph analysis process");
         const topFun = this.getTopFunctionName();
-        const outDir = this.getOutputDir() + "/" + OutputDirectories.TASKGRAPH;
+        const outDir = `${this.getOutputDir()}/${subfolder}`;
         const appName = this.getAppName();
 
         const analyzer = new TaskGraphAnalyzer(topFun, outDir, appName, taskGraph);
