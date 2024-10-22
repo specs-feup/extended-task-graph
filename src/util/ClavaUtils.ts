@@ -1,5 +1,5 @@
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
-import { ArrayAccess, BinaryOp, Call, FunctionJp, Joinpoint, PointerType, UnaryOp, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { ArrayAccess, BinaryOp, Call, FunctionJp, Joinpoint, ParenExpr, PointerType, UnaryOp, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 import Io from "@specs-feup/lara/api/lara/Io.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 
@@ -109,7 +109,7 @@ export class ClavaUtils {
         return fun.isImplementation && fun.body.children.length > 0;
     }
 
-    public static isDef(varref: Varref): boolean {
+    public static isWrittenTo(varref: Varref): boolean {
         if (varref.parent instanceof BinaryOp) {
             const binOp = varref.parent;
             return binOp.kind == "assign" && binOp.left.code == varref.code;
@@ -137,6 +137,19 @@ export class ClavaUtils {
                 }
             }
         }
+        // special case: (*foo) = bar;
+        if (varref.parent instanceof UnaryOp) {
+            const unaryOp = varref.parent;
+            if (unaryOp.kind == "deref") {
+                if (unaryOp.parent instanceof ParenExpr) {
+                    const parenExpr = unaryOp.parent;
+                    if (parenExpr.parent instanceof BinaryOp) {
+                        const binOp = parenExpr.parent;
+                        return binOp.kind == "assign" && binOp.left.code == parenExpr.code;
+                    }
+                }
+            }
+        }
 
         return false;
     }
@@ -150,13 +163,13 @@ export class ClavaUtils {
             ['unsigned short', 2],
             ['int', 4],
             ['unsigned int', 4],
-            ['long', 4], // Size may vary on different platforms
-            ['unsigned long', 4], // Size may vary on different platforms
+            ['long', 4],            // Size may vary on different platforms
+            ['unsigned long', 4],   // Size may vary on different platforms
             ['long long', 8],
             ['unsigned long long', 8],
             ['float', 4],
             ['double', 8],
-            ['long double', 16], // Size may vary on different platforms
+            ['long double', 16],    // Size may vary on different platforms
         ]);
 
         const trimmedType = datatype.trim();
@@ -164,7 +177,6 @@ export class ClavaUtils {
 
         const size = cDataTypes.get(formattedType);
         if (size === undefined) {
-            //println("Unknown datatype " + datatype + "; returning 4");
             return 4;
         }
         return size;

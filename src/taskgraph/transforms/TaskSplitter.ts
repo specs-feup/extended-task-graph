@@ -39,7 +39,7 @@ export class TaskSplitter {
         const taskA = new RegularTask(callA, funA!, hierParent);
         const taskB = new RegularTask(callB, funB!, hierParent);
 
-        this.rearrangeCommunication(etg, hierParent, task, taskA, taskB, declNames);
+        this.rearrangeCommunication(etg, task, taskA, taskB, declNames);
 
         //etg.removeTask(task);
         etg.addTask(taskA);
@@ -113,26 +113,51 @@ export class TaskSplitter {
         return declNames;
     }
 
-    private rearrangeCommunication(etg: TaskGraph, parent: RegularTask, task: RegularTask, taskA: RegularTask, taskB: RegularTask, declNames: string[]): void {
+    private rearrangeCommunication(etg: TaskGraph, task: RegularTask, taskA: RegularTask, taskB: RegularTask, declNames: string[]): void {
         // no need to bother with the args and param having different names,
         // as the inlining already assures us that the names are the same
+        const parent = taskA.getHierarchicalParent()!;
         const paramsA = taskA.getFunction().params;
         const argsA = taskA.getCall()!.args;
 
+        const writtenByA: Set<string> = new Set();
         for (let i = 0; i < paramsA.length; i++) {
             const param = paramsA[i];
             const arg = argsA[i].getDescendantsAndSelf("varref").find(jp => jp instanceof Varref) as Varref;
-            console.log(arg.name);
-            console.log(param.name);
 
-            const parentDataItem = parent.getDataItemByName(arg.name)!;
-            const dataItemInA = new VariableDataItem(param, DataItemOrigin.PARAM);
-            dataItemInA.setAlternateName(arg.name);
+            const dataItemInParent = parent.getDataItemByName(arg.name)!;
+            const dataItemInA = taskA.getDataItemByName(param.name)!;
 
-            etg.addCommunication(parent, taskA, parentDataItem, dataItemInA, i);
+            etg.addCommunication(parent, taskA, dataItemInParent, dataItemInA, i);
+
+            if (dataItemInA.isWritten()) {
+                writtenByA.add(param.name);
+            }
         }
 
-        const usedByA: Set<string> = new Set();
+        const paramsB = taskB.getFunction().params;
+        const argsB = taskB.getCall()!.args;
+
+        const writtenByB: Set<string> = new Set();
+        for (let i = 0; i < paramsB.length; i++) {
+            const param = paramsB[i];
+            const arg = argsB[i].getDescendantsAndSelf("varref").find(jp => jp instanceof Varref) as Varref;
+
+            const dataItemInB = taskB.getDataItemByName(param.name)!;
+
+            if (writtenByA.has(param.name)) {
+                const dataItemInA = taskA.getDataItemByName(param.name)!;
+                etg.addCommunication(taskA, taskB, dataItemInA, dataItemInB, i);
+            }
+            else {
+                const dataItemInParent = parent.getDataItemByName(arg.name)!;
+                etg.addCommunication(parent, taskB, dataItemInParent, dataItemInB, i);
+            }
+
+            if (dataItemInB.isWritten()) {
+                writtenByB.add(param.name);
+            }
+        }
 
     }
 }

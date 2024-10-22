@@ -99,7 +99,7 @@ export class RegularTask extends ConcreteTask {
             const vardecl = (dataItem as VariableDataItem).getDecl();
 
             for (const ref of Query.searchFrom(this.function.body, Varref, { name: vardecl?.name })) {
-                if ((ClavaUtils.isDef(ref))) {
+                if ((ClavaUtils.isWrittenTo(ref))) {
                     dataItem.setWritten();
                 }
                 else {
