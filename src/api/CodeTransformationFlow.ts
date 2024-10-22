@@ -1,11 +1,11 @@
 import { AStage } from "../AStage.js";
-import { OutputDirectories } from "./OutputDirectories.js";
 import { Profiler } from "../preprocessing/profiling/Profiler.js";
 import { SubsetPreprocessor } from "../preprocessing/subset/SubsetPreprocessor.js";
 import { TaskPreprocessor } from "../preprocessing/task/TaskPreprocessor.js";
 import { ClavaUtils } from "../util/ClavaUtils.js";
 import { ApplicationAnalyser } from "../analysis/ast/ApplicationAnalyser.js";
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
+import { AppDumpOutput, SourceCodeOutput } from "./OutputDirectories.js";
 
 export class CodeTransformationFlow extends AStage {
     constructor(topFunctionName: string, outputDir: string, appName: string) {
@@ -59,13 +59,14 @@ export class CodeTransformationFlow extends AStage {
     }
 
     public generateOriginalCode(): void {
-        const outFolder = ClavaUtils.generateCode(this.getOutputDir(), OutputDirectories.SRC_ORIGINAL);
-        this.logOutput("Original source code with resolved #defines written to", outFolder);
+        const path = this.generateCode(SourceCodeOutput.SRC_ORIGINAL);
+        this.logOutput("Original source code with resolved #defines written to ", path);
     }
 
     public initialAnalysis(dumpCallGraph: boolean, dumpAST: boolean): void {
         this.log("Running initial analysis step");
-        this.genericAnalysisStep(OutputDirectories.APP_STATS_ORIGINAL, dumpCallGraph, dumpAST, false);
+        const outDir = `${this.getOutputDir()}/${AppDumpOutput.APP_STATS_PARENT}/${AppDumpOutput.APP_STATS_ORIGINAL}`;
+        this.genericAnalysisStep(outDir, dumpCallGraph, dumpAST, false);
     }
 
     public subsetPreprocessing(): boolean {
@@ -96,8 +97,8 @@ export class CodeTransformationFlow extends AStage {
     }
 
     public generateSubsetCode(): void {
-        ClavaUtils.generateCode(this.getOutputDir(), OutputDirectories.SRC_SUBSET);
-        this.log(`Intermediate subset-reduced source code written to ${OutputDirectories.SRC_SUBSET}`)
+        const path = this.generateCode(SourceCodeOutput.SRC_SUBSET);
+        this.logOutput("Intermediate subset-reduced source code written to ", path);
     }
 
     public taskPreprocessing(): void {
@@ -112,12 +113,13 @@ export class CodeTransformationFlow extends AStage {
 
     public intermediateAnalysis(dumpCallGraph: boolean, dumpAST: boolean): void {
         this.log("Running intermediate analysis step");
-        this.genericAnalysisStep(OutputDirectories.APP_STATS_TASKS, dumpCallGraph, dumpAST, false);
+        const outDir = `${this.getOutputDir()}/${AppDumpOutput.APP_STATS_PARENT}/${AppDumpOutput.APP_STATS_TASKS}`;
+        this.genericAnalysisStep(outDir, dumpCallGraph, dumpAST, false);
     }
 
     public generateTaskCode(): void {
-        ClavaUtils.generateCode(this.getOutputDir(), OutputDirectories.SRC_TASKS);
-        this.log(`Intermediate task-based source code written to "${OutputDirectories.SRC_TASKS}"`);
+        const path = this.generateCode(SourceCodeOutput.SRC_TASKS);
+        this.logOutput("Intermediate task-based source code written to ", path);
     }
 
     public applyProfilingInstrumentation(): void {
@@ -128,12 +130,15 @@ export class CodeTransformationFlow extends AStage {
     }
 
     public generateInstrumentedCode(): void {
-        ClavaUtils.generateCode(this.getOutputDir(), OutputDirectories.SRC_TASKS_INSTRUMENTED);
-        this.log(`Instrumented task-based source code written to "${OutputDirectories.SRC_TASKS_INSTRUMENTED}"`);
+        const path = this.generateCode(SourceCodeOutput.SRC_TASKS_INSTRUMENTED);
+        this.logOutput("Instrumented task-based source code written to ", path);
     }
 
-    private genericAnalysisStep(folder: string, dumpCallGraph: boolean, dumpAST: boolean, generateStatistics: boolean): void {
-        const outDir = this.getOutputDir() + "/" + folder;
+    public generateCode(subfolder: string): string {
+        return ClavaUtils.generateCode(this.getOutputDir(), `${SourceCodeOutput.SRC_PARENT}/${subfolder}`);
+    }
+
+    private genericAnalysisStep(outDir: string, dumpCallGraph: boolean, dumpAST: boolean, generateStatistics: boolean): void {
         const appName = this.getAppName();
         const topFun = this.getTopFunctionName();
 

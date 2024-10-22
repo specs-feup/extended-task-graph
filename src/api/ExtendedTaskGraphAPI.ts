@@ -30,6 +30,11 @@ export class ExtendedTaskGraphAPI extends AStage {
         return tg;
     }
 
+    public generateSourceCode(subfolder: string): void {
+        const flow = new CodeTransformationFlow(this.getTopFunctionName(), this.getOutputDir(), this.getAppName());
+        flow.generateCode(subfolder);
+    }
+
     public generateTaskGraph(subfolder?: string): TaskGraph | null {
         const flow = new TaskGraphGenerationFlow(this.getTopFunctionName(), this.getOutputDir(), this.getAppName());
 

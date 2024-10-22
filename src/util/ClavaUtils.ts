@@ -1,5 +1,5 @@
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
-import { ArrayAccess, BinaryOp, Call, FunctionJp, Joinpoint, ParenExpr, PointerType, UnaryOp, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { BinaryOp, Call, FunctionJp, Joinpoint } from "@specs-feup/clava/api/Joinpoints.js";
 import Io from "@specs-feup/lara/api/lara/Io.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 
@@ -26,6 +26,10 @@ export class ClavaUtils {
         Io.deleteFolderContents(path);
         Clava.writeCode(path);
         return path;
+    }
+
+    public static getCurrentFileExt(): string {
+        return Clava.getStandard().includes("c++") ? "cpp" : "c";
     }
 
     // The template matcher needs to be rewritten from scratch,

@@ -1,7 +1,6 @@
 import { FunctionJp } from "@specs-feup/clava/api/Joinpoints.js";
 import Io from "@specs-feup/lara/api/lara/Io.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
-import { OutputDirectories } from "./api/OutputDirectories.js";
 import chalk from "chalk";
 
 export abstract class AStage {
@@ -91,14 +90,7 @@ export abstract class AStage {
     protected logOutput(message: string, path: string): void {
         const header = this.getStageOutputHeader();
 
-        let minPath = path;
-        const subpaths = Object.values(OutputDirectories);
-        for (const subpath of subpaths) {
-            if (path.includes(subpath)) {
-                minPath = path.substring(path.indexOf(subpath));
-                break;
-            }
-        }
+        const minPath = path.substring(path.indexOf(this.appName));
 
         const prettyPath = chalk.blue.italic(minPath);
         this.writeMessage(`${header} ${message} ${prettyPath}`);

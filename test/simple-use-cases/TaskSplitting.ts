@@ -40,10 +40,11 @@ if (etg == null) {
     }
 
     const splitter = new TaskSplitter();
-    const [oldTask, newTask] = splitter.splitTask(etg, task, loop!);
+    const [newTaskA, newTaskB] = splitter.splitTask(etg, task, loop!);
 
-    if (newTask != null) {
+    if (newTaskA != null && newTaskB != null) {
         api.dumpTaskGraph(etg, "split");
+        api.generateSourceCode("split");
 
         console.log(chalk.green("Test passed") + ": Merging succeeded");
     } else {

@@ -1,11 +1,11 @@
 import { AStage } from "../AStage.js";
-import { OutputDirectories } from "./OutputDirectories.js";
 import { DotConverter } from "../taskgraph/DotConverter.js";
 import { DotConverterDetailed } from "../taskgraph/DotConverterDetailed.js";
 import { DotConverterMinimal } from "../taskgraph/DotConverterMinimal.js";
 import { TaskGraph } from "../taskgraph/TaskGraph.js";
 import { TaskGraphBuilder } from "../taskgraph/TaskGraphBuilder.js";
 import { TaskGraphAnalyzer } from "../analysis/taskgraph/TaskGraphAnalyzer.js";
+import { TaskGraphOutput } from "./OutputDirectories.js";
 
 export class TaskGraphGenerationFlow extends AStage {
     constructor(topFunctionName: string, outputDir: string, appName: string) {
@@ -35,9 +35,12 @@ export class TaskGraphGenerationFlow extends AStage {
         return tg;
     }
 
-    public buildTaskGraph(subfolder: string = OutputDirectories.ETG_DEFAULT): TaskGraph | null {
-        if (subfolder != OutputDirectories.ETG_DEFAULT) {
-            subfolder = `${OutputDirectories.ETG_PARENT}/${subfolder}`;
+    public buildTaskGraph(subfolder: string = TaskGraphOutput.ETG_DEFAULT): TaskGraph | null {
+        if (subfolder != TaskGraphOutput.ETG_DEFAULT) {
+            subfolder = `${TaskGraphOutput.ETG_PARENT}/${subfolder}`;
+        }
+        else {
+            subfolder = `${TaskGraphOutput.ETG_PARENT}/${TaskGraphOutput.ETG_DEFAULT}`;
         }
 
         this.log("Running task graph building process");
@@ -50,9 +53,12 @@ export class TaskGraphGenerationFlow extends AStage {
         return taskGraph;
     }
 
-    public dumpTaskGraph(taskGraph: TaskGraph, subfolder: string = OutputDirectories.ETG_DEFAULT): void {
-        if (subfolder != OutputDirectories.ETG_DEFAULT) {
-            subfolder = `${OutputDirectories.ETG_PARENT}/${subfolder}`;
+    public dumpTaskGraph(taskGraph: TaskGraph, subfolder: string = TaskGraphOutput.ETG_DEFAULT): void {
+        if (subfolder != TaskGraphOutput.ETG_DEFAULT) {
+            subfolder = `${TaskGraphOutput.ETG_PARENT}/${subfolder}`;
+        }
+        else {
+            subfolder = `${TaskGraphOutput.ETG_PARENT}/${TaskGraphOutput.ETG_DEFAULT}`;
         }
 
         this.log("Running task graph dumping process");
@@ -76,9 +82,12 @@ export class TaskGraphGenerationFlow extends AStage {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    public analyzeTaskGraph(taskGraph: TaskGraph, subfolder: string = OutputDirectories.ETG_DEFAULT): Record<string, any> {
-        if (subfolder != OutputDirectories.ETG_DEFAULT) {
-            subfolder = `${OutputDirectories.ETG_PARENT}/${subfolder}`;
+    public analyzeTaskGraph(taskGraph: TaskGraph, subfolder: string = TaskGraphOutput.ETG_DEFAULT): Record<string, any> {
+        if (subfolder != TaskGraphOutput.ETG_DEFAULT) {
+            subfolder = `${TaskGraphOutput.ETG_PARENT}/${subfolder}`;
+        }
+        else {
+            subfolder = `${TaskGraphOutput.ETG_PARENT}/${TaskGraphOutput.ETG_DEFAULT}`;
         }
 
         this.log("Running task graph analysis process");
