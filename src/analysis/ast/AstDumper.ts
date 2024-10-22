@@ -1,20 +1,21 @@
-import { BinaryOp, Call, FileJp, FunctionJp, IntLiteral, Joinpoint, MemberAccess, Param, UnaryOp, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
-import Query from "@specs-feup/lara/api/weaver/Query.js";
+import Clava from "@specs-feup/clava/api/clava/Clava.js";
+import { BinaryOp, Call, FunctionJp, IntLiteral, Joinpoint, MemberAccess, Param, UnaryOp, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 
 export class AstDumper {
     private currentRes: string = "";
 
     constructor() { }
 
-    public dump(): string {
+    public dump(startJp?: Joinpoint): string {
+        if (startJp === undefined) {
+            startJp = Clava.getProgram();
+        }
         this.currentRes = "";
 
-        for (const startJp of Query.search(FileJp)) {
-            this.addLevelToResult(startJp.joinPointType, 0);
+        this.addLevelToResult(startJp.joinPointType, 0);
 
-            for (const child of startJp.children) {
-                this.dumpJoinPoint(child, 1);
-            }
+        for (const child of startJp.children) {
+            this.dumpJoinPoint(child, 1);
         }
         return this.currentRes.slice();
     }
@@ -24,7 +25,7 @@ export class AstDumper {
     }
 
     private dumpJoinPoint(jp: Joinpoint, indent: number): void {
-        var str = jp.joinPointType;
+        let str = jp.joinPointType;
 
         if (jp instanceof Param || jp instanceof Vardecl || jp instanceof Varref || jp instanceof MemberAccess) {
             str += this.buildLabel("name", jp.name) + this.buildLabel("type", jp.type.joinPointType);
@@ -44,7 +45,7 @@ export class AstDumper {
         this.addLevelToResult(str, indent);
 
         if (jp.children.length > 4) {
-            var allLits = true;
+            let allLits = true;
             for (const child of jp.children) {
                 if (!(child instanceof IntLiteral)) {
                     allLits = false;
