@@ -1,3 +1,6 @@
+int x = 12;
+int y;
+
 void foo(int *A, int *B, int n)
 {
     for (int i = 0; i < n; i++)
@@ -18,7 +21,7 @@ void fizz(int *A, int *B, int n)
 {
     for (int i = 0; i < n; i++)
     {
-        A[i] = B[i];
+        A[i] = B[i] + x;
     }
 }
 

@@ -2,7 +2,8 @@ import { RegularTask } from "../tasks/RegularTask.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
 import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
-import { FileJp, FunctionJp } from "@specs-feup/clava/api/Joinpoints.js";
+import { FileJp, FunctionJp, Statement, Vardecl } from "@specs-feup/clava/api/Joinpoints.js";
+import Query from "@specs-feup/lara/api/weaver/Query.js";
 
 export class ClusterExtractor {
     constructor() { }
@@ -39,6 +40,8 @@ export class ClusterExtractor {
 
         this.moveToNewFile(funs, fileJp);
 
+        this.createExternGlobalRefs(fileJp);
+
         return true;
     }
 
@@ -54,9 +57,34 @@ export class ClusterExtractor {
     }
 
     private moveToNewFile(funs: FunctionJp[], fileJp: FileJp): void {
+        const funDecls: Statement[] = [];
+
         for (const fun of funs) {
             fileJp.insertBegin(fun);
             fun.detach();
+
+            const funDecl = fun.getDeclaration(true);
+            const funDeclStmt = ClavaJoinPoints.stmtLiteral(`${funDecl};`);
+            funDecls.push(funDeclStmt);
+        }
+
+        for (const funDecl of funDecls.reverse()) {
+            fileJp.insertBegin(funDecl);
+        }
+    }
+
+    private createExternGlobalRefs(fileJp: FileJp): void {
+        const externVars: Set<string> = new Set();
+
+        for (const vardecl of Query.searchFrom(Clava.getProgram(), Vardecl)) {
+            if (vardecl.isGlobal) {
+                const code = vardecl.code.split("=")[0].trim();
+                const externVar = `extern ${code};`;
+                if (!externVars.has(externVar)) {
+                    fileJp.insertBegin(ClavaJoinPoints.stmtLiteral(externVar));
+                    externVars.add(externVar);
+                }
+            }
         }
     }
 }
