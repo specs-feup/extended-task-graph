@@ -18,6 +18,7 @@
     "simple:merging": "clava dist/test/simple-use-cases/TaskMerging.js -- clang inputs/edgedetect/",
     "simple:splitting": "clava dist/test/simple-use-cases/TaskSplitting.js -- clang inputs/edgedetect/",
     "simple:clusterextract": "clava dist/test/simple-use-cases/ClusterExtraction.js -- clang inputs/cluster-scenario/",
+    "bench:apps": "clava dist/test/benchmark-testing/TestApps.js",
     "bench:rosetta": "clava dist/test/benchmark-testing/TestRosetta.js"
   },
   "dependencies": {

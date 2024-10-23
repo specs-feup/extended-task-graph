@@ -22,7 +22,6 @@ int main(int argc, char **argv)
 
     // Scenario A: extract a set of statements with no function calls
     // into their own function
-#pragma clava begin_outline
     // this is a comment, that should also be extracted like any other statement
 
     for (int i = 0; i < N; i++)
@@ -56,7 +55,6 @@ int main(int argc, char **argv)
         prod *= E[i];
     }
     // and another comment at the end for good measure
-#pragma clava end_outline
 
     // force a use of the "sum" and "sth" variable
     printf("%d\n", sum);

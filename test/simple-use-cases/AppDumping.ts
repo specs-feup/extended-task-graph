@@ -16,7 +16,7 @@ import { ExtendedTaskGraphAPI } from "../../src/api/ExtendedTaskGraphAPI.js";
 console.log("Test: dump the AST and call graph of edgedetect");
 
 const topFunctionName = "edge_detect";
-const outputDir = "output/apps";
+const outputDir = "output/use-cases";
 const appName = "edgedetect-appdump";
 const api = new ExtendedTaskGraphAPI(topFunctionName, outputDir, appName);
 

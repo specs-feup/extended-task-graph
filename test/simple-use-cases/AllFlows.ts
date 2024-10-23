@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import { ExtendedTaskGraphAPI } from "../../src/api/ExtendedTaskGraphAPI.js";
 
-const api = new ExtendedTaskGraphAPI("edge_detect", "output/apps", "edgedetect-allflows");
+const api = new ExtendedTaskGraphAPI("edge_detect", "output/use-cases", "edgedetect-allflows");
 
 try {
     api.runCodeTransformationFlow(true, true, true);

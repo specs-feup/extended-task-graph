@@ -5,7 +5,7 @@ import { RegularTask } from "../../src/taskgraph/tasks/RegularTask.js";
 import { Loop } from "@specs-feup/clava/api/Joinpoints.js";
 import { TaskSplitter } from "../../src/taskgraph/transforms/TaskSplitter.js";
 
-const api = new ExtendedTaskGraphAPI("edge_detect", "output/apps", "edgedetect-split");
+const api = new ExtendedTaskGraphAPI("edge_detect", "output/use-cases", "edgedetect-split");
 
 let etg: TaskGraph | null = null;
 try {

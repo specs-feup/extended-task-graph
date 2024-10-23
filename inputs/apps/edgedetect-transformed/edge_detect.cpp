@@ -28,53 +28,6 @@ void rgbToGrayscale(int input_image[786432], int output_image[262144])
     }
 }
 
-void convolve2d(int input_image[262144], int filter[9], int output_image[262144])
-{
-    int i;
-    int j;
-    int c;
-    int r;
-    int normal_factor;
-    int sum;
-    int dead_rows;
-    int dead_cols;
-    dead_rows = 1;
-    dead_cols = 1;
-    normal_factor = 0;
-    for (r = 0; r < 3; r++)
-    {
-        for (c = 0; c < 3; c++)
-        {
-            int decomp_0;
-            decomp_0 = abs(filter[r * 3 + c]);
-            int decomp_1;
-            decomp_1 = normal_factor + decomp_0;
-            normal_factor = decomp_1;
-        }
-    }
-    bool decomp_0;
-    decomp_0 = normal_factor == 0;
-    if (decomp_0)
-    {
-        normal_factor = 1;
-    }
-    for (r = 0; r < 510; r++)
-    {
-        for (c = 0; c < 510; c++)
-        {
-            sum = 0;
-            for (i = 0; i < 3; i++)
-            {
-                for (j = 0; j < 3; j++)
-                {
-                    sum = sum + input_image[(r + i) * 512 + (c + j)] * filter[i * 3 + j];
-                }
-            }
-            output_image[(r + dead_rows) * 512 + (c + dead_cols)] = (sum / normal_factor);
-        }
-    }
-}
-
 void convolve2d_rep2(int input_image[262144], int filter[9], int output_image[262144])
 {
     int i;
@@ -279,7 +232,7 @@ void edge_detect(int image_rgb[786432], int image_gray[262144], int temp_buf[262
     rgbToGrayscale(image_rgb, image_gray);
     outlined_fun_0(filter);
     convolve2d_rep0(image_gray, filter, output);
-    printf("This is just here to force an external call, don't mind me. Here's a number: %d\n", filter[4]);
+    // printf("This is just here to force an external call, don't mind me. Here's a number: %d\n", filter[4]);
     outlined_fun_1(filter);
     convolve2d_rep1(output, filter, image_gray);
     outlined_fun_2(filter);

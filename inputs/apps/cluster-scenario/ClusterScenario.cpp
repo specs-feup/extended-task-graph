@@ -46,7 +46,7 @@ void start(int *A, int *B, int n)
     bar(A, B, n);
 }
 
-int main()
+void program()
 {
     int n = 10;
     int A[n];
@@ -57,5 +57,10 @@ int main()
         B[i] = n - i;
     }
     start(A, B, n);
+}
+
+int main()
+{
+    program();
     return 0;
 }

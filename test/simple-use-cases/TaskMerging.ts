@@ -4,7 +4,7 @@ import { TaskGraph } from "../../src/taskgraph/TaskGraph.js";
 import { RegularTask } from "../../src/taskgraph/tasks/RegularTask.js";
 import { TaskMerger } from "../../src/taskgraph/transforms/TaskMerger.js";
 
-const api = new ExtendedTaskGraphAPI("edge_detect", "output/apps", "edgedetect-merge");
+const api = new ExtendedTaskGraphAPI("edge_detect", "output/use-cases", "edgedetect-merge");
 
 let etg: TaskGraph | null = null;
 try {
@@ -31,11 +31,8 @@ if (etg == null) {
     const merged = merger.mergeTasks(etg, t1, t2);
 
     if (merged != null) {
-        console.log(merged.getName());
-        console.log(merged.getId());
-        console.log(merged.getFunction().code);
-
-        api.dumpTaskGraph(etg, "../edgedetect-merge-result");
+        api.dumpTaskGraph(etg, "merged");
+        api.generateSourceCode("merged");
 
         console.log(chalk.green("Test passed") + ": Merging succeeded");
     } else {

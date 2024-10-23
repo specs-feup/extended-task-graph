@@ -1,30 +1,32 @@
 import { BenchmarkSuite } from "./LiteBenchmarkLoader.js";
 
 export const SuiteSelector: Record<string, BenchmarkSuite> = {
-    GENERIC: {
-        name: "TestApps",
-        path: "inputs/",
+    APPS: {
+        name: "GenericApps",
+        path: "inputs/apps/",
         apps: [
+            "cluster-scenario",
             "disparity",
             "edgedetect",
-            "stresstest",
             "scenarioA",
             "scenarioB",
+            "stresstest",
             "trivial"
         ],
         appDetails: {
+            "cluster-scenario": { standard: "c++11", topFunction: "program", input: "cluster-scenario" },
             "disparity": { standard: "c11", topFunction: "top_level", input: "disparity" },
             "edgedetect": { standard: "c++11", topFunction: "edge_detect", input: "edgedetect" },
-            "stresstest": { standard: "c++11", topFunction: "app_start", input: "stresstest" },
             "scenarioA": { standard: "c11", topFunction: "main", input: "scenarioA" },
             "scenarioB": { standard: "c11", topFunction: "scenario", input: "scenarioB" },
+            "stresstest": { standard: "c++11", topFunction: "app_start", input: "stresstest" },
             "trivial": { standard: "c11", topFunction: "main", input: "trivial" },
         },
         flags: []
     },
     AXBENCH: {
         name: "AxBench",
-        path: "clava-benchmarks/AxSuite/lara/benchmark/",
+        path: "inputs/clava-benchmarks/AxSuite/lara/benchmark/",
         apps: [
             "blackscholes",
             "fft",
@@ -47,7 +49,7 @@ export const SuiteSelector: Record<string, BenchmarkSuite> = {
     },
     CHSTONE: {
         name: "CHStone",
-        path: "clava-benchmarks/CHStone/lara/benchmark/",
+        path: "inputs/clava-benchmarks/CHStone/lara/benchmark/",
         apps: [
             "adpcm",
             "aes",
@@ -80,7 +82,7 @@ export const SuiteSelector: Record<string, BenchmarkSuite> = {
     },
     CORTEXSUITE_CORTEX: {
         name: "CortexSuite",
-        path: "clava-benchmarks/CortexSuite/lara/benchmark/",
+        path: "inputs/clava-benchmarks/CortexSuite/lara/benchmark/",
         apps: [
             "cortex-clustering-kmeans",
             "cortex-clustering-spectral",
@@ -119,7 +121,7 @@ export const SuiteSelector: Record<string, BenchmarkSuite> = {
     },
     CORTEXSUITE_VISION: {
         name: "CortexSuite",
-        path: "clava-benchmarks/CortexSuite/lara/benchmark/",
+        path: "inputs/clava-benchmarks/CortexSuite/lara/benchmark/",
         apps: [
             "vision-disparity",
             "vision-localization",
@@ -148,7 +150,7 @@ export const SuiteSelector: Record<string, BenchmarkSuite> = {
     },
     MACHSUITE: {
         name: "MachSuite",
-        path: "clava-benchmarks/MachSuite/lara/benchmark/",
+        path: "inputs/clava-benchmarks/MachSuite/lara/benchmark/",
         apps: [
             "aes",
             "backprop",
@@ -195,7 +197,7 @@ export const SuiteSelector: Record<string, BenchmarkSuite> = {
     },
     RODINIA: {
         name: "Rodinia",
-        path: "clava-benchmarks/Rodinia/lara/benchmark/",
+        path: "inputs/clava-benchmarks/Rodinia/lara/benchmark/",
         apps: [
             "backprop",
             "bfs",
@@ -248,7 +250,7 @@ export const SuiteSelector: Record<string, BenchmarkSuite> = {
     },
     ROSETTA: {
         name: "Rosetta",
-        path: "clava-benchmarks/Rosetta/lara/benchmark/",
+        path: "inputs/clava-benchmarks/Rosetta/lara/benchmark/",
         apps: [
             "3d-rendering",
             "digit-recognition",

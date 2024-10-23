@@ -2,9 +2,9 @@ import { AStage } from "../../AStage.js";
 import { FunctionInstrumenter } from "./FunctionInstrumenter.js";
 import { LoopIterationInstrumenter } from "./LoopIterationInstrumenter.js";
 
-export class Profiler extends AStage {
+export class ProfilingInstrumenter extends AStage {
     constructor(topFunction: string) {
-        super("TransFlow-Profiler", topFunction);
+        super("TransFlow-ProfInstrumenter", topFunction);
     }
 
     public instrumentAll(): void {

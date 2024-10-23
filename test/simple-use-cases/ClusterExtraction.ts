@@ -4,7 +4,7 @@ import { TaskGraph } from "../../src/taskgraph/TaskGraph.js";
 import { ClusterExtractor } from "../../src/taskgraph/transforms/ClusterExtractor.js";
 import { RegularTask } from "../../src/taskgraph/tasks/RegularTask.js";
 
-const api = new ExtendedTaskGraphAPI("start", "output/apps", "cluster-scenario");
+const api = new ExtendedTaskGraphAPI("start", "output/use-cases", "cluster-scenario");
 
 let etg: TaskGraph | null = null;
 try {

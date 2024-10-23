@@ -1,6 +1,6 @@
 export enum DefaultPrefix {
     INLINE_VAR = "_iln",
-    MERGED_FUN = "_merged",
+    MERGED_FUN = "_merged_",
     OUTLINED_FUN = "_outlined_fun_",
     OUTLINED_LOOP = "_outlined_loop_",
     RETURN_VAR = "rtr_val"

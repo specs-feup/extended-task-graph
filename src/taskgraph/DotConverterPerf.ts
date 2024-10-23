@@ -38,5 +38,4 @@ export class DotConverterPerf extends DotConverter {
         }
         return `${(seconds * 1000000).toFixed(precision)}us`
     }
-
 }

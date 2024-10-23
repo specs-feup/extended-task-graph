@@ -1,5 +1,5 @@
 import { AStage } from "../AStage.js";
-import { Profiler } from "../preprocessing/profiling/Profiler.js";
+import { ProfilingInstrumenter } from "../preprocessing/profiling/ProfilingInstrumenter.js";
 import { SubsetPreprocessor } from "../preprocessing/subset/SubsetPreprocessor.js";
 import { TaskPreprocessor } from "../preprocessing/task/TaskPreprocessor.js";
 import { ClavaUtils } from "../util/ClavaUtils.js";
@@ -125,7 +125,7 @@ export class CodeTransformationFlow extends AStage {
     public applyProfilingInstrumentation(): void {
         this.log("Running profiling instrumentation step");
 
-        const instrumenter = new Profiler(this.getTopFunctionName());
+        const instrumenter = new ProfilingInstrumenter(this.getTopFunctionName());
         instrumenter.instrumentAll();
     }
 

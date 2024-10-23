@@ -4,7 +4,7 @@ import { ExtendedTaskGraphAPI } from "../../src/api/ExtendedTaskGraphAPI.js";
 console.log("Test: run the entire code transformation flow using edgedetect as the input");
 
 const topFunctionName = "edge_detect";
-const outputDir = "output/apps";
+const outputDir = "output/use-cases";
 const appName = "edgedetect-transflow";
 const api = new ExtendedTaskGraphAPI(topFunctionName, outputDir, appName);
 
