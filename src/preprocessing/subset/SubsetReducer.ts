@@ -69,48 +69,38 @@ export class SubsetReducer extends AStage {
     }
 
     public applyCodeTransforms(): boolean {
-        let atLeastOneError = false;
-
         try {
-            Clava.pushAst();
             this.applySwitchToIfConversion();
         } catch (e) {
             this.logTrace(e);
             this.logWarning(`Error applying switch-to-if conversion, reverting AST to previous state`);
-            Clava.popAst();
-            atLeastOneError = true;
+            return false;
         }
 
         try {
-            Clava.pushAst();
             this.applyStructDecomposition();
         } catch (e) {
             this.logTrace(e);
             this.logWarning(`Error applying struct decomposition, reverting AST to previous state`);
-            Clava.popAst();
-            atLeastOneError = true;
+            return false;
         }
 
         try {
-            Clava.pushAst();
             this.applyArrayFlattening();
         } catch (e) {
             this.logTrace(e);
             this.logWarning(`Error applying array flattening, reverting AST to previous state`);
-            Clava.popAst();
-            atLeastOneError = true;
+            return false;
         }
 
         try {
-            Clava.pushAst();
             this.applyConstantFoldingAndPropagation();
         } catch (e) {
             this.logTrace(e);
             this.logWarning(`Error applying constant folding and propagation, reverting AST to previous state`);
-            Clava.popAst();
-            atLeastOneError = true;
+            return false;
         }
-        return !atLeastOneError;
+        return true;
     }
 
     public ensureVoidReturns(): void {

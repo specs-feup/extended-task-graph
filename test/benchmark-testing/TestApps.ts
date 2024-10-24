@@ -6,12 +6,12 @@ const genericAppSuite: BenchmarkSuite = SuiteSelector.APPS;
 
 const apps = [
     "cluster-scenario",
-    //"disparity",
-    //"edgedetect",
-    //"scenarioA",
-    //"scenarioB",
-    //"stresstest",
-    //"trivial"
+    "disparity",
+    "edgedetect",
+    "scenarioA",
+    "scenarioB",
+    "stresstest",
+    "trivial"
 ];
 
 for (const app of apps) {

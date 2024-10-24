@@ -21,9 +21,9 @@ for (const app of apps) {
 
     const dumpAST = true;
     const dumpCallGraph = true;
-    const doTransformations = false;
-    const generateGraph = false;
-    const gatherMetrics = false;
+    const doTransformations = true;
+    const generateGraph = true;
+    const gatherMetrics = true;
 
     api.runCodeTransformationFlow(dumpCallGraph, dumpAST, doTransformations);
     api.runTaskGraphGenerationFlow(generateGraph, gatherMetrics);
