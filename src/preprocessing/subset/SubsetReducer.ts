@@ -5,11 +5,12 @@ import NormalizeToSubset from "@specs-feup/clava/api/clava/opt/NormalizeToSubset
 import { BinaryOp, Body, FunctionJp, If, Joinpoint, Loop, Scope, Statement, Switch } from "@specs-feup/clava/api/Joinpoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import ArrayFlattener from "clava-code-transformations/ArrayFlattener";
-import FoldingPropagationCombiner from "clava-code-transformations/FoldingPropagationCombiner";
 import StructDecomposer from "clava-code-transformations/StructDecomposer";
 import SwitchToIf from "clava-code-transformations/SwitchToIf";
 import Voidifier from "clava-code-transformations/Voidifier";
 import { DefaultPrefix } from "../../api/PreSuffixDefaults.js";
+import Clava from "@specs-feup/clava/api/clava/Clava.js";
+import FoldingPropagationCombiner from "clava-code-transformations/FoldingPropagationCombiner";
 
 export class SubsetReducer extends AStage {
     constructor(topFunction: string) {
@@ -67,19 +68,57 @@ export class SubsetReducer extends AStage {
         this.log(`Decomposed statements in ${nPasses} pass${nPasses > 1 ? "es" : ""}`);
     }
 
-    public applyCodeTransforms() {
-        this.applySwitchToIfConversion();
-        this.applyStructDecomposition();
-        this.applyConstantFoldingAndPropagation();
-        this.applyArrayFlattening();
+    public applyCodeTransforms(): boolean {
+        let atLeastOneError = false;
+
+        try {
+            Clava.pushAst();
+            this.applySwitchToIfConversion();
+        } catch (e) {
+            this.logTrace(e);
+            this.logWarning(`Error applying switch-to-if conversion, reverting AST to previous state`);
+            Clava.popAst();
+            atLeastOneError = true;
+        }
+
+        try {
+            Clava.pushAst();
+            this.applyStructDecomposition();
+        } catch (e) {
+            this.logTrace(e);
+            this.logWarning(`Error applying struct decomposition, reverting AST to previous state`);
+            Clava.popAst();
+            atLeastOneError = true;
+        }
+
+        try {
+            Clava.pushAst();
+            this.applyArrayFlattening();
+        } catch (e) {
+            this.logTrace(e);
+            this.logWarning(`Error applying array flattening, reverting AST to previous state`);
+            Clava.popAst();
+            atLeastOneError = true;
+        }
+
+        try {
+            Clava.pushAst();
+            this.applyConstantFoldingAndPropagation();
+        } catch (e) {
+            this.logTrace(e);
+            this.logWarning(`Error applying constant folding and propagation, reverting AST to previous state`);
+            Clava.popAst();
+            atLeastOneError = true;
+        }
+        return !atLeastOneError;
     }
 
-    public ensureVoidReturns() {
-        const funs = this.getValidFunctions();
-        const vf = new Voidifier();
-
+    public ensureVoidReturns(): void {
         let count = 0;
-        for (const fun of funs) {
+
+        this.getValidFunctions().forEach((fun) => {
+            const vf = new Voidifier();
+
             if (fun.name == "main") {
                 this.log("Skipping voidification of main(), which is part of the valid call graph for subset reduction");
             }
@@ -87,44 +126,40 @@ export class SubsetReducer extends AStage {
                 const turnedVoid = vf.voidify(fun, DefaultPrefix.RETURN_VAR);
                 count += turnedVoid ? 1 : 0;
             }
-        }
+        });
         this.log(`Ensured ${count} function${count > 1 ? "s" : ""} return${count > 1 ? "s" : ""} void`);
     }
 
-    private applyArrayFlattening() {
-        const flattener = new ArrayFlattener();
+    private applyArrayFlattening(): void {
+        let count = 0;
 
-        const funs = this.getValidFunctions();
-        for (const fun of funs) {
+        this.getValidFunctions().forEach((fun) => {
+            const flattener = new ArrayFlattener();
             const flattened = flattener.flattenAllInFunction(fun);
+
             this.log(`Flattened ${flattened} array${flattened > 1 ? "s" : ""} in ${fun.name}()`);
-        }
-        this.log("Flattened all arrays into 1D");
+            count += flattened;
+        });
+        this.log(`Flattened ${count} array${count > 1 ? "s" : ""} into 1D`);
     }
 
-    private applyConstantFoldingAndPropagation(): boolean {
-        try {
-            const foldProg = new FoldingPropagationCombiner();
+    private applyConstantFoldingAndPropagation(): void {
+        this.getValidFunctions().forEach((fun) => {
+            const foldProg = new FoldingPropagationCombiner(true);
+            const nPasses = foldProg.doPassesUntilStop(fun);
 
-            const nPasses = foldProg.doPassesUntilStop();
-            this.log(`Applied constant propagation in ${nPasses} pass${nPasses > 1 ? "es" : ""}`);
-        }
-        catch (e) {
-            this.logTrace(e);
-            this.logWarning("Constant folding and propagation may not have been thorough");
-            return false;
-        }
-        return true;
+            this.log(`Applied constant folding and propagation to function ${fun.name} in ${nPasses} pass${nPasses > 1 ? "es" : ""}`);
+        });
     }
 
     private applyStructDecomposition(): void {
         const decomp = new StructDecomposer(true);
-
         const structNames = decomp.decomposeAll();
+
         this.log(`Decomposed ${structNames.length} struct${structNames.length > 1 ? "s" : ""}: ${structNames.join(", ")}`);
     }
 
-    private applySwitchToIfConversion() {
+    private applySwitchToIfConversion(): void {
         const switchToIf = new SwitchToIf();
         let count = 0;
 
