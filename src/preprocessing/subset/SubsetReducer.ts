@@ -9,7 +9,6 @@ import StructDecomposer from "clava-code-transformations/StructDecomposer";
 import SwitchToIf from "clava-code-transformations/SwitchToIf";
 import Voidifier from "clava-code-transformations/Voidifier";
 import { DefaultPrefix } from "../../api/PreSuffixDefaults.js";
-import Clava from "@specs-feup/clava/api/clava/Clava.js";
 import FoldingPropagationCombiner from "clava-code-transformations/FoldingPropagationCombiner";
 
 export class SubsetReducer extends AStage {

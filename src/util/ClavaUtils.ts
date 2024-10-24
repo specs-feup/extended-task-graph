@@ -34,6 +34,7 @@ export class ClavaUtils {
 
     // The template matcher needs to be rewritten from scratch,
     // so we'll facilitate and use a little "any" type for now
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public static matchTemplate(jp: Joinpoint, template: (string | any)[]): boolean {
         const split = template[0].split(" ") as string;
         const type = split[0];

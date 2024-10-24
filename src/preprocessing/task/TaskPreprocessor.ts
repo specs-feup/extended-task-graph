@@ -1,10 +1,7 @@
 import { AStage } from "../../AStage.js";
 import { AppTimerInserter } from "./AppTimerInserter.js";
 import { ReplicaCreator } from "./ReplicaCreator.js";
-import { Statement } from "@specs-feup/clava/api/Joinpoints.js";
 import { OutlineRegionFinder } from "./OutlineRegionFinder.js";
-import Outliner from "clava-code-transformations/Outliner";
-import { DefaultPrefix } from "../../api/PreSuffixDefaults.js";
 
 export class TaskPreprocessor extends AStage {
     constructor(topFunction: string, outputDir: string, appName: string) {
@@ -19,37 +16,15 @@ export class TaskPreprocessor extends AStage {
 
     public outlineAll(): void {
         this.log("Finding code regions for outlining...");
-        const annotator = new OutlineRegionFinder(this.getTopFunctionName());
+        const finder = new OutlineRegionFinder(this.getTopFunctionName());
 
-        const genericRegions = annotator.annotateGenericPass();
-        const genCnt = this.applyOutlining(genericRegions, DefaultPrefix.OUTLINED_FUN);
+        const genCnt = finder.outlineGenericRegions();
         this.log(`Outlined ${genCnt} generic regions`);
 
-        // annotator also does the outlining
-        // probably need to change the generic annotator to do the same
-        const loopCnt = annotator.annotateLoopPass();
+        const loopCnt = finder.outlineLoops();
         this.log(`Outlined ${loopCnt} loop regions`);
 
         this.log("Finished outlining regions");
-    }
-
-    private applyOutlining(regions: Statement[][], prefix: string): number {
-        const outliner = new Outliner();
-        outliner.setVerbosity(false);
-        outliner.setDefaultPrefix(prefix);
-
-        let outCount = 0;
-        for (const region of regions) {
-            const start = region[0];
-            const end = region[region.length - 1];
-
-            outliner.outline(start, end);
-
-            start.detach();
-            end.detach();
-            outCount++;
-        }
-        return outCount;
     }
 
     public createFunctionReplicas() {

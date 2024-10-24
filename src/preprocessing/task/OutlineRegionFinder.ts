@@ -13,7 +13,7 @@ export class OutlineRegionFinder extends AStage {
         super("TransFlow-TaskPrep-Outliner", topFunction);
     }
 
-    public annotateGenericPass(): Statement[][] {
+    public outlineGenericRegions(): number {
         this.log("Beginning the annotation of generic outlining regions");
 
         const funs = ClavaUtils.getAllUniqueFunctions(this.getTopFunctionJoinPoint());
@@ -37,17 +37,20 @@ export class OutlineRegionFinder extends AStage {
         const filteredRegions = this.filterRegions(regions);
 
         // finally, wrap all the regions we found
-        const wrappedRegions: Statement[][] = [];
+        // const wrappedRegions: Statement[][] = [];
+        // for (const region of filteredRegions) {
+        //     const wrappedRegion = this.wrapRegion(region);
+        //     wrappedRegions.push(wrappedRegion);
+        // }
         for (const region of filteredRegions) {
-            const wrappedRegion = this.wrapRegion(region);
-            wrappedRegions.push(wrappedRegion);
+            this.outlineRegion(this.wrapRegion(region), DefaultPrefix.OUTLINED_FUN);
         }
 
         this.log("Finished annotating generic outlining regions")
-        return wrappedRegions;
+        return filteredRegions.length;
     }
 
-    public annotateLoopPass(): number {
+    public outlineLoops(): number {
         this.log("Beginning the annotation of loop outlining regions");
 
         const funs = ClavaUtils.getAllUniqueFunctions(this.getTopFunctionJoinPoint());
@@ -105,8 +108,11 @@ export class OutlineRegionFinder extends AStage {
         const end = wrappedRegion[wrappedRegion.length - 1];
 
         const outliner = new Outliner();
+        outliner.setDefaultPrefix(prefix);
         outliner.setVerbosity(false);
-        const fname = prefix + IdGenerator.next();
+
+        const fname = IdGenerator.next(prefix);
+        console.log(fname);
 
         outliner.outlineWithName(start, end, fname);
         start.detach();
@@ -114,6 +120,13 @@ export class OutlineRegionFinder extends AStage {
     }
 
     private validateRegion(region: Statement[]): boolean {
+        if (region.length <= 1) {
+            return false;
+        }
+        if (region.length == 2 && region[0].astId == region[1].astId) {
+            return false;
+        }
+
         let hasOneUsefulStmt = false;
         for (const stmt of region) {
             hasOneUsefulStmt ||= stmt instanceof WrapperStmt;
