@@ -53,8 +53,6 @@ export class Communication {
             let str = this.sourceData != null ? this.sourceData.getName() : "<undef>";
             str += this.targetData != null ? "/" + this.targetData.getName() : "/<undef>";
 
-            console.log(this.source.getUniqueName() + " -> " + this.target.getUniqueName() + " : " + str);
-
             return str;
         }
         const source = this.sourceData.getName();

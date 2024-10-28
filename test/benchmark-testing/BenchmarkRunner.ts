@@ -43,6 +43,9 @@ export function runEtgForBenchmark(suite: BenchmarkSuite, apps: string[], settin
 
         log(`Finished running ETG flows for app ${app} of benchmark suite ${suite.name}`);
     }
+    if (apps.length > 1) {
+        log(`Finished running ETG flows for ${apps.length} apps from benchmark suite ${suite.name}`);
+    }
     return true;
 }
 

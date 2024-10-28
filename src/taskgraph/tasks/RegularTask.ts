@@ -64,8 +64,6 @@ export class RegularTask extends ConcreteTask {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             catch (e) {
                 // As far as I understand, this error can be ignored. These varrefs are from function names
-                //println(`Could not find vardecl for varref ${varref.name} of type ${varref.type}`);
-                //console.log(e);
             }
         }
         const declList = globalVars.values();
@@ -114,7 +112,7 @@ export class RegularTask extends ConcreteTask {
     private updateWithAlternateNames(): void {
         const call = this.getCall();
         if (call == null) {
-            console.log("RegularTask: call is null");
+            console.log(`[RegularTask] Call is null in task ${this.getUniqueName()}, cannot update with alternate names`);
             return;
         }
         const args = [];

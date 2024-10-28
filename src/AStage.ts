@@ -30,11 +30,6 @@ export abstract class AStage {
         }
     }
 
-    public getTopFunction(): FunctionJp {
-        console.log("!!!!!! getTopFunction() is deprecated, use getTopFunctionJoinPoint() instead !!!!!!");
-        return this.getTopFunctionJoinPoint();
-    }
-
     public getTopFunctionJoinPoint(): FunctionJp {
         return Query.search(FunctionJp, { name: this.getTopFunctionName(), isImplementation: true }).first() as FunctionJp;
     }
@@ -142,7 +137,6 @@ export abstract class AStage {
 
     protected saveToFileInSubfolder(content: string, filename: string, subfolder: string): string {
         const fullName = `${this.outputDir}/${subfolder}/${this.appName}_${filename}`;
-        console.log(fullName);
         Io.writeFile(fullName, content);
         return fullName;
     }

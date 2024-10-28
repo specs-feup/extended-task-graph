@@ -111,7 +111,6 @@ export class OutlineRegionFinder extends AStage {
         outliner.setVerbosity(false);
 
         const fname = IdGenerator.next(prefix);
-        console.log(fname);
 
         outliner.outlineWithName(start, end, fname);
         start.detach();

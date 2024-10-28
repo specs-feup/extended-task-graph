@@ -116,7 +116,7 @@ export class TaskGraphBuilder extends AStage {
         const conditions: boolean[] = [];
 
         if (call == null) {
-            console.log("addControlEdges: Call is null, skipping");
+            this.log("addControlEdges: Call is null, skipping");
             return;
         }
         let child: Joinpoint = call;
@@ -164,7 +164,7 @@ export class TaskGraphBuilder extends AStage {
 
     private updateWithRepetitions(task: ConcreteTask, call: Call | null): void {
         if (call == null) {
-            console.log("updateWithRepetitions: Call is null, skipping");
+            this.log("updateWithRepetitions: Call is null, skipping");
             return;
         }
         const body = call.parent.parent;
@@ -197,10 +197,8 @@ export class TaskGraphBuilder extends AStage {
         for (const child of children) {
             let rank = 1;
 
-            console.log("Child: " + child.getUniqueName());
             const childParams = child.getParamData();
             for (const dataItem of childParams) {
-                console.log(dataItem.getName() + ", " + dataItem.isWritten());
                 this.buildCommParam(dataItem, lastUsed, nameToTask, child, taskGraph, rank);
                 rank++;
             }
@@ -210,7 +208,6 @@ export class TaskGraphBuilder extends AStage {
                 this.buildCommGlobal(dataItem, child, taskGraph, rank);
                 rank++;
             }
-            console.log("------------------------");
         }
     }
 

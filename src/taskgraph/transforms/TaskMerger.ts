@@ -24,7 +24,7 @@ export class TaskMerger {
         const hierParent = t1.getHierarchicalParent()! as ConcreteTask;
 
         const movedCall = this.ensureSequentialCalls(t1, t2);
-        console.log(movedCall ? "Moved calls successfully" : "Calls are already sequential");
+        console.log(`[TaskMerger] ${movedCall ? "Moved calls successfully" : "Calls are already sequential"}`);
 
         const [newFun, newCall] = this.outlineCalls(t1, t2);
         if (newFun === null || newCall === null) {
@@ -56,9 +56,6 @@ export class TaskMerger {
         const scope2 = call2.parent.parent as Body;
 
         const cond2 = scope1.astId === scope2.astId;
-
-        console.log("Condition 1: ", cond1);
-        console.log("Condition 2: ", cond2);
 
         return cond1 && cond2;
     }

@@ -37,8 +37,9 @@ export class ExternalTask extends ConcreteTask {
         // TS conversion: original code used varrefs, but we are now using vardecls.
         const refs: Set<Vardecl> = new Set();
         const call = this.getCall();
+
         if (call == null) {
-            console.log("ExternalTask: call is null");
+            console.log("[ExternalTask] call is null");
             return;
         }
         for (const ref of Query.searchFrom(call, Varref)) {

@@ -34,7 +34,6 @@ export class TaskGraph {
 
     public removeTask(task: ConcreteTask): void {
         if (task.getIncomingComm().length > 0 || task.getOutgoingComm().length > 0) {
-            console.log(task.getName() + " " + task.getIncomingComm().length + " " + task.getOutgoingComm().length);
             throw new Error("Cannot remove task with communications");
         }
 
