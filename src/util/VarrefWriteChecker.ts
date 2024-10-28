@@ -1,5 +1,4 @@
 import { ArrayAccess, BinaryOp, Call, MemberAccess, ParenExpr, PointerType, UnaryOp, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
-import { AstPlaintextConverter } from "../analysis/ast/AstPlaintextConverter.js";
 
 export class VarrefWriteChecker {
     private scenarios: WritingScenario[];
@@ -57,13 +56,19 @@ class ArrayAssignment implements WritingScenario {
         if (varref.parent instanceof ArrayAccess) {
             const arrAccess = varref.parent;
 
-            if (arrAccess.parent instanceof BinaryOp) {
-                const binOp = arrAccess.parent;
-                return binOp.kind == "assign" && binOp.left.code == arrAccess.code;
+            // if (arrAccess.parent instanceof BinaryOp) {
+            //     const binOp = arrAccess.parent;
+            //     return binOp.kind == "assign" && binOp.left.code == arrAccess.code;
+            // }
+            // if (arrAccess.parent instanceof Vardecl) {
+            //     return arrAccess.numChildren > 1;
+            // }
+            const op = arrAccess.getAncestor("binaryOp") as BinaryOp
+            if (op == null) {
+                return false;
             }
-            if (arrAccess.parent instanceof Vardecl) {
-                return arrAccess.numChildren > 1;
-            }
+
+            return op.kind == "assign" && op.left.code.startsWith(varref.name);
         }
         return false;
     }
