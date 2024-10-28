@@ -1,4 +1,4 @@
-import { ArrayAccess, BinaryOp, ParenExpr, PointerType, UnaryOp, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { ArrayAccess, BinaryOp, MemberAccess, ParenExpr, PointerType, UnaryOp, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 
 export class VarrefWriteChecker {
     private scenarios: WritingScenario[];
@@ -12,7 +12,8 @@ export class VarrefWriteChecker {
                 new SimpleAssignment(),
                 new ArrayAssignment(),
                 new DereferencingAssignment(),
-                new ParenthesisDereferencingAssignment()
+                new ParenthesisDereferencingAssignment(),
+                new StructArrayFieldAssignment()
             ];
         }
     }
@@ -107,5 +108,30 @@ class ParenthesisDereferencingAssignment implements WritingScenario {
             }
         }
         return false;
+    }
+}
+
+/**
+ * Checks if a varref is being written to in a struct field assignment,
+ * e.g. `a.b[2] = 5;`
+ */
+class StructArrayFieldAssignment implements WritingScenario {
+    public varrefInScenario(varref: Varref): boolean {
+        if (!(varref.parent instanceof MemberAccess)) {
+            return false;
+        }
+        const memberAccess = varref.parent;
+
+        if (!(memberAccess.parent instanceof ArrayAccess)) {
+            return false;
+        }
+        const arrAccess = memberAccess.parent;
+
+        if (!(arrAccess.parent instanceof BinaryOp)) {
+            return false;
+        }
+        const binOp = arrAccess.parent;
+
+        return binOp.kind == "assign" && binOp.left.astId == arrAccess.astId;
     }
 }

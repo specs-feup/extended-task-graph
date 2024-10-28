@@ -39,6 +39,7 @@ export class TaskGraphBuilder extends AStage {
             const itemInGlobal = globalTask.getDataItemByName(dataItem.getName())!;
 
             taskGraph.addCommunication(globalTask, topTask, itemInGlobal, dataItem, rank);
+            this.lastUsedGlobal.set(dataItem.getName(), topTask);
             rank++;
         }
         rank = 1;
@@ -196,8 +197,10 @@ export class TaskGraphBuilder extends AStage {
         for (const child of children) {
             let rank = 1;
 
+            console.log("Child: " + child.getUniqueName());
             const childParams = child.getParamData();
             for (const dataItem of childParams) {
+                console.log(dataItem.getName() + ", " + dataItem.isWritten());
                 this.buildCommParam(dataItem, lastUsed, nameToTask, child, taskGraph, rank);
                 rank++;
             }
@@ -207,6 +210,7 @@ export class TaskGraphBuilder extends AStage {
                 this.buildCommGlobal(dataItem, child, taskGraph, rank);
                 rank++;
             }
+            console.log("------------------------");
         }
     }
 

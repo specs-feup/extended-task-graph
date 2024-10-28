@@ -1,48 +1,55 @@
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
 import { BinaryOp, Call, FunctionJp, IntLiteral, Joinpoint, MemberAccess, Param, UnaryOp, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 
-export class AstDumper {
-    private currentRes: string = "";
-
+export abstract class AstDumper {
     constructor() { }
 
     public dump(startJp?: Joinpoint): string {
         if (startJp === undefined) {
             startJp = Clava.getProgram();
         }
-        this.currentRes = "";
+        let currentRes = "";
 
-        this.addLevelToResult(startJp.joinPointType, 0);
+        currentRes += this.levelPrologue();
 
+        currentRes += this.levelEntry(startJp.joinPointType, 0);
         for (const child of startJp.children) {
-            this.dumpJoinPoint(child, 1);
+            currentRes += this.levelPrologue();
+            currentRes += this.dumpJoinPoint(child, 1);
+            currentRes += this.levelEpilogue();
         }
-        return this.currentRes.slice();
+
+        currentRes += this.levelEpilogue();
+
+        return currentRes;
     }
 
-    private buildLabel(key: string, val: string): string {
-        return "  {" + key + ": " + val + "}";
-    }
-
-    private dumpJoinPoint(jp: Joinpoint, indent: number): void {
-        let str = jp.joinPointType;
+    private dumpJoinPoint(jp: Joinpoint, indent: number): string {
+        let ast = "";
+        const jpName = jp.joinPointType;
+        const props: Record<string, string> = {};
 
         if (jp instanceof Param || jp instanceof Vardecl || jp instanceof Varref || jp instanceof MemberAccess) {
-            str += this.buildLabel("name", jp.name) + this.buildLabel("type", jp.type.joinPointType);
+            props.name = jp.name;
+            props.type = jp.type.joinPointType;
         }
 
         if (jp instanceof UnaryOp || jp instanceof BinaryOp) {
-            str += this.buildLabel("kind", jp.kind);
+            props.kind = jp.kind;
         }
 
         if (jp instanceof Call) {
-            str += this.buildLabel("fun", jp.name);
+            props.function = jp.name;
         }
 
         if (jp instanceof FunctionJp) {
-            str += this.buildLabel("sig", jp.signature);
+            props.sig = jp.signature;
         }
-        this.addLevelToResult(str, indent);
+        const propsStr = Object.keys(props).length == 0 ? "" :
+            Object.entries(props).map(([key, val]) => `${key}: ${val}`).join(", ");
+
+        const str = `${jpName} {${propsStr}}`;
+        ast += this.levelEntry(str, indent);
 
         if (jp.children.length > 4) {
             let allLits = true;
@@ -52,16 +59,25 @@ export class AstDumper {
                 }
             }
             if (allLits) {
-                this.addLevelToResult(jp.joinPointType + " (" + jp.children.length + "x)", indent + 2);
-                return;
+                ast += this.levelPrologue();
+                ast += this.levelEntry(jp.joinPointType + " (" + jp.children.length + "x)", indent + 2);
+                ast += this.levelEpilogue();
+                return ast;
             }
         }
         for (const child of jp.children) {
-            this.dumpJoinPoint(child, indent + 1);
+            ast += this.levelPrologue();
+            ast += this.dumpJoinPoint(child, indent + 1);
+            ast += this.levelEpilogue();
         }
+        return ast;
     }
 
-    private addLevelToResult(str: string, indent: number): void {
-        this.currentRes += `${'-'.repeat(indent)}>${str}\n`;
-    }
+    public abstract getFileExtension(): string;
+
+    protected abstract levelEntry(label: string, indent: number): string;
+
+    protected abstract levelPrologue(): string;
+
+    protected abstract levelEpilogue(): string;
 }

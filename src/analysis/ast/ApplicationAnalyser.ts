@@ -1,11 +1,12 @@
 import { FunctionJp } from "@specs-feup/clava/api/Joinpoints.js";
 import { AStage } from "../../AStage.js";
 import { DotSorting } from "../../util/DotSorting.js";
-import { AstDumper } from "./AstDumper.js";
 import { CallGraphDumper } from "./CallGraphDumper.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { CallTreeDumper } from "./CallTreeDumper.js";
 import { SourceCodeStats } from "./SourceCodeStats.js";
+import { AstPlaintextConverter } from "./AstPlaintextConverter.js";
+import { AstHtmlConverter } from "./AstHtmlConverter.js";
 
 export class ApplicationAnalyser extends AStage {
     constructor(topFunction: string, outputDir: string, appName: string) {
@@ -47,11 +48,19 @@ export class ApplicationAnalyser extends AStage {
     }
 
     public dumpAST(): void {
-        const dumper = new AstDumper();
-        const str = dumper.dump();
+        const plainDumper = new AstPlaintextConverter();
+        const plainStr = plainDumper.dump();
+        const plainFilename = `ast.${plainDumper.getFileExtension()}`;
 
-        const path = this.saveToFile(str, "ast.txt");
-        this.logOutput("AST dumped to", path);
+        const plainPath = this.saveToFile(plainStr, plainFilename);
+        this.logOutput("Plaintext AST dumped to", plainPath);
+
+        const htmlDumper = new AstHtmlConverter();
+        const htmlStr = htmlDumper.dump();
+        const htmlFilename = `ast.${htmlDumper.getFileExtension()}`;
+
+        const htmlPath = this.saveToFile(htmlStr, htmlFilename);
+        this.logOutput("HTML AST dumped to", htmlPath);
     }
 
     public dumpCallGraph(startFromMain = true): void {
@@ -81,7 +90,7 @@ export class ApplicationAnalyser extends AStage {
 
         const dot2 = dumper.dump(topFun, DotSorting.LEFT_TO_RIGHT);
         const path2 = this.saveToFile(dot2, "calltree_lr.dot");
-        this.logOutput("Call tree LR dumped to", path1);
+        this.logOutput("Call tree LR dumped to", path2);
     }
 
     public generateStatistics(): void {
