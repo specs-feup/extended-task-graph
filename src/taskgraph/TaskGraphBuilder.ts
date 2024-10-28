@@ -27,11 +27,18 @@ export class TaskGraphBuilder extends AStage {
         const topTask = this.buildLevel(taskGraph, topFunctionJoinPoint, null, null, true);
 
         let rank = 1;
-        for (const dataItem of topTask.getReferencedData()) {
+        for (const dataItem of topTask.getParamData()) {
             const sourceTask = taskGraph.getSourceTask();
             const itemInSource = sourceTask.addDataToSource(dataItem);
 
             taskGraph.addCommunication(sourceTask, topTask, itemInSource, dataItem, rank);
+            rank++;
+        }
+        for (const dataItem of topTask.getGlobalRefData()) {
+            const globalTask = taskGraph.getGlobalTask();
+            const itemInGlobal = globalTask.getDataItemByName(dataItem.getName())!;
+
+            taskGraph.addCommunication(globalTask, topTask, itemInGlobal, dataItem, rank);
             rank++;
         }
         rank = 1;
@@ -91,13 +98,11 @@ export class TaskGraphBuilder extends AStage {
 
             // Should only happen for inlinable functions (e.g., math.h)
             else {
-                //println("[TaskGraphBuilder] Found an inlinable function: " + callee.signature);
                 taskGraph.addInlinable(call);
             }
         }
 
         // Add communications
-        //this.addParentChildrenComm(taskGraph, task, childTasks);
         this.addSubgraphComm(taskGraph, task, childTasks);
 
         // update task with R/W data from the children
