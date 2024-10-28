@@ -1,4 +1,5 @@
-import { ArrayAccess, BinaryOp, MemberAccess, ParenExpr, PointerType, UnaryOp, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { ArrayAccess, BinaryOp, Call, MemberAccess, ParenExpr, PointerType, UnaryOp, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { AstPlaintextConverter } from "../analysis/ast/AstPlaintextConverter.js";
 
 export class VarrefWriteChecker {
     private scenarios: WritingScenario[];
@@ -13,7 +14,8 @@ export class VarrefWriteChecker {
                 new ArrayAssignment(),
                 new DereferencingAssignment(),
                 new ParenthesisDereferencingAssignment(),
-                new StructArrayFieldAssignment()
+                new StructArrayFieldAssignment(),
+                new OverloadedAssignmentOperator()
             ];
         }
     }
@@ -133,5 +135,23 @@ class StructArrayFieldAssignment implements WritingScenario {
         const binOp = arrAccess.parent;
 
         return binOp.kind == "assign" && binOp.left.astId == arrAccess.astId;
+    }
+}
+
+/**
+ * Assignments done with C++ operator= overloads,
+ * e.g. `a = b;`, where a and b are objects of a class that has operator= defined
+ */
+class OverloadedAssignmentOperator implements WritingScenario {
+    public varrefInScenario(varref: Varref): boolean {
+        const call = varref.getAncestor("call") as Call;
+        if (call == undefined) {
+            return false;
+        }
+        if (call.name !== "operator=") {
+            return false;
+        }
+        const lhsCode = call.args[0].code;
+        return lhsCode.startsWith(varref.name);
     }
 }
