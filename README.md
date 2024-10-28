@@ -11,13 +11,9 @@ This is an implementation of the [Extended Task Graph (ETG)](https://dl.acm.org/
 </p>
 </div>
 
-## How to Use
+## How to install
 
-The ETG is an NPM package, and it can be used both as a standalone, and as a library/extension to your own Clava-based scripts and projects
-
-### Prerequisites
-
-The ETG is developed and validated on Ubuntu 24.x. However, it should work on all other OS supported by Clava and node.js. Make sure you have node.js 18 or higher installed, and optionally Graphviz to render/visualize the task graphs. For Ubuntu:
+1. Start by installing these prerequisites. The ETG is developed and validated on Ubuntu 24.x, but it should work on all other OS supported by Clava and node.js. Make sure you have node.js 18 or higher installed, and optionally Graphviz to render/visualize the task graphs. For Ubuntu:
 
 ```bash
 apt update && apt upgrade -y
@@ -27,21 +23,14 @@ apt install -y nodejs
 node -v && npm -v
 ```
 
-### As a standalone app
-
-To be developed
-
-### As a library/extension
-
-Here is an example of how to integrate this into your own Clava-based NPM project:
-
-1. Create a workspace directory, clone a required repository, and create your new project (replace `my-proj` by your project's name):
+2. Now, you need to create an NPM workspace for both the ETG and your own Clava-based NPM project (replace `my-proj` by your project's name):
 
 ```bash
 PROJ_NAME=my_proj  # change this
 mkdir clava-workspace
 cd workspace
 mkdir $PROJ_NAME
+git clone https://github.com/specs-feup/extended-task-graph
 git clone https://github.com/tiagolascasas/clava-js-code-transforms
 cat <<EOF > package.json
 {
@@ -49,17 +38,20 @@ cat <<EOF > package.json
   "version": "1.0.0",
   "private": true,
   "workspaces": [
+    "extended-task-graph",
     "clava-js-code-transformations",
     "$PROJ_NAME"
 }
 EOF
-
-cd clava-js-code-transforms
 npm install
-cd ../$PROJ_NAME
+cd clava-js-code-transforms
+npm run build
+cd ../extended-task-graph
+npm run build
+cd ..
 ```
 
-2. In your project folder, make sure you are including both the Clava package, as well as the ETG package. An easy way to bootstrap your Clava-based project is to use [this template](https://github.com/specs-feup/clava-project-template). Regardless, make sure you end up with a `package.json` whose `name` field matches the name of the folder and with these two dependencies:
+3. In your project folder, make sure you are including both the Clava package, as well as the ETG package. An easy way to bootstrap your Clava-based project is to use [this template](https://github.com/specs-feup/clava-project-template). Regardless, make sure you end up with a `package.json` whose `name` field matches the name of the folder and with these two dependencies:
 
 ```json
 {
@@ -67,14 +59,14 @@ cd ../$PROJ_NAME
     //...
     "dependencies": {
         "@specs-feup/clava": "3.0.1",
-        "clava-code-transformations": "^1.0.0",
+        "extended-task-graph": "^1.0.0",
         //...
   },
   //...
 }
 ```
 
-Then, make sure you run `npm install` on both your project and on the parent `clava-workspace` folder. You can check the examples in [this folder](https://github.com/specs-feup/extended-task-graph/tree/main/test/simple-use-cases) to see how to use the ETG API in your own scripts.
+4. In your own project, you can begin to use both the Clava API and the ETG for your own purposes. You can check the examples in [this folder](https://github.com/specs-feup/extended-task-graph/tree/main/test/simple-use-cases) to see how to use the ETG API in your own scripts. You can run these examples examples by going to the `extended-task-graph` directory and running `npm run`, which lists the command required for each use case (e.g., `npm run simple:etg` generates an ETG for a provided edge detection application).
 
 ### Outputs
 
@@ -98,4 +90,27 @@ Under normal usage (i.e., running the entire flow from code preprocessing, task 
     ├── trans_instr - the same as the above, but with time measuring instrumentation for each function. Useful for profiling
     ├── <label> - source code output explicitly triggered by the user, possibly after applying transformations, using a subfolder name provided by them
     └── <...>
+```
+
+### Citing this work
+
+If you found our work useful, please consider citing it as follows:
+
+```bibtex
+@inproceedings{10.1145/3652032.3657580,
+     author = {Santos, Tiago and Bispo, Jo\~{a}o and Cardoso, Jo\~{a}o M. P.},
+     title = {A Flexible-Granularity Task Graph Representation and Its Generation from C Applications (WIP)},
+     year = {2024},
+     isbn = {9798400706165},
+     publisher = {Association for Computing Machinery},
+     address = {New York, NY, USA},
+     url = {https://doi.org/10.1145/3652032.3657580},
+     doi = {10.1145/3652032.3657580},
+     booktitle = {Proceedings of the 25th ACM SIGPLAN/SIGBED International Conference on Languages, Compilers, and Tools for Embedded Systems},
+     pages = {178–182},
+     numpages = {5},
+     keywords = {FPGA, Hardware Accelerators, Hardware/Software Partitioning, Source-to-Source Compiler, Task Graph},
+     location = {Copenhagen, Denmark},
+     series = {LCTES 2024}
+}
 ```
