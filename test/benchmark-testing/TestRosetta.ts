@@ -13,18 +13,29 @@ const apps = [
 ];
 
 for (const app of apps) {
-    console.log(app);
-
-    const topFunctionName = LiteBenchmarkLoader.load(rosettaSuite, app);
     const outputDir = "output/rosetta";
+    const cachedPath = `${outputDir}/${app}/src/trans`;
+
+    let invalidCache = false;
+    const topFunctionName = LiteBenchmarkLoader.load(rosettaSuite, app, cachedPath);
+
+    if (topFunctionName === "<none>") {
+        console.error(`Could not load cached app ${app}, loading full benchmark instead`);
+        invalidCache = true;
+    }
+    else {
+        console.log(`Loaded cached app ${app} with top function ${topFunctionName}`);
+    }
     const api = new ExtendedTaskGraphAPI(topFunctionName, outputDir, app);
 
-    const dumpAST = true;
-    const dumpCallGraph = true;
-    const doTransformations = true;
+    if (invalidCache) {
+        const dumpAST = true;
+        const doTransformations = true;
+        const dumpCallGraph = true;
+        api.runCodeTransformationFlow(dumpCallGraph, dumpAST, doTransformations);
+    }
+
     const generateGraph = true;
     const gatherMetrics = true;
-
-    api.runCodeTransformationFlow(dumpCallGraph, dumpAST, doTransformations);
     api.runTaskGraphGenerationFlow(generateGraph, gatherMetrics);
 }

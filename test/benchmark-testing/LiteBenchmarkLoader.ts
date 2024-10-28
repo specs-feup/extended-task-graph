@@ -4,16 +4,21 @@ import Io from "@specs-feup/lara/api/lara/Io.js";
 import { readdirSync } from "fs";
 
 export class LiteBenchmarkLoader {
-    static load(suite: BenchmarkSuite, app: string): string {
+    static load(suite: BenchmarkSuite, app: string, cachedPath?: string): string {
         const summary = suite.appDetails[app];
-        const fullPath = `${suite.path}${app}`;
+        const fullPath = cachedPath == undefined ? `${suite.path}${app}` : cachedPath;
 
         Clava.getData().setStandard(summary.standard);
         Clava.getData().setFlags(suite.flags.join(" "));
 
         if (!Io.isFolder(fullPath)) {
             console.error(`Benchmark folder not found: ${fullPath}`);
-            console.log("Have you cloned the submodule github.com/specs-feup/clava-benchmarks?");
+            if (cachedPath === undefined) {
+                console.log("Have you cloned the submodule github.com/specs-feup/clava-benchmarks?");
+            }
+            else {
+                console.log("Cached path is invalid.");
+            }
             return "<none>";
         }
 
