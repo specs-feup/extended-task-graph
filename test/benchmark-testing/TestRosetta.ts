@@ -8,8 +8,8 @@ const apps = [
     //"3d-rendering",
     //"digit-recognition",
     //"face-detection",
-    //"optical-flow",
-    "spam-filter"
+    "optical-flow",
+    //"spam-filter"
 ];
 
 for (const app of apps) {

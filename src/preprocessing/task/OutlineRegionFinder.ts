@@ -36,18 +36,17 @@ export class OutlineRegionFinder extends AStage {
         }
         const filteredRegions = this.filterRegions(regions);
 
-        // finally, wrap all the regions we found
-        // const wrappedRegions: Statement[][] = [];
-        // for (const region of filteredRegions) {
-        //     const wrappedRegion = this.wrapRegion(region);
-        //     wrappedRegions.push(wrappedRegion);
-        // }
+        const wrappedRegion: Statement[][] = [];
         for (const region of filteredRegions) {
-            this.outlineRegion(this.wrapRegion(region), DefaultPrefix.OUTLINED_FUN);
+            wrappedRegion.push(this.wrapRegion(region));
+        }
+
+        for (const region of wrappedRegion) {
+            this.outlineRegion(region, DefaultPrefix.OUTLINED_FUN);
         }
 
         this.log("Finished annotating generic outlining regions")
-        return filteredRegions.length;
+        return wrappedRegion.length;
     }
 
     public outlineLoops(): number {

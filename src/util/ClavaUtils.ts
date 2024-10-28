@@ -96,7 +96,7 @@ export class ClavaUtils {
             if (fun == undefined) {
                 continue;
             }
-            const valid = includeExternals ? fun : fun.isImplementation;
+            const valid = includeExternals ? fun : ClavaUtils.functionHasImplementation(fun);
 
             if (valid) {
                 funs.push(fun);
