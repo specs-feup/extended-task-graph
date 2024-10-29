@@ -9,7 +9,7 @@ import { ExternalFunctionsMatcher } from "../util/ExternalFunctionsMatcher.js";
 import { ExternalTask } from "./tasks/ExternalTask.js";
 import { DataItem } from "./dataitems/DataItem.js";
 import { ConcreteTask } from "./tasks/ConcreteTask.js";
-import LoopCharacterizer from "clava-code-transformations/LoopCharacterizer";
+import LoopCharacterizer from "clava-code-transforms/LoopCharacterizer";
 import { VariableDataItem } from "./dataitems/VariableDataItem.js";
 
 export class TaskGraphBuilder extends AStage {

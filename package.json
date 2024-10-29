@@ -23,8 +23,8 @@
   },
   "dependencies": {
     "@specs-feup/clava": "^3.0.1",
+    "clava-code-transforms": "^1.0.0",
     "chalk": "^5.3.0",
-    "clava-code-transformations": "^1.0.0",
     "fs": "^0.0.1-security",
     "path": "^0.12.7"
   },

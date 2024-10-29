@@ -1,6 +1,6 @@
 import { TaskGraph } from "../../taskgraph/TaskGraph.js";
 import { TaskGraphStat } from "./TaskGraphStat.js";
-import LoopCharacterizer from "clava-code-transformations/LoopCharacterizer";
+import LoopCharacterizer from "clava-code-transforms/LoopCharacterizer";
 import { ExternalTask } from "../../taskgraph/tasks/ExternalTask.js";
 import { RegularTask } from "../../taskgraph/tasks/RegularTask.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";

@@ -1,12 +1,13 @@
-import { Body, Call, DeclStmt, ExprStmt, FunctionJp, If, Joinpoint, Loop, ReturnStmt, Scope, Statement, Varref, WrapperStmt } from "@specs-feup/clava/api/Joinpoints.js";
+import { Body, Call, ExprStmt, FunctionJp, If, Joinpoint, Loop, ReturnStmt, Scope, Statement, Varref, WrapperStmt } from "@specs-feup/clava/api/Joinpoints.js";
 import { AStage } from "../../AStage.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import IdGenerator from "@specs-feup/lara/api/lara/util/IdGenerator.js";
 import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
 import { ExternalFunctionsMatcher } from "../../util/ExternalFunctionsMatcher.js";
-import Outliner from "clava-code-transformations/Outliner";
+import Outliner from "clava-code-transforms/Outliner";
 import { DefaultPrefix } from "../../api/PreSuffixDefaults.js";
+import { OutlineRegionValidator } from "./OutlineRegionValidator.js";
 
 export class OutlineRegionFinder extends AStage {
     constructor(topFunction: string) {
@@ -117,45 +118,13 @@ export class OutlineRegionFinder extends AStage {
         end.detach();
     }
 
-    private validateRegion(region: Statement[]): boolean {
-        if (region.length <= 1) {
-            return false;
-        }
-        if (region.length == 2 && region[0].astId == region[1].astId) {
-            return false;
-        }
-
-        let hasOneUsefulStmt = false;
-        for (const stmt of region) {
-            hasOneUsefulStmt ||= stmt instanceof WrapperStmt;
-            hasOneUsefulStmt ||= stmt instanceof DeclStmt;
-            hasOneUsefulStmt ||= stmt instanceof ReturnStmt;
-            hasOneUsefulStmt ||= stmt instanceof ExprStmt;
-
-            if (hasOneUsefulStmt) {
-                break;
-            }
-        }
-        if (!hasOneUsefulStmt) {
-            return false;
-        }
-
-        // having at least one useful statement is not enough
-        // we need to check a few more things
-        if (region.length == 2 && region[1] instanceof ReturnStmt) {
-            const isTrivialReturn = Query.searchFrom(region[0], Varref, { name: DefaultPrefix.RETURN_VAR }).chain().length > 0;
-            if (isTrivialReturn) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     private filterRegions(regions: Statement[][]): Statement[][] {
         const filteredRegions = [];
 
         for (const region of regions) {
-            const valid = this.validateRegion(region);
+            const validator = new OutlineRegionValidator();
+            const valid = validator.validate(region);
+
             if (valid) {
                 filteredRegions.push(region);
             }

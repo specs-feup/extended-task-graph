@@ -1,6 +1,6 @@
 import { Body, Call, ExprStmt, FunctionJp, Scope } from "@specs-feup/clava/api/Joinpoints.js";
 import Inliner from "@specs-feup/clava/api/clava/code/Inliner.js";
-import Outliner from "clava-code-transformations/Outliner";
+import Outliner from "clava-code-transforms/Outliner";
 import { DefaultPrefix } from "../../api/PreSuffixDefaults.js";
 import { TaskGraph } from "../TaskGraph.js";
 import { RegularTask } from "../tasks/RegularTask.js";

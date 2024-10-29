@@ -1,7 +1,7 @@
 import { Call, DeclStmt, ExprStmt, FunctionJp, Scope, Statement, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 import { TaskGraph } from "../TaskGraph.js";
 import { RegularTask } from "../tasks/RegularTask.js";
-import Outliner from "clava-code-transformations/Outliner";
+import Outliner from "clava-code-transforms/Outliner";
 import Inliner from "@specs-feup/clava/api/clava/code/Inliner.js";
 import { DefaultPrefix, DefaultSuffix } from "../../api/PreSuffixDefaults.js";
 import { VariableDataItem } from "../dataitems/VariableDataItem.js";
