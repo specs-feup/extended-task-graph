@@ -211,17 +211,25 @@ export class TaskGraphBuilder extends AStage {
         }
     }
 
-    private buildCommParam(dataItem: DataItem, lastUsed: Map<string, string>, nameToTask: Map<string, Task>, child: Task, taskGraph: TaskGraph, rank: number): void {
-        const altName = dataItem.getAlternateName();
+    private buildCommParam(childDataItem: DataItem, lastUsed: Map<string, string>, nameToTask: Map<string, Task>, childTask: Task, taskGraph: TaskGraph, rank: number): void {
+        const altName = childDataItem.getAlternateName();
         const lastUsedTaskName = lastUsed.get(altName)!;
         const lastUsedTask = nameToTask.get(lastUsedTaskName)!;
-        const lastUsedDataItem = lastUsedTask.getDataItemByAltName(altName)!;
+        let lastUsedDataItem = lastUsedTask.getDataItemByName(altName);
 
-        if (lastUsedTask != null && lastUsedTask != child) {
-            taskGraph.addCommunication(lastUsedTask, child, lastUsedDataItem, dataItem, rank);
+        // This is potentially an issue if the alt name happens to match a completely different data item
+        if (lastUsedDataItem == null) {
+            lastUsedDataItem = lastUsedTask.getDataItemByAltName(altName);
+        }
+        if (lastUsedDataItem == null) {
+            throw new Error(`Could not find data item ${altName} in task ${lastUsedTask.getUniqueName()}`);
+        }
 
-            if (dataItem.isWritten()) {
-                lastUsed.set(altName, child.getUniqueName());
+        if (lastUsedTask != null && lastUsedTask != childTask) {
+            taskGraph.addCommunication(lastUsedTask, childTask, lastUsedDataItem, childDataItem, rank);
+
+            if (childDataItem.isWritten()) {
+                lastUsed.set(altName, childTask.getUniqueName());
             }
         }
     }

@@ -5,6 +5,7 @@ import { SuiteSelector } from "./SuiteSelector.js";
 const rosettaSuite: BenchmarkSuite = SuiteSelector.ROSETTA;
 
 const settings = {
+    disableCaching: false,
     outputDir: "output/rosetta",
     dumpAST: true,
     doTransformations: true,
@@ -14,13 +15,11 @@ const settings = {
 }
 
 const apps = [
-    //"3d-rendering",
+    "3d-rendering",
     //"digit-recognition",
     //"face-detection",
-    "optical-flow",
+    //"optical-flow",
     //"spam-filter"
 ];
-
-
 
 runEtgForBenchmark(rosettaSuite, apps, settings);

@@ -60,7 +60,7 @@ export class TaskGraphAnalyzer extends AStage {
             }
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             catch (e) {
-                this.logError(`Failed to calculate metric "${statCalc.getStatName()}", skipping it`);
+                this.logWarning(`Failed to calculate metric "${statCalc.getStatName()}", skipping it`);
                 this.metrics[statName] = {};
             }
         }

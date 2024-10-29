@@ -8,25 +8,38 @@ export function runEtgForBenchmark(suite: BenchmarkSuite, apps: string[], settin
         log(`Running ETG flows for app ${app} of benchmark suite ${suite.name}`);
         const outputDir = settings.outputDir as string;
         const cachedPath = `${outputDir}/${app}/src/trans`;
+        let topFunctionName = "<none>";
 
         let invalidCache = false;
-        log(`Trying to load cached app ${app} from ${cachedPath}...`);
-        let topFunctionName = LiteBenchmarkLoader.load(suite, app, cachedPath);
-
-        if (topFunctionName === "<none>") {
-            log(`Could not load cached app ${app}, loading full benchmark instead`);
-            invalidCache = true;
-
-            log(`Loading full benchmark for app ${app}...`);
+        if (settings.disableCaching) {
+            log(`Caching is disabled, loading full benchmark for app ${app}...`);
             topFunctionName = LiteBenchmarkLoader.load(suite, app);
             if (topFunctionName === "<none>") {
                 log(`Could not load app ${app}, skipping...`);
-                return false;
+                continue;
             }
+            invalidCache = true;
             log(`Loaded full benchmark for app ${app} with top function ${topFunctionName}`);
         }
         else {
-            log(`Loaded cached app ${app} with top function ${topFunctionName}`);
+            log(`Trying to load cached app ${app} from ${cachedPath}...`);
+            topFunctionName = LiteBenchmarkLoader.load(suite, app, cachedPath);
+
+            if (topFunctionName === "<none>") {
+                log(`Could not load cached app ${app}, loading full benchmark instead`);
+                invalidCache = true;
+
+                log(`Loading full benchmark for app ${app}...`);
+                topFunctionName = LiteBenchmarkLoader.load(suite, app);
+                if (topFunctionName === "<none>") {
+                    log(`Could not load app ${app}, skipping...`);
+                    return false;
+                }
+                log(`Loaded full benchmark for app ${app} with top function ${topFunctionName}`);
+            }
+            else {
+                log(`Loaded cached app ${app} with top function ${topFunctionName}`);
+            }
         }
         const api = new ExtendedTaskGraphAPI(topFunctionName, outputDir, app);
 

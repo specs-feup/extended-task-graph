@@ -93,19 +93,19 @@ export abstract class AStage {
 
     protected logSuccess(message: string): void {
         const header = this.getStageOutputHeader();
-        const success = chalk.green("Success: ");
+        const success = chalk.green("Success:");
         this.writeMessage(`${header} ${success} ${message}`);
     }
 
     protected logWarning(message: string): void {
         const header = this.getStageOutputHeader();
-        const warning = chalk.yellow("Warning: ");
+        const warning = chalk.yellow("Warning:");
         this.writeMessage(`${header} ${warning} ${message}`);
     }
 
     protected logError(message: string): void {
         const header = this.getStageOutputHeader();
-        const err = chalk.red("Error: ");
+        const err = chalk.red("Error:");
         this.writeMessage(`${header} ${err} ${message}`);
     }
 
