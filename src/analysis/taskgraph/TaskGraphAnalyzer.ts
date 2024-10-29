@@ -40,23 +40,30 @@ export class TaskGraphAnalyzer extends AStage {
 
     public updateMetrics(): Record<string, any> {
         const statCalculators: TaskGraphStat[] = [
-            new TaskPropertiesFinder(this.taskGraph),  // Code properties of each task
-            new TaskGraphStatFinder(this.taskGraph),   // Statistics of the task graph
-            new NoTaskHistogramFinder(this.taskGraph), // Histogram of no-task function calls
-            new DataPerTaskFinder(this.taskGraph),     // Data per task
-            new GlobalDataFinder(this.taskGraph),      // Information about global data
-            new DataSourceFinder(this.taskGraph),      // Distance from a datum to its source
-            new DataPathFinder(this.taskGraph),        // Data paths in the task graph
-            new ParallelTaskFinder(this.taskGraph),                   // Parallel tasks
-            new ProducerConsumerFinder(this.taskGraph),               // Producer-consumer relationships
-            new CriticalPathFinder(this.taskGraph)          // Critical path / ILP measure
+            new TaskPropertiesFinder(this.taskGraph),   // Code properties of each task
+            new TaskGraphStatFinder(this.taskGraph),    // Statistics of the task graph
+            new NoTaskHistogramFinder(this.taskGraph),  // Histogram of no-task function calls
+            new DataPerTaskFinder(this.taskGraph),      // Data per task
+            new GlobalDataFinder(this.taskGraph),       // Information about global data
+            new DataSourceFinder(this.taskGraph),       // Distance from a datum to its source
+            new DataPathFinder(this.taskGraph),         // Data paths in the task graph
+            new ParallelTaskFinder(this.taskGraph),     // Parallel tasks
+            new ProducerConsumerFinder(this.taskGraph), // Producer-consumer relationships
+            new CriticalPathFinder(this.taskGraph)      // Critical path / ILP measure
         ];
 
         for (const statCalc of statCalculators) {
             const statName = statCalc.getStatName();
-            this.metrics[statName] = statCalc.getStatSummary();
-        }
 
+            try {
+                this.metrics[statName] = statCalc.getStatSummary();
+            }
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            catch (e) {
+                this.logError(`Failed to calculate metric "${statCalc.getStatName()}", skipping it`);
+                this.metrics[statName] = {};
+            }
+        }
         return this.metrics;
     }
 }
