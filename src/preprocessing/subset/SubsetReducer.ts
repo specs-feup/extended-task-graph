@@ -7,8 +7,6 @@ import Query from "@specs-feup/lara/api/weaver/Query.js";
 import ArrayFlattener from "clava-code-transformations/ArrayFlattener";
 import StructDecomposer from "clava-code-transformations/StructDecomposer";
 import SwitchToIf from "clava-code-transformations/SwitchToIf";
-import Voidifier from "clava-code-transformations/Voidifier";
-import { DefaultPrefix } from "../../api/PreSuffixDefaults.js";
 import FoldingPropagationCombiner from "clava-code-transformations/FoldingPropagationCombiner";
 
 export class SubsetReducer extends AStage {
@@ -20,7 +18,6 @@ export class SubsetReducer extends AStage {
         this.normalizeToSubset();
         this.decomposeStatements();
         this.applyCodeTransforms();
-        this.ensureVoidReturns();
     }
 
     public normalizeToSubset() {
@@ -93,30 +90,13 @@ export class SubsetReducer extends AStage {
         }
 
         try {
-            this.applyConstantFoldingAndPropagation();
+            //this.applyConstantFoldingAndPropagation();
         } catch (e) {
             this.logTrace(e);
             this.logWarning(`Error applying constant folding and propagation, reverting AST to previous state`);
             return false;
         }
         return true;
-    }
-
-    public ensureVoidReturns(): void {
-        let count = 0;
-
-        this.getValidFunctions().forEach((fun) => {
-            const vf = new Voidifier();
-
-            if (fun.name == "main") {
-                this.log("Skipping voidification of main(), which is part of the valid call graph for subset reduction");
-            }
-            else {
-                const turnedVoid = vf.voidify(fun, DefaultPrefix.RETURN_VAR);
-                count += turnedVoid ? 1 : 0;
-            }
-        });
-        this.log(`Ensured ${count} function${count > 1 ? "s" : ""} return${count > 1 ? "s" : ""} void`);
     }
 
     private applyArrayFlattening(): void {

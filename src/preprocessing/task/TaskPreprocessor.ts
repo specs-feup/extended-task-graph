@@ -2,6 +2,9 @@ import { AStage } from "../../AStage.js";
 import { AppTimerInserter } from "./AppTimerInserter.js";
 import { ReplicaCreator } from "./ReplicaCreator.js";
 import { OutlineRegionFinder } from "./OutlineRegionFinder.js";
+import { DefaultPrefix } from "../../api/PreSuffixDefaults.js";
+import { ClavaUtils } from "../../util/ClavaUtils.js";
+import Voidifier from "clava-code-transformations/Voidifier";
 
 export class TaskPreprocessor extends AStage {
     constructor(topFunction: string, outputDir: string, appName: string) {
@@ -11,8 +14,27 @@ export class TaskPreprocessor extends AStage {
     public preprocess() {
         this.createFunctionReplicas();
         this.outlineAll();
+        this.ensureVoidReturns();
         this.insertTimer();
     }
+
+    public ensureVoidReturns(): void {
+        let count = 0;
+
+        ClavaUtils.getAllUniqueFunctions(this.getTopFunctionJoinPoint()).forEach((fun) => {
+            const vf = new Voidifier();
+
+            if (fun.name == "main") {
+                this.log("Skipping voidification of main(), which is part of the valid call graph for subset reduction");
+            }
+            else {
+                const turnedVoid = vf.voidify(fun, DefaultPrefix.RETURN_VAR);
+                count += turnedVoid ? 1 : 0;
+            }
+        });
+        this.log(`Ensured ${count} function${count > 1 ? "s" : ""} return${count > 1 ? "s" : ""} void`);
+    }
+
 
     public outlineAll(): void {
         this.log("Finding code regions for outlining...");
