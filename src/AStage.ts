@@ -2,6 +2,8 @@ import { FunctionJp } from "@specs-feup/clava/api/Joinpoints.js";
 import Io from "@specs-feup/lara/api/lara/Io.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import chalk from "chalk";
+import { writeFileSync } from "fs";
+import { createLogger, format, Logger, transports } from "winston";
 
 export abstract class AStage {
     private stageName: string = "DefaultStage";
@@ -12,10 +14,8 @@ export abstract class AStage {
     private outputDir: string;
     private startTimestamp: Date = new Date();
 
-    private static isLogFileInitialized: boolean = false;
-    private static logFile: string = "";
-    private static currentLog: string = "";
-    private static maxLogSize: number = 248;
+    private static isLoggerInit: boolean = false;
+    private static logger: Logger;
 
     constructor(stageName: string, topFunctionName: string, outputDir = "output", appName = "default_app_name") {
         this.stageName = stageName;
@@ -23,10 +23,8 @@ export abstract class AStage {
         this.appName = appName;
         this.outputDir = outputDir;
 
-        if (!AStage.isLogFileInitialized) {
-            AStage.logFile = `${this.outputDir}/log_${this.appName}.txt`;
-            Io.writeFile(AStage.logFile, "");
-            AStage.isLogFileInitialized = true;
+        if (!AStage.isLoggerInit) {
+            this.initLogger();
         }
     }
 
@@ -54,9 +52,9 @@ export abstract class AStage {
         return this.topFunctionName;
     }
 
-    protected log(message: string, forceFlush: boolean = false): void {
+    protected log(message: string): void {
         const header = this.getStageOutputHeader();
-        this.writeMessage(`${header} ${message}`, forceFlush);
+        this.writeMessage(`${header} ${message}`);
     }
 
     protected logStart(): void {
@@ -79,7 +77,7 @@ export abstract class AStage {
         const timestamp = date.toISOString();
         const msg = `Finished ${stage} at ${timestamp} (elapsed time: ${diff2Decimals}s)`;
 
-        this.log(msg, true);
+        this.log(msg);
     }
 
     protected logOutput(message: string, path: string): void {
@@ -149,16 +147,38 @@ export abstract class AStage {
         return header;
     }
 
-    private writeMessage(message: string, forceFlush = false): void {
-        console.log(message);
+    private initLogger(): void {
+        const logFile = `${this.outputDir}/${this.appName}.log`;
+        writeFileSync(logFile, '');
 
-        // eslint-disable-next-line no-control-regex
-        const strippedMsg = message.replace(/\u001b\[[0-9;]*m/g, '').replace("[ETG", "\n[ETG");
-        AStage.currentLog += strippedMsg;
+        const stdTransporter = new transports.Console({
+            format: format.printf(({ message }) => {
+                return `${message}`;
+            })
+        });
+        const fileTransporter = new transports.File({
+            filename: logFile,
+            format: format.combine(
+                format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
+                format.printf(({ timestamp, message }) => {
+                    // eslint-disable-next-line no-control-regex
+                    const stripped = message.replace(/\u001b\[[0-9;]*m/g, '').replace("[ETG", "\n[ETG");
+                    return `[${timestamp}] ${stripped}`;
+                })
+            )
+        })
 
-        if (AStage.currentLog.length > AStage.maxLogSize || forceFlush) {
-            Io.appendFile(AStage.logFile, AStage.currentLog);
-            AStage.currentLog = "";
-        }
+        AStage.logger = createLogger({
+            level: 'info',
+            transports: [
+                stdTransporter,
+                fileTransporter
+            ]
+        });
+        AStage.isLoggerInit = true;
+    }
+
+    private writeMessage(message: string): void {
+        AStage.logger.info(message);
     }
 }
