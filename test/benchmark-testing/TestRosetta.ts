@@ -5,11 +5,11 @@ import { SuiteSelector } from "./SuiteSelector.js";
 const rosettaSuite: BenchmarkSuite = SuiteSelector.ROSETTA;
 
 const apps = [
-    //"3d-rendering",
-    //"digit-recognition",
+    "3d-rendering",
+    "digit-recognition",
     "face-detection",
-    //"optical-flow",
-    //"spam-filter"
+    "optical-flow",
+    "spam-filter"
 ];
 
 const settings = {

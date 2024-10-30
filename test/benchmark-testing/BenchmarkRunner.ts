@@ -1,6 +1,7 @@
 import { LiteBenchmarkLoader, BenchmarkSuite } from "./LiteBenchmarkLoader.js";
 import { ExtendedTaskGraphAPI } from "../../src/api/ExtendedTaskGraphAPI.js";
 import chalk from "chalk";
+import Clava from "@specs-feup/clava/api/clava/Clava.js";
 
 export function runEtgForBenchmark(suite: BenchmarkSuite, apps: string[], settings: Record<string, boolean | string>): boolean {
 
@@ -43,18 +44,26 @@ export function runEtgForBenchmark(suite: BenchmarkSuite, apps: string[], settin
         }
         const api = new ExtendedTaskGraphAPI(topFunctionName, outputDir, app);
 
-        if (invalidCache) {
-            const dumpAST = settings.dumpAST as boolean;
-            const doTransformations = settings.doTransformations as boolean;
-            const dumpCallGraph = settings.dumpCallGraph as boolean;
-            api.runCodeTransformationFlow(dumpCallGraph, dumpAST, doTransformations);
+        try {
+            if (invalidCache) {
+                const dumpAST = settings.dumpAST as boolean;
+                const doTransformations = settings.doTransformations as boolean;
+                const dumpCallGraph = settings.dumpCallGraph as boolean;
+                api.runCodeTransformationFlow(dumpCallGraph, dumpAST, doTransformations);
+            }
+
+            const generateGraph = settings.generateGraph as boolean;
+            const gatherMetrics = settings.gatherMetrics as boolean;
+            api.runTaskGraphGenerationFlow(generateGraph, gatherMetrics);
+
+            log(`Finished running ETG flows for app ${app} of benchmark suite ${suite.name}`);
+
+        } catch (e) {
+            log((e instanceof Error) ? e.message : String(e));
+            log(`${chalk.red("Error: ")} exception while running ETG flows for app ${app} of benchmark suite ${suite.name}`);
         }
-
-        const generateGraph = settings.generateGraph as boolean;
-        const gatherMetrics = settings.gatherMetrics as boolean;
-        api.runTaskGraphGenerationFlow(generateGraph, gatherMetrics);
-
-        log(`Finished running ETG flows for app ${app} of benchmark suite ${suite.name}`);
+        log("-".repeat(58));
+        Clava.popAst();
     }
     if (apps.length > 1) {
         log(`Finished running ETG flows for ${apps.length} apps from benchmark suite ${suite.name}`);

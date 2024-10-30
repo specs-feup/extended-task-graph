@@ -90,7 +90,7 @@ export class SubsetReducer extends AStage {
         }
 
         try {
-            //this.applyConstantFoldingAndPropagation();
+            this.applyConstantFoldingAndPropagation();
         } catch (e) {
             this.logTrace(e);
             this.logWarning(`Error applying constant folding and propagation, reverting AST to previous state`);

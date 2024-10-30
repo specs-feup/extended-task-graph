@@ -1,6 +1,7 @@
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
 import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
 import Io from "@specs-feup/lara/api/lara/Io.js";
+import chalk from "chalk";
 import { readdirSync } from "fs";
 
 export class LiteBenchmarkLoader {
@@ -12,9 +13,9 @@ export class LiteBenchmarkLoader {
         Clava.getData().setFlags(suite.flags.join(" "));
 
         if (!Io.isFolder(fullPath)) {
-            console.error(`Benchmark folder not found: ${fullPath}`);
+            console.error(`[${chalk.magentaBright("BenchmarkLoader")}] Benchmark folder not found: ${fullPath}`);
             if (cachedPath === undefined) {
-                console.log("Have you cloned the submodule github.com/specs-feup/clava-benchmarks?");
+                console.log(`[${chalk.magentaBright("BenchmarkLoader")}] Have you cloned the submodule github.com/specs-feup/clava-benchmarks?`);
             }
             else {
                 console.log("Cached path is invalid.");
@@ -23,7 +24,7 @@ export class LiteBenchmarkLoader {
         }
 
         const sources = LiteBenchmarkLoader.readSourcesInFolder(fullPath);
-        console.log(`Found ${sources.length} files for ${app}`);
+        console.log(`[${chalk.magentaBright("BenchmarkLoader")}] Found ${sources.length} files for ${app}`);
 
         Clava.pushAst(ClavaJoinPoints.program());
         for (const source of sources) {
@@ -49,7 +50,7 @@ export class LiteBenchmarkLoader {
             }
 
         } catch (err) {
-            console.error('Error reading files:', err);
+            console.error(`[${chalk.magentaBright("BenchmarkLoader")}] Error reading files:`, err);
         }
         return sources;
     }

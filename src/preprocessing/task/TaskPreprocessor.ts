@@ -5,7 +5,6 @@ import { OutlineRegionFinder } from "./OutlineRegionFinder.js";
 import { DefaultPrefix } from "../../api/PreSuffixDefaults.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
 import Voidifier from "clava-code-transforms/Voidifier";
-import { ExtendedTaskGraphAPI } from "../../api/ExtendedTaskGraphAPI.js";
 
 export class TaskPreprocessor extends AStage {
     constructor(topFunction: string, outputDir: string, appName: string) {
@@ -43,9 +42,6 @@ export class TaskPreprocessor extends AStage {
 
         const genCnt = finder.outlineGenericRegions();
         this.log(`Outlined ${genCnt} generic regions`);
-
-        const api = new ExtendedTaskGraphAPI(this.getTopFunctionName(), this.getOutputDir(), this.getAppName());
-        api.generateSourceCode("outlining");
 
         const loopCnt = finder.outlineLoops();
         this.log(`Outlined ${loopCnt} loop regions`);
