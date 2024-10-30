@@ -49,7 +49,12 @@ export function runEtgForBenchmark(suite: BenchmarkSuite, apps: string[], settin
                 const dumpAST = settings.dumpAST as boolean;
                 const doTransformations = settings.doTransformations as boolean;
                 const dumpCallGraph = settings.dumpCallGraph as boolean;
-                api.runCodeTransformationFlow(dumpCallGraph, dumpAST, doTransformations);
+                const success = api.runCodeTransformationFlow(dumpCallGraph, dumpAST, doTransformations);
+                if (!success) {
+                    log(`Code transformation flow failed for app ${app}`);
+                    log("-".repeat(58));
+                    continue;
+                }
             }
 
             const generateGraph = settings.generateGraph as boolean;

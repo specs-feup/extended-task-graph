@@ -2,7 +2,7 @@ import { FunctionJp } from "@specs-feup/clava/api/Joinpoints.js";
 import Io from "@specs-feup/lara/api/lara/Io.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import chalk from "chalk";
-import { writeFileSync } from "fs";
+import { existsSync, mkdirSync, writeFileSync } from "fs";
 import { createLogger, format, Logger, transports } from "winston";
 
 export abstract class AStage {
@@ -149,6 +149,9 @@ export abstract class AStage {
 
     private initLogger(): void {
         const logFile = `${this.outputDir}/${this.appName}.log`;
+        if (!existsSync(this.outputDir)) {
+            mkdirSync(this.outputDir, { recursive: true });
+        }
         writeFileSync(logFile, '');
 
         const stdTransporter = new transports.Console({
