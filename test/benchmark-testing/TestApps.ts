@@ -1,8 +1,7 @@
-import { LiteBenchmarkLoader, BenchmarkSuite } from "./LiteBenchmarkLoader.js";
-import { SuiteSelector } from "./SuiteSelector.js";
-import { ExtendedTaskGraphAPI } from "../../src/api/ExtendedTaskGraphAPI.js";
+import { runEtgForBenchmark } from "./benchrunner/BenchmarkRunner.js";
+import { SuiteSelector } from "./benchrunner/SuiteSelector.js";
 
-const genericAppSuite: BenchmarkSuite = SuiteSelector.APPS;
+const suite = SuiteSelector.APPS;
 
 const apps = [
     "cluster-scenario",
@@ -14,19 +13,14 @@ const apps = [
     "trivial"
 ];
 
-for (const app of apps) {
-    console.log(app);
-
-    const topFunctionName = LiteBenchmarkLoader.load(genericAppSuite, app);
-    const outputDir = "output/apps";
-    const api = new ExtendedTaskGraphAPI(topFunctionName, outputDir, app);
-
-    const dumpAST = true;
-    const dumpCallGraph = true;
-    const doTransformations = true;
-    const generateGraph = true;
-    const gatherMetrics = true;
-
-    api.runCodeTransformationFlow(dumpCallGraph, dumpAST, doTransformations);
-    api.runTaskGraphGenerationFlow(generateGraph, gatherMetrics);
+const settings = {
+    disableCaching: false,
+    outputDir: "output/apps",
+    dumpAST: true,
+    doTransformations: true,
+    dumpCallGraph: true,
+    generateGraph: true,
+    gatherMetrics: true,
 }
+
+runEtgForBenchmark(suite, apps, settings);

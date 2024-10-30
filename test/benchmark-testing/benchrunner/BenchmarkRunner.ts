@@ -1,7 +1,7 @@
-import { LiteBenchmarkLoader, BenchmarkSuite } from "./LiteBenchmarkLoader.js";
-import { ExtendedTaskGraphAPI } from "../../src/api/ExtendedTaskGraphAPI.js";
+import { ExtendedTaskGraphAPI } from "../../../src/api/ExtendedTaskGraphAPI.js";
 import chalk from "chalk";
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
+import { BenchmarkSuite, LiteBenchmarkLoader } from "./LiteBenchmarkLoader.js";
 
 export function runEtgForBenchmark(suite: BenchmarkSuite, apps: string[], settings: Record<string, boolean | string>): boolean {
 

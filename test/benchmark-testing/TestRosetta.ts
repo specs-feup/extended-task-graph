@@ -1,14 +1,13 @@
-import { runEtgForBenchmark } from "./BenchmarkRunner.js";
-import { BenchmarkSuite } from "./LiteBenchmarkLoader.js";
-import { SuiteSelector } from "./SuiteSelector.js";
+import { runEtgForBenchmark } from "./benchrunner/BenchmarkRunner.js";
+import { SuiteSelector } from "./benchrunner/SuiteSelector.js";
 
-const rosettaSuite: BenchmarkSuite = SuiteSelector.ROSETTA;
+const suite = SuiteSelector.ROSETTA;
 
 const apps = [
-    //"3d-rendering",
-    //"digit-recognition",
-    //"face-detection",
-    //"optical-flow",
+    "3d-rendering",
+    "digit-recognition",
+    "face-detection",
+    "optical-flow",
     "spam-filter"
 ];
 
@@ -22,4 +21,4 @@ const settings = {
     gatherMetrics: true,
 }
 
-runEtgForBenchmark(rosettaSuite, apps, settings);
+runEtgForBenchmark(suite, apps, settings);
