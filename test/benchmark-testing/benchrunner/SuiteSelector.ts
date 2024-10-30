@@ -26,7 +26,7 @@ export const SuiteSelector: Record<string, BenchmarkSuite> = {
     },
     AXBENCH: {
         name: "AxBench",
-        path: "inputs/clava-benchmarks/AxSuite/lara/benchmark/",
+        path: "inputs/clava-benchmarks/AxSuite/resources/",
         apps: [
             "blackscholes",
             "fft",
@@ -82,7 +82,7 @@ export const SuiteSelector: Record<string, BenchmarkSuite> = {
     },
     CORTEXSUITE_CORTEX: {
         name: "CortexSuite",
-        path: "inputs/clava-benchmarks/CortexSuite/lara/benchmark/",
+        path: "inputs/clava-benchmarks/CortexSuite/resources/",
         apps: [
             "cortex-clustering-kmeans",
             "cortex-clustering-spectral",
@@ -121,7 +121,7 @@ export const SuiteSelector: Record<string, BenchmarkSuite> = {
     },
     CORTEXSUITE_VISION: {
         name: "CortexSuite",
-        path: "inputs/clava-benchmarks/CortexSuite/lara/benchmark/",
+        path: "inputs/clava-benchmarks/CortexSuite/resources/",
         apps: [
             "vision-disparity",
             "vision-localization",
@@ -197,7 +197,7 @@ export const SuiteSelector: Record<string, BenchmarkSuite> = {
     },
     RODINIA: {
         name: "Rodinia",
-        path: "inputs/clava-benchmarks/Rodinia/lara/benchmark/",
+        path: "inputs/clava-benchmarks/Rodinia/resources/",
         apps: [
             "backprop",
             "bfs",
