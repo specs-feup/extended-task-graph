@@ -4,7 +4,7 @@ import { ReplicaCreator } from "./ReplicaCreator.js";
 import { OutlineRegionFinder } from "./OutlineRegionFinder.js";
 import { DefaultPrefix } from "../../api/PreSuffixDefaults.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
-import Voidifier from "clava-code-transforms/Voidifier";
+import { Voidifier } from "clava-code-transforms/Voidifier";
 
 export class TaskPreprocessor extends AStage {
     constructor(topFunction: string, outputDir: string, appName: string) {

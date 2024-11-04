@@ -1,6 +1,6 @@
 import { Body, Call, ExprStmt, FunctionJp, Scope } from "@specs-feup/clava/api/Joinpoints.js";
 import Inliner from "@specs-feup/clava/api/clava/code/Inliner.js";
-import Outliner from "clava-code-transforms/Outliner";
+import { Outliner } from "clava-code-transforms/Outliner";
 import { DefaultPrefix } from "../../api/PreSuffixDefaults.js";
 import { TaskGraph } from "../TaskGraph.js";
 import { RegularTask } from "../tasks/RegularTask.js";
@@ -90,8 +90,7 @@ export class TaskMerger {
     }
 
     private outlineCalls(t1: RegularTask, t2: RegularTask): [FunctionJp, Call] | [null, null] {
-        const outliner = new Outliner();
-        outliner.setVerbosity(false);
+        const outliner = new Outliner(true);
         outliner.setDefaultPrefix(this.outliningPrefix);
 
         const callExpr1 = t1.getCall()!.parent as ExprStmt;

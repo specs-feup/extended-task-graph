@@ -5,7 +5,7 @@ import Query from "@specs-feup/lara/api/weaver/Query.js";
 import IdGenerator from "@specs-feup/lara/api/lara/util/IdGenerator.js";
 import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
 import { ExternalFunctionsMatcher } from "../../util/ExternalFunctionsMatcher.js";
-import Outliner from "clava-code-transforms/Outliner";
+import { Outliner } from "clava-code-transforms/Outliner";
 import { DefaultPrefix } from "../../api/PreSuffixDefaults.js";
 import { OutlineRegionValidator } from "./OutlineRegionValidator.js";
 
@@ -107,9 +107,8 @@ export class OutlineRegionFinder extends AStage {
         const start = wrappedRegion[0];
         const end = wrappedRegion[wrappedRegion.length - 1];
 
-        const outliner = new Outliner();
+        const outliner = new Outliner(true);
         outliner.setDefaultPrefix(prefix);
-        outliner.setVerbosity(false);
 
         const fname = IdGenerator.next(prefix);
 

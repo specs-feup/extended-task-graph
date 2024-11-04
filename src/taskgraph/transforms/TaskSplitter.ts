@@ -1,7 +1,7 @@
 import { Call, DeclStmt, ExprStmt, FunctionJp, Scope, Statement, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 import { TaskGraph } from "../TaskGraph.js";
 import { RegularTask } from "../tasks/RegularTask.js";
-import Outliner from "clava-code-transforms/Outliner";
+import { Outliner } from "clava-code-transforms/Outliner";
 import Inliner from "@specs-feup/clava/api/clava/code/Inliner.js";
 import { DefaultPrefix, DefaultSuffix } from "../../api/PreSuffixDefaults.js";
 import { VariableDataItem } from "../dataitems/VariableDataItem.js";
@@ -22,8 +22,7 @@ export class TaskSplitter {
         const oldBody = oldFun.body as Scope;
 
         const regions = this.getRegions(oldBody, stmt);
-        const outliner = new Outliner();
-        outliner.setVerbosity(false);
+        const outliner = new Outliner(true);
 
         const nameA = `${oldFun.name}${this.suffix}_A`;
         outliner.outlineWithName(regions[0], regions[1], nameA, false);

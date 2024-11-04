@@ -4,10 +4,10 @@ import StatementDecomposer from "@specs-feup/clava/api/clava/code/StatementDecom
 import NormalizeToSubset from "@specs-feup/clava/api/clava/opt/NormalizeToSubset.js";
 import { BinaryOp, Body, FunctionJp, If, Joinpoint, Loop, Scope, Statement, Switch } from "@specs-feup/clava/api/Joinpoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
-import ArrayFlattener from "clava-code-transforms/ArrayFlattener";
-import StructDecomposer from "clava-code-transforms/StructDecomposer";
-import SwitchToIf from "clava-code-transforms/SwitchToIf";
-import FoldingPropagationCombiner from "clava-code-transforms/FoldingPropagationCombiner";
+import { ArrayFlattener } from "clava-code-transforms/ArrayFlattener";
+import { StructDecomposer } from "clava-code-transforms/StructDecomposer";
+import { SwitchToIf } from "clava-code-transforms/SwitchToIf";
+import { FoldingPropagationCombiner } from "clava-code-transforms/FoldingPropagationCombiner";
 
 export class SubsetReducer extends AStage {
     constructor(topFunction: string) {
