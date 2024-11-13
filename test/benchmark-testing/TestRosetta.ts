@@ -4,15 +4,15 @@ import { SuiteSelector } from "./benchrunner/SuiteSelector.js";
 const suite = SuiteSelector.ROSETTA;
 
 const apps = [
-    "3d-rendering",
-    "digit-recognition",
-    "face-detection",
+    //"3d-rendering",
+    //"digit-recognition",
+    //"face-detection",
     "optical-flow",
-    "spam-filter"
+    //"spam-filter"
 ];
 
 const settings = {
-    disableCaching: false,
+    disableCaching: true,
     outputDir: "output/rosetta",
     dumpAST: true,
     doTransformations: true,

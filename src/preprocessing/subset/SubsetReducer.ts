@@ -8,13 +8,17 @@ import { ArrayFlattener } from "clava-code-transforms/ArrayFlattener";
 import { StructDecomposer } from "clava-code-transforms/StructDecomposer";
 import { SwitchToIf } from "clava-code-transforms/SwitchToIf";
 import { FoldingPropagationCombiner } from "clava-code-transforms/FoldingPropagationCombiner";
+import Clava from "@specs-feup/clava/api/clava/Clava.js";
 
 export class SubsetReducer extends AStage {
-    constructor(topFunction: string) {
+    private silentTransforms: boolean;
+
+    constructor(topFunction: string, silentTransforms = false) {
         super("TransFlow-Subset-SubsetReducer", topFunction);
+        this.silentTransforms = silentTransforms;
     }
 
-    public reduce() {
+    public reduce(): void {
         this.normalizeToSubset();
         this.decomposeStatements();
         this.applyCodeTransforms();
@@ -74,14 +78,6 @@ export class SubsetReducer extends AStage {
         }
 
         try {
-            this.applyStructDecomposition();
-        } catch (e) {
-            this.logTrace(e);
-            this.logWarning(`Error applying struct decomposition, reverting AST to previous state`);
-            return false;
-        }
-
-        try {
             this.applyArrayFlattening();
         } catch (e) {
             this.logTrace(e);
@@ -90,46 +86,67 @@ export class SubsetReducer extends AStage {
         }
 
         try {
-            this.applyConstantFoldingAndPropagation();
+            this.applyConstantFoldingAndPropagation(true);
         } catch (e) {
             this.logTrace(e);
             this.logWarning(`Error applying constant folding and propagation, reverting AST to previous state`);
             return false;
         }
+
+        try {
+            this.applyStructDecomposition();
+        } catch (e) {
+            this.logTrace(e);
+            this.logWarning(`Error applying struct decomposition, reverting AST to previous state`);
+            return false;
+        }
+
+        try {
+            this.applyConstantFoldingAndPropagation(false);
+        } catch (e) {
+            this.logTrace(e);
+            this.logWarning(`Error applying second constant folding/propagation transformation, reverting AST to previous state`);
+            return false;
+        }
+
         return true;
     }
 
+    public setSilentTransforms(silent: boolean): void {
+        this.silentTransforms = silent;
+    }
+
+    // --------------------------------------------------------------------------------
     private applyArrayFlattening(): void {
-        let count = 0;
+        const flattener = new ArrayFlattener(this.silentTransforms);
+        const count = flattener.flattenAll();
+        Clava.rebuild();
 
-        this.getValidFunctions().forEach((fun) => {
-            const flattener = new ArrayFlattener();
-            const flattened = flattener.flattenAllInFunction(fun);
-
-            this.log(`Flattened ${flattened} array${flattened > 1 ? "s" : ""} in ${fun.name}()`);
-            count += flattened;
-        });
         this.log(`Flattened ${count} array${count > 1 ? "s" : ""} into 1D`);
     }
 
-    private applyConstantFoldingAndPropagation(): void {
+    private applyConstantFoldingAndPropagation(firstRun: boolean = false): void {
         this.getValidFunctions().forEach((fun) => {
-            const foldProg = new FoldingPropagationCombiner(true);
+            const foldProg = new FoldingPropagationCombiner(this.silentTransforms);
             const nPasses = foldProg.doPassesUntilStop(fun);
 
-            this.log(`Applied constant folding and propagation to function ${fun.name} in ${nPasses} pass${nPasses > 1 ? "es" : ""}`);
+            this.log(`Applied constant folding/propagation to function ${fun.name} in ${nPasses} pass${nPasses > 1 ? "es" : ""}`);
         });
+        Clava.rebuild();
+
+        this.log(`Applied ${firstRun ? "" : "additional"} constant folding/propagation to all functions and global variables`);
     }
 
     private applyStructDecomposition(): void {
-        const decomp = new StructDecomposer(true);
+        const decomp = new StructDecomposer(this.silentTransforms);
         const structNames = decomp.decomposeAll();
+        Clava.rebuild();
 
         this.log(`Decomposed ${structNames.length} struct${structNames.length > 1 ? "s" : ""}: ${structNames.join(", ")}`);
     }
 
     private applySwitchToIfConversion(): void {
-        const switchToIf = new SwitchToIf();
+        const switchToIf = new SwitchToIf(this.silentTransforms);
         let count = 0;
 
         for (const switchStmt of Query.search(Switch)) {
@@ -138,6 +155,8 @@ export class SubsetReducer extends AStage {
                 count++;
             }
         }
+        Clava.rebuild();
+
         this.log(`Converted ${count} switch statement${count > 1 ? "s" : ""} into if-else statements`);
     }
 

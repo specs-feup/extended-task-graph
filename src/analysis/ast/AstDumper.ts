@@ -1,5 +1,5 @@
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
-import { BinaryOp, Call, FunctionJp, IntLiteral, Joinpoint, MemberAccess, Param, UnaryOp, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { BinaryOp, Call, Class, ElaboratedType, Field, FileJp, FunctionJp, IntLiteral, Joinpoint, MemberAccess, Param, Struct, TypedefDecl, UnaryOp, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 
 export abstract class AstDumper {
     constructor() { }
@@ -33,18 +33,28 @@ export abstract class AstDumper {
             props.name = jp.name;
             props.type = jp.type.joinPointType;
         }
-
         if (jp instanceof UnaryOp || jp instanceof BinaryOp) {
             props.kind = jp.kind;
         }
-
         if (jp instanceof Call) {
             props.function = jp.name;
         }
-
         if (jp instanceof FunctionJp) {
             props.sig = jp.signature;
         }
+        if (jp instanceof FileJp) {
+            props.filename = jp.filename;
+        }
+        if (jp instanceof TypedefDecl) {
+            props.type = jp.type.code;
+        }
+        if (jp instanceof Class || jp instanceof Struct) {
+            props.name = jp.name;
+        }
+        if (jp instanceof Field) {
+            props.name = jp.name;
+        }
+
         const propsStr = Object.keys(props).length == 0 ? "" :
             Object.entries(props).map(([key, val]) => `${key}: ${val}`).join(", ");
 
