@@ -472,7 +472,7 @@ export class ExternalFunctionsMatcher {
         "floor": ["float"],
     }
 
-    public static readonly cppBuiltins = ["__builtin_memcpy", "operator"];
+    public static readonly cppBuiltins = ["__builtin_memcpy", "operator", "memcpy"];
 
     public static isFromMathH(funOrCall: FunctionJp | Call): boolean {
         return ExternalFunctionsMatcher.isFromGeneric(funOrCall, ExternalFunctionsMatcher.mathHFuns);
@@ -509,9 +509,9 @@ export class ExternalFunctionsMatcher {
     }
 
     private static isFromGeneric(funOrCall: FunctionJp | Call, funList: Record<string, string[] | string[][]>): boolean {
-        const fun = ExternalFunctionsMatcher.sanitize(funOrCall);
+        const fun = funOrCall instanceof FunctionJp ? funOrCall : funOrCall.function;
 
-        if (funList.hasOwnProperty(fun.name)) {
+        if (Object.prototype.hasOwnProperty.call(funList, fun.name)) {
             const funParams = fun.params;
 
             const overloading = Array.isArray(funList[fun.name][0]);
@@ -538,17 +538,5 @@ export class ExternalFunctionsMatcher {
             }
         }
         return false;
-    }
-
-    private static sanitize(funOrCall: FunctionJp | Call) {
-        if (funOrCall instanceof Call) {
-            return funOrCall.function;
-        }
-        else if (funOrCall instanceof FunctionJp) {
-            return funOrCall;
-        }
-        else {
-            throw new Error("[ExternalFunctionsMatcher] Expected function or call");
-        }
     }
 }

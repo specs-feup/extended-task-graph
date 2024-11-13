@@ -34,7 +34,7 @@ export class CodeTransformer extends AStage {
         }
 
         try {
-            this.applyConstantFoldingAndPropagation(true);
+            //this.applyConstantFoldingAndPropagation(true);
         } catch (e) {
             this.logTrace(e);
             this.logWarning(`Error applying constant folding and propagation, reverting AST to previous state`);
@@ -50,7 +50,7 @@ export class CodeTransformer extends AStage {
         }
 
         try {
-            this.applyConstantFoldingAndPropagation(false);
+            //this.applyConstantFoldingAndPropagation(false);
         } catch (e) {
             this.logTrace(e);
             this.logWarning(`Error applying second constant folding/propagation transformation, reverting AST to previous state`);
