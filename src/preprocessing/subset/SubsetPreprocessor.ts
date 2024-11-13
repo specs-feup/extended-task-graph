@@ -1,5 +1,6 @@
 import { AStage } from "../../AStage.js";
 import { CodeSanitizer } from "./CodeSanitizer.js";
+import { CodeTransformer } from "./CodeTransformer.js";
 import { SubsetReducer } from "./SubsetReducer.js";
 
 export class SubsetPreprocessor extends AStage {
@@ -16,6 +17,8 @@ export class SubsetPreprocessor extends AStage {
         }
 
         this.sanitizeCodePostSubset();
+
+        this.applyCodeTransformations();
         return true;
     }
 
@@ -44,5 +47,11 @@ export class SubsetPreprocessor extends AStage {
         sanitizer.removeSpuriousStatements();
         sanitizer.removeDuplicatedDecls();
         this.log("Sanitized code after subset reduction");
+    }
+
+    public applyCodeTransformations() {
+        const transformer = new CodeTransformer(this.getTopFunctionName());
+        transformer.applyCodeTransforms();
+        this.log("Applied all required code transformations");
     }
 }
