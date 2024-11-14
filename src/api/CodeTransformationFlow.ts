@@ -15,7 +15,7 @@ export class CodeTransformationFlow extends AStage {
             appName);
     }
 
-    public run(dumpCallGraph: boolean = true, dumpAST: boolean = true, doTransformations: boolean = true): boolean {
+    public run(dumpCallGraph = true, dumpAST = true, doTransformations = true, transRecipe = SubsetPreprocessor.DEFAULT_RECIPE): boolean {
         this.logStart();
         this.log("Running code transformation flow");
 
@@ -29,7 +29,7 @@ export class CodeTransformationFlow extends AStage {
         }
         this.logLine();
 
-        const valid = this.subsetPreprocessing();
+        const valid = this.subsetPreprocessing(transRecipe);
         if (!valid) {
             this.logError("Critical error, aborting...");
             return false;
@@ -69,14 +69,14 @@ export class CodeTransformationFlow extends AStage {
         this.genericAnalysisStep(outDir, dumpCallGraph, dumpAST, false);
     }
 
-    public subsetPreprocessing(): boolean {
+    public subsetPreprocessing(transRecipe = SubsetPreprocessor.DEFAULT_RECIPE): boolean {
         this.log("Running subset preprocessing step");
         const outDir = this.getOutputDir();
         const appName = this.getAppName();
         const topFun = this.getTopFunctionName();
 
         const preprocessor = new SubsetPreprocessor(topFun, outDir, appName);
-        const success = preprocessor.preprocess();
+        const success = preprocessor.preprocess(transRecipe);
 
         if (!success) {
             return false;

@@ -3,7 +3,7 @@ import { CodeSanitizer } from "./CodeSanitizer.js";
 import { ArrayFlattenerTransform, ConstantFoldingPropagationTransform, StructDecompositionTransform, SwitchToIfTransform } from "./CodeTransformer.js";
 import { SubsetReducer } from "./SubsetReducer.js";
 
-export enum Transform {
+export enum SubsetTransform {
     ArrayFlattener = "ArrayFlattener",
     ConstantFoldingPropagation = "ConstantFoldingPropagation",
     StructDecomposition = "StructDecomposition",
@@ -11,26 +11,26 @@ export enum Transform {
 }
 
 const classMap = {
-    [Transform.ArrayFlattener]: ArrayFlattenerTransform,
-    [Transform.ConstantFoldingPropagation]: ConstantFoldingPropagationTransform,
-    [Transform.StructDecomposition]: StructDecompositionTransform,
-    [Transform.SwitchToIf]: SwitchToIfTransform
+    [SubsetTransform.ArrayFlattener]: ArrayFlattenerTransform,
+    [SubsetTransform.ConstantFoldingPropagation]: ConstantFoldingPropagationTransform,
+    [SubsetTransform.StructDecomposition]: StructDecompositionTransform,
+    [SubsetTransform.SwitchToIf]: SwitchToIfTransform
 }
 
 export class SubsetPreprocessor extends AStage {
-    public static readonly DEFAULT_RECIPE: Transform[] = [
-        Transform.ArrayFlattener,
-        Transform.ConstantFoldingPropagation,
-        Transform.StructDecomposition,
-        Transform.SwitchToIf,
-        Transform.ConstantFoldingPropagation
+    public static readonly DEFAULT_RECIPE: SubsetTransform[] = [
+        SubsetTransform.ArrayFlattener,
+        SubsetTransform.ConstantFoldingPropagation,
+        SubsetTransform.StructDecomposition,
+        SubsetTransform.SwitchToIf,
+        SubsetTransform.ConstantFoldingPropagation
     ];
 
     constructor(topFunction: string, outputDir: string, appName: string) {
         super("TransFlow-Subset", topFunction, outputDir, appName);
     }
 
-    public preprocess(recipe: Transform[] = SubsetPreprocessor.DEFAULT_RECIPE): boolean {
+    public preprocess(recipe: SubsetTransform[] = SubsetPreprocessor.DEFAULT_RECIPE): boolean {
         this.sanitizeCodePreSubset();
 
         const success = this.reduceToSubset();
@@ -71,7 +71,7 @@ export class SubsetPreprocessor extends AStage {
         this.log("Sanitized code after subset reduction");
     }
 
-    public applyCodeTransformations(recipe: Transform[], silentTransforms = false) {
+    public applyCodeTransformations(recipe: SubsetTransform[], silentTransforms = false) {
         for (const transform of recipe) {
             const transformClass = classMap[transform];
             const transformInstance = new transformClass(this.getTopFunctionName(), silentTransforms);

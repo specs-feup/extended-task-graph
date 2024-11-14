@@ -4,13 +4,14 @@ import { TaskGraph } from "../taskgraph/TaskGraph.js";
 import { TaskGraphGenerationFlow } from "./TaskGraphGenerationFlow.js";
 import Platforms from "@specs-feup/lara/api/lara/Platforms.js";
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
+import { SubsetPreprocessor } from "../preprocessing/subset/SubsetPreprocessor.js";
 
 export class ExtendedTaskGraphAPI extends AStage {
     constructor(topFunctionName: string, outputDir: string = "output", appName: string = "default_app_name") {
         super("API", topFunctionName, `${outputDir}/${appName}`, appName);
     }
 
-    public runCodeTransformationFlow(dumpCallGraph: boolean = true, dumpAST: boolean = true, doTransformations: boolean = true): boolean {
+    public runCodeTransformationFlow(dumpCallGraph = true, dumpAST = true, doTransformations = true, transRecipe = SubsetPreprocessor.DEFAULT_RECIPE): boolean {
         this.logLine();
         const ok = this.setupEnvironment();
         if (!ok) {
@@ -18,7 +19,7 @@ export class ExtendedTaskGraphAPI extends AStage {
         }
 
         const flow = new CodeTransformationFlow(this.getTopFunctionName(), this.getOutputDir(), this.getAppName());
-        const res = flow.run(dumpCallGraph, dumpAST, doTransformations);
+        const res = flow.run(dumpCallGraph, dumpAST, doTransformations, transRecipe);
 
         return res;
     }

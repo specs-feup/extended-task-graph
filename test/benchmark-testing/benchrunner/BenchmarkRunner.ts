@@ -2,8 +2,9 @@ import { ExtendedTaskGraphAPI } from "../../../src/api/ExtendedTaskGraphAPI.js";
 import chalk from "chalk";
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
 import { BenchmarkSuite, LiteBenchmarkLoader } from "./LiteBenchmarkLoader.js";
+import { SubsetTransform } from "../../../src/preprocessing/subset/SubsetPreprocessor.js";
 
-export function runEtgForBenchmark(suite: BenchmarkSuite, apps: string[], settings: Record<string, boolean | string>): boolean {
+export function runEtgForBenchmark(suite: BenchmarkSuite, apps: string[], settings: Record<string, boolean | string | SubsetTransform[]>): boolean {
 
     for (const app of apps) {
         log(`Running ETG flows for app ${app} of benchmark suite ${suite.name}`);
@@ -49,7 +50,9 @@ export function runEtgForBenchmark(suite: BenchmarkSuite, apps: string[], settin
                 const dumpAST = settings.dumpAST as boolean;
                 const doTransformations = settings.doTransformations as boolean;
                 const dumpCallGraph = settings.dumpCallGraph as boolean;
-                const success = api.runCodeTransformationFlow(dumpCallGraph, dumpAST, doTransformations);
+                const transRecipe = settings.transRecipe as SubsetTransform[];
+
+                const success = api.runCodeTransformationFlow(dumpCallGraph, dumpAST, doTransformations, transRecipe);
                 if (!success) {
                     log(`Code transformation flow failed for app ${app}`);
                     log("-".repeat(58));
