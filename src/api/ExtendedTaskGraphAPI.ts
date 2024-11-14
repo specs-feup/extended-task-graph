@@ -1,17 +1,16 @@
 import { AStage } from "../AStage.js";
-import { CodeTransformationFlow } from "./CodeTransformationFlow.js";
+import { CodeTransformationFlow, TransFlowConfig } from "./CodeTransformationFlow.js";
 import { TaskGraph } from "../taskgraph/TaskGraph.js";
-import { TaskGraphGenerationFlow } from "./TaskGraphGenerationFlow.js";
+import { GenFlowConfig, TaskGraphGenerationFlow } from "./TaskGraphGenerationFlow.js";
 import Platforms from "@specs-feup/lara/api/lara/Platforms.js";
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
-import { SubsetPreprocessor } from "../preprocessing/subset/SubsetPreprocessor.js";
 
 export class ExtendedTaskGraphAPI extends AStage {
-    constructor(topFunctionName: string, outputDir: string = "output", appName: string = "default_app_name") {
+    constructor(topFunctionName: string = "main", outputDir: string = "output", appName: string = "default_app_name") {
         super("API", topFunctionName, `${outputDir}/${appName}`, appName);
     }
 
-    public runCodeTransformationFlow(dumpCallGraph = true, dumpAST = true, doTransformations = true, transRecipe = SubsetPreprocessor.DEFAULT_RECIPE): boolean {
+    public runCodeTransformationFlow(config: TransFlowConfig = new TransFlowConfig()): boolean {
         this.logLine();
         const ok = this.setupEnvironment();
         if (!ok) {
@@ -19,12 +18,12 @@ export class ExtendedTaskGraphAPI extends AStage {
         }
 
         const flow = new CodeTransformationFlow(this.getTopFunctionName(), this.getOutputDir(), this.getAppName());
-        const res = flow.run(dumpCallGraph, dumpAST, doTransformations, transRecipe);
+        const res = flow.runAll(config);
 
         return res;
     }
 
-    public runTaskGraphGenerationFlow(dumpGraph: boolean = true, gatherMetrics: boolean = true): TaskGraph | null {
+    public runTaskGraphGenerationFlow(config: GenFlowConfig = new GenFlowConfig()): TaskGraph | null {
         this.logLine();
         const ok = this.setupEnvironment();
         if (!ok) {
@@ -32,7 +31,7 @@ export class ExtendedTaskGraphAPI extends AStage {
         }
 
         const flow = new TaskGraphGenerationFlow(this.getTopFunctionName(), this.getOutputDir(), this.getAppName());
-        const tg = flow.run(dumpGraph, gatherMetrics);
+        const tg = flow.runAll(config);
 
         this.logLine();
         return tg;

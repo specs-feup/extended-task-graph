@@ -30,7 +30,7 @@ export class SubsetPreprocessor extends AStage {
         super("TransFlow-Subset", topFunction, outputDir, appName);
     }
 
-    public preprocess(recipe: SubsetTransform[] = SubsetPreprocessor.DEFAULT_RECIPE): boolean {
+    public preprocess(recipe: SubsetTransform[] = SubsetPreprocessor.DEFAULT_RECIPE, silentTransforms = false): boolean {
         this.sanitizeCodePreSubset();
 
         const success = this.reduceToSubset();
@@ -40,7 +40,7 @@ export class SubsetPreprocessor extends AStage {
 
         this.sanitizeCodePostSubset();
 
-        this.applyCodeTransformations(recipe);
+        this.applyCodeTransformations(recipe, silentTransforms);
         return true;
     }
 

@@ -1,11 +1,19 @@
 import { AStage } from "../AStage.js";
 import { ProfilingInstrumenter } from "../preprocessing/profiling/ProfilingInstrumenter.js";
-import { SubsetPreprocessor } from "../preprocessing/subset/SubsetPreprocessor.js";
+import { SubsetPreprocessor, SubsetTransform } from "../preprocessing/subset/SubsetPreprocessor.js";
 import { TaskPreprocessor } from "../preprocessing/task/TaskPreprocessor.js";
 import { ClavaUtils } from "../util/ClavaUtils.js";
 import { ApplicationAnalyser } from "../analysis/ast/ApplicationAnalyser.js";
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
 import { AppDumpOutput, SourceCodeOutput } from "./OutputDirectories.js";
+
+export class TransFlowConfig {
+    dumpCallGraph: boolean = true;
+    dumpAST: boolean = true;
+    doTransforms: boolean = true;
+    silentTransforms: boolean = false;
+    transformRecipe: SubsetTransform[] = SubsetPreprocessor.DEFAULT_RECIPE;
+}
 
 export class CodeTransformationFlow extends AStage {
     constructor(topFunctionName: string, outputDir: string, appName: string) {
@@ -15,21 +23,21 @@ export class CodeTransformationFlow extends AStage {
             appName);
     }
 
-    public run(dumpCallGraph = true, dumpAST = true, doTransformations = true, transRecipe = SubsetPreprocessor.DEFAULT_RECIPE): boolean {
+    public runAll(config: TransFlowConfig): boolean {
         this.logStart();
         this.log("Running code transformation flow");
 
         this.generateOriginalCode();
-        this.initialAnalysis(dumpCallGraph, dumpAST);
+        this.initialAnalysis(config.dumpCallGraph, config.dumpAST);
 
-        if (!doTransformations) {
+        if (!config.doTransforms) {
             this.log("Transformations disabled, ending here");
             this.logEnd();
             return true;
         }
         this.logLine();
 
-        const valid = this.subsetPreprocessing(transRecipe);
+        const valid = this.subsetPreprocessing(config.transformRecipe, config.silentTransforms);
         if (!valid) {
             this.logError("Critical error, aborting...");
             return false;
@@ -50,7 +58,7 @@ export class CodeTransformationFlow extends AStage {
         this.logLine();
         Clava.popAst();
 
-        this.intermediateAnalysis(dumpCallGraph, dumpAST);
+        this.intermediateAnalysis(config.dumpCallGraph, config.dumpAST);
         this.logLine();
 
         this.logSuccess("Code transformation flow finished successfully!");
@@ -69,14 +77,14 @@ export class CodeTransformationFlow extends AStage {
         this.genericAnalysisStep(outDir, dumpCallGraph, dumpAST, false);
     }
 
-    public subsetPreprocessing(transRecipe = SubsetPreprocessor.DEFAULT_RECIPE): boolean {
+    public subsetPreprocessing(transRecipe = SubsetPreprocessor.DEFAULT_RECIPE, silentTransforms = false): boolean {
         this.log("Running subset preprocessing step");
         const outDir = this.getOutputDir();
         const appName = this.getAppName();
         const topFun = this.getTopFunctionName();
 
         const preprocessor = new SubsetPreprocessor(topFun, outDir, appName);
-        const success = preprocessor.preprocess(transRecipe);
+        const success = preprocessor.preprocess(transRecipe, silentTransforms);
 
         if (!success) {
             return false;

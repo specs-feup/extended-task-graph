@@ -8,13 +8,9 @@ const outputDir = "output/use-cases";
 const appName = "edgedetect-transflow";
 const api = new ExtendedTaskGraphAPI(topFunctionName, outputDir, appName);
 
-const dumpAST = true;
-const dumpCallGraph = true;
-const doTransformations = true;
-
 let success: boolean = false;
 try {
-    success = api.runCodeTransformationFlow(dumpCallGraph, dumpAST, doTransformations);
+    success = api.runCodeTransformationFlow();
 } catch (e) {
     console.error(e);
     success = false;

@@ -4,7 +4,7 @@ import { ExtendedTaskGraphAPI } from "../../src/api/ExtendedTaskGraphAPI.js";
 const api = new ExtendedTaskGraphAPI("edge_detect", "output/use-cases", "edgedetect-allflows");
 
 try {
-    api.runCodeTransformationFlow(true, true, true);
+    api.runCodeTransformationFlow();
 
 } catch (e) {
     console.error(e);
@@ -13,7 +13,7 @@ try {
 console.log("TransFlow succeeded, moving on to EtgFlow");
 
 try {
-    const etg = api.runTaskGraphGenerationFlow(true, true);
+    const etg = api.runTaskGraphGenerationFlow();
     if (etg == null) {
         console.log(chalk.red("Test failed") + ": EtgFlow failed");
     } else {

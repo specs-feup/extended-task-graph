@@ -12,6 +12,7 @@
  */
 import chalk from "chalk";
 import { ExtendedTaskGraphAPI } from "../../src/api/ExtendedTaskGraphAPI.js";
+import { TransFlowConfig } from "../../src/api/CodeTransformationFlow.js";
 
 console.log("Test: dump the AST and call graph of edgedetect");
 
@@ -20,10 +21,10 @@ const outputDir = "output/use-cases";
 const appName = "edgedetect-appdump";
 const api = new ExtendedTaskGraphAPI(topFunctionName, outputDir, appName);
 
-const dumpAST = true;
-const dumpCallGraph = true;
-const doTransformations = false;
-const success = api.runCodeTransformationFlow(dumpCallGraph, dumpAST, doTransformations);
+const config = new TransFlowConfig();
+config.doTransforms = false;
+
+const success = api.runCodeTransformationFlow(config);
 
 console.log(success ?
     chalk.green("Test passed") + ": dumping succeeded" :

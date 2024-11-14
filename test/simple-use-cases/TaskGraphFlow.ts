@@ -6,10 +6,7 @@ const api = new ExtendedTaskGraphAPI("edge_detect", "output/use-cases", "edgedet
 
 let etg: TaskGraph | null = null;
 try {
-    const generateEtg = true;
-    const gatherMetrics = true;
-
-    etg = api.runTaskGraphGenerationFlow(generateEtg, gatherMetrics);
+    etg = api.runTaskGraphGenerationFlow();
 } catch (e) {
     console.error(e);
 }

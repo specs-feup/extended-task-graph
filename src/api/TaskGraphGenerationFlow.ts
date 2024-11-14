@@ -7,12 +7,17 @@ import { TaskGraphBuilder } from "../taskgraph/TaskGraphBuilder.js";
 import { TaskGraphAnalyzer } from "../analysis/taskgraph/TaskGraphAnalyzer.js";
 import { TaskGraphOutput } from "./OutputDirectories.js";
 
+export class GenFlowConfig {
+    dumpGraph: boolean = true;
+    gatherMetrics: boolean = true;
+}
+
 export class TaskGraphGenerationFlow extends AStage {
     constructor(topFunctionName: string, outputDir: string, appName: string) {
         super("GenFlow", topFunctionName, outputDir, appName);
     }
 
-    public run(dumpGraph = true, gatherMetrics = true): TaskGraph | null {
+    public runAll(config: GenFlowConfig): TaskGraph | null {
         this.logStart();
         this.log("Running Extended Task Graph Generation flow");
 
@@ -22,11 +27,11 @@ export class TaskGraphGenerationFlow extends AStage {
             return null;
         }
 
-        if (dumpGraph) {
+        if (config.dumpGraph) {
             this.dumpTaskGraph(tg);
         }
 
-        if (gatherMetrics) {
+        if (config.gatherMetrics) {
             this.analyzeTaskGraph(tg);
         }
 

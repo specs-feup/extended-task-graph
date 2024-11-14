@@ -3,16 +3,17 @@ import { ExtendedTaskGraphAPI } from "../../src/api/ExtendedTaskGraphAPI.js";
 import { TaskGraph } from "../../src/taskgraph/TaskGraph.js";
 import { RegularTask } from "../../src/taskgraph/tasks/RegularTask.js";
 import { TaskMerger } from "../../src/taskgraph/transforms/TaskMerger.js";
+import { GenFlowConfig } from "../../src/api/TaskGraphGenerationFlow.js";
 
 const api = new ExtendedTaskGraphAPI("edge_detect", "output/use-cases", "edgedetect-merge");
 
 let etg: TaskGraph | null = null;
 try {
-    const generateEtg = true;
-    const gatherMetrics = false;
+    const config = new GenFlowConfig();
+    config.gatherMetrics = false;
 
-    api.runCodeTransformationFlow(true, true, true);
-    etg = api.runTaskGraphGenerationFlow(generateEtg, gatherMetrics);
+    api.runCodeTransformationFlow();
+    etg = api.runTaskGraphGenerationFlow(config);
 } catch (e) {
     console.error(e);
 }
