@@ -7,11 +7,16 @@ import { GenFlowConfig } from "../../src/api/TaskGraphGenerationFlow.js";
 const settings = {
     suite: SuiteSelector.ROSETTA,
     apps: [
-        //"3d-rendering",         // not ok
-        //"digit-recognition",  // ok
-        //"face-detection",     // not ok
-        //"optical-flow",       // ok
-        "spam-filter"         // ok
+        // not ok
+        //"3d-rendering",
+        // ok
+        //"digit-recognition",
+        // not ok
+        //"face-detection",
+        // ok
+        //"optical-flow",
+        // ok
+        "spam-filter"
     ],
     disableCaching: true,
     outputDir: "output/rosetta",

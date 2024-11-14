@@ -1,3 +1,4 @@
+import { SourceCodeOutput } from "../../api/OutputDirectories.js";
 import { AStage } from "../../AStage.js";
 import { CodeSanitizer } from "./CodeSanitizer.js";
 import { ArrayFlattenerTransform, ConstantFoldingPropagationTransform, StructDecompositionTransform, SwitchToIfTransform } from "./CodeTransformer.js";
@@ -72,10 +73,18 @@ export class SubsetPreprocessor extends AStage {
     }
 
     public applyCodeTransformations(recipe: SubsetTransform[], silentTransforms = false) {
+        let transCnt = 0;
+        this.deleteFolderContents(`${SourceCodeOutput.SRC_PARENT}/${SourceCodeOutput.SRC_INTERMEDIATE}`);
+
         for (const transform of recipe) {
             const transformClass = classMap[transform];
             const transformInstance = new transformClass(this.getTopFunctionName(), silentTransforms);
             transformInstance.apply();
+            transCnt++;
+
+            const id = `t${transCnt}-${transformInstance.getName()}`;
+            const dir = `${SourceCodeOutput.SRC_PARENT}/${SourceCodeOutput.SRC_INTERMEDIATE}/${id}`;
+            this.generateCode(dir);
         }
         this.log("Applied all required code transformations");
     }

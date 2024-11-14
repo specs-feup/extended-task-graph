@@ -8,12 +8,15 @@ import { SwitchToIf } from "clava-code-transforms/SwitchToIf";
 import { FoldingPropagationCombiner } from "clava-code-transforms/FoldingPropagationCombiner";
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
 
-export abstract class ATransform extends AStage {
+export abstract class ACodeTransform extends AStage {
     protected outputFriendlyName;
+    protected silent: boolean;
 
-    constructor(topFunction: string, protected silentTransforms: boolean, outputFriendlyName: string = "Transform") {
-        super("TransFlow-Subset-CodeTransformer", topFunction);
+    constructor(topFunction: string, silent: boolean, outputFriendlyName: string = "Transform") {
+        super("TransFlow-Subset-CodeTransform", topFunction);
         this.outputFriendlyName = outputFriendlyName;
+        this.silent = silent;
+
     }
 
     public apply(): boolean {
@@ -35,6 +38,18 @@ export abstract class ATransform extends AStage {
         }
     }
 
+    public getOutputFriendlyName(): string {
+        return this.outputFriendlyName;
+    }
+
+    public getName(): string {
+        return this.outputFriendlyName
+            .toLowerCase()
+            .replace(/[/\\?%*:|"<>]/g, '-')
+            .replace(" ", "-")
+            .trim();
+    }
+
     protected getValidFunctions(): FunctionJp[] {
         return ClavaUtils.getAllUniqueFunctions(this.getTopFunctionJoinPoint());
     }
@@ -44,13 +59,13 @@ export abstract class ATransform extends AStage {
     protected abstract printSuccess(n: number): void;
 }
 
-export class ArrayFlattenerTransform extends ATransform {
+export class ArrayFlattenerTransform extends ACodeTransform {
     constructor(topFunction: string, silentTransforms = false) {
         super(topFunction, silentTransforms, "array flattening");
     }
 
     protected applyTransform(): number {
-        const flattener = new ArrayFlattener(this.silentTransforms);
+        const flattener = new ArrayFlattener(this.silent);
         const count = flattener.flattenAll();
         return count;
     }
@@ -60,12 +75,16 @@ export class ArrayFlattenerTransform extends ATransform {
     }
 }
 
-export class ConstantFoldingPropagationTransform extends ATransform {
+export class ConstantFoldingPropagationTransform extends ACodeTransform {
+    constructor(topFunction: string, silentTransforms = false) {
+        super(topFunction, silentTransforms, "constant folding/propagation");
+    }
+
     protected applyTransform(): number {
         let cnt = 0;
 
         this.getValidFunctions().forEach((fun) => {
-            const foldProg = new FoldingPropagationCombiner(this.silentTransforms);
+            const foldProg = new FoldingPropagationCombiner(this.silent);
             const nPasses = foldProg.doPassesUntilStop(fun);
             cnt += 1;
             this.log(`Applied constant folding/propagation to function ${fun.name} in ${nPasses} pass${nPasses > 1 ? "es" : ""}`);
@@ -78,9 +97,13 @@ export class ConstantFoldingPropagationTransform extends ATransform {
     }
 }
 
-export class StructDecompositionTransform extends ATransform {
+export class StructDecompositionTransform extends ACodeTransform {
+    constructor(topFunction: string, silentTransforms = false) {
+        super(topFunction, silentTransforms, "struct decomposition");
+    }
+
     protected applyTransform(): number {
-        const decomp = new StructDecomposer(this.silentTransforms);
+        const decomp = new StructDecomposer(this.silent);
         const structNames = decomp.decomposeAll();
 
         return structNames.length;
@@ -91,9 +114,13 @@ export class StructDecompositionTransform extends ATransform {
     }
 }
 
-export class SwitchToIfTransform extends ATransform {
+export class SwitchToIfTransform extends ACodeTransform {
+    constructor(topFunction: string, silentTransforms = false) {
+        super(topFunction, silentTransforms, "switch to if-else");
+    }
+
     protected applyTransform(): number {
-        const switchToIf = new SwitchToIf(this.silentTransforms);
+        const switchToIf = new SwitchToIf(this.silent);
         let count = 0;
 
         for (const switchStmt of Query.search(Switch)) {

@@ -4,6 +4,7 @@ import Query from "@specs-feup/lara/api/weaver/Query.js";
 import chalk from "chalk";
 import { existsSync, mkdirSync, writeFileSync } from "fs";
 import { createLogger, format, Logger, transports } from "winston";
+import { ClavaUtils } from "./util/ClavaUtils.js";
 
 export abstract class AStage {
     private stageName: string = "DefaultStage";
@@ -50,6 +51,15 @@ export abstract class AStage {
 
     public getTopFunctionName(): string {
         return this.topFunctionName;
+    }
+
+    public generateCode(subfolder: string): string {
+        return ClavaUtils.generateCode(this.getOutputDir(), subfolder);
+    }
+
+    public deleteFolderContents(folder: string): void {
+        const path = `${this.getOutputDir()}/${folder}`;
+        Io.deleteFolderContents(path);
     }
 
     protected log(message: string): void {

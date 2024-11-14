@@ -67,7 +67,8 @@ export class CodeTransformationFlow extends AStage {
     }
 
     public generateOriginalCode(): void {
-        const path = this.generateCode(SourceCodeOutput.SRC_ORIGINAL);
+        const dir = `${SourceCodeOutput.SRC_PARENT}/${SourceCodeOutput.SRC_ORIGINAL}`;
+        const path = this.generateCode(dir);
         this.logOutput("Original source code with resolved #defines written to ", path);
     }
 
@@ -105,7 +106,8 @@ export class CodeTransformationFlow extends AStage {
     }
 
     public generateSubsetCode(): void {
-        const path = this.generateCode(SourceCodeOutput.SRC_SUBSET);
+        const dir = `${SourceCodeOutput.SRC_PARENT}/${SourceCodeOutput.SRC_SUBSET}`;
+        const path = this.generateCode(dir);
         this.logOutput("Intermediate subset-reduced source code written to ", path);
     }
 
@@ -126,7 +128,8 @@ export class CodeTransformationFlow extends AStage {
     }
 
     public generateTaskCode(): void {
-        const path = this.generateCode(SourceCodeOutput.SRC_TASKS);
+        const dir = `${SourceCodeOutput.SRC_PARENT}/${SourceCodeOutput.SRC_TASKS}`;
+        const path = this.generateCode(dir);
         this.logOutput("Intermediate task-based source code written to ", path);
     }
 
@@ -138,12 +141,9 @@ export class CodeTransformationFlow extends AStage {
     }
 
     public generateInstrumentedCode(): void {
-        const path = this.generateCode(SourceCodeOutput.SRC_TASKS_INSTRUMENTED);
+        const dir = `${SourceCodeOutput.SRC_PARENT}/${SourceCodeOutput.SRC_TASKS_INSTRUMENTED}`;
+        const path = this.generateCode(dir);
         this.logOutput("Instrumented task-based source code written to ", path);
-    }
-
-    public generateCode(subfolder: string): string {
-        return ClavaUtils.generateCode(this.getOutputDir(), `${SourceCodeOutput.SRC_PARENT}/${subfolder}`);
     }
 
     private genericAnalysisStep(outDir: string, dumpCallGraph: boolean, dumpAST: boolean, generateStatistics: boolean): void {

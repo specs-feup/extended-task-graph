@@ -6,7 +6,8 @@ export enum AppDumpOutput {
 
 export enum SourceCodeOutput {
     SRC_PARENT = "src",
-    SRC_ORIGINAL = "original",
+    SRC_ORIGINAL = "golden",
+    SRC_INTERMEDIATE = "inter",
     SRC_SUBSET = "subset",
     SRC_TASKS = "trans",
     SRC_TASKS_INSTRUMENTED = "trans_instr"
