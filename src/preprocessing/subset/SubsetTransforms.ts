@@ -16,25 +16,32 @@ export abstract class ACodeTransform extends AStage {
         super("TransFlow-Subset-CodeTransform", topFunction);
         this.outputFriendlyName = outputFriendlyName;
         this.silent = silent;
-
     }
 
-    public apply(): boolean {
+    public apply(): [boolean, string] {
         try {
-            const count = this.applyTransform();
-            const valid = Clava.rebuild();
+            Clava.pushAst();
 
+            const count = this.applyTransform();
+
+            const valid = Clava.rebuild();
             if (!valid) {
-                this.logWarning(`Error rebuilding AST after ${this.outputFriendlyName}, reverting AST to previous state`);
-                return false;
+                this.logError(`Error rebuilding AST after ${this.outputFriendlyName}, reverting AST to previous state`);
+
+                Clava.popAst();
+                return [false, "Error rebuilding AST"];
             }
             this.printSuccess(count);
-            return true;
+
+            Clava.clearAstHistory();
+            return [true, ""];
         }
         catch (e) {
-            this.logTrace(e);
-            this.logWarning(`Error applying ${this.outputFriendlyName}, reverting AST to previous state`);
-            return false;
+            const trace = this.logTrace(e);
+            this.logError(`Error applying ${this.outputFriendlyName}, reverting AST to previous state`);
+
+            Clava.popAst();
+            return [false, trace];
         }
     }
 

@@ -5,6 +5,8 @@ import { SubsetTransform, transformMap } from "./SubsetTransforms.js";
 import { SubsetReducer } from "./SubsetReducer.js";
 
 export class SubsetPreprocessor extends AStage {
+    private intermediateDir: string;
+
     public static readonly DEFAULT_RECIPE: SubsetTransform[] = [
         SubsetTransform.ArrayFlattener,
         SubsetTransform.ConstantFoldingPropagation,
@@ -15,9 +17,12 @@ export class SubsetPreprocessor extends AStage {
 
     constructor(topFunction: string, outputDir: string, appName: string) {
         super("TransFlow-Subset", topFunction, outputDir, appName);
+        this.intermediateDir = `${SourceCodeOutput.SRC_PARENT}/${SourceCodeOutput.SRC_INTERMEDIATE}`;
     }
 
     public preprocess(recipe: SubsetTransform[] = SubsetPreprocessor.DEFAULT_RECIPE, silentTransforms = false): boolean {
+        this.deleteFolderContents(this.intermediateDir);
+
         this.sanitizeCodePreSubset();
 
         const success = this.reduceToSubset();
@@ -26,6 +31,8 @@ export class SubsetPreprocessor extends AStage {
         }
 
         this.sanitizeCodePostSubset();
+
+        this.generateCode(`${this.intermediateDir}/t0-normalization`);
 
         this.applyCodeTransformations(recipe, silentTransforms);
         return true;
@@ -60,17 +67,26 @@ export class SubsetPreprocessor extends AStage {
 
     public applyCodeTransformations(recipe: SubsetTransform[], silentTransforms = false) {
         let transCnt = 0;
-        this.deleteFolderContents(`${SourceCodeOutput.SRC_PARENT}/${SourceCodeOutput.SRC_INTERMEDIATE}`);
 
         for (const transform of recipe) {
             const transformClass = transformMap[transform];
             const transformInstance = new transformClass(this.getTopFunctionName(), silentTransforms);
-            transformInstance.apply();
+            const res = transformInstance.apply();
+            const success = res[0];
+            const msg = res[1];
             transCnt++;
 
             const id = `t${transCnt}-${transformInstance.getName()}`;
-            const dir = `${SourceCodeOutput.SRC_PARENT}/${SourceCodeOutput.SRC_INTERMEDIATE}/${id}`;
-            this.generateCode(dir);
+            const dir = `${this.intermediateDir}/${id}`;
+            if (success) {
+                this.generateCode(dir);
+            }
+            else {
+                const filename = "failure.txt";
+                const fullPath = `${dir}/${filename}`;
+
+                this.generateFile(fullPath, msg);
+            }
         }
         this.log("Applied all required code transformations");
     }

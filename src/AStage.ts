@@ -57,6 +57,12 @@ export abstract class AStage {
         return ClavaUtils.generateCode(this.getOutputDir(), subfolder);
     }
 
+    public generateFile(filepath: string, content: string): string {
+        const fullPath = `${this.getOutputDir()}/${filepath}`;
+        Io.writeFile(fullPath, content);
+        return fullPath;
+    }
+
     public deleteFolderContents(folder: string): void {
         const path = `${this.getOutputDir()}/${folder}`;
         Io.deleteFolderContents(path);
@@ -117,19 +123,18 @@ export abstract class AStage {
         this.writeMessage(`${header} ${err} ${message}`);
     }
 
-    protected logTrace(exception: unknown): void {
+    protected logTrace(exception: unknown): string {
         const header = this.getStageOutputHeader();
         const err = chalk.red("Exception caught with stack trace:");
         const end = chalk.red("----------------------------------");
 
         this.writeMessage(`${header} ${err}`);
-        if (exception instanceof Error) {
-            this.writeMessage(exception.stack as string);
-        }
-        else {
-            this.writeMessage("(No stack trace available)");
-        }
+
+        const trace = (exception instanceof Error) ? exception.stack as string : "(No stack trace available)";
+        this.writeMessage(trace);
         this.writeMessage(`${header} ${end}`);
+
+        return trace;
     }
 
     protected logLine(len: number = 58): void {
