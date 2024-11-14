@@ -7,12 +7,12 @@ const apps = [
     //"3d-rendering",         // not ok
     //"digit-recognition",  // ok
     //"face-detection",     // not ok
-    "optical-flow",       // ok
-    //"spam-filter"         // ok
+    //"optical-flow",       // ok
+    "spam-filter"         // ok
 ];
 
 const settings = {
-    disableCaching: false,
+    disableCaching: true,
     outputDir: "output/rosetta",
     dumpAST: true,
     doTransformations: true,

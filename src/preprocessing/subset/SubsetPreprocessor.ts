@@ -1,14 +1,36 @@
 import { AStage } from "../../AStage.js";
 import { CodeSanitizer } from "./CodeSanitizer.js";
-import { CodeTransformer } from "./CodeTransformer.js";
+import { ArrayFlattenerTransform, ConstantFoldingPropagationTransform, StructDecompositionTransform, SwitchToIfTransform } from "./CodeTransformer.js";
 import { SubsetReducer } from "./SubsetReducer.js";
 
+export enum Transform {
+    ArrayFlattener = "ArrayFlattener",
+    ConstantFoldingPropagation = "ConstantFoldingPropagation",
+    StructDecomposition = "StructDecomposition",
+    SwitchToIf = "SwitchToIf"
+}
+
+const classMap = {
+    [Transform.ArrayFlattener]: ArrayFlattenerTransform,
+    [Transform.ConstantFoldingPropagation]: ConstantFoldingPropagationTransform,
+    [Transform.StructDecomposition]: StructDecompositionTransform,
+    [Transform.SwitchToIf]: SwitchToIfTransform
+}
+
 export class SubsetPreprocessor extends AStage {
+    public static readonly DEFAULT_RECIPE: Transform[] = [
+        Transform.ArrayFlattener,
+        Transform.ConstantFoldingPropagation,
+        Transform.StructDecomposition,
+        Transform.SwitchToIf,
+        Transform.ConstantFoldingPropagation
+    ];
+
     constructor(topFunction: string, outputDir: string, appName: string) {
         super("TransFlow-Subset", topFunction, outputDir, appName);
     }
 
-    public preprocess(): boolean {
+    public preprocess(recipe: Transform[] = SubsetPreprocessor.DEFAULT_RECIPE): boolean {
         this.sanitizeCodePreSubset();
 
         const success = this.reduceToSubset();
@@ -18,7 +40,7 @@ export class SubsetPreprocessor extends AStage {
 
         this.sanitizeCodePostSubset();
 
-        this.applyCodeTransformations();
+        this.applyCodeTransformations(recipe);
         return true;
     }
 
@@ -49,9 +71,12 @@ export class SubsetPreprocessor extends AStage {
         this.log("Sanitized code after subset reduction");
     }
 
-    public applyCodeTransformations() {
-        const transformer = new CodeTransformer(this.getTopFunctionName());
-        transformer.applyCodeTransforms();
+    public applyCodeTransformations(recipe: Transform[], silentTransforms = false) {
+        for (const transform of recipe) {
+            const transformClass = classMap[transform];
+            const transformInstance = new transformClass(this.getTopFunctionName(), silentTransforms);
+            transformInstance.apply();
+        }
         this.log("Applied all required code transformations");
     }
 }

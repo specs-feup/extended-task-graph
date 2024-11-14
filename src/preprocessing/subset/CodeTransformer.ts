@@ -8,92 +8,91 @@ import { SwitchToIf } from "clava-code-transforms/SwitchToIf";
 import { FoldingPropagationCombiner } from "clava-code-transforms/FoldingPropagationCombiner";
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
 
-export class CodeTransformer extends AStage {
-    private silentTransforms: boolean;
+export abstract class ATransform extends AStage {
+    protected outputFriendlyName;
 
-    constructor(topFunction: string, silentTransforms = false) {
+    constructor(topFunction: string, protected silentTransforms: boolean, outputFriendlyName: string = "Transform") {
         super("TransFlow-Subset-CodeTransformer", topFunction);
-        this.silentTransforms = silentTransforms;
+        this.outputFriendlyName = outputFriendlyName;
     }
 
-    public applyCodeTransforms(): boolean {
+    public apply(): boolean {
         try {
-            this.applySwitchToIfConversion();
-        } catch (e) {
+            const count = this.applyTransform();
+            const valid = Clava.rebuild();
+
+            if (!valid) {
+                this.logWarning(`Error rebuilding AST after ${this.outputFriendlyName}, reverting AST to previous state`);
+                return false;
+            }
+            this.printSuccess(count);
+            return true;
+        }
+        catch (e) {
             this.logTrace(e);
-            this.logWarning(`Error applying switch-to-if conversion, reverting AST to previous state`);
+            this.logWarning(`Error applying ${this.outputFriendlyName}, reverting AST to previous state`);
             return false;
         }
-
-        try {
-            this.applyArrayFlattening();
-        } catch (e) {
-            this.logTrace(e);
-            this.logWarning(`Error applying array flattening, reverting AST to previous state`);
-            return false;
-        }
-
-        try {
-            //this.applyConstantFoldingAndPropagation(true);
-        } catch (e) {
-            this.logTrace(e);
-            this.logWarning(`Error applying constant folding and propagation, reverting AST to previous state`);
-            return false;
-        }
-
-        try {
-            this.applyStructDecomposition();
-        } catch (e) {
-            this.logTrace(e);
-            this.logWarning(`Error applying struct decomposition, reverting AST to previous state`);
-            return false;
-        }
-
-        try {
-            //this.applyConstantFoldingAndPropagation(false);
-        } catch (e) {
-            this.logTrace(e);
-            this.logWarning(`Error applying second constant folding/propagation transformation, reverting AST to previous state`);
-            return false;
-        }
-
-        return true;
     }
 
-    public setSilentTransforms(silent: boolean): void {
-        this.silentTransforms = silent;
+    protected getValidFunctions(): FunctionJp[] {
+        return ClavaUtils.getAllUniqueFunctions(this.getTopFunctionJoinPoint());
     }
 
-    // --------------------------------------------------------------------------------
-    private applyArrayFlattening(): void {
+    protected abstract applyTransform(): number;
+
+    protected abstract printSuccess(n: number): void;
+}
+
+export class ArrayFlattenerTransform extends ATransform {
+    constructor(topFunction: string, silentTransforms = false) {
+        super(topFunction, silentTransforms, "array flattening");
+    }
+
+    protected applyTransform(): number {
         const flattener = new ArrayFlattener(this.silentTransforms);
         const count = flattener.flattenAll();
-        Clava.rebuild();
-
-        this.log(`Flattened ${count} array${count > 1 ? "s" : ""} into 1D`);
+        return count;
     }
 
-    private applyConstantFoldingAndPropagation(firstRun: boolean = false): void {
+    protected printSuccess(n: number): void {
+        this.log(`Flattened ${n} array${n > 1 ? "s" : ""} into 1D`);
+    }
+}
+
+export class ConstantFoldingPropagationTransform extends ATransform {
+    protected applyTransform(): number {
+        let cnt = 0;
+
         this.getValidFunctions().forEach((fun) => {
             const foldProg = new FoldingPropagationCombiner(this.silentTransforms);
             const nPasses = foldProg.doPassesUntilStop(fun);
-
+            cnt += 1;
             this.log(`Applied constant folding/propagation to function ${fun.name} in ${nPasses} pass${nPasses > 1 ? "es" : ""}`);
         });
-        Clava.rebuild();
-
-        this.log(`Applied ${firstRun ? "" : "additional"} constant folding/propagation to all functions and global variables`);
+        return cnt;
     }
 
-    private applyStructDecomposition(): void {
+    protected printSuccess(n: number): void {
+        this.log(`Applied constant folding/propagation to ${n} function${n > 1 ? "s" : ""}`);
+    }
+}
+
+export class StructDecompositionTransform extends ATransform {
+    protected applyTransform(): number {
         const decomp = new StructDecomposer(this.silentTransforms);
         const structNames = decomp.decomposeAll();
-        Clava.rebuild();
 
-        this.log(`Decomposed ${structNames.length} struct${structNames.length > 1 ? "s" : ""}: ${structNames.join(", ")}`);
+        return structNames.length;
     }
 
-    private applySwitchToIfConversion(): void {
+    protected printSuccess(n: number): void {
+        this.log(`Decomposed ${n} struct${n > 1 ? "s" : ""}`);
+    }
+}
+
+export class SwitchToIfTransform extends ATransform {
+    protected applyTransform(): number {
         const switchToIf = new SwitchToIf(this.silentTransforms);
         let count = 0;
 
@@ -103,12 +102,10 @@ export class CodeTransformer extends AStage {
                 count++;
             }
         }
-        Clava.rebuild();
-
-        this.log(`Converted ${count} switch statement${count > 1 ? "s" : ""} into if-else statements`);
+        return count;
     }
 
-    private getValidFunctions(): FunctionJp[] {
-        return ClavaUtils.getAllUniqueFunctions(this.getTopFunctionJoinPoint());
+    protected printSuccess(n: number): void {
+        this.log(`Converted ${n} switch statement${n == 1 ? "" : "s"} into if-else statements`);
     }
 }
