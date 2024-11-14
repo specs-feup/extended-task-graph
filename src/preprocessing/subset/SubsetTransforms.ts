@@ -136,3 +136,17 @@ export class SwitchToIfTransform extends ACodeTransform {
         this.log(`Converted ${n} switch statement${n == 1 ? "" : "s"} into if-else statements`);
     }
 }
+
+export enum SubsetTransform {
+    ArrayFlattener = "ArrayFlattener",
+    ConstantFoldingPropagation = "ConstantFoldingPropagation",
+    StructDecomposition = "StructDecomposition",
+    SwitchToIf = "SwitchToIf"
+}
+
+export const transformMap = {
+    [SubsetTransform.ArrayFlattener]: ArrayFlattenerTransform,
+    [SubsetTransform.ConstantFoldingPropagation]: ConstantFoldingPropagationTransform,
+    [SubsetTransform.StructDecomposition]: StructDecompositionTransform,
+    [SubsetTransform.SwitchToIf]: SwitchToIfTransform
+}

@@ -1,22 +1,8 @@
 import { SourceCodeOutput } from "../../api/OutputDirectories.js";
 import { AStage } from "../../AStage.js";
 import { CodeSanitizer } from "./CodeSanitizer.js";
-import { ArrayFlattenerTransform, ConstantFoldingPropagationTransform, StructDecompositionTransform, SwitchToIfTransform } from "./CodeTransformer.js";
+import { SubsetTransform, transformMap } from "./SubsetTransforms.js";
 import { SubsetReducer } from "./SubsetReducer.js";
-
-export enum SubsetTransform {
-    ArrayFlattener = "ArrayFlattener",
-    ConstantFoldingPropagation = "ConstantFoldingPropagation",
-    StructDecomposition = "StructDecomposition",
-    SwitchToIf = "SwitchToIf"
-}
-
-const classMap = {
-    [SubsetTransform.ArrayFlattener]: ArrayFlattenerTransform,
-    [SubsetTransform.ConstantFoldingPropagation]: ConstantFoldingPropagationTransform,
-    [SubsetTransform.StructDecomposition]: StructDecompositionTransform,
-    [SubsetTransform.SwitchToIf]: SwitchToIfTransform
-}
 
 export class SubsetPreprocessor extends AStage {
     public static readonly DEFAULT_RECIPE: SubsetTransform[] = [
@@ -77,7 +63,7 @@ export class SubsetPreprocessor extends AStage {
         this.deleteFolderContents(`${SourceCodeOutput.SRC_PARENT}/${SourceCodeOutput.SRC_INTERMEDIATE}`);
 
         for (const transform of recipe) {
-            const transformClass = classMap[transform];
+            const transformClass = transformMap[transform];
             const transformInstance = new transformClass(this.getTopFunctionName(), silentTransforms);
             transformInstance.apply();
             transCnt++;
@@ -89,3 +75,5 @@ export class SubsetPreprocessor extends AStage {
         this.log("Applied all required code transformations");
     }
 }
+
+export { SubsetTransform };
