@@ -71,6 +71,6 @@ export function runEtgForBenchmark(config: Record<string, any>): boolean {
 }
 
 function log(msg: string): void {
-    const header = chalk.magentaBright("BenchmarkRunner");
+    const header = chalk.yellowBright("BenchmarkRunner");
     console.log(`[${header}] ${msg}`);
 }

@@ -20,7 +20,7 @@
     "simple:clusterextract": "clava dist/test/simple-use-cases/ClusterExtraction.js -- clang inputs/apps/cluster-scenario/",
     "bench:apps": "clava dist/test/benchmark-testing/TestApps.js",
     "bench:rodinia": "clava dist/test/benchmark-testing/TestRodinia.js",
-    "bench:rosetta": "clava dist/test/benchmark-testing/TestRosetta.js"
+    "bench:rosetta": "clava classic dist/test/benchmark-testing/TestRosetta.js -nci -nw"
   },
   "dependencies": {
     "@specs-feup/clava": "^3.0.1",

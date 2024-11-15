@@ -56,13 +56,10 @@ cd ..
 ```json
 {
     "name": "my_proj",
-    //...
     "dependencies": {
         "@specs-feup/clava": "3.0.1",
         "extended-task-graph": "^1.0.0",
-        //...
-  },
-  //...
+    }
 }
 ```
 
@@ -76,7 +73,7 @@ Under normal usage (i.e., running the entire flow from code preprocessing, task 
 <app name>
 ├── ast
 │   ├── original - some metrics about the original application's source code, as well as its call graph and AST
-│   └── trans - same as the above, but after applying all code preprocessing transformations
+│   ├── trans - same as the above, but after applying all code preprocessing transformations
 │   ├── <label> - a dump explicitly triggered by the user, using a subfolder name provided by them
 │   └── <...>
 ├── etg 
@@ -84,9 +81,15 @@ Under normal usage (i.e., running the entire flow from code preprocessing, task 
 │   ├── <label> - a task graph dump explicitly triggered by the user, possibly after applying transformations, using a subfolder name provided by them
 │   └── <...>
 └── src
-    ├── original - the source code of the original program. It differs from the input only in that all macros have been resolved
-    ├── subset - the source code after the preprocessing transformations are applied, except for function outlining
-    ├── trans - the source code after applying function outlining, i.e., a valid representation for generating task graphs
+    ├── golden - source code of the original program. It differs from the input only in that all macros have been resolved
+    ├── inter
+    │   ├── t0-normalization - source code after applying the normalization transformation (which is always the first)
+    │   ├── t1-array-flattening - source code after applying the 1st transformation of the provided recipe (e.g., array flattening by default)
+    |   ├── t2-constant-folding-propagation
+    |   ├── t3-struct-decomposition
+    │   └── tn-<label>
+    ├── subset - source code after the preprocessing transformations are applied, except for function outlining
+    ├── trans - source code after applying function outlining, i.e., a valid representation for generating task graphs
     ├── trans_instr - the same as the above, but with time measuring instrumentation for each function. Useful for profiling
     ├── <label> - source code output explicitly triggered by the user, possibly after applying transformations, using a subfolder name provided by them
     └── <...>
