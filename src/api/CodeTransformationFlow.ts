@@ -28,6 +28,10 @@ export class CodeTransformationFlow extends AStage {
         this.log("Running code transformation flow");
 
         this.generateOriginalCode();
+
+        ClavaUtils.rebuildAndCompress();
+        this.log("Compressed the AST for better performance");
+
         this.initialAnalysis(config.dumpCallGraph, config.dumpAST);
 
         if (!config.doTransforms) {

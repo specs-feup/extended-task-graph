@@ -24,7 +24,7 @@ export abstract class ACodeTransform extends AStage {
 
             const count = this.applyTransform();
 
-            const valid = Clava.rebuild();
+            const valid = ClavaUtils.rebuildAndCompress();
             if (!valid) {
                 this.logError(`Error rebuilding AST after ${this.outputFriendlyName}, reverting AST to previous state`);
 

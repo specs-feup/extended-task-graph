@@ -10,13 +10,13 @@ const settings = {
         // not ok
         //"3d-rendering",
         // ok
-        //"digit-recognition",
+        "digit-recognition",
         // not ok
         //"face-detection",
         // ok
         //"optical-flow",
         // ok
-        "spam-filter"
+        //"spam-filter"
     ],
     disableCaching: true,
     outputDir: "output/rosetta",

@@ -1,5 +1,6 @@
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
-import { BinaryOp, Call, FunctionJp, Joinpoint } from "@specs-feup/clava/api/Joinpoints.js";
+import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
+import { BinaryOp, Call, FunctionJp, InitList, Joinpoint, Vardecl } from "@specs-feup/clava/api/Joinpoints.js";
 import Io from "@specs-feup/lara/api/lara/Io.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 
@@ -8,7 +9,7 @@ export class ClavaUtils {
         let valid = true;
         Clava.pushAst();
         try {
-            Clava.rebuild();
+            ClavaUtils.rebuildAndCompress();
         }
         catch (e: unknown) {
             console.log(e);
@@ -16,6 +17,26 @@ export class ClavaUtils {
         }
         Clava.popAst();
         return valid;
+    }
+
+    public static rebuildAndCompress(threshold: number = 50): boolean {
+        const valid = Clava.rebuild();
+        if (!valid) {
+            return false;
+        }
+
+        for (const decl of Query.search(Vardecl)) {
+            if (decl.hasInit && decl.children[0] instanceof InitList) {
+                const initList = decl.children[0] as InitList;
+
+                if (initList.children.length > threshold) {
+                    const exprLit = ClavaJoinPoints.exprLiteral(initList.code);
+                    initList.removeChildren();
+                    initList.setFirstChild(exprLit);
+                }
+            }
+        }
+        return true;
     }
 
     public static generateCode(weaveDir: string, folder: string): string {

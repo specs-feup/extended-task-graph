@@ -81,6 +81,10 @@ export class ExtendedTaskGraphAPI extends AStage {
             this.logError("No input files were provided! Aborting...");
             return false;
         }
+        if (Clava.getStackSize() === 0) {
+            this.logError("There is no loaded AST! Aborting...");
+            return false;
+        }
 
         if (!Platforms.isLinux()) {
             const platName = Platforms.getPlatformName();
