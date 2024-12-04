@@ -7,14 +7,16 @@ export class EtgSuiteRunner extends SuiteRunner {
         return "ETG flows";
     }
 
-    protected runPrologue(app: string, topFunctionName: string, config: Record<string, any>): boolean {
+    protected runScript(app: string, topFunctionName: string, isCached: boolean, config: Record<string, any>): boolean {
         const api = new ExtendedTaskGraphAPI(topFunctionName, config.outputDir, app);
-        return api.runCodeTransformationFlow(config.codeConfig);
-    }
 
-    protected runScript(app: string, topFunctionName: string, config: Record<string, any>): void {
-        const api = new ExtendedTaskGraphAPI(topFunctionName, config.outputDir, app);
-        api.runTaskGraphGenerationFlow(config.etgConfig);
+        if (!isCached) {
+            const success = api.runCodeTransformationFlow(config.codeConfig);
+            if (!success) {
+                return false;
+            }
+        }
+        const etg = api.runTaskGraphGenerationFlow(config.etgConfig);
+        return etg != null;
     }
-
 }
