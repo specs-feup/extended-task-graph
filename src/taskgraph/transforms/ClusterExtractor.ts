@@ -49,6 +49,8 @@ export class ClusterExtractor {
 
         this.moveToNewFile(funs, fileJp);
 
+        this.addClusterSwitch(call);
+
         this.createExternGlobalRefs(fileJp);
 
         return true;
@@ -93,6 +95,25 @@ export class ClusterExtractor {
                 }
             }
         }
+    }
+
+    private addClusterSwitch(call: Call): void {
+        const guard = ClavaJoinPoints.stmtLiteral("bool offload = true;");
+        const condExpr = ClavaJoinPoints.varRef("offload", ClavaJoinPoints.type("bool"));
+
+        const clusteredCall = ClavaJoinPoints.callFromName(`cluster_${call.function.name}`, call.function.returnType, ...call.args);
+        const clusteredCallExpr = ClavaJoinPoints.exprStmt(clusteredCall);
+        const clusteredCallScope = ClavaJoinPoints.scope(clusteredCallExpr);
+        clusteredCallScope.naked = false;
+
+        const regularCall = ClavaJoinPoints.callFromName(call.function.name, call.function.returnType, ...call.args);
+        const regularCallExpr = ClavaJoinPoints.exprStmt(regularCall);
+        const regularCallScope = ClavaJoinPoints.scope(regularCallExpr);
+        regularCallScope.naked = false;
+
+        const ifStmt = ClavaJoinPoints.ifStmt(condExpr, clusteredCallScope, regularCallScope);
+        call.insertBefore(ifStmt);
+        ifStmt.insertBefore(guard);
     }
 
     private createExternGlobalRefs(fileJp: FileJp): void {
