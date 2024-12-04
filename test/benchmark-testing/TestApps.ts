@@ -29,4 +29,4 @@ settings.codeConfig.transformRecipe = [
 ];
 
 const runner = new EtgSuiteRunner();
-runner.runFlowForSuite(suite, apps, settings);
+runner.runScriptForSuite(suite, apps, settings);
