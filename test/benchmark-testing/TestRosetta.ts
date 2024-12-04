@@ -1,8 +1,8 @@
-import { runEtgForBenchmark } from "./benchrunner/BenchmarkRunner.js";
-import { SuiteSelector } from "./benchrunner/SuiteSelector.js";
 import { SubsetTransform } from "../../src/preprocessing/subset/SubsetPreprocessor.js";
 import { TransFlowConfig } from "../../src/api/CodeTransformationFlow.js";
 import { GenFlowConfig } from "../../src/api/TaskGraphGenerationFlow.js";
+import { SuiteSelector } from "clava-lite-benchmarks/SuiteSelector";
+import { runEtgForBenchmark } from "./BenchmarkRunner.js";
 
 const settings = {
     suite: SuiteSelector.ROSETTA,

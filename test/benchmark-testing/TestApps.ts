@@ -1,22 +1,22 @@
+import { SuiteSelector } from "clava-lite-benchmarks/SuiteSelector";
 import { TransFlowConfig } from "../../src/api/CodeTransformationFlow.js";
 import { GenFlowConfig } from "../../src/api/TaskGraphGenerationFlow.js";
 import { SubsetTransform } from "../../src/preprocessing/subset/SubsetPreprocessor.js";
-import { runEtgForBenchmark } from "./benchrunner/BenchmarkRunner.js";
-import { SuiteSelector } from "./benchrunner/SuiteSelector.js";
+import { runEtgForBenchmark } from "./BenchmarkRunner.js";
 
 const settings = {
     suite: SuiteSelector.APPS,
     apps: [
-        "cluster-scenario",
-        "disparity",
+        // "cluster-scenario",
+        // "disparity",
         "edgedetect",
-        "scenarioA",
-        "scenarioB",
-        "stresstest",
-        "trivial"
+        // "scenarioA",
+        // "scenarioB",
+        // "stresstest",
+        // "trivial"
     ],
     disableCaching: true,
-    outputDir: "output/rosetta",
+    outputDir: "output/apps",
     codeConfig: new TransFlowConfig(),
     etgConfig: new GenFlowConfig()
 }

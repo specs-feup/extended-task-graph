@@ -1,7 +1,7 @@
-import { ExtendedTaskGraphAPI } from "../../../src/api/ExtendedTaskGraphAPI.js";
 import chalk from "chalk";
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
-import { LiteBenchmarkLoader } from "./LiteBenchmarkLoader.js";
+import { LiteBenchmarkLoader } from "clava-lite-benchmarks/LiteBenchmarkLoader";
+import { ExtendedTaskGraphAPI } from "../../src/api/ExtendedTaskGraphAPI.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function runEtgForBenchmark(config: Record<string, any>): boolean {

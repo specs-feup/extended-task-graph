@@ -1,8 +1,8 @@
+import { SuiteSelector } from "clava-lite-benchmarks/SuiteSelector";
 import { TransFlowConfig } from "../../src/api/CodeTransformationFlow.js";
 import { GenFlowConfig } from "../../src/api/TaskGraphGenerationFlow.js";
 import { SubsetTransform } from "../../src/preprocessing/subset/SubsetPreprocessor.js";
-import { runEtgForBenchmark } from "./benchrunner/BenchmarkRunner.js";
-import { SuiteSelector } from "./benchrunner/SuiteSelector.js";
+import { runEtgForBenchmark } from "./BenchmarkRunner.js";
 
 const settings = {
     suite: SuiteSelector.RODINIA,
