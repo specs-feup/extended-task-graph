@@ -26,7 +26,7 @@ else {
     const task = etg.getTaskByName("fizzbuzz")! as RegularTask;
 
     const ext = new ClusterExtractor();
-    ext.extractCluster(task);
+    ext.extractClusterFromTask(task);
 
     api.generateSourceCode("clustered");
 

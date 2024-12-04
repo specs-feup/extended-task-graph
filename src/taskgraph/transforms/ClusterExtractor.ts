@@ -2,13 +2,22 @@ import { RegularTask } from "../tasks/RegularTask.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
 import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
-import { FileJp, FunctionJp, Statement, Vardecl } from "@specs-feup/clava/api/Joinpoints.js";
+import { Body, Call, FileJp, FunctionJp, Statement, Vardecl } from "@specs-feup/clava/api/Joinpoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
+import { ConcreteTask } from "../tasks/ConcreteTask.js";
+import cluster from "cluster";
 
 export class ClusterExtractor {
     constructor() { }
 
-    public extractCluster(task: RegularTask, fileName?: string): boolean {
+    public extractCluster(tasks: ConcreteTask[], filename?: string): boolean {
+        // 0. validate cluster
+        // 1. wrap in a function
+        // 2. call extractClusterFromTask
+        return true;
+    }
+
+    public extractClusterFromTask(task: RegularTask, fileName?: string): boolean {
         const fun = task.getFunction();
         const originalFile = fun.getAncestor("file") as FileJp;
 
@@ -57,19 +66,32 @@ export class ClusterExtractor {
     }
 
     private moveToNewFile(funs: FunctionJp[], fileJp: FileJp): void {
-        const funDecls: Statement[] = [];
+        const clusterFuns: FunctionJp[] = [];
+        const funNames: string[] = [];
+        const clusterFunDecls: Statement[] = [];
 
         for (const fun of funs) {
-            fileJp.insertBegin(fun);
-            fun.detach();
+            const clusterFun = ClavaJoinPoints.functionDecl(`cluster_${fun.name}`, fun.returnType, ...fun.params);
+            clusterFun.body = fun.body.copy() as Body;
 
-            const funDecl = fun.getDeclaration(true);
-            const funDeclStmt = ClavaJoinPoints.stmtLiteral(`${funDecl};`);
-            funDecls.push(funDeclStmt);
+            clusterFuns.push(clusterFun);
+            funNames.push(fun.name);
+
+            const decl = clusterFun.getDeclaration(true);
+            const declStmt = ClavaJoinPoints.stmtLiteral(`${decl}; `);
+            clusterFunDecls.push(declStmt);
+
+            fileJp.insertEnd(clusterFun);
+            fileJp.insertBegin(declStmt);
         }
 
-        for (const funDecl of funDecls.reverse()) {
-            fileJp.insertBegin(funDecl);
+        for (const fun of clusterFuns) {
+            for (const call of Query.searchFrom(fun.body, Call)) {
+                if (funNames.includes(call.function.name)) {
+                    const newCall = ClavaJoinPoints.callFromName(`cluster_${call.function.name}`, fun.returnType, ...call.args);
+                    call.replaceWith(newCall);
+                }
+            }
         }
     }
 
@@ -79,7 +101,7 @@ export class ClusterExtractor {
         for (const vardecl of Query.searchFrom(Clava.getProgram(), Vardecl)) {
             if (vardecl.isGlobal) {
                 const code = vardecl.code.split("=")[0].trim();
-                const externVar = `extern ${code};`;
+                const externVar = `extern ${code}; `;
                 if (!externVars.has(externVar)) {
                     fileJp.insertBegin(ClavaJoinPoints.stmtLiteral(externVar));
                     externVars.add(externVar);
