@@ -1,19 +1,12 @@
 import { AStage } from "../AStage.js";
 import { ProfilingInstrumenter } from "../preprocessing/profiling/ProfilingInstrumenter.js";
-import { SubsetPreprocessor, SubsetTransform } from "../preprocessing/subset/SubsetPreprocessor.js";
+import { SubsetPreprocessor } from "../preprocessing/subset/SubsetPreprocessor.js";
 import { TaskPreprocessor } from "../preprocessing/task/TaskPreprocessor.js";
 import { ClavaUtils } from "../util/ClavaUtils.js";
 import { ApplicationAnalyser } from "../analysis/ast/ApplicationAnalyser.js";
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
 import { AppDumpOutput, SourceCodeOutput } from "./OutputDirectories.js";
-
-export class TransFlowConfig {
-    dumpCallGraph: boolean = true;
-    dumpAST: boolean = true;
-    doTransforms: boolean = true;
-    silentTransforms: boolean = false;
-    transformRecipe: SubsetTransform[] = SubsetPreprocessor.DEFAULT_RECIPE;
-}
+import { TransFlowConfig } from "./TransFlowConfig.js";
 
 export class CodeTransformationFlow extends AStage {
     constructor(topFunctionName: string, outputDir: string, appName: string) {

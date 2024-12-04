@@ -3,7 +3,7 @@ import { ExtendedTaskGraphAPI } from "../../src/api/ExtendedTaskGraphAPI.js";
 import { TaskGraph } from "../../src/taskgraph/TaskGraph.js";
 import { ClusterExtractor } from "../../src/taskgraph/transforms/ClusterExtractor.js";
 import { RegularTask } from "../../src/taskgraph/tasks/RegularTask.js";
-import { GenFlowConfig } from "../../src/api/TaskGraphGenerationFlow.js";
+import { GenFlowConfig } from "../../src/api/GenFlowConfig.js";
 
 const api = new ExtendedTaskGraphAPI("start", "output/use-cases", "cluster-scenario");
 

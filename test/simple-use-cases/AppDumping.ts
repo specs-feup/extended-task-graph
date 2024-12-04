@@ -12,8 +12,7 @@
  */
 import chalk from "chalk";
 import { ExtendedTaskGraphAPI } from "../../src/api/ExtendedTaskGraphAPI.js";
-import { TransFlowConfig } from "../../src/api/CodeTransformationFlow.js";
-
+import { TransFlowConfig } from "../../src/api/TransFlowConfig.js";
 console.log("Test: dump the AST and call graph of edgedetect");
 
 const topFunctionName = "edge_detect";

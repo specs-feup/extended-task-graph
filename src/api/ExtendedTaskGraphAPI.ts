@@ -1,9 +1,11 @@
 import { AStage } from "../AStage.js";
-import { CodeTransformationFlow, TransFlowConfig } from "./CodeTransformationFlow.js";
+import { CodeTransformationFlow } from "./CodeTransformationFlow.js";
 import { TaskGraph } from "../taskgraph/TaskGraph.js";
-import { GenFlowConfig, TaskGraphGenerationFlow } from "./TaskGraphGenerationFlow.js";
+import { TaskGraphGenerationFlow } from "./TaskGraphGenerationFlow.js";
 import Platforms from "@specs-feup/lara/api/lara/Platforms.js";
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
+import { TransFlowConfig } from "./TransFlowConfig.js";
+import { GenFlowConfig } from "./GenFlowConfig.js";
 
 export class ExtendedTaskGraphAPI extends AStage {
     constructor(topFunctionName: string = "main", outputDir: string = "output", appName: string = "default_app_name") {

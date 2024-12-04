@@ -14,6 +14,7 @@ export abstract class AStage {
     private appName: string;
     private outputDir: string;
     private startTimestamp: Date = new Date();
+    private labelColor: (...text: unknown[]) => string = chalk.cyan;
 
     private static isLoggerInit: boolean = false;
     private static logger: Logger;
@@ -67,6 +68,10 @@ export abstract class AStage {
     public deleteFolderContents(folder: string): void {
         const path = `${this.getOutputDir()}/${folder}`;
         Io.deleteFolderContents(path);
+    }
+
+    public setLabelColor(color: (...text: unknown[]) => string): void {
+        this.labelColor = color;
     }
 
     protected log(message: string): void {
@@ -157,7 +162,7 @@ export abstract class AStage {
 
     private getStageOutputHeader(): string {
         const fullName = `${this.commonPrefix}-${this.stageName}`;
-        const coloredName = chalk.cyan(fullName);
+        const coloredName = this.labelColor(fullName);
 
         const header = `[${coloredName}] `.padEnd(this.padding, '-');
         return header;

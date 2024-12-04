@@ -6,11 +6,7 @@ import { TaskGraph } from "../taskgraph/TaskGraph.js";
 import { TaskGraphBuilder } from "../taskgraph/TaskGraphBuilder.js";
 import { TaskGraphAnalyzer } from "../analysis/taskgraph/TaskGraphAnalyzer.js";
 import { TaskGraphOutput } from "./OutputDirectories.js";
-
-export class GenFlowConfig {
-    dumpGraph: boolean = true;
-    gatherMetrics: boolean = true;
-}
+import { GenFlowConfig } from "./GenFlowConfig.js";
 
 export class TaskGraphGenerationFlow extends AStage {
     constructor(topFunctionName: string, outputDir: string, appName: string) {

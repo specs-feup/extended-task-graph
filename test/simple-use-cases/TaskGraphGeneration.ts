@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import { ExtendedTaskGraphAPI } from "../../src/api/ExtendedTaskGraphAPI.js";
 import { TaskGraph } from "../../src/taskgraph/TaskGraph.js";
-import { GenFlowConfig } from "../../src/api/TaskGraphGenerationFlow.js";
+import { GenFlowConfig } from "../../src/api/GenFlowConfig.js";
 
 const api = new ExtendedTaskGraphAPI("edge_detect", "output/use-cases", "edgedetect-etg");
 

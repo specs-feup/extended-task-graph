@@ -24,6 +24,8 @@
   },
   "exports": {
     "./ExtendedTaskGraphAPI": "./dist/src/api/ExtendedTaskGraphAPI.js",
+    "./TransFlowConfig": "./dist/src/api/TransFlowConfig.js",
+    "./GenFlowConfig": "./dist/src/api/GenFlowConfig.js",
     "./TaskGraph": "./dist/src/taskgraph/TaskGraph.js",
     "./ClusterExtractor": "./dist/src/taskgraph/transforms/ClusterExtractor.js",
     "./TaskMerger": "./dist/src/taskgraph/transforms/TaskMerger.js",
