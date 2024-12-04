@@ -8,7 +8,7 @@ import { ClavaUtils } from "./util/ClavaUtils.js";
 
 export abstract class AStage {
     private stageName: string = "DefaultStage";
-    private commonPrefix: string = "ETG"
+    private commonPrefix: string = "ETG";
     private padding: number = 50;
     private topFunctionName: string;
     private appName: string;
@@ -18,11 +18,12 @@ export abstract class AStage {
     private static isLoggerInit: boolean = false;
     private static logger: Logger;
 
-    constructor(stageName: string, topFunctionName: string, outputDir = "output", appName = "default_app_name") {
+    constructor(stageName: string, topFunctionName: string, outputDir = "output", appName = "default_app_name", commonPrefix = "ETG") {
         this.stageName = stageName;
         this.topFunctionName = topFunctionName;
         this.appName = appName;
         this.outputDir = outputDir;
+        this.commonPrefix = commonPrefix;
 
         if (!AStage.isLoggerInit) {
             this.initLogger();

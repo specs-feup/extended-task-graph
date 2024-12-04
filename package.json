@@ -27,7 +27,8 @@
     "./TaskGraph": "./dist/src/taskgraph/TaskGraph.js",
     "./ClusterExtractor": "./dist/src/taskgraph/transforms/ClusterExtractor.js",
     "./TaskMerger": "./dist/src/taskgraph/transforms/TaskMerger.js",
-    "./TaskSplitter": "./dist/src/taskgraph/transforms/TaskSplitter.js"
+    "./TaskSplitter": "./dist/src/taskgraph/transforms/TaskSplitter.js",
+    "./AStage": "./dist/src/AStage.js"
   },
   "dependencies": {
     "@specs-feup/clava": "^3.0.1",
