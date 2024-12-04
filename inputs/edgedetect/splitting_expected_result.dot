@@ -1,0 +1,33 @@
+digraph G {
+    node [shape = rectangle;];
+    source [shape = circle;];
+    rgbToGrayscale;
+    convolve2d_rep2_shard_A;
+    convolve2d_rep2_shard_B;
+    convolve2d_rep1;
+    convolve2d_rep0;
+    combthreshold;
+    _outlined_fun_0;
+    _outlined_fun_1;
+    _outlined_fun_2;
+    sink [shape = circle;];
+    
+    source -> rgbToGrayscale [label = "image_rgb";];
+    rgbToGrayscale -> convolve2d_rep0 [label = "image_gray";];
+    source -> _outlined_fun_0 [label = "filter";];
+    _outlined_fun_0 -> _outlined_fun_1 [label = "filter";];
+    _outlined_fun_1 -> _outlined_fun_2;
+    _outlined_fun_0 -> convolve2d_rep0 [label = "filter";];
+    convolve2d_rep0 -> convolve2d_rep1 [label = "output";];
+    rgbToGrayscale -> convolve2d_rep1 [label = "image_gray";];
+    _outlined_fun_1 -> convolve2d_rep1 [label = "filter";];
+    _outlined_fun_2 -> convolve2d_rep2_shard_A [label = "filter";];
+    _outlined_fun_2 -> convolve2d_rep2_shard_B [label = "filter";];
+    source -> convolve2d_rep2_shard_B [label = "temp_buf";];
+    convolve2d_rep0 -> convolve2d_rep2_shard_B [label = "output";];
+    convolve2d_rep2_shard_B -> combthreshold [label = "temp_buf";];
+    convolve2d_rep1 -> combthreshold [label = "image_gray";];
+    convolve2d_rep0 -> combthreshold [label = "output";];
+    combthreshold -> sink [label = "output";];
+    convolve2d_rep2_shard_A -> convolve2d_rep2_shard_B [label = "...";];
+}

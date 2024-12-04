@@ -55,6 +55,10 @@ export abstract class AStage {
         return this.topFunctionName;
     }
 
+    public getCommonPrefix(): string {
+        return this.commonPrefix;
+    }
+
     public generateCode(subfolder: string): string {
         return ClavaUtils.generateCode(this.getOutputDir(), subfolder);
     }
