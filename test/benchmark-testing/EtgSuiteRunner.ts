@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { SuiteRunner } from "clava-lite-benchmarks/SuiteRunner";
 import { ExtendedTaskGraphAPI } from "../../src/api/ExtendedTaskGraphAPI.js";
-import { SuiteRunner } from "./SuiteRunner.js";
 
 export class EtgSuiteRunner extends SuiteRunner {
     protected getScriptName(): string {
