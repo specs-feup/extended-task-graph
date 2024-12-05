@@ -5,6 +5,7 @@ import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
 import { Body, Call, FileJp, FunctionJp, Statement, Vardecl } from "@specs-feup/clava/api/Joinpoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { ConcreteTask } from "../tasks/ConcreteTask.js";
+
 export class ClusterExtractor {
     constructor() { }
 
@@ -35,13 +36,7 @@ export class ClusterExtractor {
                 return null;
             }
         }
-
-        const decl = fun.getDeclaration(true);
-        const declStmt = ClavaJoinPoints.stmtLiteral(`extern ${decl};`);
         const call = task.getCall()!;
-        const callFun = call.function;
-        callFun.insertBefore(declStmt);
-
         const subDir = originalFile.sourceFoldername;
         const fileJp = ClavaJoinPoints.file(fileName, subDir);
         Clava.addFile(fileJp);
