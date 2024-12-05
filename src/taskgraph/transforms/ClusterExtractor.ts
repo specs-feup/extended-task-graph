@@ -47,9 +47,11 @@ export class ClusterExtractor {
 
         const funs = this.getAllFunctionsInCluster(task);
 
-        this.moveToNewFile(funs, fileJp, clusterPrefix);
+        const entrypoint = this.moveToNewFile(funs, fileJp, clusterPrefix);
 
         this.addClusterSwitch(call, clusterPrefix);
+
+        this.createWrappedFunction(call, entrypoint, clusterPrefix);
 
         this.createExternGlobalRefs(fileJp);
 
@@ -67,7 +69,7 @@ export class ClusterExtractor {
         return funs;
     }
 
-    private moveToNewFile(funs: FunctionJp[], fileJp: FileJp, clusterPrefix: string): void {
+    private moveToNewFile(funs: FunctionJp[], fileJp: FileJp, clusterPrefix: string): FunctionJp {
         const clusterFuns: FunctionJp[] = [];
         const funNames: string[] = [];
         const clusterFunDecls: Statement[] = [];
@@ -95,13 +97,15 @@ export class ClusterExtractor {
                 }
             }
         }
+        return clusterFuns[0];
     }
 
     private addClusterSwitch(call: Call, clusterPrefix: string): void {
         const guard = ClavaJoinPoints.stmtLiteral("bool offload = true;");
         const condExpr = ClavaJoinPoints.varRef("offload", ClavaJoinPoints.type("bool"));
 
-        const hwCall = ClavaJoinPoints.callFromName(`wrapped_${clusterPrefix}`, call.function.returnType, ...call.args);
+        const wrappedName = `wrapped_${clusterPrefix}`;
+        const hwCall = ClavaJoinPoints.callFromName(wrappedName, call.function.returnType, ...call.args);
         const hwCallExpr = ClavaJoinPoints.exprStmt(hwCall);
         const hwCallScope = ClavaJoinPoints.scope(hwCallExpr);
         hwCallScope.naked = false;
@@ -114,6 +118,25 @@ export class ClusterExtractor {
         const ifStmt = ClavaJoinPoints.ifStmt(condExpr, hwCallScope, swCallScope);
         call.insertBefore(ifStmt);
         ifStmt.insertBefore(guard);
+    }
+
+    private createWrappedFunction(call: Call, entrypoint: FunctionJp, clusterPrefix: string): void {
+        const callFun = call.function;
+        const wrapperFun = ClavaJoinPoints.functionDecl(`wrapped_${clusterPrefix}`, call.function.returnType, ...call.function.params);
+        const entrypointCall = ClavaJoinPoints.call(entrypoint, ...call.args);
+
+        const stmts: Statement[] = [
+            ClavaJoinPoints.stmtLiteral("// Replace this call with the accelerator boilerplate"),
+            ClavaJoinPoints.exprStmt(entrypointCall),
+            ClavaJoinPoints.stmtLiteral("// Wrapper end")
+        ];
+        const body = ClavaJoinPoints.scope(...stmts);
+        wrapperFun.setBody(body);
+        callFun.insertBefore(wrapperFun);
+
+        const decl = entrypoint.getDeclaration(true);
+        const externDecl = ClavaJoinPoints.stmtLiteral(`extern ${decl};`);
+        wrapperFun.insertBefore(externDecl);
     }
 
     private createExternGlobalRefs(fileJp: FileJp): void {
