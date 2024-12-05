@@ -17,7 +17,7 @@ export class ClusterExtractor {
         return true;
     }
 
-    public extractClusterFromTask(task: RegularTask, fileName?: string): boolean {
+    public extractClusterFromTask(task: RegularTask, fileName?: string, clusterPrefix: string = "cluster0"): boolean {
         const fun = task.getFunction();
         const originalFile = fun.getAncestor("file") as FileJp;
 
@@ -47,9 +47,9 @@ export class ClusterExtractor {
 
         const funs = this.getAllFunctionsInCluster(task);
 
-        this.moveToNewFile(funs, fileJp);
+        this.moveToNewFile(funs, fileJp, clusterPrefix);
 
-        this.addClusterSwitch(call);
+        this.addClusterSwitch(call, clusterPrefix);
 
         this.createExternGlobalRefs(fileJp);
 
@@ -67,13 +67,13 @@ export class ClusterExtractor {
         return funs;
     }
 
-    private moveToNewFile(funs: FunctionJp[], fileJp: FileJp): void {
+    private moveToNewFile(funs: FunctionJp[], fileJp: FileJp, clusterPrefix: string): void {
         const clusterFuns: FunctionJp[] = [];
         const funNames: string[] = [];
         const clusterFunDecls: Statement[] = [];
 
         for (const fun of funs) {
-            const clusterFun = ClavaJoinPoints.functionDecl(`cluster_${fun.name}`, fun.returnType, ...fun.params);
+            const clusterFun = ClavaJoinPoints.functionDecl(`${clusterPrefix}_${fun.name}`, fun.returnType, ...fun.params);
             clusterFun.body = fun.body.copy() as Body;
 
             clusterFuns.push(clusterFun);
@@ -90,28 +90,28 @@ export class ClusterExtractor {
         for (const fun of clusterFuns) {
             for (const call of Query.searchFrom(fun.body, Call)) {
                 if (funNames.includes(call.function.name)) {
-                    const newCall = ClavaJoinPoints.callFromName(`cluster_${call.function.name}`, fun.returnType, ...call.args);
+                    const newCall = ClavaJoinPoints.callFromName(`${clusterPrefix}_${call.name}`, fun.returnType, ...call.args);
                     call.replaceWith(newCall);
                 }
             }
         }
     }
 
-    private addClusterSwitch(call: Call): void {
+    private addClusterSwitch(call: Call, clusterPrefix: string): void {
         const guard = ClavaJoinPoints.stmtLiteral("bool offload = true;");
         const condExpr = ClavaJoinPoints.varRef("offload", ClavaJoinPoints.type("bool"));
 
-        const clusteredCall = ClavaJoinPoints.callFromName(`cluster_${call.function.name}`, call.function.returnType, ...call.args);
-        const clusteredCallExpr = ClavaJoinPoints.exprStmt(clusteredCall);
-        const clusteredCallScope = ClavaJoinPoints.scope(clusteredCallExpr);
-        clusteredCallScope.naked = false;
+        const hwCall = ClavaJoinPoints.callFromName(`wrapped_${clusterPrefix}`, call.function.returnType, ...call.args);
+        const hwCallExpr = ClavaJoinPoints.exprStmt(hwCall);
+        const hwCallScope = ClavaJoinPoints.scope(hwCallExpr);
+        hwCallScope.naked = false;
 
-        const regularCall = ClavaJoinPoints.callFromName(call.function.name, call.function.returnType, ...call.args);
-        const regularCallExpr = ClavaJoinPoints.exprStmt(regularCall);
-        const regularCallScope = ClavaJoinPoints.scope(regularCallExpr);
-        regularCallScope.naked = false;
+        const swCall = ClavaJoinPoints.callFromName(`${call.function.name}`, call.function.returnType, ...call.args);
+        const swCallExpr = ClavaJoinPoints.exprStmt(swCall);
+        const swCallScope = ClavaJoinPoints.scope(swCallExpr);
+        swCallScope.naked = false;
 
-        const ifStmt = ClavaJoinPoints.ifStmt(condExpr, clusteredCallScope, regularCallScope);
+        const ifStmt = ClavaJoinPoints.ifStmt(condExpr, hwCallScope, swCallScope);
         call.insertBefore(ifStmt);
         ifStmt.insertBefore(guard);
     }
@@ -123,6 +123,7 @@ export class ClusterExtractor {
             if (vardecl.isGlobal) {
                 const code = vardecl.code.split("=")[0].trim();
                 const externVar = `extern ${code}; `;
+
                 if (!externVars.has(externVar)) {
                     fileJp.insertBegin(ClavaJoinPoints.stmtLiteral(externVar));
                     externVars.add(externVar);
