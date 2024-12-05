@@ -5,19 +5,20 @@ import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
 import { Body, Call, FileJp, FunctionJp, Statement, Vardecl } from "@specs-feup/clava/api/Joinpoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { ConcreteTask } from "../tasks/ConcreteTask.js";
-import cluster from "cluster";
-
 export class ClusterExtractor {
     constructor() { }
 
-    public extractCluster(tasks: ConcreteTask[], filename?: string): boolean {
+    public extractCluster(tasks: ConcreteTask[], filename?: string, clusterPrefix: string = "cluster0"): FunctionJp | null {
         // 0. validate cluster
-        // 1. wrap in a function
-        // 2. call extractClusterFromTask
-        return true;
+        if (!this.validateCluster(tasks)) {
+            console.log("[ClusterExtractor] Error: Cluster validation failed, aborting...");
+            return null;
+        }
+        const wrapperTask = this.wrapCluster(tasks);
+        return this.extractClusterFromTask(wrapperTask, filename, clusterPrefix);
     }
 
-    public extractClusterFromTask(task: RegularTask, fileName?: string, clusterPrefix: string = "cluster0"): boolean {
+    public extractClusterFromTask(task: RegularTask, fileName?: string, clusterPrefix: string = "cluster0"): FunctionJp | null {
         const fun = task.getFunction();
         const originalFile = fun.getAncestor("file") as FileJp;
 
@@ -31,7 +32,7 @@ export class ClusterExtractor {
             else if (!fileName.endsWith(`.${ClavaUtils.getCurrentFileExt()}`)) {
                 const ext = fileName.split(".").pop();
                 console.log(`[ClusterExtractor] Error: File extension ${ext} does not match the current file extension, aborting...`);
-                return false;
+                return null;
             }
         }
 
@@ -51,11 +52,19 @@ export class ClusterExtractor {
 
         this.addClusterSwitch(call, clusterPrefix);
 
-        this.createWrappedFunction(call, entrypoint, clusterPrefix);
+        const wrapper = this.createWrappedFunction(call, entrypoint, clusterPrefix);
 
         this.createExternGlobalRefs(fileJp);
 
+        return wrapper;
+    }
+
+    private validateCluster(cluster: ConcreteTask[]): boolean {
         return true;
+    }
+
+    private wrapCluster(tasks: ConcreteTask[]): RegularTask {
+        return tasks[0] as RegularTask;
     }
 
     private getAllFunctionsInCluster(task: RegularTask): FunctionJp[] {
@@ -120,7 +129,7 @@ export class ClusterExtractor {
         ifStmt.insertBefore(guard);
     }
 
-    private createWrappedFunction(call: Call, entrypoint: FunctionJp, clusterPrefix: string): void {
+    private createWrappedFunction(call: Call, entrypoint: FunctionJp, clusterPrefix: string): FunctionJp {
         const callFun = call.function;
         const wrapperFun = ClavaJoinPoints.functionDecl(`wrapped_${clusterPrefix}`, call.function.returnType, ...call.function.params);
         const entrypointCall = ClavaJoinPoints.call(entrypoint, ...call.args);
@@ -137,6 +146,7 @@ export class ClusterExtractor {
         const decl = entrypoint.getDeclaration(true);
         const externDecl = ClavaJoinPoints.stmtLiteral(`extern ${decl};`);
         wrapperFun.insertBefore(externDecl);
+        return wrapperFun;
     }
 
     private createExternGlobalRefs(fileJp: FileJp): void {
