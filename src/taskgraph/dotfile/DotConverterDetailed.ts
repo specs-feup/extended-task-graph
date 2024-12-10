@@ -1,5 +1,5 @@
+import { Task } from "../tasks/Task.js";
 import { DotConverter } from "./DotConverter.js";
-import { Task } from "./tasks/Task.js";
 
 export class DotConverterDetailed extends DotConverter {
 

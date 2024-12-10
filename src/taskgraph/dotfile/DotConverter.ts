@@ -1,9 +1,9 @@
-import { Communication } from "./Communication.js";
-import { ControlEdge } from "./ControlEdge.js";
-import { TaskGraph } from "./TaskGraph.js";
-import { ConcreteTask } from "./tasks/ConcreteTask.js";
-import { Task } from "./tasks/Task.js";
-import { TaskType } from "./tasks/TaskType.js";
+import { Communication } from "../Communication.js";
+import { ControlEdge } from "../ControlEdge.js";
+import { TaskGraph } from "../TaskGraph.js";
+import { ConcreteTask } from "../tasks/ConcreteTask.js";
+import { Task } from "../tasks/Task.js";
+import { TaskType } from "../tasks/TaskType.js";
 
 export class DotConverter {
     constructor() { }
