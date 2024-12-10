@@ -28,6 +28,7 @@
     "./OutputDirectories": "./dist/src/api/OutputDirectories.js",
     "./GenFlowConfig": "./dist/src/api/GenFlowConfig.js",
     "./TaskGraph": "./dist/src/taskgraph/TaskGraph.js",
+    "./DotConverter": "./dist/src/taskgraph/dotfile/DotConverter.js",
     "./RegularTask": "./dist/src/taskgraph/tasks/RegularTask.js",
     "./TaskType": "./dist/src/taskgraph/tasks/TaskType.js",
     "./ClusterExtractor": "./dist/src/taskgraph/transforms/ClusterExtractor.js",
