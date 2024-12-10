@@ -1,8 +1,9 @@
 {
-  "include": ["src/**/*.ts", "test/**/*.ts"],
+  "include": ["src", "test"],
   "exclude": ["node_modules", "**/*.spec.ts", "**/*.test.ts"],
   "compilerOptions": {
-    "outDir": "dist",
+    "rootDir": ".",
+    "outDir": "./dist",
     "target": "ES2022",
     "module": "NodeNext",
     "declaration": true,
