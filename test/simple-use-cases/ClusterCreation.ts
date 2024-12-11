@@ -1,28 +1,23 @@
 import chalk from "chalk";
 import { ExtendedTaskGraphAPI } from "../../src/api/ExtendedTaskGraphAPI.js";
-import { TaskGraph } from "../../src/taskgraph/TaskGraph.js";
 import { RegularTask } from "../../src/taskgraph/tasks/RegularTask.js";
 import { GenFlowConfig } from "../../src/api/GenFlowConfig.js";
 import { Cluster } from "../../src/taskgraph/Cluster.js";
 import { ClusterDotConverter } from "../../src/taskgraph/dotfile/ClusterDotConverter.js";
 import Io from "@specs-feup/lara/api/lara/Io.js";
 
-const api = new ExtendedTaskGraphAPI("edge_detect", "output/use-cases", "edgedetect-clustering");
-
-let etg: TaskGraph | null = null;
 try {
     const config = new GenFlowConfig();
     config.gatherMetrics = false;
 
-    api.runCodeTransformationFlow();
-    etg = api.runTaskGraphGenerationFlow(config);
-} catch (e) {
-    console.error(e);
-}
+    const api = new ExtendedTaskGraphAPI("edge_detect", "output/use-cases", "edgedetect-clustering");
+    const etg = api.runTaskGraphGenerationFlow(config);
 
-if (etg == null) {
-    console.log(chalk.red("Test failed") + ": ETG construction failed");
-} else {
+    if (etg == null) {
+        console.log(chalk.red("Test failed") + ": TaskGraph is null");
+        process.exit(1);
+    }
+
     const nTasks = etg.getTasks().length;
     const nEdges = etg.getCommunications().length;
     console.log(`ETG has ${nTasks} tasks and ${nEdges} edges`);
@@ -41,4 +36,8 @@ if (etg == null) {
     Io.writeFile("output/use-cases/edgedetect-clustering/test-cluster.dot", dot);
     console.log("Check the output in output/use-cases/edgedetect-clustering/test-cluster.dot");
     console.log(chalk.green("Test passed") + ": Merging succeeded");
+}
+catch (e) {
+    console.log(chalk.red("Test failed") + ": " + e);
+    process.exit(1);
 }
