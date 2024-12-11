@@ -1,13 +1,12 @@
 import { ConcreteTask } from "extended-task-graph/ConcreteTask";
-import { TaskGraph } from "extended-task-graph/TaskGraph";
 import { TopologicalSort } from "./util/TopologicalSort.js";
 
 export class Cluster {
-    private etg: TaskGraph;
+    private name: string = "";
     private tasks: ConcreteTask[] = [];
 
-    constructor(etg: TaskGraph) {
-        this.etg = etg;
+    constructor(name: string = "cluster") {
+        this.name = name;
     }
 
     addTask(task: ConcreteTask): boolean {
@@ -23,8 +22,16 @@ export class Cluster {
         }
     }
 
+    getName(): string {
+        return this.name;
+    }
+
     getTasks(): ConcreteTask[] {
         return this.tasks;
+    }
+
+    getTaskUniqueName(): string[] {
+        return this.tasks.map(t => t.getUniqueName());
     }
 
     getInOuts(): [string, ClusterInOut][] {

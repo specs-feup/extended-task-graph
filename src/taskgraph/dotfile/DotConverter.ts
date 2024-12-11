@@ -11,10 +11,10 @@ export class DotConverter {
     public static hierarchicalColors = [
         "bisque",
         "lightpink",
-        "aquamarine2",
+        "lightskyblue1",
         "lightgrey",
         "violet",
-        "lightskyblue",
+        "aquamarine2",
         "yellowgreen"
     ];
 
@@ -51,7 +51,7 @@ export class DotConverter {
         return dot;
     }
 
-    public getLabelOfTask(task: Task): string {
+    protected getLabelOfTask(task: Task): string {
         let label = `${task.getId()}: ${task.getName()}`;
 
         if (task.getType() == TaskType.REGULAR || task.getType() == TaskType.EXTERNAL) {
@@ -67,17 +67,17 @@ export class DotConverter {
         return label;
     }
 
-    public getLabelOfEdge(edge: Communication | ControlEdge): string {
+    protected getLabelOfEdge(edge: Communication | ControlEdge): string {
         return edge.toString();
     }
 
-    private getColor(index: number) {
+    protected getColor(index: number) {
         const len = DotConverter.hierarchicalColors.length;
         const color = DotConverter.hierarchicalColors[index % len];
         return color;
     }
 
-    private getDotOfCluster(task: ConcreteTask, colorIndex = 0): string {
+    protected getDotOfCluster(task: ConcreteTask, colorIndex = 0): string {
         let dot = "";
         if (task.getHierarchicalChildren().length > 0) {
             dot += `\tsubgraph "cluster_${task.getId()}" {\n`;
