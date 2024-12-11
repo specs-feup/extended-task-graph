@@ -6,12 +6,12 @@ export class DataPerTaskFinder extends TaskGraphStat {
         super("dataPerTask", taskGraph);
     }
 
-    public getStatSummary(): Record<string, any> {
-        const dataPerTask: Record<string, any> = {};
+    public getStatSummary(): Record<string, unknown> {
+        const dataPerTask: Record<string, unknown> = {};
         const tasks = this.taskGraph.getTasks();
 
         for (const task of tasks) {
-            const taskData: Record<string, any> = {};
+            const taskData: Record<string, unknown> = {};
 
             for (const datum of task.getData()) {
                 const datumProps = {
@@ -19,7 +19,8 @@ export class DataPerTaskFinder extends TaskGraphStat {
                     "sizeInBytes": datum.getSizeInBytes(),
                     "cxxType": datum.getDatatype(),
                     "isScalar": datum.isScalar(),
-                    "alternateName": datum.getAlternateName(),
+                    "nameInInterface": datum.getNameInInterface(),
+                    "nameInPrevTask": datum.getNameInPreviousTask(),
                     "stateChanges": {
                         "isInit": datum.isInitialized(),
                         "isWritten": datum.isWritten(),

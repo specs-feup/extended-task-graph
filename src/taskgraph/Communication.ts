@@ -55,12 +55,15 @@ export class Communication {
 
             return str;
         }
-        const source = this.sourceData.getName();
-        const target = this.targetData.getName();
-        const limit = 5;
+        const source = this.sourceData.getNameInTask();
+        const target = this.targetData.getNameInTask();
+        const iface = this.targetData.getNameInInterface();
 
-        const nl = (source.length > limit || target.length > limit) ? "\n" : "";
-        const str = `${source}/${nl}${target} (${this.rank})\n{${this.sourceData.getSizeInBytes()}}`;
+        const str = `[${this.rank}]
+${source}
+(${iface})
+${target}
+{${this.sourceData.getSizeInBytes()}}`;
         return str;
     }
 }

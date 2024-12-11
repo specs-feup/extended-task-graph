@@ -27,6 +27,34 @@ export class RegularTask extends ConcreteTask {
         return this.function;
     }
 
+
+    public updateDataItemInterfaces(): void {
+        if (this.getCall() == null) {
+            return;
+        }
+        const callArgs = this.getCall()!.args;
+        const argNames = callArgs.map(arg => {
+            for (const varref of Query.searchFromInclusive(arg, Varref)) {
+                return varref.name;
+            }
+        });
+
+        for (const dataItem of this.getData()) {
+            if (dataItem.getItemOriginType() == DataItemOrigin.PARAM) {
+
+                if (dataItem instanceof VariableDataItem) {
+                    const params = this.getFunction().params;
+
+                    for (let i = 0; i < params.length; i++) {
+                        if (params[i].name == dataItem.getNameInTask()) {
+                            dataItem.setNameInInterface(argNames[i]!);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private populateData(): void {
         // handle data comm'd through function params
         this.findDataFromParams();
@@ -144,7 +172,7 @@ export class RegularTask extends ConcreteTask {
             throw new Error(`Mismatch between number of arguments and parameters when setting alternate names for Task data`);
         }
         for (let i = 0; i < dataParams.length; i++) {
-            dataParams[i].setAlternateName(args[i]);
+            dataParams[i].setNameInPreviousTask(args[i]);
         }
     }
 }

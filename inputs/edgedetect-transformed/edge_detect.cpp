@@ -6,6 +6,7 @@
 #include <fstream>
 using namespace std;
 using namespace std::chrono;
+
 void rgbToGrayscale(int input_image[786432], int output_image[262144])
 {
     for (int i = 0; i < 512; i++)

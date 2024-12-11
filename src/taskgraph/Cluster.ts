@@ -36,6 +36,13 @@ export class Cluster {
 
     getInOuts(): [string, ClusterInOut][] {
         const inOuts: [string, ClusterInOut][] = [];
+        const names = this.getTaskUniqueName();
+        const params: string[] = [];
+
+        for (const task of this.tasks) {
+
+        }
+
 
         return inOuts;
     }

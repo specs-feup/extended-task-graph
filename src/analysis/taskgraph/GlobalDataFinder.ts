@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TaskGraph } from "../../taskgraph/TaskGraph.js";
 import { TaskGraphStat } from "./TaskGraphStat.js";
 
@@ -19,7 +20,8 @@ export class GlobalDataFinder extends TaskGraphStat {
                     "sizeInBytes": datum.getSizeInBytes(),
                     "cxxType": datum.getDatatype(),
                     "isScalar": datum.isScalar(),
-                    "alternateName": datum.getAlternateName(),
+                    "nameInInterface": datum.getNameInInterface(),
+                    "nameInPrevTask": datum.getNameInPreviousTask(),
                     "stateChanges": {
                         "isInit": datum.isInitialized(),
                         "isWritten": datum.isWritten(),

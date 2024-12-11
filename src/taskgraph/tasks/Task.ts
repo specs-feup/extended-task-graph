@@ -87,21 +87,11 @@ export abstract class Task {
     }
 
     public getDataItemByName(name: string): DataItem | null {
-        for (const datum of this.getData()) {
-            if (datum.getName() == name) {
-                return datum;
-            }
-        }
-        return null;
+        return this.getData().find((datum) => datum.getName() == name) || null;
     }
 
-    public getDataItemByAltName(name: string): DataItem | null {
-        for (const datum of this.getData()) {
-            if (datum.getAlternateName() == name) {
-                return datum;
-            }
-        }
-        return null;
+    public getDataItemByPrevTaskName(name: string): DataItem | null {
+        return this.getData().find((datum) => datum.getNameInPreviousTask() == name) || null;
     }
 
     public getParamData(): VariableDataItem[] {
@@ -179,8 +169,8 @@ export abstract class Task {
     public getOutgoingOfData(datum: DataItem): Communication[] {
         const comm = [];
         for (const communication of this.outgoingComm) {
-            if (communication.getSourceData().getName() == datum.getName() ||
-                communication.getSourceData().getAlternateName() == datum.getName()) {
+            if (communication.getSourceData().getNameInTask() == datum.getNameInTask() ||
+                communication.getSourceData().getNameInPreviousTask() == datum.getNameInTask()) {
                 comm.push(communication);
             }
         }
@@ -189,8 +179,8 @@ export abstract class Task {
 
     public getIncomingOfData(datum: DataItem): Communication | null {
         for (const communication of this.incomingComm) {
-            if (communication.getTargetData().getName() == datum.getName() ||
-                communication.getTargetData().getAlternateName() == datum.getName()) {
+            if (communication.getTargetData().getNameInTask() == datum.getNameInTask() ||
+                communication.getTargetData().getNameInPreviousTask() == datum.getNameInTask()) {
                 return communication;
             }
         }

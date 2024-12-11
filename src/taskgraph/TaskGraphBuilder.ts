@@ -106,8 +106,11 @@ export class TaskGraphBuilder extends AStage {
         // Add communications
         this.addSubgraphComm(taskGraph, task, childTasks);
 
-        // update task with R/W data from the children
+        // Update task with R/W data from the children
         this.updateTaskWithChildrenData(task, childTasks);
+
+        // Update task with interface names
+        task.updateDataItemInterfaces();
         return task;
     }
 
@@ -212,14 +215,14 @@ export class TaskGraphBuilder extends AStage {
     }
 
     private buildCommParam(childDataItem: DataItem, lastUsed: Map<string, string>, nameToTask: Map<string, Task>, childTask: Task, taskGraph: TaskGraph, rank: number): void {
-        const altName = childDataItem.getAlternateName();
+        const altName = childDataItem.getNameInPreviousTask();
         const lastUsedTaskName = lastUsed.get(altName)!;
         const lastUsedTask = nameToTask.get(lastUsedTaskName)!;
         let lastUsedDataItem = lastUsedTask.getDataItemByName(altName);
 
         // This is potentially an issue if the alt name happens to match a completely different data item
         if (lastUsedDataItem == null) {
-            lastUsedDataItem = lastUsedTask.getDataItemByAltName(altName);
+            lastUsedDataItem = lastUsedTask.getDataItemByPrevTaskName(altName);
         }
         if (lastUsedDataItem == null) {
             throw new Error(`Could not find data item ${altName} in task ${lastUsedTask.getUniqueName()}`);
@@ -253,7 +256,7 @@ export class TaskGraphBuilder extends AStage {
 
         for (const child of children) {
             for (const data of child.getParamData()) {
-                const altName = data.getAlternateName();
+                const altName = data.getNameInPreviousTask();
 
                 if (data.isWritten()) {
                     dataMap.get(altName)!.setWritten();

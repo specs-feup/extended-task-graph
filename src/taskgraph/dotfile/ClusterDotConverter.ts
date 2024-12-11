@@ -71,8 +71,10 @@ export class ClusterDotConverter {
         const tabs = "    ".repeat(level + 1);
         let dot = "";
         let globalsNeeded = false;
+        console.log(uniqueTaskNames);
 
         for (const comm of task.getIncomingComm()) {
+            console.log(comm.getSource().getUniqueName());
             if (uniqueTaskNames.includes(comm.getSource().getUniqueName())) {
                 const source = comm.getSource();
 

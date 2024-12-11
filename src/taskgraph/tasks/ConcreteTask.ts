@@ -12,14 +12,15 @@ export class ConcreteTask extends Task {
 
     constructor(type: TaskType.REGULAR | TaskType.EXTERNAL, call: Call | null, hierParent: ConcreteTask | null, name: string, delimiter = ".", prefix = "T") {
         super(type);
+        this.setName(name);
 
         const idPrefix = (hierParent != null && hierParent.getType() == TaskType.REGULAR) ?
             `${hierParent.getId()}${delimiter}` : prefix;
         const id = IdGenerator.next(idPrefix);
-
         this.setId(id);
-        this.setName(name);
+
         this.call = call;
+
         if (hierParent != null) {
             this.hierParent = hierParent;
         }
@@ -29,7 +30,6 @@ export class ConcreteTask extends Task {
         return this.call;
     }
 
-    // Repetitions
     public setRepetitions(reps: number, loopRef: Loop): void {
         this.repetitions = reps;
         this.loopRef = loopRef;
@@ -43,7 +43,6 @@ export class ConcreteTask extends Task {
         return this.loopRef;
     }
 
-    // Hierarchical stuff
     public getHierarchicalParent(): ConcreteTask | null {
         return this.hierParent;
     }

@@ -3,7 +3,10 @@ import { DataItemOrigin } from "../DataItemOrigin.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
 
 export abstract class DataItem {
-    protected name: string = "<no_name>";
+    protected nameInTask: string = "<no_name_in_task>";
+    protected nameInInterface: string = "<n/a>";
+    protected nameInPrevTask: string = "<no_name_in_prev_task>";
+
     protected isInit: boolean = false;
     protected dataIsWritten: boolean = false;
     protected dataIsRead: boolean = false;
@@ -15,18 +18,29 @@ export abstract class DataItem {
     protected datatypeSize: number = 4;
 
     protected itemOrigin: DataItemOrigin = DataItemOrigin.NEW;
-    protected alternateName: string = "<no_alt_name>";
+
     protected immediateFunctionCall: Call | null = null;
 
-    constructor(name: string, type: Type, origin: DataItemOrigin) {
-        this.name = name;
+    constructor(nameInTask: string, type: Type, origin: DataItemOrigin) {
+        this.nameInTask = nameInTask;
         this.demangleDatatype(type);
         this.itemOrigin = origin;
-        this.alternateName = this.name;
     }
 
     public getName(): string {
-        return this.name;
+        return this.getNameInTask();
+    }
+
+    public getNameInTask(): string {
+        return this.nameInTask;
+    }
+
+    public getNameInInterface(): string {
+        return this.nameInInterface;
+    }
+
+    public getNameInPreviousTask(): string {
+        return this.nameInPrevTask;
     }
 
     public getItemOriginType(): DataItemOrigin {
@@ -41,16 +55,16 @@ export abstract class DataItem {
         return this.dims;
     }
 
-    public getAlternateName(): string {
-        return this.alternateName;
-    }
-
     public getSizeInBytes(): number {
         return this.sizeInBytes;
     }
 
-    public setAlternateName(name: string) {
-        this.alternateName = name;
+    public setNameInInterface(name: string): void {
+        this.nameInInterface = name;
+    }
+
+    public setNameInPreviousTask(name: string): void {
+        this.nameInPrevTask = name;
     }
 
     public setWritten(): void {
@@ -124,7 +138,7 @@ export abstract class DataItem {
 
     public toString(): string {
         const status = !this.isInit ? "U" : (this.dataIsRead ? "R" : "") + (this.dataIsWritten ? "W" : "");
-        const refName = this.name;
+        const refName = this.nameInTask;
         return `${refName} {${this.sizeInBytes}} ${status}`;
     }
 
