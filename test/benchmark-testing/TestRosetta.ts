@@ -18,7 +18,6 @@ const apps = [
     "spam-filter"
 ];
 const settings = {
-    disableCaching: true,
     outputDir: "output/rosetta",
     codeConfig: new TransFlowConfig(),
     etgConfig: new GenFlowConfig()
@@ -30,6 +29,7 @@ settings.codeConfig.transformRecipe = [
     SubsetTransform.SwitchToIf,
     SubsetTransform.ConstantFoldingPropagation
 ];
+const disableCaching = false;
 
 const runner = new EtgSuiteRunner();
-runner.runScriptForSuite(suite, apps, settings);
+runner.runScriptForSuite(suite, apps, settings, disableCaching);
