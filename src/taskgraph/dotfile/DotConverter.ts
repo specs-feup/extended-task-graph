@@ -31,8 +31,6 @@ export class DotConverter {
         dot += `\t"${sink.getId()}" [label="${this.getLabelOfTask(sink)}", fillcolor=lightgray];\n`;
         dot += `\t"${source.getId()}" -> "${sink.getId()}" [style=invis];\n`;
 
-        dot += `\t"${globals.getId()}" [label="${this.getLabelOfTask(globals)}", fillcolor=lightgray];\n`;
-
         const topHierTask = taskGraph.getTopHierarchicalTask();
         if (topHierTask == null) {
             console.log("[DotConverter] No top hierarchical task found, cannot convert to DOT.");
@@ -48,6 +46,10 @@ export class DotConverter {
         dot += this.getDotOfEdges(taskGraph.getControlEdges(), "red");
 
         dot += "}";
+
+        if (dot.includes(`"TG"`)) {
+            dot += `\t"${globals.getId()}" [label="${this.getLabelOfTask(globals)}", fillcolor=lightgray];\n`;
+        }
         return dot;
     }
 
