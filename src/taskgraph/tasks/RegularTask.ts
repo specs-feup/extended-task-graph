@@ -1,4 +1,4 @@
-import { Call, FloatLiteral, FunctionJp, FunctionType, IntLiteral, Param, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { Call, FloatLiteral, FunctionJp, FunctionType, IntLiteral, Literal, Param, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { ConcreteTask } from "./ConcreteTask.js";
 import { TaskType } from "./TaskType.js";
@@ -37,6 +37,10 @@ export class RegularTask extends ConcreteTask {
             for (const varref of Query.searchFromInclusive(arg, Varref)) {
                 return varref.name;
             }
+            if (arg instanceof Literal) {
+                return `imm(${arg.code})`;
+            }
+            return arg.code;
         });
 
         for (const dataItem of this.getData()) {
