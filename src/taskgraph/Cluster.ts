@@ -1,5 +1,6 @@
 import { ConcreteTask } from "extended-task-graph/ConcreteTask";
 import { TopologicalSort } from "./util/TopologicalSort.js";
+import { DataItem } from "./dataitems/DataItem.js";
 
 export class Cluster {
     private name: string = "";
@@ -9,7 +10,7 @@ export class Cluster {
         this.name = name;
     }
 
-    addTask(task: ConcreteTask): boolean {
+    public addTask(task: ConcreteTask): boolean {
         if (this.tasks.length == 0) {
             this.tasks.push(task);
             return true;
@@ -22,28 +23,75 @@ export class Cluster {
         }
     }
 
-    getName(): string {
+    public getName(): string {
         return this.name;
     }
 
-    getTasks(): ConcreteTask[] {
+    public getTasks(): ConcreteTask[] {
         return this.tasks;
     }
 
-    getTaskUniqueName(): string[] {
+    public getTaskUniqueName(): string[] {
         return this.tasks.map(t => t.getUniqueName());
     }
 
-    getInOuts(): [string, ClusterInOut][] {
-        const inOuts: [string, ClusterInOut][] = [];
-        const names = this.getTaskUniqueName();
-        const params: string[] = [];
+    public getInterfaceDataItems(): Record<string, DataItem[]> {
+        const inOuts: Record<string, DataItem[]> = {};
+        const taskNames = this.getTaskUniqueName();
 
         for (const task of this.tasks) {
+            for (const comm of task.getIncomingComm()) {
+                const sourceTaskName = comm.getSource().getUniqueName();
+                const dataItemName = comm.getTargetData().getNameInInterface();
 
+                if (!taskNames.includes(sourceTaskName)) {
+                    const dataItem = comm.getTargetData();
+                    if (inOuts[dataItemName] == undefined) {
+                        inOuts[dataItemName] = [dataItem];
+                    }
+                    else {
+                        inOuts[dataItemName].push(dataItem);
+                    }
+                }
+            }
+            for (const comm of task.getOutgoingComm()) {
+                const targetTaskName = comm.getTarget().getUniqueName();
+                const dataItemName = comm.getSourceData().getNameInInterface();
+                console.log(targetTaskName);
+
+                if (!taskNames.includes(targetTaskName)) {
+                    const dataItem = comm.getSourceData();
+                    if (inOuts[dataItemName] == undefined) {
+                        inOuts[dataItemName] = [dataItem];
+                    }
+                    else {
+                        inOuts[dataItemName].push(dataItem);
+                    }
+                }
+            }
         }
+        return inOuts;
+    }
 
+    public getInOuts(): [string, ClusterInOut][] {
+        const inOuts: [string, ClusterInOut][] = [];
+        const iface = this.getInterfaceDataItems();
 
+        for (const dataItemName in iface) {
+            let isRead = false;
+            let isWrite = false;
+
+            for (const dataItem of iface[dataItemName]) {
+                if (dataItem.isRead()) {
+                    isRead = true;
+                }
+                if (dataItem.isWritten()) {
+                    isWrite = true;
+                }
+            }
+            const inOut = isRead && isWrite ? ClusterInOut.READ_WRITE : isRead ? ClusterInOut.READ : ClusterInOut.WRITE;
+            inOuts.push([dataItemName, inOut]);
+        }
         return inOuts;
     }
 }

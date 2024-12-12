@@ -29,9 +29,11 @@ try {
     cluster.addTask(t1);
     cluster.addTask(t2);
 
+    const inOuts = cluster.getInOuts();
+    console.log(inOuts);
+
     const cluster2dot = new ClusterDotConverter();
     const dot = cluster2dot.convert(cluster);
-    console.log(dot);
 
     Io.writeFile("output/use-cases/edgedetect-clustering/test-cluster.dot", dot);
     console.log("Check the output in output/use-cases/edgedetect-clustering/test-cluster.dot");
