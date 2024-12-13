@@ -1,6 +1,7 @@
 import { ConcreteTask } from "extended-task-graph/ConcreteTask";
 import { TopologicalSort } from "./util/TopologicalSort.js";
 import { DataItem } from "./dataitems/DataItem.js";
+import { Call } from "@specs-feup/clava/api/Joinpoints.js";
 
 export class Cluster {
     private name: string = "";
@@ -29,6 +30,10 @@ export class Cluster {
 
     public getTasks(): ConcreteTask[] {
         return this.tasks;
+    }
+
+    public getCalls(): Call[] {
+        return this.tasks.map(t => t.getCall()!);
     }
 
     public getTaskUniqueName(): string[] {

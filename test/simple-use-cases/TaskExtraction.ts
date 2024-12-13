@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import { ExtendedTaskGraphAPI } from "../../src/api/ExtendedTaskGraphAPI.js";
 import { TaskGraph } from "../../src/taskgraph/TaskGraph.js";
-import { ClusterExtractor } from "../../src/taskgraph/transforms/ClusterExtractor.js";
+import { TaskExtractor } from "../../src/taskgraph/transforms/TaskExtractor.js";
 import { RegularTask } from "../../src/taskgraph/tasks/RegularTask.js";
 import { GenFlowConfig } from "../../src/api/GenFlowConfig.js";
 
@@ -25,8 +25,8 @@ if (etg == null) {
 else {
     const task = etg.getTaskByName("fizzbuzz")! as RegularTask;
 
-    const ext = new ClusterExtractor();
-    ext.extractClusterFromTask(task);
+    const ext = new TaskExtractor();
+    ext.extractTask(task);
 
     api.generateSourceCode("clustered");
 

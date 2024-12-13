@@ -5,6 +5,7 @@ import { GenFlowConfig } from "../../src/api/GenFlowConfig.js";
 import { Cluster } from "../../src/taskgraph/Cluster.js";
 import { ClusterDotConverter } from "../../src/taskgraph/dotfile/ClusterDotConverter.js";
 import Io from "@specs-feup/lara/api/lara/Io.js";
+import { ClusterExtractor } from "../../src/taskgraph/transforms/ClusterExtractor.js";
 
 try {
     const config = new GenFlowConfig();
@@ -32,11 +33,16 @@ try {
     const inOuts = cluster.getInOuts();
     console.log(inOuts);
 
+    const extractor = new ClusterExtractor();
+    extractor.extractCluster(cluster, "cluster");
+
     const cluster2dot = new ClusterDotConverter();
     const dot = cluster2dot.convert(cluster);
 
     Io.writeFile("output/use-cases/edgedetect-clustering/test-cluster.dot", dot);
     console.log("Check the output in output/use-cases/edgedetect-clustering/test-cluster.dot");
+
+    api.generateSourceCode("src/clustered");
     console.log(chalk.green("Test passed") + ": Merging succeeded");
 }
 catch (e) {
