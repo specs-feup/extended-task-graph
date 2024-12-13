@@ -43,6 +43,7 @@ export class ClusterExtractor extends AExtractor {
         this.addClusterSwitch(swCall, clusterName);
 
         const wrapper = this.createWrappedFunction(swCall, entrypointHw, clusterName);
+        swCall.parent.detach();
 
         this.createExternGlobalRefs(fileJp);
 

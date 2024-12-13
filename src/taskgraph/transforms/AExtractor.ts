@@ -69,16 +69,22 @@ export abstract class AExtractor {
         const guard = ClavaJoinPoints.stmtLiteral("bool offload = true;");
         const condExpr = ClavaJoinPoints.varRef("offload", ClavaJoinPoints.type("bool"));
 
-        const wrappedName = `wrapped_${clusterPrefix}`;
-        const hwCall = ClavaJoinPoints.callFromName(wrappedName, call.function.returnType, ...call.args);
+        const hwName = `hw_${clusterPrefix}`;
+        const hwCall = ClavaJoinPoints.callFromName(hwName, call.function.returnType, ...call.args);
         const hwCallExpr = ClavaJoinPoints.exprStmt(hwCall);
         const hwCallScope = ClavaJoinPoints.scope(hwCallExpr);
         hwCallScope.naked = false;
 
-        const swCall = ClavaJoinPoints.callFromName(`${call.function.name}`, call.function.returnType, ...call.args);
+        const swName = `sw_${clusterPrefix}`;
+        const swCall = ClavaJoinPoints.callFromName(swName, call.function.returnType, ...call.args);
         const swCallExpr = ClavaJoinPoints.exprStmt(swCall);
         const swCallScope = ClavaJoinPoints.scope(swCallExpr);
         swCallScope.naked = false;
+
+        for (const cl of Query.search(Call, { name: call.name })) {
+            cl.setName(swName);
+        }
+        call.function.setName(swName);
 
         const ifStmt = ClavaJoinPoints.ifStmt(condExpr, hwCallScope, swCallScope);
         call.insertBefore(ifStmt);
@@ -87,7 +93,7 @@ export abstract class AExtractor {
 
     protected createWrappedFunction(call: Call, entrypoint: FunctionJp, clusterPrefix: string): FunctionJp {
         const callFun = call.function;
-        const wrapperFun = ClavaJoinPoints.functionDecl(`wrapped_${clusterPrefix}`, call.function.returnType, ...call.function.params);
+        const wrapperFun = ClavaJoinPoints.functionDecl(`hw_${clusterPrefix}`, call.function.returnType, ...call.function.params);
         const entrypointCall = ClavaJoinPoints.call(entrypoint, ...call.args);
 
         const stmts: Statement[] = [
