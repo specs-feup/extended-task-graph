@@ -2,13 +2,14 @@ import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
 import { ConstantDataItem } from "../dataitems/ConstantDataItem.js";
 import { VariableDataItem } from "../dataitems/VariableDataItem.js";
 import { Cluster } from "../Cluster.js";
-import { Call, FileJp, FunctionJp, Param, Statement, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { Call, ExprStmt, FileJp, FunctionJp, Param, Statement, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
 import { AExtractor } from "./AExtractor.js";
 import { RegularTask } from "../tasks/RegularTask.js";
+import Inliner from "@specs-feup/clava/api/clava/code/Inliner.js";
 
 export class ClusterExtractor extends AExtractor {
-    public extractCluster(cluster: Cluster, clusterName: string = "cluster0", fileName?: string): FunctionJp | null {
+    public extractCluster(cluster: Cluster, clusterName: string = "cluster0", fileName?: string, explicitSwCluster: boolean = false): FunctionJp | null {
         if (fileName == undefined) {
             fileName = `${clusterName}.${ClavaUtils.getCurrentFileExt()}`;
         }
@@ -33,17 +34,23 @@ export class ClusterExtractor extends AExtractor {
         }
         this.moveToNewFile(funs, fileJp, clusterName);
 
-        const swCall = this.createSwCall(entrypointSw);
-        const swCallStmt = ClavaJoinPoints.exprStmt(swCall);
-        firstCall.insertBefore(swCallStmt);
+        const tempSwCall = this.createSwCall(entrypointSw);
+        const tempSwCallStmt = ClavaJoinPoints.exprStmt(tempSwCall);
+        firstCall.insertBefore(tempSwCallStmt);
 
         for (const call of cluster.getCalls()) {
             call.parent.detach();
         }
-        this.addClusterSwitch(swCall, clusterName);
+        const ifStmt = this.addClusterSwitch(tempSwCall, clusterName);
 
-        const wrapper = this.createWrappedFunction(swCall, entrypointHw, clusterName);
-        swCall.parent.detach();
+        const wrapper = this.createWrappedFunction(tempSwCall, entrypointHw, clusterName);
+        tempSwCall.parent.detach();
+
+        if (!explicitSwCluster) {
+            const stmts = entrypointSw.body.children;
+            const scope = ClavaJoinPoints.scope(...stmts);
+            ifStmt.setElse(scope);
+        }
 
         this.createExternGlobalRefs(fileJp);
 

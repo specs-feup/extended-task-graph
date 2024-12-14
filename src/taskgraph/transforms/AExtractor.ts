@@ -1,4 +1,4 @@
-import { Body, Call, FileJp, FunctionJp, Statement, Vardecl } from "@specs-feup/clava/api/Joinpoints.js";
+import { Body, Call, FileJp, FunctionJp, If, Statement, Vardecl } from "@specs-feup/clava/api/Joinpoints.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
 import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
@@ -65,7 +65,7 @@ export abstract class AExtractor {
         return clusterFuns[0];
     }
 
-    protected addClusterSwitch(call: Call, clusterPrefix: string): void {
+    protected addClusterSwitch(call: Call, clusterPrefix: string): If {
         const guard = ClavaJoinPoints.stmtLiteral("bool offload = true;");
         const condExpr = ClavaJoinPoints.varRef("offload", ClavaJoinPoints.type("bool"));
 
@@ -89,6 +89,8 @@ export abstract class AExtractor {
         const ifStmt = ClavaJoinPoints.ifStmt(condExpr, hwCallScope, swCallScope);
         call.insertBefore(ifStmt);
         ifStmt.insertBefore(guard);
+
+        return ifStmt;
     }
 
     protected createWrappedFunction(call: Call, entrypoint: FunctionJp, clusterPrefix: string): FunctionJp {
