@@ -2,11 +2,10 @@ import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
 import { ConstantDataItem } from "../dataitems/ConstantDataItem.js";
 import { VariableDataItem } from "../dataitems/VariableDataItem.js";
 import { Cluster } from "../Cluster.js";
-import { Call, ExprStmt, FileJp, FunctionJp, Param, Statement, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { Call, FileJp, FunctionJp, Param, Statement, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
 import { AExtractor } from "./AExtractor.js";
 import { RegularTask } from "../tasks/RegularTask.js";
-import Inliner from "@specs-feup/clava/api/clava/code/Inliner.js";
 
 export class ClusterExtractor extends AExtractor {
     public extractCluster(cluster: Cluster, clusterName: string = "cluster0", fileName?: string, explicitSwCluster: boolean = false): FunctionJp | null {
@@ -53,6 +52,8 @@ export class ClusterExtractor extends AExtractor {
         }
 
         this.createExternGlobalRefs(fileJp);
+
+        this.copyIncludes(fileJp, originalFile);
 
         return wrapper;
     }

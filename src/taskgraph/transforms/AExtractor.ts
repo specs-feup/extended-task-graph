@@ -128,4 +128,12 @@ export abstract class AExtractor {
             }
         }
     }
+
+    protected copyIncludes(target: FileJp, source: FileJp): void {
+        for (const include of source.includes) {
+            const name = include.name;
+            const isAngled = include.isAngled;
+            target.addInclude(name, isAngled);
+        }
+    }
 }

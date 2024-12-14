@@ -26,6 +26,8 @@ export class TaskExtractor extends AExtractor {
 
         this.createExternGlobalRefs(fileJp);
 
+        this.copyIncludes(fileJp, originalFile);
+
         return wrapper;
     }
 }
