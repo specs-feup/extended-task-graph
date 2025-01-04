@@ -6,13 +6,9 @@ import { EtgSuiteRunner } from "./EtgSuiteRunner.js";
 
 const suite = SuiteSelector.APPS;
 const apps = [
-    // "cluster-scenario",
     // "disparity",
-    "edgedetect",
-    // "scenarioA",
-    // "scenarioB",
-    // "stresstest",
-    // "trivial"
+    //"edgedetect",
+    "llama2"
 ];
 const settings = {
     outputDir: "output/apps",
@@ -21,12 +17,14 @@ const settings = {
 }
 settings.codeConfig.transformRecipe = [
     SubsetTransform.ArrayFlattener,
-    SubsetTransform.ConstantFoldingPropagation,
+    // SubsetTransform.ConstantFoldingPropagation,
     SubsetTransform.StructDecomposition,
-    SubsetTransform.SwitchToIf,
-    SubsetTransform.ConstantFoldingPropagation
+    // SubsetTransform.SwitchToIf,
+    // SubsetTransform.ConstantFoldingPropagation
 ];
-const disableCaching = false;
+const disableCaching = true;
+settings.codeConfig.doTransforms = true;
+settings.etgConfig.enabled = false;
 
 const runner = new EtgSuiteRunner();
 runner.runScriptForSuite(suite, apps, settings, disableCaching);

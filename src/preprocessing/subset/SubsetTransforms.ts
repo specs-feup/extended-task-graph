@@ -105,15 +105,26 @@ export class ConstantFoldingPropagationTransform extends ACodeTransform {
 }
 
 export class StructDecompositionTransform extends ACodeTransform {
-    constructor(topFunction: string, silentTransforms = false) {
+    private structNames: string[];
+
+    constructor(topFunction: string, silentTransforms = false, structNames: string[] = []) {
         super(topFunction, silentTransforms, "struct decomposition");
+        this.structNames = structNames;
     }
 
     protected applyTransform(): number {
         const decomp = new StructDecomposer(this.silent);
-        const structNames = decomp.decomposeAll();
 
-        return structNames.length;
+        if (this.structNames.length > 0) {
+            this.structNames.forEach((name) => {
+                decomp.decomposeByName(name);
+            });
+            return this.structNames.length;
+        }
+        else {
+            const names = decomp.decomposeAll();
+            return names.length;
+        }
     }
 
     protected printSuccess(n: number): void {

@@ -31,6 +31,10 @@ export class ExtendedTaskGraphAPI extends AStage {
         if (!ok) {
             return null;
         }
+        if (!config.enabled) {
+            this.log("Flow was deliberately disabled, skipping...");
+            return null;
+        }
 
         const flow = new TaskGraphGenerationFlow(this.getTopFunctionName(), this.getOutputDir(), this.getAppName());
         const tg = flow.runAll(config);
@@ -87,6 +91,7 @@ export class ExtendedTaskGraphAPI extends AStage {
             this.logError("There is no loaded AST! Aborting...");
             return false;
         }
+        this.log(`Current app is ${this.getAppName()}, with top function "${this.getTopFunctionName()}"`);
 
         if (!Platforms.isLinux()) {
             const platName = Platforms.getPlatformName();
