@@ -8,7 +8,8 @@ const suite = SuiteSelector.APPS;
 const apps = [
     // "disparity",
     //"edgedetect",
-    "llama2"
+    //"llama2",
+    "llama2-transformed"
 ];
 const settings = {
     outputDir: "output/apps",
@@ -16,9 +17,9 @@ const settings = {
     etgConfig: new GenFlowConfig()
 }
 settings.codeConfig.transformRecipe = [
-    SubsetTransform.ArrayFlattener,
+    //SubsetTransform.ArrayFlattener,
     // SubsetTransform.ConstantFoldingPropagation,
-    SubsetTransform.StructDecomposition,
+    //SubsetTransform.StructDecomposition,
     // SubsetTransform.SwitchToIf,
     // SubsetTransform.ConstantFoldingPropagation
 ];
