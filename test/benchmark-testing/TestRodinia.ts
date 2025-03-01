@@ -1,4 +1,4 @@
-import { SuiteSelector } from "clava-lite-benchmarks/SuiteSelector";
+import { SuiteSelector } from "@specs-feup/clava-lite-benchmarks/SuiteSelector";
 import { SubsetTransform } from "../../src/preprocessing/subset/SubsetPreprocessor.js";
 import { TransFlowConfig } from "../../src/api/TransFlowConfig.js";
 import { GenFlowConfig } from "../../src/api/GenFlowConfig.js";

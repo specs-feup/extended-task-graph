@@ -1,7 +1,7 @@
-import { ConcreteTask } from "extended-task-graph/ConcreteTask";
 import { TopologicalSort } from "./util/TopologicalSort.js";
 import { DataItem } from "./dataitems/DataItem.js";
 import { Call } from "@specs-feup/clava/api/Joinpoints.js";
+import { ConcreteTask } from "./tasks/ConcreteTask.js";
 
 export class Cluster {
     private name: string = "";

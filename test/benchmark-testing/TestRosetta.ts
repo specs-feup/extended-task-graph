@@ -1,5 +1,5 @@
 import { SubsetTransform } from "../../src/preprocessing/subset/SubsetPreprocessor.js";;
-import { SuiteSelector } from "clava-lite-benchmarks/SuiteSelector";
+import { SuiteSelector } from "@specs-feup/clava-lite-benchmarks/SuiteSelector";
 import { TransFlowConfig } from "../../src/api/TransFlowConfig.js";
 import { GenFlowConfig } from "../../src/api/GenFlowConfig.js";
 import { EtgSuiteRunner } from "./EtgSuiteRunner.js";

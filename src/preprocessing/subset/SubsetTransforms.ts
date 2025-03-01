@@ -2,10 +2,10 @@ import { AStage } from "../../AStage.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
 import { FunctionJp, Switch } from "@specs-feup/clava/api/Joinpoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
-import { ArrayFlattener } from "clava-code-transforms/ArrayFlattener";
-import { StructDecomposer } from "clava-code-transforms/StructDecomposer";
-import { SwitchToIf } from "clava-code-transforms/SwitchToIf";
-import { FoldingPropagationCombiner } from "clava-code-transforms/FoldingPropagationCombiner";
+import { ArrayFlattener } from "@specs-feup/clava-code-transforms/ArrayFlattener";
+import { StructDecomposer } from "@specs-feup/clava-code-transforms/StructDecomposer";
+import { SwitchToIf } from "@specs-feup/clava-code-transforms/SwitchToIf";
+import { FoldingPropagationCombiner } from "@specs-feup/clava-code-transforms/FoldingPropagationCombiner";
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
 
 export abstract class ACodeTransform extends AStage {

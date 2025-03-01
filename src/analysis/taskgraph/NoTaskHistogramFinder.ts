@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TaskGraph } from "../../taskgraph/TaskGraph.js";
 import { TaskGraphStat } from "./TaskGraphStat.js";
 

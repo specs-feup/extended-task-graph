@@ -1,5 +1,3 @@
-"use strict";
-
 export enum DataItemOrigin {
     GRAPH_INPUT,
     GRAPH_OUTPUT,

@@ -1,4 +1,4 @@
-import { ArrayAccess, BinaryOp, Call, MemberAccess, ParenExpr, PointerType, UnaryOp, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { ArrayAccess, BinaryOp, Call, MemberAccess, ParenExpr, PointerType, UnaryOp, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 
 export class VarrefWriteChecker {
     private scenarios: WritingScenario[];

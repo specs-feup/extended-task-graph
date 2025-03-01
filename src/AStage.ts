@@ -190,7 +190,7 @@ export abstract class AStage {
                 format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
                 format.printf(({ timestamp, message }) => {
                     // eslint-disable-next-line no-control-regex
-                    const stripped = message.replace(/\u001b\[[0-9;]*m/g, '').replace("[ETG", "\n[ETG");
+                    const stripped = (message as string).replace(/\u001b\[[0-9;]*m/g, '').replace("[ETG", "\n[ETG");
                     return `[${timestamp}] ${stripped}`;
                 })
             )

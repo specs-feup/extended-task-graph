@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Communication } from "../../taskgraph/Communication.js";
 import { TaskGraph } from "../../taskgraph/TaskGraph.js";
 import { ConcreteTask } from "../../taskgraph/tasks/ConcreteTask.js";

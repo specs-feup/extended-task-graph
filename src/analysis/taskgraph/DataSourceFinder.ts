@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { DataItem } from "../../taskgraph/dataitems/DataItem.js";
 import { TaskGraph } from "../../taskgraph/TaskGraph.js";
 import { Task } from "../../taskgraph/tasks/Task.js";

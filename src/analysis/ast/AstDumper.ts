@@ -1,5 +1,5 @@
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
-import { BinaryOp, Call, Class, ElaboratedType, Field, FileJp, FunctionJp, IntLiteral, Joinpoint, MemberAccess, Param, Struct, TypedefDecl, UnaryOp, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { BinaryOp, Call, Class, Field, FileJp, FunctionJp, IntLiteral, Joinpoint, MemberAccess, Param, Struct, TypedefDecl, UnaryOp, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 
 export abstract class AstDumper {
     constructor() { }

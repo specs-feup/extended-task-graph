@@ -1,4 +1,4 @@
-import { LoopCharacterizer, LoopCharacterization } from "clava-code-transforms/LoopCharacterizer";
+import { LoopCharacterizer, LoopCharacterization } from "@specs-feup/clava-code-transforms/LoopCharacterizer";
 import { AStage } from "../../AStage.js";
 import { Loop, Scope } from "@specs-feup/clava/api/Joinpoints.js";
 import IdGenerator from "@specs-feup/lara/api/lara/util/IdGenerator.js";
