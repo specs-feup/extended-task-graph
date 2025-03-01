@@ -1,7 +1,7 @@
 {
-  "name": "extended-task-graph",
+  "name": "@specs-feup/extended-task-graph",
   "version": "1.0.0",
-  "author": "tiagolascasas",
+  "author": "Tiago Lascasas Santos <tiagolascasas@outlook.com> (https://tiagolascasas.dev)",
   "description": "An Extended Task Graph implementation for the Clava C/C++ to C/C++ source-to-source compiler",
   "type": "module",
   "scripts": {
@@ -48,15 +48,18 @@
     "./SubsetTransforms": "./dist/src/preprocessing/subset/SubsetTransforms.js"
   },
   "dependencies": {
-    "@specs-feup/clava": "^3.0.1",
-    "@specs-feup/lara": "^3.0.2",
-    "clava-code-transforms": "^1.0.0",
-    "clava-lite-benchmarks": "^1.0.0",
+    "@specs-feup/clava": "^3.0.8",
+    "@specs-feup/lara": "^3.0.5",
+    "@specs-feup/clava-code-transforms": "^1.0.0",
+    "@specs-feup/clava-lite-benchmarks": "^1.0.0",
     "chalk": "^5.3.0",
     "fs": "^0.0.1-security",
     "path": "^0.12.7",
     "winston": "^3.15.0"
   },
+  "files": [
+    "inputs/"
+  ],
   "devDependencies": {
     "@eslint/js": "^9.12.0",
     "@jest/globals": "^29.7.0",
