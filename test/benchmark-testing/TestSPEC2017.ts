@@ -2,9 +2,9 @@ import { SubsetTransform } from "../../src/preprocessing/subset/SubsetPreprocess
 import { TransFlowConfig } from "../../src/api/TransFlowConfig.js";
 import { GenFlowConfig } from "../../src/api/GenFlowConfig.js";
 import { EtgSuiteRunner } from "./EtgSuiteRunner.js";
-import { APPS } from "@specs-feup/clava-lite-benchmarks/BenchmarkSuites";
+import { SPEC2017 } from "@specs-feup/clava-lite-benchmarks/BenchmarkSuites";
 
-const suite = APPS;
+const suite = SPEC2017;
 const apps = [
     // "disparity",
     //"edgedetect",

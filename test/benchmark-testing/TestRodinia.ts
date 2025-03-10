@@ -1,10 +1,10 @@
-import { SuiteSelector } from "@specs-feup/clava-lite-benchmarks/SuiteSelector";
 import { SubsetTransform } from "../../src/preprocessing/subset/SubsetPreprocessor.js";
 import { TransFlowConfig } from "../../src/api/TransFlowConfig.js";
 import { GenFlowConfig } from "../../src/api/GenFlowConfig.js";
 import { EtgSuiteRunner } from "./EtgSuiteRunner.js";
+import { RODINIA } from "@specs-feup/clava-lite-benchmarks/BenchmarkSuites";
 
-const suite = SuiteSelector.RODINIA;
+const suite = RODINIA;
 const apps = [
     "backprop",
     "bfs",

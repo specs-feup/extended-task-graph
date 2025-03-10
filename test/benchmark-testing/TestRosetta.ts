@@ -1,10 +1,10 @@
 import { SubsetTransform } from "../../src/preprocessing/subset/SubsetPreprocessor.js";;
-import { SuiteSelector } from "@specs-feup/clava-lite-benchmarks/SuiteSelector";
 import { TransFlowConfig } from "../../src/api/TransFlowConfig.js";
 import { GenFlowConfig } from "../../src/api/GenFlowConfig.js";
 import { EtgSuiteRunner } from "./EtgSuiteRunner.js";
+import { ROSETTA } from "@specs-feup/clava-lite-benchmarks/BenchmarkSuites";
 
-const suite = SuiteSelector.ROSETTA;
+const suite = ROSETTA;
 const apps = [
     // not ok
     //"3d-rendering",

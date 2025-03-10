@@ -132,3 +132,4 @@ dist
 
 # TernJS port file
 .tern-port
+inputs/spec2017/
