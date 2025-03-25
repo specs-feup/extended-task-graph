@@ -19,6 +19,7 @@
     "simple:splitting": "clava dist/test/simple-use-cases/TaskSplitting.js -- clang inputs/edgedetect/",
     "simple:clusterextract": "clava dist/test/simple-use-cases/ClusterExtraction.js -- clang inputs/cluster-scenario/ClusterScenario.cpp",
     "simple:clustering": "clava dist/test/simple-use-cases/ClusterCreation.js -- clang inputs/edgedetect-transformed/",
+    "local": "clava dist/test/local-apps-testing/TestAnyApp.js -- clang inputs/fpl-spam-filter/",
     "bench:apps": "clava dist/test/benchmark-testing/TestApps.js",
     "bench:rodinia": "clava dist/test/benchmark-testing/TestRodinia.js",
     "bench:rosetta": "clava classic dist/test/benchmark-testing/TestRosetta.js -nci -nw"
