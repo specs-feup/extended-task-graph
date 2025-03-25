@@ -2,6 +2,7 @@ import { Call, FunctionJp } from "@specs-feup/clava/api/Joinpoints.js";
 import IdGenerator from "@specs-feup/lara/api/lara/util/IdGenerator.js";
 import { DotSorting } from "../../util/DotSorting.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
+import { LinesOfCodeCounter } from "./LinesOfCodeCounter.js";
 
 export class CallTreeDumper {
     private omitOperators: boolean;
@@ -36,9 +37,10 @@ ${edges}
         if (this.omitOperators && this.isCppOperator(name)) {
             return [[], []];
         }
+        const linesOfCode = LinesOfCodeCounter.countFunction(fun);
 
         const style = fun.isImplementation ? "filled" : "dotted";
-        const node = `${id} [label="${name}", style=${style}];`;
+        const node = `${id} [label="${name}\nLOC=${linesOfCode}", style=${style}];`;
 
         const nodes = [node];
         const edges = [];
