@@ -1,12 +1,10 @@
 import { AStage } from "../../AStage.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
-import { FunctionJp, Switch } from "@specs-feup/clava/api/Joinpoints.js";
-import Query from "@specs-feup/lara/api/weaver/Query.js";
+import { FunctionJp } from "@specs-feup/clava/api/Joinpoints.js";
 import { ArrayFlattener } from "@specs-feup/clava-code-transforms/ArrayFlattener";
-import { StructDecomposer } from "@specs-feup/clava-code-transforms/StructDecomposer";
-import { SwitchToIf } from "@specs-feup/clava-code-transforms/SwitchToIf";
 import { FoldingPropagationCombiner } from "@specs-feup/clava-code-transforms/FoldingPropagationCombiner";
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
+import { StructFlattener } from "@specs-feup/clava-code-transforms/StructFlattener";
 
 export abstract class ACodeTransform extends AStage {
     protected outputFriendlyName;
@@ -113,7 +111,7 @@ export class StructDecompositionTransform extends ACodeTransform {
     }
 
     protected applyTransform(): number {
-        const decomp = new StructDecomposer(this.silent);
+        const decomp = new StructFlattener(this.silent);
 
         if (this.structNames.length > 0) {
             this.structNames.forEach((name) => {
@@ -138,16 +136,18 @@ export class SwitchToIfTransform extends ACodeTransform {
     }
 
     protected applyTransform(): number {
-        const switchToIf = new SwitchToIf(this.silent);
-        let count = 0;
+        // let count = 0;
+        // const switchToIf = new SwitchToIf(this.silent);
 
-        for (const switchStmt of Query.search(Switch)) {
-            const success = switchToIf.convert(switchStmt);
-            if (success) {
-                count++;
-            }
-        }
-        return count;
+
+        // for (const switchStmt of Query.search(Switch)) {
+        //     const success = switchToIf.convert(switchStmt);
+        //     if (success) {
+        //         count++;
+        //     }
+        // }
+        // return count;
+        return 0;
     }
 
     protected printSuccess(n: number): void {

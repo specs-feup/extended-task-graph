@@ -5,69 +5,54 @@ This is an implementation of the [Extended Task Graph (ETG)](https://dl.acm.org/
  These task graphs are automatically analyzed and characterized by several metrics, and through a highly flexible granularity mechanism we can perform extensive graph operations, such as task merging, splitting and clustering, while always outputting valid and readable C/C++ source code.
 
 <div align="center">
-<img src="edgedetect.png" width="400"  >
-<p>Extended Task Graph of the edge detection application
-<a href="https://github.com/specs-feup/extended-task-graph/blob/main/inputs/edgedetect/edge_detect.cpp">in this file</a>
+<img src="edgedetect.png" width="300"  >
+<p>Extended Task Graph of the edge detection application in
+<a href="https://github.com/specs-feup/extended-task-graph/blob/main/inputs/edgedetect/edge_detect.cpp">edge_detect.cpp</a>
 </p>
 </div>
 
 ## How to install
 
-1. Start by installing these prerequisites. The ETG is developed and validated on Ubuntu 24.x, but it should work on all other OS supported by Clava and node.js. Make sure you have node.js 18 or higher installed, and optionally Graphviz to render/visualize the task graphs. For Ubuntu:
+This package is [available on NPM](https://www.npmjs.com/package/@specs-feup/extended-task-graph). Assuming you already have a [Clava-based NPM project](https://github.com/specs-feup/clava-project-template) setup, you can install the latest stable release with:
 
 ```bash
-apt update && apt upgrade -y
-sudo apt install graphviz curl -y
-curl -fsSL https://deb.nodesource.com/setup_current.x | bash -
-apt install -y nodejs
-node -v && npm -v
+npm install @specs-feup/extended-task-graph@latest
 ```
 
-2. Now, you need to create an NPM workspace for both the ETG and your own Clava-based NPM project (replace `my-proj` by your project's name):
+If you want to use unstable and experimental features, use the `staging` or `nightly` tags instead, as they are both built using the most recent commit in the repository. Nightly builds are built automatically every day, while staging builds are built on-demand:
 
 ```bash
-PROJ_NAME=my_proj  # change this
-mkdir clava-workspace
-cd workspace
-mkdir $PROJ_NAME
-git clone https://github.com/specs-feup/extended-task-graph
-git clone https://github.com/tiagolascasas/clava-js-code-transforms
-cat <<EOF > package.json
-{
-  "name": "clava-workspace",
-  "version": "1.0.0",
-  "private": true,
-  "workspaces": [
-    "extended-task-graph",
-    "clava-js-code-transformations",
-    "$PROJ_NAME"
-}
-EOF
-npm install
-cd clava-js-code-transforms
-npm run build
-cd ../extended-task-graph
-npm run build
-cd ..
+npm install @specs-feup/extended-task-graph@nightly
 ```
 
-3. In your project folder, make sure you are including both the Clava package, as well as the ETG package. An easy way to bootstrap your Clava-based project is to use [this template](https://github.com/specs-feup/clava-project-template). Regardless, make sure you end up with a `package.json` whose `name` field matches the name of the folder and with these two dependencies:
+## Basic usage
 
-```json
-{
-    "name": "my_proj",
-    "dependencies": {
-        "@specs-feup/clava": "3.0.1",
-        "extended-task-graph": "^1.0.0",
-    }
-}
+To build an ETG for a given application, you can run something like this:
+
+```TypeScript
+import { ExtendedTaskGraphAPI } from "@specs-feup/extended-task-graph/ExtendedTaskGraphAPI";
+import { GenFlowConfig } from "@specs-feup/extended-task-graph/GenFlowConfig";
+import { TransFlowConfig } from "@specs-feup/extended-task-graph/TransFlowConfig";
+
+const topFunctionName = "edge_detect";
+const outputDir = "outputs";
+const appName = "edge_detect";
+const api = new ExtendedTaskGraphAPI(topFunctionName, outputDir, appName);
+
+// Run code transformation flow
+const config1 = new TransFlowConfig();  // You can omit the configs if you don't change anything
+api.runCodeTransformationFlow(config1);
+
+// Run ETG generation flow
+const config2 = new GenFlowConfig();
+const etg = api.runTaskGraphGenerationFlow(config2);
 ```
 
-4. In your own project, you can begin to use both the Clava API and the ETG for your own purposes. You can check the examples in [this folder](https://github.com/specs-feup/extended-task-graph/tree/main/test/simple-use-cases) to see how to use the ETG API in your own scripts. You can run these examples examples by going to the `extended-task-graph` directory and running `npm run`, which lists the command required for each use case (e.g., `npm run simple:etg` generates an ETG for a provided edge detection application).
+This package offers more than this simple example. Check [this folder](https://github.com/specs-feup/extended-task-graph/tree/main/test/simple-use-cases) to see more use cases.
 
-### Outputs
+### Output folders
 
-Under normal usage (i.e., running the entire flow from code preprocessing, task graph generation and subsequent extraction of metrics) the extension outputs the following folders:
+Under normal usage (i.e., running the entire flow from code preprocessing, task graph generation and subsequent extraction of metrics) this package outputs the following folders:
 
 ```
 <app name>

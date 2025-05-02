@@ -7,9 +7,10 @@ import { APPS } from "@specs-feup/clava-lite-benchmarks/BenchmarkSuites";
 const suite = APPS;
 const apps = [
     // "disparity",
+    "doom",
     //"edgedetect",
     //"llama2",
-    "llama2-transformed"
+    //"llama2-transformed"
 ];
 const settings = {
     outputDir: "output/apps",

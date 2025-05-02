@@ -2,8 +2,9 @@
   "name": "@specs-feup/extended-task-graph",
   "version": "1.0.0",
   "author": "Tiago Lascasas Santos <tiagolascasas@outlook.com> (https://tiagolascasas.dev)",
-  "description": "An Extended Task Graph implementation for the Clava C/C++ to C/C++ source-to-source compiler",
+  "description": "An Extended Task Graph (ETG) implementation for the Clava C/C++ to C/C++ source-to-source compiler",
   "type": "module",
+  "private": false,
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
@@ -20,10 +21,11 @@
     "simple:clusterextract": "clava dist/test/simple-use-cases/ClusterExtraction.js -- clang inputs/cluster-scenario/ClusterScenario.cpp",
     "simple:clustering": "clava dist/test/simple-use-cases/ClusterCreation.js -- clang inputs/edgedetect-transformed/",
     "local": "npx clava dist/test/local-apps-testing/TestAnyApp.js -- clang inputs/edgedetect/",
-    "local-spam-filter": "npx clava dist/test/local-apps-testing/TestSpamFilter.js -- clang inputs/spam-filter/",
-    "local-disparity": "npx clava dist/test/local-apps-testing/TestDisparity.js -- clang inputs/disparity/",
-    "local-llama2": "npx clava dist/test/local-apps-testing/TestLlama2.js -- clang inputs/llama2/",
-    "bench:apps": "clava dist/test/benchmark-testing/TestApps.js",
+    "local:spam-filter": "npx clava dist/test/local-apps-testing/TestSpamFilter.js -- clang inputs/spam-filter/",
+    "local:disparity-region": "npx clava dist/test/local-apps-testing/TestDisparityRegion.js -- clang inputs/disparity-region/",
+    "local:disparity-static": "npx clava dist/test/local-apps-testing/TestDisparityMallocStatic.js -- clang inputs/disparity-malloc-static/",
+    "local:llama2": "clava classic dist/test/local-apps-testing/TestLlama2.js -p inputs/llama2/ -std c11",
+    "bench:apps": "npx clava dist/test/benchmark-testing/TestApps.js",
     "bench:rodinia": "clava dist/test/benchmark-testing/TestRodinia.js",
     "bench:rosetta": "clava classic dist/test/benchmark-testing/TestRosetta.js -nci -nw"
   },
@@ -55,18 +57,18 @@
     "@specs-feup/clava": "^3.0.8",
     "@specs-feup/lara": "^3.0.5",
     "@specs-feup/clava-code-transforms": "^1.0.0",
-    "@specs-feup/clava-lite-benchmarks": "^1.0.0",
     "chalk": "^5.3.0",
     "fs": "^0.0.1-security",
     "path": "^0.12.7",
     "winston": "^3.15.0"
   },
   "files": [
-    "inputs/"
+    "dist/src"
   ],
   "devDependencies": {
     "@eslint/js": "^9.12.0",
     "@jest/globals": "^29.7.0",
+    "@specs-feup/clava-lite-benchmarks": "^1.0.0",
     "@types/jest": "^29.5.12",
     "@types/node": "^22.7.5",
     "@typescript-eslint/eslint-plugin": "^7.16.0",
@@ -82,5 +84,9 @@
     "typedoc": "^0.26.4",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.9.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/specs-feup/extended-task-graph.git"
   }
 }
