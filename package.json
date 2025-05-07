@@ -18,7 +18,6 @@
     "simple:allflows": "clava dist/test/simple-use-cases/AllFlows.js -- clang inputs/edgedetect/",
     "simple:merging": "clava dist/test/simple-use-cases/TaskMerging.js -- clang inputs/edgedetect/",
     "simple:splitting": "clava dist/test/simple-use-cases/TaskSplitting.js -- clang inputs/edgedetect/",
-    "simple:clusterextract": "clava dist/test/simple-use-cases/ClusterExtraction.js -- clang inputs/cluster-scenario/ClusterScenario.cpp",
     "simple:clustering": "clava dist/test/simple-use-cases/ClusterCreation.js -- clang inputs/edgedetect-transformed/",
     "local": "npx clava dist/test/local-apps-testing/TestAnyApp.js -- clang inputs/edgedetect/",
     "local:spam-filter": "npx clava dist/test/local-apps-testing/TestSpamFilter.js -- clang inputs/spam-filter/",
