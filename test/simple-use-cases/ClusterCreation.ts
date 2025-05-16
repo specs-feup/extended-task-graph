@@ -34,7 +34,7 @@ try {
     console.log(inOuts);
 
     const extractor = new ClusterExtractor();
-    extractor.extractCluster(cluster, "cluster");
+    extractor.extractCluster(cluster, "selected_cluster");
 
     const cluster2dot = new ClusterDotConverter();
     const dot = cluster2dot.convert(cluster);

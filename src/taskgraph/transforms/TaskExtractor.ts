@@ -9,6 +9,6 @@ export class TaskExtractor extends ClusterExtractor {
         const cluster = new Cluster(clusterName);
         cluster.addTask(task);
 
-        return this.extractCluster(cluster, clusterName, fileName, true);
+        return this.extractCluster(cluster, clusterName, fileName);
     }
 }
