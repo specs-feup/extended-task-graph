@@ -62,7 +62,6 @@ export class Cluster {
             for (const comm of task.getOutgoingComm()) {
                 const targetTaskName = comm.getTarget().getUniqueName();
                 const dataItemName = comm.getSourceData().getNameInInterface();
-                console.log(targetTaskName);
 
                 if (!taskNames.includes(targetTaskName)) {
                     const dataItem = comm.getSourceData();
