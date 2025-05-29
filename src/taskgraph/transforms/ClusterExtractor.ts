@@ -2,7 +2,7 @@ import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
 import { ConstantDataItem } from "../dataitems/ConstantDataItem.js";
 import { VariableDataItem } from "../dataitems/VariableDataItem.js";
 import { Cluster } from "../Cluster.js";
-import { Body, Call, FileJp, FunctionJp, If, Param, Statement, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { Body, Call, FileJp, FunctionJp, Param, Statement, Vardecl } from "@specs-feup/clava/api/Joinpoints.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
 import { RegularTask } from "../tasks/RegularTask.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
@@ -190,34 +190,6 @@ export class ClusterExtractor {
             }
         }
         return clusterFuns[0];
-    }
-
-    private addClusterSwitch(call: Call, clusterPrefix: string): If {
-        const guard = ClavaJoinPoints.stmtLiteral("bool offload = true;");
-        const condExpr = ClavaJoinPoints.varRef("offload", ClavaJoinPoints.type("bool"));
-
-        const hwName = `hw_${clusterPrefix}`;
-        const hwCall = ClavaJoinPoints.callFromName(hwName, call.function.returnType, ...call.args);
-        const hwCallExpr = ClavaJoinPoints.exprStmt(hwCall);
-        const hwCallScope = ClavaJoinPoints.scope(hwCallExpr);
-        hwCallScope.naked = false;
-
-        const swName = `sw_${clusterPrefix}`;
-        const swCall = ClavaJoinPoints.callFromName(swName, call.function.returnType, ...call.args);
-        const swCallExpr = ClavaJoinPoints.exprStmt(swCall);
-        const swCallScope = ClavaJoinPoints.scope(swCallExpr);
-        swCallScope.naked = false;
-
-        for (const cl of Query.search(Call, { name: call.name })) {
-            cl.setName(swName);
-        }
-        call.function.setName(swName);
-
-        const ifStmt = ClavaJoinPoints.ifStmt(condExpr, hwCallScope, swCallScope);
-        call.insertBefore(ifStmt);
-        ifStmt.insertBefore(guard);
-
-        return ifStmt;
     }
 
     private createBridgeFunction(hwEntrypoint: FunctionJp, clusterPrefix: string): FunctionJp {
