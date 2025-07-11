@@ -89,7 +89,7 @@ export class ReplicaCreator extends AStage {
         return instances;
     }
 
-    public createReplicas(calls: Call[]): number {
+    public createReplicas(calls: Call[], removeOriginal: boolean = false): number {
         const fun = calls[0].function;
 
         let id = 0;
@@ -99,7 +99,9 @@ export class ReplicaCreator extends AStage {
                 id++;
             }
         }
-        fun.detach();
+        if (removeOriginal) {
+            fun.detach();
+        }
 
         return id;
     }
