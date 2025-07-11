@@ -1,6 +1,7 @@
 import { BinaryOp, Comment, DeclStmt, LabelStmt, Scope, StorageClass, Vardecl, Varref, WrapperStmt } from "@specs-feup/clava/api/Joinpoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { AStage } from "../../AStage.js";
+import { ScopeFlattener } from "@specs-feup/clava-code-transforms/ScopeFlattener";
 
 export class CodeSanitizer extends AStage {
     constructor(topFunction: string) {
@@ -20,7 +21,23 @@ export class CodeSanitizer extends AStage {
         const brackets = this.forceBracketsInScopes();
         this.log(brackets > 0 ? `Forced brackets in ${brackets} scopes` : "No scopes to force brackets in");
 
+        const flattenedFuns = this.flattenAllScopes();
+        this.log(flattenedFuns > 0 ? `Flattened scopes in ${flattenedFuns} functions` : "No scopes to flatten");
+
         this.logSuccess("Sanitized code");
+    }
+
+    public flattenAllScopes(): number {
+        let nFun = 0;
+        const sf = new ScopeFlattener();
+        for (const fun of this.getValidFunctions()) {
+            const n = sf.flattenAllInFunction(fun);
+            if (n > 0) {
+                this.log(`Flattened ${n} scopes in function ${fun.name}`);
+                nFun++;
+            }
+        }
+        return nFun;
     }
 
     // removes statements like "a = a;"

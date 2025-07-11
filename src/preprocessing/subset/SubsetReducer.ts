@@ -2,7 +2,7 @@ import { AStage } from "../../AStage.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
 import StatementDecomposer from "@specs-feup/clava/api/clava/code/StatementDecomposer.js";
 import NormalizeToSubset from "@specs-feup/clava/api/clava/opt/NormalizeToSubset.js";
-import { BinaryOp, Body, FunctionJp, If, Joinpoint, Loop, Scope, Statement } from "@specs-feup/clava/api/Joinpoints.js";
+import { BinaryOp, Body, If, Joinpoint, Loop, Scope, Statement } from "@specs-feup/clava/api/Joinpoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 
 export class SubsetReducer extends AStage {
@@ -57,10 +57,6 @@ export class SubsetReducer extends AStage {
             nPasses++;
         }
         this.log(`Decomposed statements in ${nPasses} pass${nPasses > 1 ? "es" : ""}`);
-    }
-
-    private getValidFunctions(): FunctionJp[] {
-        return ClavaUtils.getAllUniqueFunctions(this.getTopFunctionJoinPoint());
     }
 
     private matchesATemplate(stmt: Statement): boolean {

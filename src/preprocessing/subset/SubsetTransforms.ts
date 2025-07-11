@@ -55,10 +55,6 @@ export abstract class ACodeTransform extends AStage {
             .trim();
     }
 
-    protected getValidFunctions(): FunctionJp[] {
-        return ClavaUtils.getAllUniqueFunctions(this.getTopFunctionJoinPoint());
-    }
-
     protected abstract applyTransform(): number;
 
     protected abstract printSuccess(n: number): void;

@@ -35,6 +35,10 @@ export abstract class AStage {
         return Query.search(FunctionJp, { name: this.getTopFunctionName(), isImplementation: true }).first() as FunctionJp;
     }
 
+    public getValidFunctions(): FunctionJp[] {
+        return ClavaUtils.getAllUniqueFunctions(this.getTopFunctionJoinPoint());
+    }
+
     public setAppName(appName: string): void {
         this.appName = appName;
     }

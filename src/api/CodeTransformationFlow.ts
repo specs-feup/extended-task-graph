@@ -26,12 +26,6 @@ export class CodeTransformationFlow extends AStage {
         this.log("Compressed the AST for better performance");
 
         this.initialAnalysis(config.dumpCallGraph, config.dumpAST);
-
-        if (!config.doTransforms) {
-            this.log("Transformations disabled, ending here");
-            this.logEnd();
-            return true;
-        }
         this.logLine();
 
         const valid = this.subsetPreprocessing(config.transformRecipe, config.silentTransforms);
@@ -43,6 +37,12 @@ export class CodeTransformationFlow extends AStage {
         this.logSuccess("Subset preprocessing finished successfully!");
         this.logLine();
 
+        if (!config.doTransforms) {
+            this.taskPreprocessingOnlyReplicas();
+            this.generateTaskCode();
+            this.logEnd();
+            return true;
+        }
         this.taskPreprocessing();
         this.generateTaskCode();
         this.logSuccess("Task preprocessing finished successfully!");
@@ -116,6 +116,16 @@ export class CodeTransformationFlow extends AStage {
 
         const preprocessor = new TaskPreprocessor(topFun, outDir, appName);
         preprocessor.preprocess();
+    }
+
+    public taskPreprocessingOnlyReplicas(): void {
+        this.log("Running task preprocessing step (only function replicas)");
+        const outDir = this.getOutputDir();
+        const appName = this.getAppName();
+        const topFun = this.getTopFunctionName();
+
+        const preprocessor = new TaskPreprocessor(topFun, outDir, appName);
+        preprocessor.createFunctionReplicas();
     }
 
     public intermediateAnalysis(dumpCallGraph: boolean, dumpAST: boolean): void {
