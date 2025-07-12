@@ -4,6 +4,7 @@ import { AStage } from "../../AStage.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { DefaultSuffix } from "../../api/PreSuffixDefaults.js";
+import IdGenerator from "@specs-feup/lara/api/lara/util/IdGenerator.js";
 
 export class ReplicaCreator extends AStage {
     constructor(topFunctionName: string) {
@@ -92,23 +93,25 @@ export class ReplicaCreator extends AStage {
     public createReplicas(calls: Call[], removeOriginal: boolean = false): number {
         const fun = calls[0].function;
 
-        let id = 0;
+        let n = 0;
         for (const call of calls) {
-            const success = this.replicate(call, id);
+            const success = this.replicate(call);
             if (success) {
-                id++;
+                n++;
             }
         }
         if (removeOriginal) {
             fun.detach();
         }
 
-        return id;
+        return n;
     }
 
-    public replicate(call: Call, id: number) {
+    public replicate(call: Call) {
         const fun = call.function;
-        const clone = fun.clone(`${fun.name}${DefaultSuffix.REPLICA_FUN}${id}`);
+        const baseName = `${fun.name}${DefaultSuffix.REPLICA_FUN}`;
+        const fullName = IdGenerator.next(baseName);
+        const clone = fun.clone(fullName);
 
         const argList = call.argList;
         const newCall = ClavaJoinPoints.call(clone, ...argList);
