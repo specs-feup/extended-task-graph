@@ -1,4 +1,4 @@
-import { BinaryOp, Comment, DeclStmt, LabelStmt, Scope, StorageClass, Vardecl, Varref, WrapperStmt } from "@specs-feup/clava/api/Joinpoints.js";
+import { BinaryOp, Comment, DeclStmt, FunctionJp, LabelStmt, Scope, StorageClass, Vardecl, Varref, WrapperStmt } from "@specs-feup/clava/api/Joinpoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { AStage } from "../../AStage.js";
 import { ScopeFlattener } from "@specs-feup/clava-code-transforms/ScopeFlattener";
@@ -24,7 +24,23 @@ export class CodeSanitizer extends AStage {
         const flattenedFuns = this.flattenAllScopes();
         this.log(flattenedFuns > 0 ? `Flattened scopes in ${flattenedFuns} functions` : "No scopes to flatten");
 
+        const funDeclsInFuns = this.removeFunctionDeclsInFunctions();
+        this.log(funDeclsInFuns > 0 ? `Removed ${funDeclsInFuns} function declarations in functions` : "No function declarations to remove");
+
         this.logSuccess("Sanitized code");
+    }
+
+    public removeFunctionDeclsInFunctions(): number {
+        let count: number = 0;
+
+        for (const fun of this.getValidFunctions()) {
+            const toRemove = Query.searchFrom(fun.body, FunctionJp, { isImplementation: false }).get();
+            toRemove.forEach((decl) => {
+                decl.parent.detach();
+            });
+            count += toRemove.length;
+        }
+        return count;
     }
 
     public flattenAllScopes(): number {
