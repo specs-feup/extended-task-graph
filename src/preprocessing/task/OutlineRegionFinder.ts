@@ -185,6 +185,9 @@ export class OutlineRegionFinder extends AStage {
                     currRegion = [];
                 }
             }
+            else if (stmt instanceof ReturnStmt) {
+                break;
+            }
             else {
                 currRegion.push(stmt as Statement);
             }
