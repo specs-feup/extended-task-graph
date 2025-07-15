@@ -15,7 +15,7 @@ export class TaskPreprocessor extends AStage {
         this.createFunctionReplicas();
         this.outlineAll();
         this.ensureVoidReturns();
-        this.insertTimer();
+        //this.insertTimer();
     }
 
     public ensureVoidReturns(): void {

@@ -4,7 +4,6 @@ import { SubsetPreprocessor } from "../preprocessing/subset/SubsetPreprocessor.j
 import { TaskPreprocessor } from "../preprocessing/task/TaskPreprocessor.js";
 import { ClavaUtils } from "../util/ClavaUtils.js";
 import { ApplicationAnalyser } from "../analysis/ast/ApplicationAnalyser.js";
-import Clava from "@specs-feup/clava/api/clava/Clava.js";
 import { AppDumpOutput, SourceCodeOutput } from "./OutputDirectories.js";
 import { TransFlowConfig } from "./TransFlowConfig.js";
 
@@ -48,12 +47,12 @@ export class CodeTransformationFlow extends AStage {
         this.logSuccess("Task preprocessing finished successfully!");
         this.logLine();
 
-        Clava.pushAst();
-        this.applyProfilingInstrumentation();
-        this.generateInstrumentedCode();
-        this.logSuccess("Instrumentation finished successfully!");
-        this.logLine();
-        Clava.popAst();
+        // Clava.pushAst();
+        // this.applyProfilingInstrumentation();
+        // this.generateInstrumentedCode();
+        // this.logSuccess("Instrumentation finished successfully!");
+        // this.logLine();
+        // Clava.popAst();
 
         this.intermediateAnalysis(config.dumpCallGraph, config.dumpAST);
         this.logLine();
