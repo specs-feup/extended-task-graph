@@ -35,6 +35,7 @@ export class OutlineRegionFinder extends AStage {
                 this.log(fun.name + ": found " + funRegions.length + " outlining regions");
             }
         }
+        this.log(`Found ${regions.length} outlining regions in total`);
         const filteredRegions = this.filterRegions(regions);
 
         const wrappedRegion: Statement[][] = [];
@@ -115,6 +116,7 @@ export class OutlineRegionFinder extends AStage {
         outliner.outlineWithName(start, end, fname);
         start.detach();
         end.detach();
+        this.log(`Outlined region into function "${fname}"`);
     }
 
     private filterRegions(regions: Statement[][]): Statement[][] {
@@ -241,7 +243,7 @@ export class OutlineRegionFinder extends AStage {
 
     private hasFunctionCalls(jp: Joinpoint): boolean {
         if (jp instanceof Call) {
-            const isValidExternal = ExternalFunctionsMatcher.isValidExternal(jp.function);
+            const isValidExternal = ExternalFunctionsMatcher.isValidExternal(jp);
             return !isValidExternal;
         }
 

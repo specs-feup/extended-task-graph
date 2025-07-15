@@ -509,31 +509,25 @@ export class ExternalFunctionsMatcher {
     }
 
     private static isFromGeneric(funOrCall: FunctionJp | Call, funList: Record<string, string[] | string[][]>): boolean {
-        const fun = funOrCall instanceof FunctionJp ? funOrCall : funOrCall.function;
+        const name = funOrCall.name;
+        const paramTypes = ((funOrCall instanceof Call) ? funOrCall.args : funOrCall.params).map(param => param.type.code);
 
-        if (Object.prototype.hasOwnProperty.call(funList, fun.name)) {
-            const funParams = fun.params;
-
-            const overloading = Array.isArray(funList[fun.name][0]);
-            const builtinParams = [];
-            if (!overloading) {
-                builtinParams.push(funList[fun.name]);
-            }
-            else {
-                builtinParams.push(...funList[fun.name]);
-            }
-
-            for (const builtinParamOption of builtinParams) {
-                let valid = true;
-                for (let i = 0; i < funParams.length; i++) {
-                    const funParam = funParams[i].type.code;
-                    const builtinParam = builtinParamOption[i];
-                    if (funParam !== builtinParam) {
-                        valid = false;
+        for (const funName in funList) {
+            if (name === funName) {
+                const possibleParams = Array.isArray(funList[funName]) ? [funList[funName]] : funList[funName];
+                for (const params of possibleParams) {
+                    if (params.length === paramTypes.length) {
+                        let valid = true;
+                        for (let i = 0; i < params.length; i++) {
+                            if (params[i] !== paramTypes[i]) {
+                                valid = false;
+                                break;
+                            }
+                        }
+                        if (valid) {
+                            return true;
+                        }
                     }
-                }
-                if (valid) {
-                    return true;
                 }
             }
         }
