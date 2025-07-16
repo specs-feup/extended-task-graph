@@ -65,9 +65,7 @@ export class ApplicationAnalyser extends AStage {
 
     public dumpCallGraph(startFromMain = true): void {
         const dumper = new CallGraphDumper();
-        const topFun = startFromMain ?
-            Query.search(FunctionJp, { name: "main" }).first()! :
-            this.getTopFunctionJoinPoint();
+        const topFun = this.getStartingPoint(startFromMain);
 
         const dot1 = dumper.dump(topFun, DotSorting.TOP_TO_BOTTOM);
         const path1 = this.saveToFile(dot1, "callgraph_tb.dot");
@@ -80,9 +78,7 @@ export class ApplicationAnalyser extends AStage {
 
     public dumpCallTree(startFromMain = true): void {
         const dumper = new CallTreeDumper();
-        const topFun = startFromMain ?
-            Query.search(FunctionJp, { name: "main" }).first()! :
-            this.getTopFunctionJoinPoint();
+        const topFun = this.getStartingPoint(startFromMain);
 
         const dot1 = dumper.dump(topFun, DotSorting.TOP_TO_BOTTOM);
         const path1 = this.saveToFile(dot1, "calltree_tb.dot");
@@ -91,6 +87,24 @@ export class ApplicationAnalyser extends AStage {
         const dot2 = dumper.dump(topFun, DotSorting.LEFT_TO_RIGHT);
         const path2 = this.saveToFile(dot2, "calltree_lr.dot");
         this.logOutput("Call tree LR dumped to", path2);
+    }
+
+    private getStartingPoint(startFromMain: boolean): FunctionJp {
+        if (startFromMain) {
+            const mains = Query.search(FunctionJp).get().filter(f => f.name == "main" && f.isImplementation);
+            if (mains.length == 0) {
+                this.logWarning("No main function found, using top function instead");
+                return this.getTopFunctionJoinPoint();
+            }
+            else if (mains.length > 1) {
+                this.logWarning("Multiple main functions found, using the first one");
+                return mains[0];
+            }
+            else {
+                return mains[0];
+            }
+        }
+        return this.getTopFunctionJoinPoint();
     }
 
     public generateStatistics(): void {
