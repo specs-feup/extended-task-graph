@@ -40,7 +40,7 @@ export class OutlineRegionFinder extends AStage {
 
         const wrappedRegion: Statement[][] = [];
         for (const region of filteredRegions) {
-            wrappedRegion.push(this.wrapRegion(region));
+            wrappedRegion.push(this.wrapRegion(region, false));
         }
 
         for (const region of wrappedRegion) {
@@ -97,7 +97,7 @@ export class OutlineRegionFinder extends AStage {
             return outlinedCount;
         }
         else {
-            const wrappedRegion = this.wrapRegion(scope.children as Statement[]);
+            const wrappedRegion = this.wrapRegion(scope.children as Statement[], true);
             this.outlineRegion(wrappedRegion, DefaultPrefix.OUTLINED_LOOP);
 
             return outlinedCount + 1;
@@ -105,15 +105,16 @@ export class OutlineRegionFinder extends AStage {
     }
 
     private outlineRegion(wrappedRegion: Statement[], prefix: string): void {
-        const start = wrappedRegion[0];
-        const end = wrappedRegion[wrappedRegion.length - 1];
+        const start = wrappedRegion[0] as WrapperStmt;
+        const end = wrappedRegion[wrappedRegion.length - 1] as WrapperStmt;
 
         const outliner = new Outliner(true);
         outliner.setDefaultPrefix(prefix);
 
         const fname = IdGenerator.next(prefix);
 
-        outliner.outlineWithName(start, end, fname);
+        //outliner.outlineWithName(start, end, fname);
+        outliner.outlineWithWrappers(start, end);
         start.detach();
         end.detach();
         this.log(`Outlined region into function "${fname}"`);
@@ -208,9 +209,11 @@ export class OutlineRegionFinder extends AStage {
         return regions;
     }
 
-    private wrapRegion(region: Statement[]): Statement[] {
+    private wrapRegion(region: Statement[], isLoop: boolean = false): Statement[] {
         const start = region[0];
         const end = region[region.length - 1];
+        const parenFun = start.getAncestor("function") as FunctionJp;
+        const prefix = (parenFun ? parenFun.name : "_noname") + (isLoop ? "_loop" : "_out");
 
         // ensure that wrapping outline regions is idempotent, that is,
         // if a region is already wrapped, we don't wrap it again
@@ -222,17 +225,17 @@ export class OutlineRegionFinder extends AStage {
         if (start instanceof WrapperStmt && end instanceof WrapperStmt) {
             const pragmaStart = start.children[0].code;
             const pragmaEnd = end.children[0].code;
-            const idStart = pragmaStart.match(/#pragma clava_outline_begin (.*)/)![1];
-            const idEnd = pragmaEnd.match(/#pragma clava_outline_end (.*)/)![1];
+            const idStart = pragmaStart.match(/#pragma clava begin_outline (.*)/)![1];
+            const idEnd = pragmaEnd.match(/#pragma clava end_outline (.*)/)![1];
 
             if (idStart == idEnd) {
                 return region;
             }
         }
 
-        const id = IdGenerator.next("OL");
-        const beginWrapper = ClavaJoinPoints.stmtLiteral(`#pragma clava_outline_begin ${id}\n`);
-        const endWrapper = ClavaJoinPoints.stmtLiteral(`#pragma clava_outline_end ${id}\n`);
+        const id = IdGenerator.next(prefix);
+        const beginWrapper = ClavaJoinPoints.stmtLiteral(`#pragma clava begin_outline ${id}\n`);
+        const endWrapper = ClavaJoinPoints.stmtLiteral(`#pragma clava end_outline ${id}\n`);
 
         start.insertBefore(beginWrapper);
         end.insertAfter(endWrapper);
