@@ -32,7 +32,7 @@ export class SubsetPreprocessor extends AStage {
 
         this.sanitizeCodePostSubset();
 
-        this.generateCode(`${this.intermediateDir}/t0-normalization`);
+        this.generateCode(`${this.intermediateDir}-t0-normalization`);
 
         this.applyCodeTransformations(recipe, silentTransforms);
         return true;
@@ -77,7 +77,7 @@ export class SubsetPreprocessor extends AStage {
             transCnt++;
 
             const id = `t${transCnt}-${transformInstance.getName()}`;
-            const dir = `${this.intermediateDir}/${id}`;
+            const dir = `${this.intermediateDir}-${id}`;
             if (success) {
                 this.generateCode(dir);
             }

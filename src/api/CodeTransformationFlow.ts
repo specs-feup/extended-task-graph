@@ -32,18 +32,10 @@ export class CodeTransformationFlow extends AStage {
             this.logError("Critical error, aborting...");
             return false;
         }
-        this.generateSubsetCode();
         this.logSuccess("Subset preprocessing finished successfully!");
         this.logLine();
 
-        if (!config.doTransforms) {
-            this.taskPreprocessingOnlyReplicas();
-            this.generateTaskCode();
-            this.logEnd();
-            return true;
-        }
         this.taskPreprocessing();
-        this.generateTaskCode();
         this.logSuccess("Task preprocessing finished successfully!");
         this.logLine();
 

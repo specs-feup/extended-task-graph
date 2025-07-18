@@ -8,10 +8,11 @@ import { ExternalFunctionsMatcher } from "../../util/ExternalFunctionsMatcher.js
 import { Outliner } from "@specs-feup/clava-code-transforms/Outliner";
 import { DefaultPrefix } from "../../api/PreSuffixDefaults.js";
 import { OutlineRegionValidator } from "./OutlineRegionValidator.js";
+import { SourceCodeOutput } from "../../api/OutputDirectories.js";
 
 export class OutlineRegionFinder extends AStage {
-    constructor(topFunction: string) {
-        super("TransFlow-TaskPrep-Outliner", topFunction);
+    constructor(topFunction: string, outputDir: string, appName: string) {
+        super("TransFlow-TaskPrep-Outliner", topFunction, outputDir, appName);
     }
 
     public outlineGenericRegions(): number {
@@ -42,12 +43,14 @@ export class OutlineRegionFinder extends AStage {
         for (const region of filteredRegions) {
             wrappedRegion.push(this.wrapRegion(region, false));
         }
+        this.generateIntermediateCode("t1-outlining-gen-pre", "generic annotated outlining regions");
 
         for (const region of wrappedRegion) {
             this.outlineRegion(region, DefaultPrefix.OUTLINED_FUN);
         }
 
-        this.log("Finished annotating generic outlining regions")
+        this.log("Finished annotating generic outlining regions");
+        this.generateIntermediateCode("t1-outlining-gen-post", "generic outlined regions");
         return wrappedRegion.length;
     }
 
@@ -63,7 +66,14 @@ export class OutlineRegionFinder extends AStage {
             }
         }
         this.log("Finished annotating loop outlining regions");
+        this.generateIntermediateCode("t1-outlining-loop", "loop outlined regions");
         return outlinedCount;
+    }
+
+    private generateIntermediateCode(subfolder: string, message: string): void {
+        const dir = `${SourceCodeOutput.SRC_PARENT}/${SourceCodeOutput.SRC_TASKS}-${subfolder}`;
+        const path = this.generateCode(dir);
+        this.logOutput(`Source code with ${message} written to `, path);
     }
 
     private handleLoopRegion(loop: Loop): number {

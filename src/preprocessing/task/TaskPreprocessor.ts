@@ -5,6 +5,7 @@ import { OutlineRegionFinder } from "./OutlineRegionFinder.js";
 import { DefaultPrefix } from "../../api/PreSuffixDefaults.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
 import { Voidifier } from "@specs-feup/clava-code-transforms/Voidifier";
+import { SourceCodeOutput } from "../../api/OutputDirectories.js";
 
 export class TaskPreprocessor extends AStage {
     constructor(topFunction: string, outputDir: string, appName: string) {
@@ -12,10 +13,16 @@ export class TaskPreprocessor extends AStage {
     }
 
     public preprocess() {
-        this.createFunctionReplicas();
         this.outlineAll();
         this.ensureVoidReturns();
+        this.createFunctionReplicas();
         //this.insertTimer();
+    }
+
+    public generateIntermediateCode(subfolder: string, message: string): void {
+        const dir = `${SourceCodeOutput.SRC_PARENT}/${SourceCodeOutput.SRC_TASKS}-${subfolder}`;
+        const path = this.generateCode(dir);
+        this.logOutput(`${message} source code written to `, path);
     }
 
     public ensureVoidReturns(): void {
@@ -33,12 +40,16 @@ export class TaskPreprocessor extends AStage {
             }
         });
         this.log(`Ensured ${count} function${count > 1 ? "s" : ""} return${count > 1 ? "s" : ""} void`);
+        this.generateIntermediateCode("t2-voidification", "Voidified");
     }
 
 
     public outlineAll(): void {
         this.log("Finding code regions for outlining...");
-        const finder = new OutlineRegionFinder(this.getTopFunctionName());
+        const topFun = this.getTopFunctionName();
+        const outputDir = this.getOutputDir();
+        const appName = this.getAppName();
+        const finder = new OutlineRegionFinder(topFun, outputDir, appName);
 
         const genCnt = finder.outlineGenericRegions();
         this.log(`Outlined ${genCnt} generic regions`);
@@ -56,6 +67,7 @@ export class TaskPreprocessor extends AStage {
         const [nReplicas, nUnique] = replicaCreator.replicateAll();
 
         this.log(`Created ${nReplicas} replicas for ${nUnique} unique functions`);
+        this.generateIntermediateCode("t3-replication", "Callspot-replicated");
     }
 
     public insertTimer() {

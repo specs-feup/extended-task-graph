@@ -7,10 +7,10 @@ export enum AppDumpOutput {
 export enum SourceCodeOutput {
     SRC_PARENT = "src",
     SRC_ORIGINAL = "golden",
-    SRC_INTERMEDIATE = "inter",
-    SRC_SUBSET = "subset",
-    SRC_TASKS = "trans",
-    SRC_TASKS_INSTRUMENTED = "trans_instr"
+    SRC_INTERMEDIATE = "red-inter",
+    SRC_SUBSET = "red",
+    SRC_TASKS = "red-taskready",
+    SRC_TASKS_INSTRUMENTED = "red-taskready-instr"
 }
 
 export enum TaskGraphOutput {
