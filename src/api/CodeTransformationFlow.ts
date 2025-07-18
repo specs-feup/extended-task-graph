@@ -6,6 +6,7 @@ import { ClavaUtils } from "../util/ClavaUtils.js";
 import { ApplicationAnalyser } from "../analysis/ast/ApplicationAnalyser.js";
 import { AppDumpOutput, SourceCodeOutput } from "./OutputDirectories.js";
 import { TransFlowConfig } from "./TransFlowConfig.js";
+import Clava from "@specs-feup/clava/api/clava/Clava.js";
 
 export class CodeTransformationFlow extends AStage {
     constructor(topFunctionName: string, outputDir: string, appName: string) {
@@ -27,27 +28,35 @@ export class CodeTransformationFlow extends AStage {
         this.initialAnalysis(config.dumpCallGraph, config.dumpAST);
         this.logLine();
 
-        const valid = this.subsetPreprocessing(config.transformRecipe, config.silentTransforms);
-        if (!valid) {
-            this.logError("Critical error, aborting...");
-            return false;
+        if (config.doSubsetInterTransforms) {
+            const valid = this.subsetPreprocessing(config.transformRecipe, config.silentTransforms);
+            if (!valid) {
+                this.logError("Critical error, aborting...");
+                return false;
+            }
+            this.logSuccess("Subset preprocessing finished successfully!");
+            this.logLine();
         }
-        this.logSuccess("Subset preprocessing finished successfully!");
-        this.logLine();
 
-        this.taskPreprocessing();
-        this.logSuccess("Task preprocessing finished successfully!");
-        this.logLine();
+        if (config.doSubsetTaskTransforms) {
+            this.taskPreprocessing();
+            this.logSuccess("Task preprocessing finished successfully!");
+            this.logLine();
+        }
 
-        // Clava.pushAst();
-        // this.applyProfilingInstrumentation();
-        // this.generateInstrumentedCode();
-        // this.logSuccess("Instrumentation finished successfully!");
-        // this.logLine();
-        // Clava.popAst();
+        if (config.doInstrumentation) {
+            Clava.pushAst();
+            this.applyProfilingInstrumentation();
+            this.generateInstrumentedCode();
+            this.logSuccess("Instrumentation finished successfully!");
+            this.logLine();
+            Clava.popAst();
+        }
 
         this.intermediateAnalysis(config.dumpCallGraph, config.dumpAST);
         this.logLine();
+
+        this.generateFinalCode();
 
         this.logSuccess("Code transformation flow finished successfully!");
         this.logEnd();
@@ -93,12 +102,6 @@ export class CodeTransformationFlow extends AStage {
         return res;
     }
 
-    public generateSubsetCode(): void {
-        const dir = `${SourceCodeOutput.SRC_PARENT}/${SourceCodeOutput.SRC_SUBSET}`;
-        const path = this.generateCode(dir);
-        this.logOutput("Intermediate subset-reduced source code written to ", path);
-    }
-
     public taskPreprocessing(): void {
         this.log("Running task preprocessing step");
         const outDir = this.getOutputDir();
@@ -109,26 +112,16 @@ export class CodeTransformationFlow extends AStage {
         preprocessor.preprocess();
     }
 
-    public taskPreprocessingOnlyReplicas(): void {
-        this.log("Running task preprocessing step (only function replicas)");
-        const outDir = this.getOutputDir();
-        const appName = this.getAppName();
-        const topFun = this.getTopFunctionName();
-
-        const preprocessor = new TaskPreprocessor(topFun, outDir, appName);
-        preprocessor.createFunctionReplicas();
-    }
-
     public intermediateAnalysis(dumpCallGraph: boolean, dumpAST: boolean): void {
         this.log("Running intermediate analysis step");
         const outDir = `${this.getOutputDir()}/${AppDumpOutput.APP_STATS_PARENT}/${AppDumpOutput.APP_STATS_TASKS}`;
         this.genericAnalysisStep(outDir, dumpCallGraph, dumpAST, false);
     }
 
-    public generateTaskCode(): void {
-        const dir = `${SourceCodeOutput.SRC_PARENT}/${SourceCodeOutput.SRC_TASKS}`;
+    public generateFinalCode(): void {
+        const dir = `${SourceCodeOutput.SRC_PARENT}/${SourceCodeOutput.SRC_FINAL}`;
         const path = this.generateCode(dir);
-        this.logOutput("Intermediate task-based source code written to ", path);
+        this.logOutput("Final task-ready source code written to ", path);
     }
 
     public applyProfilingInstrumentation(): void {
@@ -139,7 +132,7 @@ export class CodeTransformationFlow extends AStage {
     }
 
     public generateInstrumentedCode(): void {
-        const dir = `${SourceCodeOutput.SRC_PARENT}/${SourceCodeOutput.SRC_TASKS_INSTRUMENTED}`;
+        const dir = `${SourceCodeOutput.SRC_PARENT}/${SourceCodeOutput.SRC_FINAL_INSTRUMENTED}`;
         const path = this.generateCode(dir);
         this.logOutput("Instrumented task-based source code written to ", path);
     }

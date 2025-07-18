@@ -43,14 +43,14 @@ export class OutlineRegionFinder extends AStage {
         for (const region of filteredRegions) {
             wrappedRegion.push(this.wrapRegion(region, false));
         }
-        this.generateIntermediateCode("t1-outlining-gen-pre", "generic annotated outlining regions");
+        this.generateIntermediateCode("t1-outlining-annotated", "generic annotated outlining regions");
 
         for (const region of wrappedRegion) {
             this.outlineRegion(region, DefaultPrefix.OUTLINED_FUN);
         }
 
         this.log("Finished annotating generic outlining regions");
-        this.generateIntermediateCode("t1-outlining-gen-post", "generic outlined regions");
+        this.generateIntermediateCode("t1-outlining-generic", "generic outlined regions");
         return wrappedRegion.length;
     }
 

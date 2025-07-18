@@ -1,4 +1,3 @@
-import { SubsetTransform } from "../../src/preprocessing/subset/SubsetPreprocessor.js";
 import { TransFlowConfig } from "../../src/api/TransFlowConfig.js";
 import { GenFlowConfig } from "../../src/api/GenFlowConfig.js";
 import { EtgSuiteRunner } from "./EtgSuiteRunner.js";
@@ -25,7 +24,6 @@ settings.codeConfig.transformRecipe = [
     // SubsetTransform.ConstantFoldingPropagation
 ];
 const disableCaching = true;
-settings.codeConfig.doTransforms = true;
 settings.etgConfig.enabled = false;
 
 const runner = new EtgSuiteRunner();

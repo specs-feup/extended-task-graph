@@ -21,7 +21,8 @@ const appName = "edgedetect-appdump";
 const api = new ExtendedTaskGraphAPI(topFunctionName, outputDir, appName);
 
 const config = new TransFlowConfig();
-config.doTransforms = false;
+config.doSubsetInterTransforms = false;
+config.doSubsetTaskTransforms = false;
 
 const success = api.runCodeTransformationFlow(config);
 
