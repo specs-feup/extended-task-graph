@@ -186,7 +186,8 @@ export abstract class AStage {
         const stdTransporter = new transports.Console({
             format: format.printf(({ message }) => {
                 return `${message}`;
-            })
+            }),
+            level: 'info'
         });
         const fileTransporter = new transports.File({
             filename: logFile,
@@ -197,7 +198,8 @@ export abstract class AStage {
                     const stripped = (message as string).replace(/\u001b\[[0-9;]*m/g, '').replace("[ETG", "\n[ETG");
                     return `[${timestamp}] ${stripped}`;
                 })
-            )
+            ),
+            level: 'info'
         })
 
         AStage.logger = createLogger({
