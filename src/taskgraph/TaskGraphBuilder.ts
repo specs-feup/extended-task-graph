@@ -217,6 +217,10 @@ export class TaskGraphBuilder extends AStage {
     private buildCommParam(childDataItem: DataItem, lastUsed: Map<string, string>, nameToTask: Map<string, Task>, childTask: Task, taskGraph: TaskGraph, rank: number): void {
         const altName = childDataItem.getNameInPreviousTask();
         const lastUsedTaskName = lastUsed.get(altName)!;
+        if (lastUsedTaskName == null) {
+            this.logWarning(`No last used task found for data item ${altName} in task ${childTask.getUniqueName()}`);
+            return;
+        }
         const lastUsedTask = nameToTask.get(lastUsedTaskName)!;
         let lastUsedDataItem = lastUsedTask.getDataItemByName(altName);
 
@@ -259,7 +263,13 @@ export class TaskGraphBuilder extends AStage {
                 const altName = data.getNameInPreviousTask();
 
                 if (data.isWritten()) {
-                    dataMap.get(altName)!.setWritten();
+                    const dataItem = dataMap.get(altName);
+                    if (dataItem != undefined) {
+                        dataItem.setWritten();
+                    }
+                    else {
+                        this.logWarning(`Data item ${altName} not found in task ${task.getUniqueName()} when updating with children data`);
+                    }
                 }
             }
         }
