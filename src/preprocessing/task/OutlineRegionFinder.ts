@@ -121,13 +121,11 @@ export class OutlineRegionFinder extends AStage {
         const outliner = new Outliner(true);
         outliner.setDefaultPrefix(prefix);
 
-        const fname = IdGenerator.next(prefix);
-
         //outliner.outlineWithName(start, end, fname);
-        outliner.outlineWithWrappers(start, end);
+        const res = outliner.outlineWithWrappers(start, end);
         start.detach();
         end.detach();
-        this.log(`Outlined region into function "${fname}"`);
+        this.log(`Outlined region into function "${res[0] ? res[0].name : "<unknown>"}"`);
     }
 
     private filterRegions(regions: Statement[][]): Statement[][] {
