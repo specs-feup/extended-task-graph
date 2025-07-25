@@ -505,28 +505,24 @@ export class ExternalFunctionsMatcher {
         else if (ExternalFunctionsMatcher.isCppBuiltin(funOrCall)) {
             return true;
         }
+        console.log(funOrCall.signature, "is not a valid external function");
         return false;
     }
 
     private static isFromGeneric(funOrCall: FunctionJp | Call, funList: Record<string, string[] | string[][]>): boolean {
         const name = funOrCall.name;
-        const paramTypes = ((funOrCall instanceof Call) ? funOrCall.args : funOrCall.params).map(param => param.type.code);
+        //const paramTypes = ((funOrCall instanceof Call) ? funOrCall.args : funOrCall.params).map(param => param.type.code);
+        const paramTypes = funOrCall.signature.split("(")[1].split(")")[0].split(",").map(param => param.trim());
 
         for (const funName in funList) {
             if (name === funName) {
-                const possibleParams = Array.isArray(funList[funName]) ? [funList[funName]] : funList[funName];
+                const sigs = funList[funName];
+                const possibleParams = (sigs.length > 0 && Array.isArray(sigs[0])) ?
+                    sigs as string[][] : [sigs] as string[][];
+
                 for (const params of possibleParams) {
-                    if (params.length === paramTypes.length) {
-                        let valid = true;
-                        for (let i = 0; i < params.length; i++) {
-                            if (params[i] !== paramTypes[i]) {
-                                valid = false;
-                                break;
-                            }
-                        }
-                        if (valid) {
-                            return true;
-                        }
+                    if (params.every((param, index) => { return paramTypes[index] === param; })) {
+                        return true;
                     }
                 }
             }
