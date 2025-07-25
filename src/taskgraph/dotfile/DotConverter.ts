@@ -80,11 +80,12 @@ export class DotConverter {
     }
 
     protected getDotOfCluster(task: ConcreteTask, colorIndex = 0): string {
+        const color = task.getAnnotation("color") || this.getColor(colorIndex);
         let dot = "";
         if (task.getHierarchicalChildren().length > 0) {
             dot += `\tsubgraph "cluster_${task.getId()}" {\n`;
             dot += `\tlabel = "${this.getLabelOfTask(task)}";\n`;
-            dot += `\tbgcolor = ${this.getColor(colorIndex)};\n`;
+            dot += `\tbgcolor = ${color};\n`;
 
             dot += `\t"${task.getId()}_src" [shape=circle, label=""];\n`;
             dot += `\t"${task.getId()}_target" [shape=diamond, label=""];\n`;
@@ -104,7 +105,7 @@ export class DotConverter {
             dot += "\t}\n";
         }
         else {
-            dot += `\t"${task.getId()}" [label="${this.getLabelOfTask(task)}", style="filled", fillcolor=${this.getColor(colorIndex)}];\n`;
+            dot += `\t"${task.getId()}" [label="${this.getLabelOfTask(task)}", style="filled", fillcolor=${color}];\n`;
         }
         return dot;
     }
