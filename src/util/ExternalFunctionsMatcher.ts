@@ -505,7 +505,6 @@ export class ExternalFunctionsMatcher {
         else if (ExternalFunctionsMatcher.isCppBuiltin(funOrCall)) {
             return true;
         }
-        console.log(funOrCall.signature, "is not a valid external function");
         return false;
     }
 

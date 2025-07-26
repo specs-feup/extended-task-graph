@@ -24,6 +24,7 @@
     "local:disparity-region": "npx clava dist/test/local-apps-testing/TestDisparityRegion.js -- clang inputs/disparity-region/",
     "local:disparity-static": "npx clava dist/test/local-apps-testing/TestDisparityMallocStatic.js -- clang inputs/disparity-malloc-static/",
     "local:llama2": "clava classic dist/test/local-apps-testing/TestLlama2.js -p inputs/llama2/ -std c11",
+    "local:external-calls": "clava classic dist/test/local-apps-testing/TestExternalCallsApp.js -p inputs/external-calls/ -std c11 -ncg",
     "bench:apps": "npx clava dist/test/benchmark-testing/TestApps.js",
     "bench:rodinia": "clava dist/test/benchmark-testing/TestRodinia.js",
     "bench:rosetta": "clava classic dist/test/benchmark-testing/TestRosetta.js -nci -nw"
