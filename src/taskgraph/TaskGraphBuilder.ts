@@ -50,8 +50,43 @@ export class TaskGraphBuilder extends AStage {
             taskGraph.addCommunication(topTask, sinkTask, dataItem, itemInSink, rank);
             rank++;
         }
+        this.setTaskUniqueness(taskGraph);
 
         return taskGraph;
+    }
+
+    private setTaskUniqueness(taskGraph: TaskGraph): void {
+        const signatures: { [signature: string]: number } = {};
+
+        taskGraph.getTasks().forEach((task) => {
+            if (taskGraph instanceof RegularTask) {
+                const signature = task.getCall()?.signature;
+                if (!signature) {
+                    return;
+                }
+                if (signatures[signature]) {
+                    signatures[signature]++;
+                } else {
+                    signatures[signature] = 1;
+                }
+            }
+        });
+        taskGraph.getTasks().forEach((task) => {
+            if (task instanceof RegularTask) {
+                const signature = task.getCall()?.signature;
+                if (!signature) {
+                    return;
+                }
+                if (signatures[signature] > 1) {
+                    task.setSharesFunction(true);
+                }
+            }
+        });
+        Object.entries(signatures).forEach(([signature, count]) => {
+            if (count > 1) {
+                console.log(`Function ${signature.split("(")[0]} is shared by ${count} tasks`);
+            }
+        });
     }
 
     private populateGlobalMap(taskGraph: TaskGraph): void {

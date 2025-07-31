@@ -90,8 +90,7 @@ export abstract class AStage {
     protected logStart(): void {
         const date = new Date();
         const timestamp = date.toISOString();
-        const stage = "ETG-" + this.stageName;
-        const msg = `Starting ${stage} at ${timestamp}`;
+        const msg = `Starting ${this.stageName} at ${timestamp}`;
 
         this.log(msg);
         this.startTimestamp = date;
@@ -103,9 +102,8 @@ export abstract class AStage {
         const diffInSeconds = diff / 1000;
         const diff2Decimals = diffInSeconds.toFixed(2);
 
-        const stage = "ETG-" + this.stageName;
         const timestamp = date.toISOString();
-        const msg = `Finished ${stage} at ${timestamp} (elapsed time: ${diff2Decimals}s)`;
+        const msg = `Finished ${this.stageName} at ${timestamp} (elapsed time: ${diff2Decimals}s)`;
 
         this.log(msg);
     }

@@ -9,6 +9,7 @@ import { VarrefWriteChecker } from "../../util/VarrefWriteChecker.js";
 
 export class RegularTask extends ConcreteTask {
     private function: FunctionJp;
+    private hasSharedFunction: boolean = false;
 
     constructor(call: Call | null, fun: FunctionJp, hierParent: ConcreteTask | null, delimiter = ".") {
         super(TaskType.REGULAR, call, hierParent, fun.name, delimiter, "T");
@@ -27,6 +28,17 @@ export class RegularTask extends ConcreteTask {
         return this.function;
     }
 
+    public sharesFunction(): boolean {
+        return this.hasSharedFunction;
+    }
+
+    public setSharesFunction(shared: boolean): void {
+        this.hasSharedFunction = shared;
+    }
+
+    public makeUnique(suffix: string): void {
+        // TBD
+    }
 
     public updateDataItemInterfaces(): void {
         if (this.getCall() == null) {
