@@ -510,8 +510,12 @@ export class ExternalFunctionsMatcher {
 
     private static isFromGeneric(funOrCall: FunctionJp | Call, funList: Record<string, string[] | string[][]>): boolean {
         const name = funOrCall.name;
-        //const paramTypes = ((funOrCall instanceof Call) ? funOrCall.args : funOrCall.params).map(param => param.type.code);
-        const paramTypes = funOrCall.signature.split("(")[1].split(")")[0].split(",").map(param => param.trim());
+        const split = funOrCall.signature.split("(");
+        if (split.length < 2) {
+            return false;
+        }
+        const params = split[1].split(")")[0].trim();
+        const paramTypes = params.split(",").map(param => param.trim());
 
         for (const funName in funList) {
             if (name === funName) {
