@@ -105,7 +105,8 @@ export class DotConverter {
             dot += "\t}\n";
         }
         else {
-            dot += `\t"${task.getId()}" [label="${this.getLabelOfTask(task)}", style="filled", fillcolor=${color}];\n`;
+            const borderStyle = task.getType() == TaskType.EXTERNAL ? "dashed" : "solid";
+            dot += `\t"${task.getId()}" [label="${this.getLabelOfTask(task)}", style="filled,${borderStyle}", fillcolor=${color}];\n`;
         }
         return dot;
     }
