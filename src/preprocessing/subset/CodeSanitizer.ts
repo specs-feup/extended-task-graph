@@ -1,7 +1,9 @@
-import { BinaryOp, Comment, DeclStmt, FunctionJp, LabelStmt, Scope, StorageClass, Vardecl, Varref, WrapperStmt } from "@specs-feup/clava/api/Joinpoints.js";
+import { BinaryOp, Call, Comment, DeclStmt, FunctionJp, LabelStmt, Scope, Statement, StorageClass, Vardecl, Varref, WrapperStmt } from "@specs-feup/clava/api/Joinpoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { AStage } from "../../AStage.js";
 import { ScopeFlattener } from "@specs-feup/clava-code-transforms/ScopeFlattener";
+import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
+import IdGenerator from "@specs-feup/lara/api/lara/util/IdGenerator.js";
 
 export class CodeSanitizer extends AStage {
     constructor(topFunction: string) {
@@ -27,7 +29,38 @@ export class CodeSanitizer extends AStage {
         const funDeclsInFuns = this.removeFunctionDeclsInFunctions();
         this.log(funDeclsInFuns > 0 ? `Removed ${funDeclsInFuns} function declarations in functions` : "No function declarations to remove");
 
+        //const mallocs = this.singleArgumentMallocs();
+        //this.log(mallocs > 0 ? `Ensured ${mallocs} calls to malloc() have no expressions as arguments` : "No mallocs to sanitize");
+
         this.logSuccess("Sanitized code");
+    }
+
+    public singleArgumentMallocs(): number {
+        let count: number = 0;
+
+        for (const fun of this.getValidFunctions()) {
+            const mallocs = Query.searchFrom(fun.body, Call, { name: "malloc" }).get();
+            for (const malloc of mallocs) {
+                const argExpr = malloc.args[0];
+                if (argExpr instanceof Varref && argExpr.children.length === 0) {
+                    continue;
+                }
+                const argType = ClavaJoinPoints.typeLiteral("size_t");
+                const castExpr = ClavaJoinPoints.cStyleCast(argType, argExpr);
+
+                const argVarName = IdGenerator.next("alloc_size");
+                const argVar = ClavaJoinPoints.varDecl(argVarName, castExpr);
+
+                const callStmt = malloc.getAncestor("statement") as Statement;
+                callStmt.insertBefore(argVar);
+
+                const argRef = ClavaJoinPoints.varRef(argVar);
+                malloc.setArg(0, argRef);
+                count++;
+            }
+        }
+
+        return count;
     }
 
     public removeFunctionDeclsInFunctions(): number {

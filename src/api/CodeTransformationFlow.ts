@@ -102,7 +102,7 @@ export class CodeTransformationFlow extends AStage {
         return res;
     }
 
-    public taskPreprocessing(): void {
+    public taskPreprocessing(): boolean {
         this.log("Running task preprocessing step");
         const outDir = this.getOutputDir();
         const appName = this.getAppName();
@@ -110,6 +110,7 @@ export class CodeTransformationFlow extends AStage {
 
         const preprocessor = new TaskPreprocessor(topFun, outDir, appName);
         preprocessor.preprocess();
+        return this.verifySyntax();
     }
 
     public intermediateAnalysis(dumpCallGraph: boolean, dumpAST: boolean): void {
