@@ -16,6 +16,8 @@ export class ExternalTask extends ConcreteTask {
         this.populateExternalCallData();
         this.externalTaskDataPolicy = ExternalTaskDataPolicy.ALL_READ_WRITE;
         this.setExternalTaskDataPolicy(ExternalTaskDataPolicy.ALL_READ_WRITE);
+
+        this.getData().forEach(dataItem => dataItem.setNameInPreviousTask(dataItem.getName()));
     }
 
     public setExternalTaskDataPolicy(policy: ExternalTaskDataPolicy): void {
