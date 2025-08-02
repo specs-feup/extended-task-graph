@@ -43,12 +43,13 @@ export class TaskGraphBuilder extends AStage {
             rank++;
         }
         rank = 1;
+        const sinkTask = taskGraph.getSinkTask();
         for (const dataItem of topTask.getDataWritten()) {
-            const sinkTask = taskGraph.getSinkTask();
-            const itemInSink = sinkTask.addDataToSink(dataItem as VariableDataItem);
-
-            taskGraph.addCommunication(topTask, sinkTask, dataItem, itemInSink, rank);
-            rank++;
+            if (dataItem instanceof VariableDataItem) {
+                const itemInSink = sinkTask.addDataToSink(dataItem as VariableDataItem);
+                taskGraph.addCommunication(topTask, sinkTask, dataItem, itemInSink, rank);
+                rank++;
+            }
         }
         this.setTaskUniqueness(taskGraph);
 
