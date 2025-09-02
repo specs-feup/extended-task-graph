@@ -16,6 +16,21 @@ void matmul(int *a, int *b, int *c, int n)
     }
 }
 
+int *incrementAndDuplicate(int *m, int n)
+{
+    for (int i = 0; i < n * n; i++)
+    {
+        m[i] = m[i] + 1;
+    }
+
+    int *newMatrix = (int *)malloc(n * n * sizeof(int));
+
+    for (int i = 0; i < n * n; i++)
+    {
+        m[i] = newMatrix[i];
+    }
+}
+
 int *allocateMatrixToZero(int n)
 {
     int *matrix = (int *)malloc(n * n * sizeof(int));
@@ -31,7 +46,28 @@ void freeMatrix(int *matrix)
     free(matrix);
 }
 
-void mutliplyNSizes(int n)
+void bar(int x)
+{
+    for (int i = 0; i < x; i++)
+    {
+        x += i % 2;
+    }
+}
+
+void foo(int x)
+{
+    for (int i = 0; i < x; i++)
+    {
+        x += i % 2;
+    }
+    bar(x);
+    for (int i = 0; i < x; i++)
+    {
+        x += i % 2;
+    }
+}
+
+void doWork(int n)
 {
     int *a = allocateMatrixToZero(n);
     int *b = allocateMatrixToZero(n);
@@ -49,10 +85,21 @@ void mutliplyNSizes(int n)
 
     matmul(a, b, c, n);
 
+    int *d = incrementAndDuplicate(c, n);
+
     // Free allocated memory
     freeMatrix(a);
     freeMatrix(b);
     freeMatrix(c);
+    freeMatrix(d);
+
+    int x = 2;
+    foo(x);
+}
+
+void mutliplyNSizes(int n)
+{
+    doWork(n);
 }
 
 int main()
