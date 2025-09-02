@@ -173,19 +173,27 @@ export class RegularTask extends ConcreteTask {
                 const intLit = Query.searchFromInclusive(child, IntLiteral).get()[0];
                 if (intLit != null) {
                     args.push(`imm(${intLit.value})`);
+                    continue;
                 }
-                else {
-                    const floatLit = Query.searchFromInclusive(child, FloatLiteral).get()[0];
-                    if (floatLit != null) {
-                        args.push(`imm(${floatLit.value})`);
-                    }
+
+                const floatLit = Query.searchFromInclusive(child, FloatLiteral).get()[0];
+                if (floatLit != null) {
+                    args.push(`imm(${floatLit.value})`);
+                    continue;
                 }
+
+                const stringLit = Query.searchFromInclusive(child, Literal).get()[0];
+                if (stringLit != null) {
+                    args.push(`imm(${stringLit.code})`);
+                    continue;
+                }
+                console.warn(`[RegularTask] Warning: could not determine constant value for arg ${child.code} in task ${this.getUniqueName()}`);
             }
         }
 
         const dataParams = this.getParamData();
         if (dataParams.length != args.length) {
-            throw new Error(`Mismatch between number of arguments and parameters when setting alternate names for Task data`);
+            throw new Error(`Mismatch between number of arguments and parameters when setting alternate names for data in task ${this.getUniqueName()}`);
         }
         for (let i = 0; i < dataParams.length; i++) {
             dataParams[i].setNameInPreviousTask(args[i]);
