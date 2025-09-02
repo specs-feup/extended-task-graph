@@ -224,7 +224,7 @@ export abstract class Task {
         }
     }
 
-    public createConstantObject(immConst: IntLiteral | FloatLiteral, funCall: Call): void {
+    public createConstantObject(immConst: Literal, funCall: Call): void {
         const datum = new ConstantDataItem(immConst);
         datum.setImmediateFunctionCall(funCall);
         this.dataConstants.push(datum);

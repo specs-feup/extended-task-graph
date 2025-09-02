@@ -281,6 +281,12 @@ export class TaskGraphBuilder extends AStage {
     private buildCommGlobal(dataItem: DataItem, task: Task, taskGraph: TaskGraph, rank: number): void {
         const dataName = dataItem.getName();
         const lastUsedTask = this.lastUsedGlobal.get(dataName);
+
+        if (lastUsedTask == null) {
+            this.logWarning(`No last used global task found for data item ${dataName} in task ${task.getUniqueName()}`);
+            return;
+        }
+
         const dataItemInParent = lastUsedTask.getDataItemByName(dataName);
 
         if (lastUsedTask != null && lastUsedTask != task) {

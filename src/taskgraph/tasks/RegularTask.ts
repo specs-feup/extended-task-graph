@@ -124,11 +124,8 @@ export class RegularTask extends ConcreteTask {
 
     private findDataFromConstants(): void {
         for (const funCall of Query.searchFrom(this.function.body, Call)) {
-            for (const intConst of Query.searchFrom(funCall, IntLiteral)) {
-                this.createConstantObject(intConst, funCall);
-            }
-            for (const floatConst of Query.searchFrom(funCall, FloatLiteral)) {
-                this.createConstantObject(floatConst, funCall);
+            for (const lit of Query.searchFrom(funCall, Literal)) {
+                this.createConstantObject(lit, funCall);
             }
         }
     }
