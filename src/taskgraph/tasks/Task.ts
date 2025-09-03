@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Call, FloatLiteral, IntLiteral, Loop, Vardecl } from "@specs-feup/clava/api/Joinpoints.js";
+import { Call, Literal, Loop, Vardecl } from "@specs-feup/clava/api/Joinpoints.js";
 import { TaskType } from "./TaskType.js";
 import { DataItem } from "../dataitems/DataItem.js";
 import { Communication } from "../Communication.js";

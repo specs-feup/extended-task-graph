@@ -36,10 +36,6 @@ export class RegularTask extends ConcreteTask {
         this.hasSharedFunction = shared;
     }
 
-    public makeUnique(suffix: string): void {
-        // TBD
-    }
-
     public updateDataItemInterfaces(): void {
         if (this.getCall() == null) {
             return;
