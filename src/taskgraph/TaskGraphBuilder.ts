@@ -11,6 +11,7 @@ import { DataItem } from "./dataitems/DataItem.js";
 import { ConcreteTask } from "./tasks/ConcreteTask.js";
 import { LoopCharacterizer } from "@specs-feup/clava-code-transforms/LoopCharacterizer";
 import { VariableDataItem } from "./dataitems/VariableDataItem.js";
+import { TaskType } from "./tasks/TaskType.js";
 
 export class TaskGraphBuilder extends AStage {
     private lastUsedGlobal = new Map();
@@ -147,7 +148,32 @@ export class TaskGraphBuilder extends AStage {
 
         // Update task with interface names
         task.updateDataItemInterfaces();
+
+        // Update parallel tasks with side effects to have control edges
+        this.addSideEffectControlEdges(taskGraph, childTasks);
         return task;
+    }
+
+    private addSideEffectControlEdges(etg: TaskGraph, tasks: Task[]): void {
+        const dependencyChain: number[] = [];
+        for (let i = 0; i < tasks.length; i++) {
+            const task = tasks[i];
+            if (task.getType() == TaskType.EXTERNAL) {
+                const externalTask = task as ExternalTask;
+                if (externalTask.hasSideEffects()) {
+                    dependencyChain.push(i);
+                }
+            }
+        }
+
+        for (const idx of dependencyChain) {
+            const task = tasks[idx];
+            if (idx == 0) {
+                continue;
+            }
+            const prevTask = tasks[idx - 1];
+            etg.addControlEdge(prevTask, task);
+        }
     }
 
     private addControlEdges(task: Task, call: Call | null, taskGraph: TaskGraph): void {
@@ -197,7 +223,7 @@ export class TaskGraphBuilder extends AStage {
                 continue;
             }
             // end of horrible hack
-            taskGraph.addControlEdge(condTask, task, varref, condition);
+            taskGraph.addPredicatedControlEdge(condTask, task, varref, condition);
         }
     }
 

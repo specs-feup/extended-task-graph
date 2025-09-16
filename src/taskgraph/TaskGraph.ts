@@ -122,10 +122,17 @@ export class TaskGraph {
         target.addIncomingComm(comm);
     }
 
-    public addControlEdge(source: Task, target: Task, controlVar: Varref, controlValue: number | boolean): void {
+    public addPredicatedControlEdge(source: Task, target: Task, controlVar: Varref, controlValue: number | boolean): void {
         const val = (typeof controlValue === "number") ? controlValue : (controlValue ? 1 : 0);
 
         const control = new PredicatedControlEdge(source, target, controlVar, val);
+        this.control.push(control);
+        source.addOutgoingControl(control);
+        target.addIncomingControl(control);
+    }
+
+    public addControlEdge(source: Task, target: Task): void {
+        const control = new ControlEdge(source, target);
         this.control.push(control);
         source.addOutgoingControl(control);
         target.addIncomingControl(control);
