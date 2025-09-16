@@ -8,6 +8,7 @@ import { SourceTask } from "./tasks/SourceTask.js";
 import { TaskType } from "./tasks/TaskType.js";
 import { Task } from "./tasks/Task.js";
 import { DataItem } from "./dataitems/DataItem.js";
+import { PredicatedControlEdge } from "./PredicatedControlEdge.js";
 
 export class TaskGraph {
     private tasks: ConcreteTask[] = [];
@@ -124,7 +125,7 @@ export class TaskGraph {
     public addControlEdge(source: Task, target: Task, controlVar: Varref, controlValue: number | boolean): void {
         const val = (typeof controlValue === "number") ? controlValue : (controlValue ? 1 : 0);
 
-        const control = new ControlEdge(source, target, controlVar, val);
+        const control = new PredicatedControlEdge(source, target, controlVar, val);
         this.control.push(control);
         source.addOutgoingControl(control);
         target.addIncomingControl(control);
