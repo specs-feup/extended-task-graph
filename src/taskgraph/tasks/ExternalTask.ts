@@ -49,6 +49,17 @@ export class ExternalTask extends ConcreteTask {
         return this.assignedDataItem;
     }
 
+    public hasSideEffects(): boolean {
+        const funName = this.getCall()?.name;
+        if (funName == null) {
+            return false;
+        }
+        const sideEffectFunctions = new Set([
+            "printf", "putchar", "exit"
+        ]);
+        return sideEffectFunctions.has(funName);
+    }
+
     private populateExternalCallData(): void {
         // TS conversion: original code used varrefs, but we are now using vardecls.
         const refs: Set<Vardecl> = new Set();
