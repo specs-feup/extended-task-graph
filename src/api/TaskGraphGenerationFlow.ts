@@ -7,6 +7,7 @@ import { GenFlowConfig } from "./GenFlowConfig.js";
 import { DotConverter } from "../taskgraph/dotfile/DotConverter.js";
 import { DotConverterMinimal } from "../taskgraph/dotfile/DotConverterMinimal.js";
 import { DotConverterDetailed } from "../taskgraph/dotfile/DotConverterDetailed.js";
+import { TaskGraphToJSON } from "../taskgraph/TaskGraphToJSON.js";
 
 export class TaskGraphGenerationFlow extends AStage {
     constructor(topFunctionName: string, outputDir: string, appName: string) {
@@ -78,6 +79,12 @@ export class TaskGraphGenerationFlow extends AStage {
         const dotDetailed = conv3.convert(taskGraph);
         const fname3 = this.saveToFileInSubfolder(dotDetailed, "taskgraph_det.dot", subfolder);
         this.logOutput("Dumped detailed task graph to", fname3);
+
+        const convJson = new TaskGraphToJSON();
+        const json = convJson.convert(taskGraph);
+        const jsonStr = JSON.stringify(json, null, 2);
+        const fname4 = this.saveToFileInSubfolder(jsonStr, "taskgraph.json", subfolder);
+        this.logOutput("Dumped task graph JSON to", fname4);
 
         this.log("Task graph successfully dumped!");
     }
