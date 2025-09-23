@@ -36,6 +36,7 @@
     "./GenFlowConfig": "./dist/src/api/GenFlowConfig.js",
     "./TaskGraph": "./dist/src/taskgraph/TaskGraph.js",
     "./DotConverter": "./dist/src/taskgraph/dotfile/DotConverter.js",
+    "./ClusterDotConverter": "./dist/src/taskgraph/dotfile/ClusterDotConverter.js",
     "./ConcreteTask": "./dist/src/taskgraph/tasks/ConcreteTask.js",
     "./RegularTask": "./dist/src/taskgraph/tasks/RegularTask.js",
     "./ExternalTask": "./dist/src/taskgraph/tasks/ExternalTask.js",

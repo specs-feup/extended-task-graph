@@ -73,31 +73,33 @@ export class ClusterDotConverter {
         let globalsNeeded = false;
 
         for (const comm of task.getIncomingComm()) {
+            const label = ""; // comm.toString();
+
             if (uniqueTaskNames.includes(comm.getSource().getUniqueName())) {
                 const source = comm.getSource();
 
                 if (source.getType() == TaskType.SOURCE) {
-                    dot += `${tabs}"${parent}_source" -> "${task.getId()}" [label="${comm.toString()}", color="black", fontcolor="black"];\n`;
+                    dot += `${tabs}"${parent}_source" -> "${task.getId()}" [label="${label}", color="black", fontcolor="black"];\n`;
                 }
                 if (source.getType() == TaskType.GLOBALSOURCE) {
-                    dot += `${tabs}"globals" -> "${task.getId()}" [label="${comm.toString()}", color="black", fontcolor="black"]";\n`;
+                    dot += `${tabs}"globals" -> "${task.getId()}" [label="${label}", color="black", fontcolor="black"]";\n`;
                     globalsNeeded = true;
                 }
                 if (source.getType() == TaskType.EXTERNAL) {
-                    dot += `${tabs}"${source.getId()}" -> "${task.getId()}" [label="${comm.toString()}", color="black", fontcolor="black"];\n`;
+                    dot += `${tabs}"${source.getId()}" -> "${task.getId()}" [label="${label}", color="black", fontcolor="black"];\n`;
                 }
                 if (source.getType() == TaskType.REGULAR) {
                     const regularTask = source as RegularTask;
                     if (regularTask.getHierarchicalChildren().length == 0) {
-                        dot += `${tabs}"${source.getId()}" -> "${task.getId()}" [label="${comm.toString()}", color="black", fontcolor="black"];\n`;
+                        dot += `${tabs}"${source.getId()}" -> "${task.getId()}" [label="${label}", color="black", fontcolor="black"];\n`;
                     }
                     else {
-                        dot += `${tabs}"${source.getId()}_sink" -> "${task.getId()}" [label="${comm.toString()}", color="black", fontcolor="black"];\n`;
+                        dot += `${tabs}"${source.getId()}_sink" -> "${task.getId()}" [label="${label}", color="black", fontcolor="black"];\n`;
                     }
                 }
             }
             else {
-                dot += `${tabs}"${parent}_source" -> "${task.getId()}" [label="${comm.toString()}"];\n`;
+                dot += `${tabs}"${parent.replace}_source" -> "${task.getId()}" [label="${label}"];\n`;
             }
         }
         return [dot, globalsNeeded];
@@ -109,30 +111,32 @@ export class ClusterDotConverter {
         let dot = "";
 
         for (const comm of task.getOutgoingComm()) {
+            const label = ""; // comm.toString();
+
             if (uniqueTaskNames.includes(comm.getSource().getUniqueName())) {
                 const target = comm.getTarget();
 
                 if (target.getType() == TaskType.SINK) {
-                    dot += `"${tabs}"${task.getId()}"" -> "${parent}_sink" [label="${comm.toString()}"], color="black", fontcolor="black";\n`;
+                    dot += `${tabs}"${task.getId()}" -> "${parent}_sink" [label="${label}", color="black", fontcolor="black";]\n`;
                 }
                 if (target.getType() == TaskType.GLOBALSOURCE) {
-                    dot += `${tabs}"${task.getId()}" -> "globals" [label="${comm.toString()}", color="black", fontcolor="black"];\n`;
+                    dot += `${tabs}"${task.getId()}" -> "globals" [label="${label}", color="black", fontcolor="black"];\n`;
                 }
                 if (target.getType() == TaskType.EXTERNAL) {
-                    dot += `${tabs}"${task.getId()}" -> "${target.getId()}" [label="${comm.toString()}", color="black", fontcolor="black"];\n`;
+                    dot += `${tabs}"${task.getId()}" -> "${target.getId()}" [label="${label}", color="black", fontcolor="black"];\n`;
                 }
                 if (target.getType() == TaskType.REGULAR) {
                     const regularTask = target as RegularTask;
                     if (regularTask.getHierarchicalChildren().length == 0) {
-                        dot += `${tabs}"${task.getId()}" -> "${target.getId()}" [label="${comm.toString()}", color="black", fontcolor="black"];\n`;
+                        dot += `${tabs}"${task.getId()}" -> "${target.getId()}" [label="${label}", color="black", fontcolor="black"];\n`;
                     }
                     else {
-                        dot += `${tabs}"${task.getId()}" -> "${target.getId()}_target" [label="${comm.toString()}", color="black", fontcolor="black"];\n`;
+                        dot += `${tabs}"${task.getId()}" -> "${target.getId()}_target" [label="${label}", color="black", fontcolor="black"];\n`;
                     }
                 }
             }
             else {
-                dot += `${tabs}"${task.getId()}" -> "${parent}_sink" [label="${comm.toString()}"];\n`;
+                dot += `${tabs}"${task.getId()}" -> "${parent}_sink" [label="${label}"];\n`;
             }
         }
         return dot;
