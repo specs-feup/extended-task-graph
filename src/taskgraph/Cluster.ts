@@ -103,6 +103,25 @@ export class Cluster {
         return inOuts;
     }
 
+    public getAllTasks(): ConcreteTask[] {
+        const getHierarchicalTasks = (task: ConcreteTask): ConcreteTask[] => {
+            let tasks = [task];
+            task.getHierarchicalChildren().forEach((child) => {
+                tasks = tasks.concat(getHierarchicalTasks(child));
+            });
+            return tasks;
+        };
+
+        let allTasks: ConcreteTask[] = [];
+        this.tasks.forEach((task) => {
+            allTasks.push(task);
+            task.getHierarchicalChildren().forEach((child) => {
+                allTasks = allTasks.concat(getHierarchicalTasks(child));
+            });
+        });
+        return allTasks;
+    }
+
     public canAdd(task: ConcreteTask): boolean {
         return this.taskIsParallel(task) || this.taskIsValidAntecessor(task) || this.taskIsValidSuccessor(task);
     }
