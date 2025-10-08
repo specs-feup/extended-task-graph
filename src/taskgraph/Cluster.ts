@@ -40,6 +40,10 @@ export class Cluster {
         return this.tasks.map(t => t.getUniqueName());
     }
 
+    public hasTask(task: ConcreteTask): boolean {
+        return this.tasks.some(t => t.getUniqueName() == task.getUniqueName());
+    }
+
     public getInterfaceDataItems(): Record<string, DataItem[]> {
         const inOuts: Record<string, DataItem[]> = {};
         const taskNames = this.getTaskUniqueName();
@@ -97,6 +101,10 @@ export class Cluster {
             inOuts.push([dataItemName, inOut]);
         }
         return inOuts;
+    }
+
+    public canAdd(task: ConcreteTask): boolean {
+        return true;
     }
 }
 
