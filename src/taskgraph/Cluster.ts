@@ -104,6 +104,67 @@ export class Cluster {
     }
 
     public canAdd(task: ConcreteTask): boolean {
+        return this.taskIsParallel(task) || this.taskIsValidAntecessor(task) || this.taskIsValidSuccessor(task);
+    }
+
+    // A task is parallel if it has no immediate antecedents or successors within the cluster
+    private taskIsParallel(task: ConcreteTask): boolean {
+        const noAntecessor = task.getIncomingComm().every(comm => !this.hasTask(comm.getSource() as ConcreteTask));
+        const noSuccessor = task.getOutgoingComm().every(comm => !this.hasTask(comm.getTarget() as ConcreteTask));
+        return noAntecessor && noSuccessor;
+    }
+
+    // a task is a valid antecessor if its immediate successors are either in the cluster, or never lead to the cluster
+    private taskIsValidAntecessor(task: ConcreteTask): boolean {
+        const successors = task.getOutgoingComm().map(comm => comm.getTarget() as ConcreteTask);
+        for (const succ of successors) {
+            if (this.hasTask(succ)) {
+                continue;
+            }
+            // check if succ can lead to any task in the cluster
+            const visited = new Set<string>();
+            const stack = [succ];
+            while (stack.length > 0) {
+                const current = stack.pop()!;
+                if (this.hasTask(current)) {
+                    return false; // leads to a task in the cluster
+                }
+                visited.add(current.getUniqueName());
+                const nextSuccessors = current.getOutgoingComm().map(comm => comm.getTarget() as ConcreteTask);
+                for (const next of nextSuccessors) {
+                    if (!visited.has(next.getUniqueName())) {
+                        stack.push(next);
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    // a task is a valid successor if its immediate antecedents are either in the cluster, or never lead to the cluster
+    private taskIsValidSuccessor(task: ConcreteTask): boolean {
+        const antecedents = task.getIncomingComm().map(comm => comm.getSource() as ConcreteTask);
+        for (const ant of antecedents) {
+            if (this.hasTask(ant)) {
+                continue;
+            }
+            // check if ant can lead to any task in the cluster
+            const visited = new Set<string>();
+            const stack = [ant];
+            while (stack.length > 0) {
+                const current = stack.pop()!;
+                if (this.hasTask(current)) {
+                    return false; // leads to a task in the cluster
+                }
+                visited.add(current.getUniqueName());
+                const nextAntecedents = current.getIncomingComm().map(comm => comm.getSource() as ConcreteTask);
+                for (const next of nextAntecedents) {
+                    if (!visited.has(next.getUniqueName())) {
+                        stack.push(next);
+                    }
+                }
+            }
+        }
         return true;
     }
 }
