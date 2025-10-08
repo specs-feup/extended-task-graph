@@ -47,6 +47,7 @@
     "./ExternalTaskDataPolicy": "./dist/src/taskgraph/tasks/ExternalTaskDataPolicy.js",
     "./TaskType": "./dist/src/taskgraph/tasks/TaskType.js",
     "./Cluster": "./dist/src/taskgraph/Cluster.js",
+    "./ClusterUtils": "./dist/src/taskgraph/util/ClusterUtils.js",
     "./ClusterExtractor": "./dist/src/taskgraph/transforms/ClusterExtractor.js",
     "./TaskExtractor": "./dist/src/taskgraph/transforms/TaskExtractor.js",
     "./TaskMerger": "./dist/src/taskgraph/transforms/TaskMerger.js",
