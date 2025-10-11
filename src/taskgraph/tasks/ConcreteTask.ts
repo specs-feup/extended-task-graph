@@ -58,4 +58,18 @@ export class ConcreteTask extends Task {
     public removeHierarchicalChild(child: ConcreteTask): void {
         this.hierChildren.delete(child);
     }
+
+    public getAllDescendants(includeSelf: boolean = false): ConcreteTask[] {
+        const descendants: ConcreteTask[] = includeSelf ? [this] : [];
+
+        const gatherDescendants = (task: ConcreteTask) => {
+            task.getHierarchicalChildren().forEach((child) => {
+                descendants.push(child);
+                gatherDescendants(child);
+            });
+        };
+
+        gatherDescendants(this);
+        return descendants;
+    }
 }

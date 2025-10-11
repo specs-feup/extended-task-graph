@@ -64,12 +64,19 @@ export class TaskGraph {
     }
 
     public getTaskByName(name: string): ConcreteTask | null {
-        for (const task of this.tasks) {
-            if (task.getName() === name) {
-                return task;
-            }
+        const allTasks = this.getTasksOfSameName(name);
+        if (allTasks.length == 1) {
+            return allTasks[0];
+        }
+        if (allTasks.length > 1) {
+            console.log("[TaskGraph] Warning: Multiple tasks with name " + name + " found. Returning the first one.");
+            return allTasks[0];
         }
         return null;
+    }
+
+    public getTasksOfSameName(name: string): ConcreteTask[] {
+        return this.tasks.filter(task => task.getName() === name);
     }
 
     public getTasksByType(type: TaskType): ConcreteTask[] {
