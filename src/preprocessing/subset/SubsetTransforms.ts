@@ -1,10 +1,10 @@
 import { AStage } from "../../AStage.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
-import { FunctionJp } from "@specs-feup/clava/api/Joinpoints.js";
 import { ArrayFlattener } from "@specs-feup/clava-code-transforms/ArrayFlattener";
 import { FoldingPropagationCombiner } from "@specs-feup/clava-code-transforms/FoldingPropagationCombiner";
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
 import { StructFlattener } from "@specs-feup/clava-code-transforms/StructFlattener";
+import { LightStructFlattener } from "@specs-feup/clava-code-transforms/LightStructFlattener";
 
 export abstract class ACodeTransform extends AStage {
     protected outputFriendlyName;
@@ -107,18 +107,9 @@ export class StructDecompositionTransform extends ACodeTransform {
     }
 
     protected applyTransform(): number {
-        const decomp = new StructFlattener(this.silent);
-
-        if (this.structNames.length > 0) {
-            this.structNames.forEach((name) => {
-                decomp.decomposeByName(name);
-            });
-            return this.structNames.length;
-        }
-        else {
-            const names = decomp.decomposeAll();
-            return names.length;
-        }
+        const decomp = new StructFlattener(new LightStructFlattener(), this.silent);
+        const count = decomp.flattenAll(this.getTopFunctionJoinPoint());
+        return count.length;
     }
 
     protected printSuccess(n: number): void {
