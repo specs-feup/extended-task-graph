@@ -15,7 +15,7 @@ export class TaskPreprocessor extends AStage {
     public preprocess() {
         this.outlineAll();
         this.ensureVoidReturns();
-        this.createFunctionReplicas();
+        //this.createFunctionReplicas();
         //this.insertTimer();
     }
 
