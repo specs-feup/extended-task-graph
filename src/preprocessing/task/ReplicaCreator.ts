@@ -1,4 +1,4 @@
-import { Call, FunctionJp } from "@specs-feup/clava/api/Joinpoints.js";
+import { Call, FileJp, FunctionJp } from "@specs-feup/clava/api/Joinpoints.js";
 import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js"
 import { AStage } from "../../AStage.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
@@ -7,6 +7,8 @@ import IdGenerator from "@specs-feup/lara/api/lara/util/IdGenerator.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
 
 export class ReplicaCreator extends AStage {
+    private readonly regex: RegExp = new RegExp(`${DefaultSuffix.REPLICA_FUN.replace(/[-\\^$*+?.()|[\]{}]/g, '\\$&')}([0-9]\\d*)$`);
+
     constructor(topFunctionName: string) {
         super("TransFlow-TaskPrep-Replicator", topFunctionName);
     }
@@ -43,15 +45,14 @@ export class ReplicaCreator extends AStage {
                 }
             }
         }
+        this.rebuildDeclarations();
         return [nReplicas, nUnique];
     }
 
     public replicate(call: Call): boolean {
         const fun = call.function;
         const suffix = DefaultSuffix.REPLICA_FUN;
-        const escaped = suffix.replace(/[-\\^$*+?.()|[\]{}]/g, '\\$&');
-        const regex = new RegExp(`${escaped}([1-9]\\d*)$`);
-        const baseName = regex.test(fun.name) ? fun.name.replace(regex, '') : fun.name;
+        const baseName = this.regex.test(fun.name) ? fun.name.replace(this.regex, '') : fun.name;
         const suffixedName = `${baseName}${suffix}`;
 
         const fullName = IdGenerator.next(suffixedName);
@@ -63,5 +64,24 @@ export class ReplicaCreator extends AStage {
 
         this.log(`  Created replica function ${fullName}`);
         return true;
+    }
+
+    private rebuildDeclarations(): void {
+        this.log("Rebuilding function declarations...");
+
+        for (const fun of Query.search(FunctionJp, { isImplementation: false })) {
+            if (this.regex.test(fun.name)) {
+                fun.detach();
+            }
+        }
+
+        for (const fun of Query.search(FunctionJp, { isImplementation: true })) {
+            if (this.regex.test(fun.name)) {
+                const newDecl = ClavaJoinPoints.functionDecl(fun.name, fun.returnType, ...fun.params);
+                const file = fun.getAncestor("file") as FileJp;
+                file.insertBegin(newDecl);
+            }
+        }
+        this.log("Done rebuilding function declarations.");
     }
 }
