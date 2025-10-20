@@ -1,9 +1,10 @@
-import { Call } from "@specs-feup/clava/api/Joinpoints.js";
+import { Call, FunctionJp } from "@specs-feup/clava/api/Joinpoints.js";
 import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js"
 import { AStage } from "../../AStage.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { DefaultSuffix } from "../../api/PreSuffixDefaults.js";
 import IdGenerator from "@specs-feup/lara/api/lara/util/IdGenerator.js";
+import { ClavaUtils } from "../../util/ClavaUtils.js";
 
 export class ReplicaCreator extends AStage {
     constructor(topFunctionName: string) {
@@ -11,41 +12,56 @@ export class ReplicaCreator extends AStage {
     }
 
     public replicateAll(): [number, number] {
-        let isChanging = true;
+        const nUnique = this.getValidFunctions().length;
         let nReplicas = 0;
+        let isChanging = true;
 
         while (isChanging) {
-            const allFuns = this.getValidFunctions();
             isChanging = false;
 
-            allFuns.forEach((fun) => {
-                const calls = Query.search(Call, { signature: fun.signature }).get() as Call[];
-                if (calls.length > 1) {
-                    calls.forEach((call, idx) => {
-                        if (idx > 0) {
-                            this.replicate(call);
-                        }
-                    });
-                    this.log(`Replicated function ${fun.name} ${calls.length - 1} time(s)`);
-                    isChanging = true;
-                    nReplicas += calls.length - 1;
-                }
+            const funs = ClavaUtils.getEligibleFunctionsFrom(this.getTopFunctionJoinPoint(), false);
+            const funCount = new Map<string, number>();
+            funs.forEach((fun) => {
+                const sig = fun.signature;
+                const count = funCount.get(sig) ?? 0;
+                funCount.set(sig, count + 1);
             });
+
+            for (const [signature, count] of funCount) {
+                if (count <= 1) {
+                    continue;
+                }
+                this.log(`Replicating function ${signature.split("(")[0]}`);
+
+                const calls = Query.search(Call, { signature: signature }).get();
+                for (const call of calls) {
+                    const changed = this.replicate(call);
+                    if (changed) {
+                        isChanging = true;
+                        nReplicas += 1;
+                    }
+                }
+            }
         }
-        const allFunsFinal = this.getValidFunctions();
-        const nFuns = allFunsFinal.length;
-        return [nReplicas, nFuns];
+        return [nReplicas, nUnique];
     }
 
-    public replicate(call: Call) {
+    public replicate(call: Call): boolean {
         const fun = call.function;
-        const baseName = `${fun.name}${DefaultSuffix.REPLICA_FUN}`;
-        const fullName = IdGenerator.next(baseName);
+        const suffix = DefaultSuffix.REPLICA_FUN;
+        const escaped = suffix.replace(/[-\\^$*+?.()|[\]{}]/g, '\\$&');
+        const regex = new RegExp(`${escaped}([1-9]\\d*)$`);
+        const baseName = regex.test(fun.name) ? fun.name.replace(regex, '') : fun.name;
+        const suffixedName = `${baseName}${suffix}`;
+
+        const fullName = IdGenerator.next(suffixedName);
         const clone = fun.clone(fullName);
 
         const argList = call.argList;
         const newCall = ClavaJoinPoints.call(clone, ...argList);
         call.replaceWith(newCall);
+
+        this.log(`  Created replica function ${fullName}`);
         return true;
     }
 }
