@@ -74,12 +74,23 @@ export class ReplicaCreator extends AStage {
                 fun.detach();
             }
         }
+        const fileTopFunctionMap = new Map<string, FunctionJp>();
 
         for (const fun of Query.search(FunctionJp, { isImplementation: true })) {
             if (this.regex.test(fun.name)) {
                 const newDecl = ClavaJoinPoints.functionDecl(fun.name, fun.returnType, ...fun.params);
-                const file = fun.getAncestor("file") as FileJp;
-                file.insertBegin(newDecl);
+                const fileName = fun.filename;
+
+                if (fileTopFunctionMap.has(fileName)) {
+                    const fileTopFun = fileTopFunctionMap.get(fileName)!;
+                    fileTopFun.insertBefore(newDecl);
+                }
+                else {
+                    const file = fun.getAncestor("file") as FileJp;
+                    const fileTopFun = Query.searchFrom(file, FunctionJp).first()!;
+                    fileTopFunctionMap.set(fileName, fileTopFun);
+                    fileTopFun.insertBefore(newDecl);
+                }
             }
         }
         this.log("Done rebuilding function declarations.");
