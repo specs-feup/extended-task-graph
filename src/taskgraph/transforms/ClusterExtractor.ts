@@ -107,6 +107,9 @@ export class ClusterExtractor {
         for (const paramName in cluster.getInterfaceDataItems()) {
             const dataItems = cluster.getInterfaceDataItems()[paramName];
             const aDataItem = dataItems[0];
+            if (paramName === "<n/a>") {
+                continue;
+            }
 
             if (aDataItem instanceof VariableDataItem) {
                 const decl = aDataItem.getDecl();
