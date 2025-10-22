@@ -6,6 +6,7 @@ import { DefaultPrefix } from "../../api/PreSuffixDefaults.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
 import { Voidifier } from "@specs-feup/clava-code-transforms/Voidifier";
 import { SourceCodeOutput } from "../../api/OutputDirectories.js";
+import Clava from "@specs-feup/clava/api/clava/Clava.js";
 
 export class TaskPreprocessor extends AStage {
     constructor(topFunction: string, outputDir: string, appName: string) {
@@ -14,9 +15,13 @@ export class TaskPreprocessor extends AStage {
 
     public preprocess() {
         this.outlineAll();
+        Clava.rebuild();
+
         this.ensureVoidReturns();
+        Clava.rebuild();
+
         this.createFunctionReplicas();
-        //this.insertTimer();
+        Clava.rebuild();
     }
 
     public generateIntermediateCode(subfolder: string, message: string): void {
@@ -28,7 +33,8 @@ export class TaskPreprocessor extends AStage {
     public ensureVoidReturns(): void {
         let count = 0;
 
-        ClavaUtils.getAllUniqueFunctions(this.getTopFunctionJoinPoint()).forEach((fun) => {
+        const funs = this.getValidFunctions();
+        funs.forEach((fun) => {
             const vf = new Voidifier();
 
             if (fun.name == "main") {
