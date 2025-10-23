@@ -3,7 +3,6 @@ import { AppTimerInserter } from "./AppTimerInserter.js";
 import { ReplicaCreator } from "./ReplicaCreator.js";
 import { OutlineRegionFinder } from "./OutlineRegionFinder.js";
 import { DefaultPrefix } from "../../api/PreSuffixDefaults.js";
-import { ClavaUtils } from "../../util/ClavaUtils.js";
 import { Voidifier } from "@specs-feup/clava-code-transforms/Voidifier";
 import { SourceCodeOutput } from "../../api/OutputDirectories.js";
 import Clava from "@specs-feup/clava/api/clava/Clava.js";

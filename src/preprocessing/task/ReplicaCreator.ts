@@ -1,4 +1,4 @@
-import { Call, FileJp, FunctionJp } from "@specs-feup/clava/api/Joinpoints.js";
+import { Call, FileJp, FunctionJp, StorageClass } from "@specs-feup/clava/api/Joinpoints.js";
 import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js"
 import { AStage } from "../../AStage.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
@@ -15,13 +15,18 @@ export class ReplicaCreator extends AStage {
 
     public replicateAll(): [number, number] {
         const nUnique = this.getValidFunctions().length;
+        const main = Query.search(FunctionJp, { name: "main", isImplementation: true }).first();
+        if (!main) {
+            this.logError("Could not find main() function, aborting replica creation.");
+            return [0, nUnique];
+        }
         let nReplicas = 0;
         let isChanging = true;
 
         while (isChanging) {
             isChanging = false;
 
-            const funs = ClavaUtils.getEligibleFunctionsFrom(this.getTopFunctionJoinPoint(), false);
+            const funs = ClavaUtils.getEligibleFunctionsFrom(main, false);
             const funCount = new Map<string, number>();
             funs.forEach((fun) => {
                 const sig = fun.signature;
@@ -80,6 +85,10 @@ export class ReplicaCreator extends AStage {
             if (this.regex.test(fun.name)) {
                 const newDecl = ClavaJoinPoints.functionDecl(fun.name, fun.returnType, ...fun.params);
                 const fileName = fun.filename;
+
+                if (fun.storageClass === StorageClass.STATIC) {
+                    newDecl.storageClass = StorageClass.STATIC;
+                }
 
                 if (fileTopFunctionMap.has(fileName)) {
                     const fileTopFun = fileTopFunctionMap.get(fileName)!;
