@@ -4,6 +4,8 @@ import StatementDecomposer from "@specs-feup/clava/api/clava/code/StatementDecom
 import NormalizeToSubset from "@specs-feup/clava/api/clava/opt/NormalizeToSubset.js";
 import { BinaryOp, Body, If, Joinpoint, Loop, Scope, Statement } from "@specs-feup/clava/api/Joinpoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
+import { AllocatorInliner } from "@specs-feup/clava-code-transforms/AllocatorInliner";
+import Clava from "@specs-feup/clava/api/clava/Clava.js";
 
 export class SubsetReducer extends AStage {
     constructor(topFunction: string) {
@@ -15,16 +17,17 @@ export class SubsetReducer extends AStage {
         this.decomposeStatements();
     }
 
-    public normalizeToSubset() {
+    public normalizeToSubset(): void {
         const funs = this.getValidFunctions();
         for (const fun of funs) {
             const body = fun.body;
             NormalizeToSubset(body, { simplifyLoops: { forToWhile: false } });
         }
+        Clava.rebuild();
         this.log("Codebase normalized to subset");
     }
 
-    public decomposeStatements(maxPasses = 1) {
+    public decomposeStatements(maxPasses: number = 1): void {
         const decomp = new StatementDecomposer();
         let hasChanged = true;
         let nPasses = 0;
@@ -56,6 +59,7 @@ export class SubsetReducer extends AStage {
             }
             nPasses++;
         }
+        Clava.rebuild();
         this.log(`Decomposed statements in ${nPasses} pass${nPasses > 1 ? "es" : ""}`);
     }
 

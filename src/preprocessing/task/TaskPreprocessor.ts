@@ -40,7 +40,7 @@ export class TaskPreprocessor extends AStage {
                 this.log("Skipping voidification of main(), which is part of the valid call graph for subset reduction");
             }
             else {
-                const turnedVoid = vf.voidify(fun, DefaultPrefix.RETURN_VAR);
+                const turnedVoid = vf.voidify(fun, DefaultPrefix.RETURN_VAR, false);
                 count += turnedVoid ? 1 : 0;
             }
         });
