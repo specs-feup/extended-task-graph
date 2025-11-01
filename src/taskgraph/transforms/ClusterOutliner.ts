@@ -2,9 +2,11 @@ import { Outliner } from "@specs-feup/clava-code-transforms/Outliner";
 import { Cluster } from "../Cluster.js";
 import { RegularTask } from "../tasks/RegularTask.js";
 import { TopologicalSort } from "../util/TopologicalSort.js";
-import { Call, Expression, FileJp, FunctionJp, Statement } from "@specs-feup/clava/api/Joinpoints.js";
+import { Call, Expression, FileJp, FunctionJp, Include, Statement } from "@specs-feup/clava/api/Joinpoints.js";
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
 import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
+import Query from "@specs-feup/lara/api/weaver/Query.js";
+import { ClavaUtils } from "../../util/ClavaUtils.js";
 
 export class ClusterOutliner {
     public outlineCluster(cluster: Cluster): void {
@@ -12,41 +14,89 @@ export class ClusterOutliner {
         if (tasks.length === 0) {
             throw new Error("Cannot outline an empty cluster.");
         }
-        const [topFun, topCall] = tasks.length > 1 ? this.createTopFunction(cluster) : this.renameTopFunction(cluster);
-
         const ext = Clava.isCxx() ? "cpp" : "c";
         const clusterName = cluster.getName();
+
+        // get the sw cluster
+        const [swFun, swCall] = tasks.length > 1 ? this.buildSwFunction(cluster) : this.renameSwFunction(cluster);
+        const swCallStmt = swCall.parent as Statement;
+        const swFile = swFun.getAncestor("file") as FileJp;
+
+        // build hw cluster
         const clusterFilename = `${clusterName}.${ext}`;
-        const bridgeName = `${clusterName}_bridge.${ext}`;
-
         const clusterFile = ClavaJoinPoints.file(clusterFilename);
-        const bridgeFile = ClavaJoinPoints.file(bridgeName);
-
         Clava.addFile(clusterFile);
+        const clusterFun = this.buildClusterFunction(clusterFile, swFun, clusterName);
+
+        // build bridge
+        const bridgeFilename = `${clusterName}_bridge.${ext}`;
+        const bridgeFile = ClavaJoinPoints.file(bridgeFilename);
         Clava.addFile(bridgeFile);
+        const bridgeFun = this.buildBridge(bridgeFile, swFun, clusterFun);
 
-        const clusterFun = this.buildClusterFunction(clusterFile, topFun);
-
-        const bridgeFun = this.buildBridge(bridgeFile, topFun, clusterFun);
-
-        const bridgeCallArgs = topCall.args.map((arg) => arg.deepCopy()) as Expression[];
+        // build call to bridge
+        const bridgeCallArgs = swCall.args.map((arg) => arg.deepCopy()) as Expression[];
         const bridgeCall = ClavaJoinPoints.call(bridgeFun, ...bridgeCallArgs);
         const brigeCallStmt = ClavaJoinPoints.exprStmt(bridgeCall);
+        swCallStmt.insertAfter(brigeCallStmt);
 
-        topCall.parent.insertAfter(brigeCallStmt);
+        // add selector between sw and bridge calls
+        this.buildSelector(swCallStmt, brigeCallStmt);
+
+        // add bridge declaration to original file
+        const bridgeDecl = ClavaJoinPoints.stmtLiteral(`${bridgeFun.getDeclaration(true)};`);
+        (swCall.getAncestor("function") as FunctionJp).insertBefore(bridgeDecl);
+
+        // replicate includes to cluster and bridge files
+        this.replicateIncludes(swFile, bridgeFile);
+        this.replicateIncludes(swFile, clusterFile);
     }
 
-    private buildClusterFunction(clusterFile: FileJp, topFun: FunctionJp): FunctionJp {
-        const clusterFunName = topFun.name.replace("_sw", "_hw");
+    private replicateIncludes(sourceFile: FileJp, targetFile: FileJp): void {
+        for (const include of Query.searchFrom(sourceFile, Include)) {
+            targetFile.addInclude(include.name, include.isAngled);
+        }
+    }
+
+    private buildSelector(swCall: Statement, bridgeCall: Statement): void {
+        const ifDef = ClavaJoinPoints.stmtLiteral("#ifndef OFFLOAD");
+        swCall.insertBefore(ifDef);
+
+        const elseDef = ClavaJoinPoints.stmtLiteral("#else");
+        swCall.insertAfter(elseDef);
+
+        const endIfDef = ClavaJoinPoints.stmtLiteral("#endif // OFFLOAD");
+        bridgeCall.insertAfter(endIfDef);
+    }
+
+    private buildClusterFunction(clusterFile: FileJp, topFun: FunctionJp, clusterName: string): FunctionJp {
+        const baseName = topFun.name.replace("_sw", "");
+        const clusterFunName = `${baseName}_hw`;
         const clusterFun = topFun.clone(clusterFunName);
+        clusterFun.detach();
         clusterFile.insertBegin(clusterFun);
-        // insert all the other functions
+
+        ClavaUtils.getEligibleFunctionsFrom(topFun).forEach((fun) => {
+            const newName = `${clusterName}_${fun.name}`;
+            const funClone = fun.clone(newName);
+            funClone.detach();
+            clusterFun.insertAfter(funClone);
+
+            // add declaration to cluster function
+            const funDecl = ClavaJoinPoints.stmtLiteral(`${funClone.getDeclaration(true)};`);
+            clusterFun.insertBefore(funDecl);
+
+            for (const call of Query.searchFrom(clusterFun, Call, (c) => c.name === fun.name)) {
+                call.setName(newName);
+            }
+        });
         return clusterFun;
     }
 
     private buildBridge(bridgeFile: FileJp, topFun: FunctionJp, clusterFun: FunctionJp): FunctionJp {
         const bridgeFunName = topFun.name.replace("sw", "hw_bridge");
         const bridgeFun = topFun.clone(bridgeFunName);
+        bridgeFun.detach();
         bridgeFile.insertBegin(bridgeFun);
 
         bridgeFun.body.stmts.forEach((stmt) => stmt.detach());
@@ -56,10 +106,14 @@ export class ClusterOutliner {
         const clusterCallStmt = ClavaJoinPoints.exprStmt(clusterCall);
         bridgeFun.body.insertBegin(clusterCallStmt);
 
+        // add declaration of hw function
+        const clusterDecl = ClavaJoinPoints.stmtLiteral(`${clusterFun.getDeclaration(true)};`);
+        bridgeFun.insertBefore(clusterDecl);
+
         return bridgeFun;
     }
 
-    private createTopFunction(cluster: Cluster): [FunctionJp, Call] {
+    private buildSwFunction(cluster: Cluster): [FunctionJp, Call] {
         const tasks = cluster.getTasks();
         const orderedTasks = TopologicalSort.sort(tasks);
         const firstTask = orderedTasks[0] as RegularTask;
@@ -81,7 +135,7 @@ export class ClusterOutliner {
         return [newFun, newCall];
     }
 
-    private renameTopFunction(cluster: Cluster): [FunctionJp, Call] {
+    private renameSwFunction(cluster: Cluster): [FunctionJp, Call] {
         const task = cluster.getTasks()[0] as RegularTask;
         const fun = task.getFunction();
         const call = task.getCall();
