@@ -49,6 +49,7 @@
     "./Cluster": "./dist/src/taskgraph/Cluster.js",
     "./ClusterUtils": "./dist/src/taskgraph/util/ClusterUtils.js",
     "./ClusterExtractor": "./dist/src/taskgraph/transforms/ClusterExtractor.js",
+    "./ClusterOutliner": "./dist/src/taskgraph/transforms/ClusterOutliner.js",
     "./TaskExtractor": "./dist/src/taskgraph/transforms/TaskExtractor.js",
     "./TaskMerger": "./dist/src/taskgraph/transforms/TaskMerger.js",
     "./TaskSplitter": "./dist/src/taskgraph/transforms/TaskSplitter.js",
