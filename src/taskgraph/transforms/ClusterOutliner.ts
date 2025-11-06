@@ -7,10 +7,9 @@ import Clava from "@specs-feup/clava/api/clava/Clava.js";
 import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
-import cluster from "cluster";
 
 export class ClusterOutliner {
-    public outlineCluster(cluster: Cluster): boolean {
+    public outlineCluster(cluster: Cluster): [FunctionJp, FunctionJp, FunctionJp] | null {
         const tasks = cluster.getTasks();
         if (tasks.length === 0) {
             throw new Error("Cannot outline an empty cluster.");
@@ -54,10 +53,10 @@ export class ClusterOutliner {
 
         try {
             Clava.rebuild();
-            return true;
+            return [swFun, bridgeFun, clusterFun];
         } catch (error) {
             console.error("Error during outlining cluster:", error);
-            return false;
+            return null;
         }
     }
 
