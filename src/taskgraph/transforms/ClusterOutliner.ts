@@ -2,7 +2,7 @@ import { Outliner } from "@specs-feup/clava-code-transforms/Outliner";
 import { Cluster } from "../Cluster.js";
 import { RegularTask } from "../tasks/RegularTask.js";
 import { TopologicalSort } from "../util/TopologicalSort.js";
-import { Call, Expression, FileJp, FunctionJp, Include, Statement } from "@specs-feup/clava/api/Joinpoints.js";
+import { Call, Expression, FileJp, FunctionJp, Include, Param, Statement, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
 import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
@@ -26,16 +26,21 @@ export class ClusterOutliner {
         const clusterFilename = `${clusterName}.${ext}`;
         const clusterFile = ClavaJoinPoints.file(clusterFilename);
         Clava.addFile(clusterFile);
-        const clusterFun = this.buildClusterFunction(clusterFile, swFun, clusterName);
+        const [clusterFun, newParams] = this.buildClusterFunction(clusterFile, swFun, clusterName);
 
         // build bridge
         const bridgeFilename = `${clusterName}_bridge.${ext}`;
         const bridgeFile = ClavaJoinPoints.file(bridgeFilename);
         Clava.addFile(bridgeFile);
-        const bridgeFun = this.buildBridge(bridgeFile, swFun, clusterFun);
+        const [bridgeFun, newBridgeParams] = this.buildBridge(bridgeFile, swFun, clusterFun, newParams);
 
         // build call to bridge
-        const bridgeCallArgs = swCall.args.map((arg) => arg.deepCopy()) as Expression[];
+        const bridgeCallBaseArgs = swCall.args.map((arg) => arg.deepCopy()) as Expression[];
+        const bridgeCallGlobalArgs = newBridgeParams.map((param) => {
+            const unglobifiedName = param.name.replace("global_", "");
+            return ClavaJoinPoints.varRef(unglobifiedName, param.type);
+        });
+        const bridgeCallArgs = [...bridgeCallBaseArgs, ...bridgeCallGlobalArgs];
         const bridgeCall = ClavaJoinPoints.call(bridgeFun, ...bridgeCallArgs);
         const brigeCallStmt = ClavaJoinPoints.exprStmt(bridgeCall);
         swCallStmt.insertAfter(brigeCallStmt);
@@ -77,7 +82,7 @@ export class ClusterOutliner {
         bridgeCall.insertAfter(endIfDef);
     }
 
-    private buildClusterFunction(clusterFile: FileJp, topFun: FunctionJp, clusterName: string): FunctionJp {
+    private buildClusterFunction(clusterFile: FileJp, topFun: FunctionJp, clusterName: string): [FunctionJp, Param[]] {
         const baseName = topFun.name.replace("_sw", "");
         const clusterFunName = `${baseName}_hw`;
         const clusterFun = topFun.clone(clusterFunName);
@@ -100,6 +105,7 @@ export class ClusterOutliner {
             clusterFun.insertBefore(funDecl);
         });
 
+        // rename all calls to original functions inside the cloned functions
         for (const clone of clonedFuns) {
             for (const call of Query.searchFrom(clone, Call)) {
                 if (originalFunNames.includes(call.name)) {
@@ -108,16 +114,68 @@ export class ClusterOutliner {
                 }
             }
         }
-        return clusterFun;
+
+        // create pseudo-global variables
+        const newParams = this.buildGlobalVariables(clonedFuns, clusterFile);
+
+        return [clusterFun, newParams];
     }
 
-    private buildBridge(bridgeFile: FileJp, topFun: FunctionJp, clusterFun: FunctionJp): FunctionJp {
+    private buildGlobalVariables(clonedFuns: FunctionJp[], clusterFile: FileJp): Param[] {
+        const globalDecls: Set<string> = new Set();
+        const newParams: Param[] = [];
+        const mainFun = clonedFuns[0];
+
+        for (const clone of clonedFuns) {
+            const varrefs = Query.searchFrom(clone, Varref, (v) => {
+                if (v.vardecl != null) {
+                    return v.vardecl.isGlobal;
+                }
+                return false;
+            }).get();
+            varrefs.forEach((varref) => {
+                const varName = varref.vardecl.name;
+
+                if (!globalDecls.has(varName)) {
+                    const oldGlobal = varref.vardecl.getAncestor("statement") as Statement;
+                    const newGlobal = oldGlobal.deepCopy() as Statement;
+                    clusterFile.insertBegin(newGlobal);
+                    globalDecls.add(varName);
+
+                    const newParam = ClavaJoinPoints.param(`global_${varName}`, varref.vardecl.type);
+                    newParams.push(newParam);
+                }
+                varref.setName(varName);
+            });
+        }
+        mainFun.setParams([...mainFun.params, ...newParams]);
+
+        const body = mainFun.body;
+        newParams.reverse()
+        for (const param of newParams) {
+            const varName = param.name.replace("global_", "");
+            const lhs = ClavaJoinPoints.varRef(varName, param.type);
+            const rhs = ClavaJoinPoints.varRef(param.name, param.type);
+            const assign = ClavaJoinPoints.binaryOp("=", lhs, rhs);
+            const assignStmt = ClavaJoinPoints.exprStmt(assign);
+            body.insertBegin(assignStmt);
+        }
+        newParams.reverse();
+        return newParams;
+    }
+
+    private buildBridge(bridgeFile: FileJp, topFun: FunctionJp, clusterFun: FunctionJp, newParams: Param[]): [FunctionJp, Param[]] {
         const bridgeFunName = topFun.name.replace("sw", "hw_bridge");
         const bridgeFun = topFun.clone(bridgeFunName);
         bridgeFun.detach();
         bridgeFile.insertBegin(bridgeFun);
-
         bridgeFun.body.stmts.forEach((stmt) => stmt.detach());
+
+        // add extra params to bridge function
+        const newBridgeParams = newParams.map((param) => {
+            return ClavaJoinPoints.param(param.name, param.type);
+        });
+        bridgeFun.setParams([...bridgeFun.params, ...newBridgeParams]);
 
         const args = bridgeFun.params.map((param) => ClavaJoinPoints.varRef(param));
         const clusterCall = ClavaJoinPoints.call(clusterFun, ...args);
@@ -128,7 +186,7 @@ export class ClusterOutliner {
         const clusterDecl = ClavaJoinPoints.stmtLiteral(`${clusterFun.getDeclaration(true)};`);
         bridgeFun.insertBefore(clusterDecl);
 
-        return bridgeFun;
+        return [bridgeFun, newBridgeParams];
     }
 
     private buildSwFunction(cluster: Cluster): [FunctionJp, Call] {
