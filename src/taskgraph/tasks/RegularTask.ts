@@ -36,6 +36,10 @@ export class RegularTask extends ConcreteTask {
         this.hasSharedFunction = shared;
     }
 
+    public isTopLevelTask(): boolean {
+        return this.getHierarchicalParent() == null;
+    }
+
     public updateDataItemInterfaces(): void {
         if (this.getCall() == null) {
             return;

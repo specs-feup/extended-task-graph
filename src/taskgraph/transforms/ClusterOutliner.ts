@@ -12,7 +12,7 @@ export class ClusterOutliner {
     public outlineCluster(cluster: Cluster): [FunctionJp, FunctionJp, FunctionJp] | null {
         const tasks = cluster.getTasks();
         if (tasks.length === 0) {
-            throw new Error("Cannot outline an empty cluster.");
+            throw new Error("[ClusterOutliner] Cannot outline an empty cluster.");
         }
         const ext = Clava.isCxx() ? "cpp" : "c";
         const clusterName = cluster.getName();
@@ -55,7 +55,7 @@ export class ClusterOutliner {
             Clava.rebuild();
             return [swFun, bridgeFun, clusterFun];
         } catch (error) {
-            console.error("Error during outlining cluster:", error);
+            console.error("[ClusterOutliner] Error during outlining cluster:", error);
             return null;
         }
     }
@@ -142,13 +142,13 @@ export class ClusterOutliner {
         const lastCall = lastTask.getCall()!.parent as Statement;
 
         if (firstCall === undefined || lastCall === undefined) {
-            throw new Error("Task calls must have a parent statement.");
+            throw new Error("[ClusterOutliner] Task calls must have a parent statement.");
         }
 
         const outliner = new Outliner();
         const [newFun, newCall] = outliner.outlineWithName(firstCall, lastCall, name);
         if (newFun === null || newCall === null) {
-            throw new Error("Outlining failed to produce a new function or call.");
+            throw new Error("[ClusterOutliner] Outlining failed to produce a new function or call.");
         }
         return [newFun, newCall];
     }
@@ -156,10 +156,25 @@ export class ClusterOutliner {
     private renameSwFunction(cluster: Cluster): [FunctionJp, Call] {
         const task = cluster.getTasks()[0] as RegularTask;
         const fun = task.getFunction();
-        const call = task.getCall();
+        let call = task.getCall();
 
-        if (fun === null || call === null) {
-            throw new Error("Task must have a function and a call to rename.");
+        if (fun === null) {
+            throw new Error("[ClusterOutliner] Task does not have an associated function");
+        }
+        if (call === null) {
+            if (task.isTopLevelTask()) {
+                const calls = Query.search(Call, { name: fun.name }).get();
+                if (calls.length == 0) {
+                    throw new Error("[ClusterOutliner] Could not find the top-level call for the task's function");
+                }
+                if (calls.length > 1) {
+                    console.warn("[ClusterOutliner] Multiple calls found for the top-level task's function. Using the first one.");
+                }
+                call = calls[0];
+            }
+            else {
+                throw new Error("[ClusterOutliner] Task does not have an associated call");
+            }
         }
 
         const name = `${cluster.getEntryPointName()}_sw`;
