@@ -34,7 +34,7 @@ export class Cluster {
     }
 
     public getEntryPointName(): string {
-        if (this.hasSingleTask()) {
+        if (this.tasks.length == 0) {
             throw new Error("Cluster has no tasks.");
         }
         else if (this.tasks.length == 1) {

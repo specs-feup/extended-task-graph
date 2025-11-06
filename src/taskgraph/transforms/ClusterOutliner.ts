@@ -7,6 +7,7 @@ import Clava from "@specs-feup/clava/api/clava/Clava.js";
 import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
+import cluster from "cluster";
 
 export class ClusterOutliner {
     public outlineCluster(cluster: Cluster): boolean {
@@ -84,20 +85,30 @@ export class ClusterOutliner {
         clusterFun.detach();
         clusterFile.insertBegin(clusterFun);
 
-        ClavaUtils.getEligibleFunctionsFrom(topFun).forEach((fun) => {
+        const clonedFuns: FunctionJp[] = [clusterFun];
+
+        const originalFuns = ClavaUtils.getEligibleFunctionsFrom(topFun);
+        const originalFunNames = originalFuns.map((fun) => fun.name);
+        originalFuns.forEach((fun) => {
             const newName = `${clusterName}_${fun.name}`;
             const funClone = fun.clone(newName);
             funClone.detach();
             clusterFun.insertAfter(funClone);
+            clonedFuns.push(funClone);
 
             // add declaration to cluster function
             const funDecl = ClavaJoinPoints.stmtLiteral(`${funClone.getDeclaration(true)};`);
             clusterFun.insertBefore(funDecl);
-
-            for (const call of Query.searchFrom(clusterFun, Call, (c) => c.name === fun.name)) {
-                call.setName(newName);
-            }
         });
+
+        for (const clone of clonedFuns) {
+            for (const call of Query.searchFrom(clone, Call)) {
+                if (originalFunNames.includes(call.name)) {
+                    const newName = `${clusterName}_${call.name}`;
+                    call.setName(newName);
+                }
+            }
+        }
         return clusterFun;
     }
 
