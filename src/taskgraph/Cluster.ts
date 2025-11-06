@@ -2,6 +2,7 @@ import { TopologicalSort } from "./util/TopologicalSort.js";
 import { DataItem } from "./dataitems/DataItem.js";
 import { Call } from "@specs-feup/clava/api/Joinpoints.js";
 import { ConcreteTask } from "./tasks/ConcreteTask.js";
+import { RegularTask } from "./tasks/RegularTask.js";
 
 export class Cluster {
     private name: string = "";
@@ -26,6 +27,23 @@ export class Cluster {
 
     public getName(): string {
         return this.name;
+    }
+
+    public hasSingleTask(): boolean {
+        return this.tasks.length == 1;
+    }
+
+    public getEntryPointName(): string {
+        if (this.hasSingleTask()) {
+            throw new Error("Cluster has no tasks.");
+        }
+        else if (this.tasks.length == 1) {
+            const task = this.tasks[0] as RegularTask;
+            return task.getFunction().name;
+        }
+        else {
+            return `${this.name}_entrypoint`;
+        }
     }
 
     public getTasks(): ConcreteTask[] {

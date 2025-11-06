@@ -9,7 +9,7 @@ import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
 
 export class ClusterOutliner {
-    public outlineCluster(cluster: Cluster): void {
+    public outlineCluster(cluster: Cluster): boolean {
         const tasks = cluster.getTasks();
         if (tasks.length === 0) {
             throw new Error("Cannot outline an empty cluster.");
@@ -18,7 +18,7 @@ export class ClusterOutliner {
         const clusterName = cluster.getName();
 
         // get the sw cluster
-        const [swFun, swCall] = tasks.length > 1 ? this.buildSwFunction(cluster) : this.renameSwFunction(cluster);
+        const [swFun, swCall] = cluster.hasSingleTask() ? this.renameSwFunction(cluster) : this.buildSwFunction(cluster);
         const swCallStmt = swCall.parent as Statement;
         const swFile = swFun.getAncestor("file") as FileJp;
 
@@ -50,6 +50,14 @@ export class ClusterOutliner {
         // replicate includes to cluster and bridge files
         this.replicateIncludes(swFile, bridgeFile);
         this.replicateIncludes(swFile, clusterFile);
+
+        try {
+            Clava.rebuild();
+            return true;
+        } catch (error) {
+            console.error("Error during outlining cluster:", error);
+            return false;
+        }
     }
 
     private replicateIncludes(sourceFile: FileJp, targetFile: FileJp): void {
@@ -119,7 +127,7 @@ export class ClusterOutliner {
         const firstTask = orderedTasks[0] as RegularTask;
         const lastTask = orderedTasks[orderedTasks.length - 1] as RegularTask;
 
-        const name = `${cluster.getName()}_toplevel_sw`;
+        const name = `${cluster.getEntryPointName()}_sw`;
         const firstCall = firstTask.getCall()!.parent as Statement;
         const lastCall = lastTask.getCall()!.parent as Statement;
 
@@ -144,7 +152,7 @@ export class ClusterOutliner {
             throw new Error("Task must have a function and a call to rename.");
         }
 
-        const name = `${cluster.getName()}_${fun.name}_sw`;
+        const name = `${cluster.getEntryPointName()}_sw`;
         fun.setName(name);
         call.setName(name);
         return [fun, call];
