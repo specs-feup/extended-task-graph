@@ -2,13 +2,18 @@ import { Outliner } from "@specs-feup/clava-code-transforms/Outliner";
 import { Cluster } from "../Cluster.js";
 import { RegularTask } from "../tasks/RegularTask.js";
 import { TopologicalSort } from "../util/TopologicalSort.js";
-import { Call, Expression, FileJp, FunctionJp, Include, Param, Statement, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { BinaryOp, Call, Expression, FileJp, FunctionJp, Include, Param, ReturnStmt, Statement, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
 import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
+import { AStage } from "../../AStage.js";
 
-export class ClusterOutliner {
+export class ClusterOutliner extends AStage {
+    constructor(topFunction: string, outputDir: string, appName: string) {
+        super("ClusterOutliner", topFunction, outputDir, appName);
+    }
+
     public outlineCluster(cluster: Cluster): [FunctionJp, FunctionJp, FunctionJp] | null {
         const tasks = cluster.getTasks();
         if (tasks.length === 0) {
@@ -16,29 +21,48 @@ export class ClusterOutliner {
         }
         const ext = Clava.isCxx() ? "cpp" : "c";
         const clusterName = cluster.getName();
+        this.log(`Outlining cluster ${clusterName} with ${tasks.length} tasks.`);
 
         // get the sw cluster
+        this.log(`Building SW function for cluster ${clusterName}.`);
         const [swFun, swCall] = cluster.hasSingleTask() ? this.renameSwFunction(cluster) : this.buildSwFunction(cluster);
         const swCallStmt = swCall.parent as Statement;
         const swFile = swFun.getAncestor("file") as FileJp;
 
         // build hw cluster
+        this.log(`Building HW cluster function for cluster ${clusterName}.`);
         const clusterFilename = `${clusterName}.${ext}`;
         const clusterFile = ClavaJoinPoints.file(clusterFilename);
         Clava.addFile(clusterFile);
         const [clusterFun, newParams] = this.buildClusterFunction(clusterFile, swFun, clusterName);
 
         // build bridge
+        this.log(`Building bridge function for cluster ${clusterName}.`);
         const bridgeFilename = `${clusterName}_bridge.${ext}`;
         const bridgeFile = ClavaJoinPoints.file(bridgeFilename);
         Clava.addFile(bridgeFile);
         const [bridgeFun, newBridgeParams] = this.buildBridge(bridgeFile, swFun, clusterFun, newParams);
 
         // build call to bridge
+        this.log(`Building call to bridge function for cluster ${clusterName}.`);
         const bridgeCallBaseArgs = swCall.args.map((arg) => arg.deepCopy()) as Expression[];
         const bridgeCallGlobalArgs = newBridgeParams.map((param) => {
             const unglobifiedName = param.name.replace("global_", "");
-            return ClavaJoinPoints.varRef(unglobifiedName, param.type);
+            const globalDecl = Query.search(Vardecl, { name: unglobifiedName }).first();
+            if (globalDecl === null || globalDecl === undefined) {
+                throw new Error(`[ClusterOutliner] Could not find global variable declaration for ${unglobifiedName}`);
+            }
+
+            const derefNeeded = !globalDecl?.type.isPointer && param.type.isPointer;
+            if (derefNeeded) {
+                this.log(`  Global ${globalDecl.name} requires dereferencing.`);
+            }
+            else {
+                this.log(`  Global ${globalDecl.name} passed as-is.`);
+            }
+            const type = derefNeeded ? ClavaJoinPoints.pointer(globalDecl.type) : globalDecl.type;
+
+            return ClavaJoinPoints.varRef(unglobifiedName, type);
         });
         const bridgeCallArgs = [...bridgeCallBaseArgs, ...bridgeCallGlobalArgs];
         const bridgeCall = ClavaJoinPoints.call(bridgeFun, ...bridgeCallArgs);
@@ -58,9 +82,10 @@ export class ClusterOutliner {
 
         try {
             Clava.rebuild();
+            this.log(`Successfully outlined cluster ${clusterName}.`);
             return [swFun, bridgeFun, clusterFun];
         } catch (error) {
-            console.error("[ClusterOutliner] Error during outlining cluster:", error);
+            this.logError("[ClusterOutliner] Error during outlining cluster:" + error);
             return null;
         }
     }
@@ -124,6 +149,7 @@ export class ClusterOutliner {
     private buildGlobalVariables(clonedFuns: FunctionJp[], clusterFile: FileJp): Param[] {
         const globalDecls: Set<string> = new Set();
         const newParams: Param[] = [];
+        const needsDeref: string[] = [];
         const mainFun = clonedFuns[0];
 
         for (const clone of clonedFuns) {
@@ -133,16 +159,28 @@ export class ClusterOutliner {
                 }
                 return false;
             }).get();
+
             varrefs.forEach((varref) => {
                 const varName = varref.vardecl.name;
+                const isOnlyRead = this.isOnlyRead(varref, clonedFuns);
 
                 if (!globalDecls.has(varName)) {
                     const oldGlobal = varref.vardecl.getAncestor("statement") as Statement;
-                    const newGlobal = oldGlobal.deepCopy() as Statement;
+                    const newGlobal = oldGlobal.deepCopy() as Statement
                     clusterFile.insertBegin(newGlobal);
                     globalDecls.add(varName);
 
-                    const newParam = ClavaJoinPoints.param(`global_${varName}`, varref.vardecl.type);
+                    const baseType = varref.vardecl.type;
+                    let newType;
+                    if (!isOnlyRead && !baseType.isPointer) {
+                        newType = ClavaJoinPoints.pointer(varref.vardecl.type);
+                        needsDeref.push(varName);
+                        this.log(`  Scalar global ${varName} of type ${baseType.code} will be passed as a pointer.`);
+                    } else {
+                        newType = varref.vardecl.type;
+                        this.log(`  Global ${varName} of type ${baseType.code} will be passed by value.`);
+                    }
+                    const newParam = ClavaJoinPoints.param(`global_${varName}`, newType);
                     newParams.push(newParam);
                 }
                 varref.setName(varName);
@@ -154,14 +192,50 @@ export class ClusterOutliner {
         newParams.reverse()
         for (const param of newParams) {
             const varName = param.name.replace("global_", "");
+            const doDeref = needsDeref.includes(varName);
             const lhs = ClavaJoinPoints.varRef(varName, param.type);
-            const rhs = ClavaJoinPoints.varRef(param.name, param.type);
+
+            const rhsRef = ClavaJoinPoints.varRef(param.name, param.type);
+            const rhs = doDeref ? ClavaJoinPoints.unaryOp("*", rhsRef) : rhsRef;
+
             const assign = ClavaJoinPoints.binaryOp("=", lhs, rhs);
             const assignStmt = ClavaJoinPoints.exprStmt(assign);
             body.insertBegin(assignStmt);
+
+            if (doDeref) {
+                const endLhsRef = ClavaJoinPoints.varRef(param.name, param.type);
+                const endLhs = ClavaJoinPoints.unaryOp("*", endLhsRef);
+                const endRhs = ClavaJoinPoints.varRef(varName, ClavaJoinPoints.pointer(param.type));
+                const endAssign = ClavaJoinPoints.binaryOp("=", endLhs, endRhs);
+                const endAssignStmt = ClavaJoinPoints.exprStmt(endAssign);
+
+                let atLeastOnce = false;
+                for (const retStmt of Query.searchFrom(body, ReturnStmt)) {
+                    retStmt.insertBefore(endAssignStmt.deepCopy());
+                    atLeastOnce = true;
+                }
+                if (!atLeastOnce) {
+                    body.insertEnd(endAssignStmt);
+                }
+            }
         }
+        this.log(`  Added ${newParams.length} global parameters to cluster function ${mainFun.name}.`);
         newParams.reverse();
         return newParams;
+    }
+
+    private isOnlyRead(varref: Varref, funs: FunctionJp[]): boolean {
+        for (const fun of funs) {
+            for (const assign of Query.searchFrom(fun, BinaryOp, (b) => b.operator === "=").get()) {
+                const lhs = assign.left;
+                for (const ref of Query.searchFromInclusive(lhs, Varref).get()) {
+                    if (ref.name === varref.name) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     private buildBridge(bridgeFile: FileJp, topFun: FunctionJp, clusterFun: FunctionJp, newParams: Param[]): [FunctionJp, Param[]] {
@@ -226,7 +300,7 @@ export class ClusterOutliner {
                     throw new Error("[ClusterOutliner] Could not find the top-level call for the task's function");
                 }
                 if (calls.length > 1) {
-                    console.warn("[ClusterOutliner] Multiple calls found for the top-level task's function. Using the first one.");
+                    this.logWarning("[ClusterOutliner] Multiple calls found for the top-level task's function. Using the first one.");
                 }
                 call = calls[0];
             }
