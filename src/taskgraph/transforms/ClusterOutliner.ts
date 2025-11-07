@@ -2,7 +2,7 @@ import { Outliner } from "@specs-feup/clava-code-transforms/Outliner";
 import { Cluster } from "../Cluster.js";
 import { RegularTask } from "../tasks/RegularTask.js";
 import { TopologicalSort } from "../util/TopologicalSort.js";
-import { BinaryOp, Call, Expression, FileJp, FunctionJp, Include, Param, ReturnStmt, Statement, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { BinaryOp, Call, DeclStmt, Expression, FileJp, FunctionJp, Include, Param, ReturnStmt, Scope, Statement, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
 import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
@@ -162,11 +162,14 @@ export class ClusterOutliner extends AStage {
 
             varrefs.forEach((varref) => {
                 const varName = varref.vardecl.name;
+                const oldGlobal = varref.vardecl.getAncestor("statement") as DeclStmt;
                 const isOnlyRead = this.isOnlyRead(varref, clonedFuns);
 
                 if (!globalDecls.has(varName)) {
-                    const oldGlobal = varref.vardecl.getAncestor("statement") as Statement;
-                    const newGlobal = oldGlobal.deepCopy() as Statement
+                    const newGlobal = oldGlobal.deepCopy() as DeclStmt;
+                    for (const decl of newGlobal.decls) {
+                        decl.replaceWith(ClavaJoinPoints.declLiteral(`static ${decl.code}`));
+                    }
                     clusterFile.insertBegin(newGlobal);
                     globalDecls.add(varName);
 
@@ -176,7 +179,8 @@ export class ClusterOutliner extends AStage {
                         newType = ClavaJoinPoints.pointer(varref.vardecl.type);
                         needsDeref.push(varName);
                         this.log(`  Scalar global ${varName} of type ${baseType.code} will be passed as a pointer.`);
-                    } else {
+                    }
+                    else {
                         newType = varref.vardecl.type;
                         this.log(`  Global ${varName} of type ${baseType.code} will be passed by value.`);
                     }
@@ -188,8 +192,14 @@ export class ClusterOutliner extends AStage {
         }
         mainFun.setParams([...mainFun.params, ...newParams]);
 
-        const body = mainFun.body;
+        const body = mainFun.body as Scope;
         newParams.reverse()
+        this.updateBodyWithGlobals(newParams, needsDeref, body, mainFun);
+        newParams.reverse();
+        return newParams;
+    }
+
+    private updateBodyWithGlobals(newParams: Param[], needsDeref: string[], body: Scope, mainFun: FunctionJp) {
         for (const param of newParams) {
             const varName = param.name.replace("global_", "");
             const doDeref = needsDeref.includes(varName);
@@ -220,8 +230,6 @@ export class ClusterOutliner extends AStage {
             }
         }
         this.log(`  Added ${newParams.length} global parameters to cluster function ${mainFun.name}.`);
-        newParams.reverse();
-        return newParams;
     }
 
     private isOnlyRead(varref: Varref, funs: FunctionJp[]): boolean {
