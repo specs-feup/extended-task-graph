@@ -1,8 +1,9 @@
 import { TopologicalSort } from "./util/TopologicalSort.js";
 import { DataItem } from "./dataitems/DataItem.js";
-import { Call } from "@specs-feup/clava/api/Joinpoints.js";
+import { Call, If, Loop } from "@specs-feup/clava/api/Joinpoints.js";
 import { ConcreteTask } from "./tasks/ConcreteTask.js";
 import { RegularTask } from "./tasks/RegularTask.js";
+import Query from "@specs-feup/lara/api/weaver/Query.js";
 
 export class Cluster {
     private name: string = "";
@@ -141,19 +142,37 @@ export class Cluster {
     }
 
     public canAdd(task: ConcreteTask): boolean {
-        return this.taskIsParallel(task) || this.taskIsValidAntecessor(task) || this.taskIsValidSuccessor(task);
+        const parentTask = task.getHierarchicalParent() as RegularTask | null;
+        if (parentTask == null) {
+            // if task is the top-level task, we only allow adding if cluster is empty
+            return this.tasks.length == 0;
+        }
+        const parentFun = parentTask.getFunction();
+        const parentHasIfs = Query.searchFrom(parentFun, If).get().length > 0;
+        const parentHasLoops = Query.searchFrom(parentFun, Loop).get().length > 0;
+
+        const isParallel = this.taskIsParallel(task);
+        const isValidAntecessor = this.taskIsValidAntecessor(task);
+        const isValidSuccessor = this.taskIsValidSuccessor(task);
+
+        if (!parentHasIfs && !parentHasLoops) {
+            return isParallel || isValidAntecessor || isValidSuccessor;
+        }
+        else {
+            return isParallel || isValidAntecessor || isValidSuccessor;
+        }
     }
 
     // A task is parallel if it has no immediate antecedents or successors within the cluster
     private taskIsParallel(task: ConcreteTask): boolean {
-        const noAntecessor = task.getIncomingComm().every(comm => !this.hasTask(comm.getSource() as ConcreteTask));
-        const noSuccessor = task.getOutgoingComm().every(comm => !this.hasTask(comm.getTarget() as ConcreteTask));
+        const noAntecessor = task.getAllIncomingEdges().every(comm => !this.hasTask(comm.getSource() as ConcreteTask));
+        const noSuccessor = task.getAllOutgoingEdges().every(comm => !this.hasTask(comm.getTarget() as ConcreteTask));
         return noAntecessor && noSuccessor;
     }
 
     // a task is a valid antecessor if its immediate successors are either in the cluster, or never lead to the cluster
     private taskIsValidAntecessor(task: ConcreteTask): boolean {
-        const successors = task.getOutgoingComm().map(comm => comm.getTarget() as ConcreteTask);
+        const successors = task.getAllOutgoingEdges().map(comm => comm.getTarget() as ConcreteTask);
         for (const succ of successors) {
             if (this.hasTask(succ)) {
                 continue;
@@ -167,7 +186,7 @@ export class Cluster {
                     return false; // leads to a task in the cluster
                 }
                 visited.add(current.getUniqueName());
-                const nextSuccessors = current.getOutgoingComm().map(comm => comm.getTarget() as ConcreteTask);
+                const nextSuccessors = current.getAllOutgoingEdges().map(comm => comm.getTarget() as ConcreteTask);
                 for (const next of nextSuccessors) {
                     if (!visited.has(next.getUniqueName())) {
                         stack.push(next);
@@ -180,7 +199,7 @@ export class Cluster {
 
     // a task is a valid successor if its immediate antecedents are either in the cluster, or never lead to the cluster
     private taskIsValidSuccessor(task: ConcreteTask): boolean {
-        const antecedents = task.getIncomingComm().map(comm => comm.getSource() as ConcreteTask);
+        const antecedents = task.getAllIncomingEdges().map(comm => comm.getSource() as ConcreteTask);
         for (const ant of antecedents) {
             if (this.hasTask(ant)) {
                 continue;
@@ -194,7 +213,7 @@ export class Cluster {
                     return false; // leads to a task in the cluster
                 }
                 visited.add(current.getUniqueName());
-                const nextAntecedents = current.getIncomingComm().map(comm => comm.getSource() as ConcreteTask);
+                const nextAntecedents = current.getAllIncomingEdges().map(comm => comm.getSource() as ConcreteTask);
                 for (const next of nextAntecedents) {
                     if (!visited.has(next.getUniqueName())) {
                         stack.push(next);
