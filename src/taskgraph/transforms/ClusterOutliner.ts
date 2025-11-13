@@ -2,7 +2,7 @@ import { Outliner } from "@specs-feup/clava-code-transforms/Outliner";
 import { Cluster } from "../Cluster.js";
 import { RegularTask } from "../tasks/RegularTask.js";
 import { TopologicalSort } from "../util/TopologicalSort.js";
-import { BinaryOp, Call, DeclStmt, Expression, FileJp, FunctionJp, If, Include, Joinpoint, Loop, Param, ReturnStmt, Scope, Statement, Struct, Switch, TypedefDecl, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { BinaryOp, Call, DeclStmt, Expression, FileJp, FunctionJp, If, Include, Loop, Param, ReturnStmt, Scope, Statement, Struct, Switch, TypedefDecl, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
 import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
@@ -197,7 +197,13 @@ export class ClusterOutliner extends AStage {
                 if (!globalDecls.has(varName)) {
                     const newGlobal = oldGlobal.deepCopy() as DeclStmt;
                     for (const decl of newGlobal.decls) {
-                        decl.replaceWith(ClavaJoinPoints.declLiteral(`static ${decl.code}`));
+                        // remove const keyword from global declarations
+                        const split = decl.code.split(" ");
+                        const filtered = split.filter((token) => token !== "const");
+                        const declCode = filtered.join(" ");
+                        // add static to global declarations
+                        const newGlobal = ClavaJoinPoints.declLiteral(`static ${declCode}`);
+                        decl.replaceWith(newGlobal);
                     }
                     clusterFile.insertBegin(newGlobal);
                     globalDecls.add(varName);
