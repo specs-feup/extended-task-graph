@@ -163,6 +163,10 @@ export class OutlineRegionFinder extends AStage {
         let currRegion: Statement[] = [];
 
         for (const stmt of scope.children) {
+            if ((stmt instanceof Loop) && (stmt.parent.parent instanceof If)) {
+                currRegion.push(stmt);
+                continue;
+            }
             if (stmt instanceof If || stmt instanceof Loop) {
                 const bodies = [];
                 for (const child of stmt.children) {
