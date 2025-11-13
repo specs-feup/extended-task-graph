@@ -8,6 +8,7 @@ import { DataItemOrigin } from "../DataItemOrigin.js";
 import { AccessType } from "../AccessType.js";
 import { VariableDataItem } from "../dataitems/VariableDataItem.js";
 import { ConstantDataItem } from "../dataitems/ConstantDataItem.js";
+import { TaskGraphEdge } from "../TaskGraphEdge.js";
 
 export abstract class Task {
     // Basic task details
@@ -202,6 +203,14 @@ export abstract class Task {
 
     public addIncomingControl(control: ControlEdge): void {
         this.incomingControl.push(control);
+    }
+
+    public getAllIncomingEdges(): TaskGraphEdge[] {
+        return [...this.incomingComm, ...this.incomingControl];
+    }
+
+    public getAllOutgoingEdges(): TaskGraphEdge[] {
+        return [...this.outgoingComm, ...this.outgoingControl];
     }
 
     public createDataObjects(vars: Vardecl[], originType: DataItemOrigin): void {

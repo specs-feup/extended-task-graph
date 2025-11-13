@@ -2,7 +2,7 @@ import { FunctionJp } from "@specs-feup/clava/api/Joinpoints.js";
 import Io from "@specs-feup/lara/api/lara/Io.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import chalk from "chalk";
-import { existsSync, mkdirSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, writeSync } from "fs";
 import { createLogger, format, Logger, transports } from "winston";
 import { ClavaUtils } from "./util/ClavaUtils.js";
 
@@ -179,16 +179,19 @@ export abstract class AStage {
         if (!existsSync(this.outputDir)) {
             mkdirSync(this.outputDir, { recursive: true });
         }
-        writeFileSync(logFile, '');
+        //writeFileSync(logFile, '');
 
         const stdTransporter = new transports.Console({
             format: format.printf(({ message }) => {
                 return `${message}`;
             }),
-            level: 'info'
+            level: 'info',
+            handleExceptions: true,
+
         });
         const fileTransporter = new transports.File({
             filename: logFile,
+            options: { highWaterMark: 1024 * 1024 }, // 1 MB buffer
             format: format.combine(
                 format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
                 format.printf(({ timestamp, message }) => {
@@ -208,6 +211,10 @@ export abstract class AStage {
             ]
         });
         AStage.isLoggerInit = true;
+
+        if (process.stdout.isTTY && process.stdout.write.length === 2) {
+            writeSync(1, '');
+        }
     }
 
     private writeMessage(message: string): void {

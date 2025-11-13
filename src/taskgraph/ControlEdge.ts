@@ -1,21 +1,10 @@
+import { TaskGraphEdge } from "./TaskGraphEdge.js";
 import { Task } from "./tasks/Task.js";
 
-export class ControlEdge {
-    private source: Task;
-    private target: Task;
-
+export class ControlEdge extends TaskGraphEdge {
 
     constructor(source: Task, target: Task) {
-        this.source = source;
-        this.target = target;
-    }
-
-    public getSource(): Task {
-        return this.source;
-    }
-
-    public getTarget(): Task {
-        return this.target;
+        super(source, target);
     }
 
     public toString(): string {

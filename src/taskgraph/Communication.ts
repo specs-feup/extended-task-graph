@@ -1,35 +1,17 @@
 import { DataItem } from "./dataitems/DataItem.js";
 import { Task } from "./tasks/Task.js";
+import { TaskGraphEdge } from "./TaskGraphEdge.js";
 
-export class Communication {
-    private source: Task;
-    private target: Task;
+export class Communication extends TaskGraphEdge {
     private sourceData: DataItem;
     private targetData: DataItem;
     private rank: number = -1;
 
     constructor(source: Task, target: Task, sourceData: DataItem, targetData: DataItem, rank: number) {
-        this.source = source;
-        this.target = target;
+        super(source, target);
         this.sourceData = sourceData;
         this.targetData = targetData;
         this.rank = rank;
-    }
-
-    public getSource(): Task {
-        return this.source;
-    }
-
-    public getTarget(): Task {
-        return this.target;
-    }
-
-    public setSource(source: Task): void {
-        this.source = source;
-    }
-
-    public setTarget(target: Task): void {
-        this.target = target;
     }
 
     public getSourceData(): DataItem {
