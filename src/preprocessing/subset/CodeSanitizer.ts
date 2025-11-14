@@ -12,27 +12,27 @@ export class CodeSanitizer extends AStage {
 
     public sanitize(): void {
         const nuked = this.nukeAll(LabelStmt);
-        this.log(nuked > 0 ? `Nuked ${nuked} labels` : "No labels to nuke");
+        this.log(nuked > 0 ? `  Nuked ${nuked} labels` : "  No labels to nuke");
 
         const regs = this.removeRegisterQualifiers();
-        this.log(regs > 0 ? `Removed ${regs} register qualifiers` : "No register qualifiers to remove");
+        this.log(regs > 0 ? `  Removed ${regs} register qualifiers` : "  No register qualifiers to remove");
 
         const comms = this.removeAllComments();
-        this.log(comms > 0 ? `Removed ${comms} comments` : "No comments to remove");
+        this.log(comms > 0 ? `  Removed ${comms} comments` : "  No comments to remove");
 
         const brackets = this.forceBracketsInScopes();
-        this.log(brackets > 0 ? `Forced brackets in ${brackets} scopes` : "No scopes to force brackets in");
+        this.log(brackets > 0 ? `  Forced brackets in ${brackets} scopes` : "  No scopes to force brackets in");
 
         const flattenedFuns = this.flattenAllScopes();
-        this.log(flattenedFuns > 0 ? `Flattened scopes in ${flattenedFuns} functions` : "No scopes to flatten");
+        this.log(flattenedFuns > 0 ? `  Flattened scopes in ${flattenedFuns} functions` : "  No scopes to flatten");
 
         const funDeclsInFuns = this.removeFunctionDeclsInFunctions();
-        this.log(funDeclsInFuns > 0 ? `Removed ${funDeclsInFuns} function declarations in functions` : "No function declarations to remove");
+        this.log(funDeclsInFuns > 0 ? ` Removed ${funDeclsInFuns} function declarations in functions` : "  No function declarations to remove");
 
         //const mallocs = this.singleArgumentMallocs();
         //this.log(mallocs > 0 ? `Ensured ${mallocs} calls to malloc() have no expressions as arguments` : "No mallocs to sanitize");
 
-        this.logSuccess("Sanitized code");
+        this.logSuccess("code successfully sanitized.");
     }
 
     public singleArgumentMallocs(): number {

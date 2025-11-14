@@ -27,32 +27,32 @@ export class OutlineRegionFinder extends AStage {
 
             // if the function has no calls, there is no need to outline it
             if (nCalls == 0) {
-                this.log(fun.name + ": no outlining regions found");
+                this.log(`  ${fun.name}: no outlining regions found`);
             }
             else {
                 // find all outlining regions of the function
                 const funRegions = this.findRegionsInScope(fun.body);
                 regions.push(...funRegions);
-
-                this.log(fun.name + ": found " + funRegions.length + " outlining regions");
+                this.log(`  ${fun.name}: found ${funRegions.length} outlining regions`);
             }
         }
         this.log(`Found ${regions.length} outlining regions in total`);
         const filteredRegions = this.filterRegions(regions);
 
-        const wrappedRegion: Statement[][] = [];
+        const wrappedRegions: Statement[][] = [];
         for (const region of filteredRegions) {
-            wrappedRegion.push(this.wrapRegion(region, false));
+            wrappedRegions.push(this.wrapRegion(region, false));
         }
         this.generateIntermediateCode(`t1.${iteration}-outlining-annotated`, "generic annotated outlining regions");
 
-        for (const region of wrappedRegion) {
-            this.outlineRegion(region, DefaultPrefix.OUTLINED_FUN);
+        let outlinedCount = 0;
+        for (const region of wrappedRegions) {
+            outlinedCount += this.outlineRegion(region, DefaultPrefix.OUTLINED_FUN);
         }
 
         this.log("Finished annotating generic outlining regions");
         this.generateIntermediateCode(`t1.${iteration}-outlining-generic`, "generic outlined regions");
-        return wrappedRegion.length;
+        return outlinedCount;
     }
 
     public outlineLoops(iteration: number): number {
@@ -150,18 +150,33 @@ export class OutlineRegionFinder extends AStage {
         }
     }
 
-    private outlineRegion(wrappedRegion: Statement[], prefix: string): void {
+    private outlineRegion(wrappedRegion: Statement[], prefix: string): number {
         const start = wrappedRegion[0] as WrapperStmt;
         const end = wrappedRegion[wrappedRegion.length - 1] as WrapperStmt;
 
         const outliner = new Outliner(true);
         outliner.setDefaultPrefix(prefix);
 
-        //outliner.outlineWithName(start, end, fname);
-        const res = outliner.outlineWithWrappers(start, end);
+
+        const [outFun, outCall] = outliner.outlineWithWrappers(start, end);
         start.detach();
         end.detach();
-        this.log(`Outlined region into function "${res[0] ? res[0].name : "<unknown>"}"`);
+
+        if (outFun == undefined || outCall == undefined) {
+            this.logError(`  Outlining failed for region at ${start.location}`);
+            return 0;
+        }
+
+        if (outFun.body.stmts.length === 0) {
+            outFun.detach();
+            outCall.parent.detach();
+            this.logWarning("  Outlined region was empty, removing outlined function and call");
+            return 0;
+        }
+        else {
+            this.log(`  Created outlined function "${outFun ? outFun.name : "<unknown>"}"`);
+            return 1;
+        }
     }
 
     private filterRegions(regions: Statement[][]): Statement[][] {
@@ -185,7 +200,7 @@ export class OutlineRegionFinder extends AStage {
             if (isTrivialReturn) {
                 const stmt = scope.children[0].code.replace(/\n/g, '\\n');
                 const ret = scope.children[1].code.replace(/\n/g, '');
-                this.log(`Found a trivial return with statements "${stmt}" and "${ret}"`);
+                this.log(`  Found a trivial return with statements "${stmt}" and "${ret}"`);
             }
 
             return isTrivialReturn;

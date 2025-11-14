@@ -16,11 +16,11 @@ export class TaskPreprocessor extends AStage {
         this.outlineAll();
         Clava.rebuild();
 
-        this.ensureVoidReturns();
-        Clava.rebuild();
+        // this.ensureVoidReturns();
+        // Clava.rebuild();
 
-        this.createFunctionReplicas();
-        Clava.rebuild();
+        // this.createFunctionReplicas();
+        // Clava.rebuild();
     }
 
     public generateIntermediateCode(subfolder: string, message: string): void {
@@ -33,6 +33,8 @@ export class TaskPreprocessor extends AStage {
         let count = 0;
 
         const funs = this.getValidFunctions();
+        this.log(`There are ${funs.length} functions in the working AST region`);
+
         funs.forEach((fun) => {
             const vf = new Voidifier();
 
@@ -40,14 +42,19 @@ export class TaskPreprocessor extends AStage {
                 this.log("Skipping voidification of main(), which is part of the valid call graph for subset reduction");
             }
             else {
-                const turnedVoid = vf.voidify(fun, DefaultPrefix.RETURN_VAR, false);
+                const turnedVoid = vf.voidify(fun, DefaultPrefix.RETURN_VAR, true);
                 count += turnedVoid ? 1 : 0;
+                if (turnedVoid) {
+                    this.log(`  "${fun.name}" return type changed to void`);
+                }
+                else {
+                    this.log(`  "${fun.name}" already has void return type`);
+                }
             }
         });
         this.log(`Ensured ${count} function${count > 1 ? "s" : ""} return${count > 1 ? "s" : ""} void`);
         this.generateIntermediateCode("t2-voidification", "Voidified");
     }
-
 
     public outlineAll(): boolean {
         this.log("Finding code regions for outlining...");

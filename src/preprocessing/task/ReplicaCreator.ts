@@ -15,18 +15,19 @@ export class ReplicaCreator extends AStage {
 
     public replicateAll(): [number, number] {
         const nUnique = this.getValidFunctions().length;
-        const main = Query.search(FunctionJp, { name: "main", isImplementation: true }).first();
-        if (!main) {
-            this.logError("Could not find main() function, aborting replica creation.");
+        const topFun = this.getTopFunctionJoinPoint();
+        if (!topFun) {
+            this.logError("Could not find top function, aborting replica creation.");
             return [0, nUnique];
         }
         let nReplicas = 0;
         let isChanging = true;
+        let nIter = 0;
 
         while (isChanging) {
             isChanging = false;
 
-            const funs = ClavaUtils.getEligibleFunctionsFrom(main, false);
+            const funs = ClavaUtils.getEligibleFunctionsFrom(topFun, false);
             const funCount = new Map<string, number>();
             funs.forEach((fun) => {
                 const sig = fun.signature;
@@ -38,7 +39,7 @@ export class ReplicaCreator extends AStage {
                 if (count <= 1) {
                     continue;
                 }
-                this.log(`Replicating function ${signature.split("(")[0]}`);
+                this.log(`  Replicating function ${signature.split("(")[0]}`);
 
                 const calls = Query.search(Call, { signature: signature }).get();
                 for (const call of calls) {
@@ -49,8 +50,12 @@ export class ReplicaCreator extends AStage {
                     }
                 }
             }
+            nIter += 1;
+            this.log(`Finished iteration ${nIter} of replica creation`);
         }
+        this.log("Replica creation finished.");
         this.rebuildDeclarations();
+        this.log(`Created ${nReplicas} replicas for ${nUnique} unique functions.`);
         return [nReplicas, nUnique];
     }
 

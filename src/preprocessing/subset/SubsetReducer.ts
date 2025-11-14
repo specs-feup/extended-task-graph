@@ -51,7 +51,7 @@ export class SubsetReducer extends AStage {
                     const hasMatchedEdgeCase = this.matchesEdgeCase(stmt);
 
                     if (hasMatchedTemp || hasMatchedEdgeCase) {
-                        const decomp = new StatementDecomposer("_decomp", n);
+                        const decomp = new StatementDecomposer(`_d${n}_`);
                         decomp.decomposeAndReplace(stmt);
                         hasChanged = true;
                         n++;

@@ -19,6 +19,9 @@ export class OutlineRegionValidator {
     }
 
     public validate(region: Statement[]): boolean {
+        if (region.length == 0) {
+            return false;
+        }
         for (const scenario of this.scenarios) {
             if (!scenario.validate(region)) {
                 return false;
