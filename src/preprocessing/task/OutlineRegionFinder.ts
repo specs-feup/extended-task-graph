@@ -1,4 +1,4 @@
-import { Body, Call, ExprStmt, FunctionJp, If, Joinpoint, Loop, ReturnStmt, Scope, Statement, Varref, WrapperStmt } from "@specs-feup/clava/api/Joinpoints.js";
+import { Body, Call, DeclStmt, ExprStmt, FunctionJp, If, Joinpoint, Literal, Loop, ReturnStmt, Scope, Statement, Vardecl, Varref, WrapperStmt } from "@specs-feup/clava/api/Joinpoints.js";
 import { AStage } from "../../AStage.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
@@ -9,6 +9,7 @@ import { Outliner } from "@specs-feup/clava-code-transforms/Outliner";
 import { DefaultPrefix } from "../../api/PreSuffixDefaults.js";
 import { OutlineRegionValidator } from "./OutlineRegionValidator.js";
 import { SourceCodeOutput } from "../../api/OutputDirectories.js";
+import Clava from "@specs-feup/clava/api/clava/Clava.js";
 
 export class OutlineRegionFinder extends AStage {
     constructor(topFunction: string, outputDir: string, appName: string) {
@@ -68,6 +69,41 @@ export class OutlineRegionFinder extends AStage {
         this.log("Finished annotating loop outlining regions");
         this.generateIntermediateCode(`t1.${iteration}-outlining-loop`, "loop outlined regions");
         return outlinedCount;
+    }
+
+    public updateDecls(): boolean {
+        this.log("Moving decls of outlined functions to their beginning");
+        try {
+            Clava.rebuild();
+            this.log("Successfully moved decls of outlined functions to their beginning");
+        }
+        catch (e) {
+            this.logError(`${e}`);
+            this.logError("Could not move decls of outlined functions to their beginning");
+            return false;
+        }
+
+        for (const fun of ClavaUtils.getAllUniqueFunctions(this.getTopFunctionJoinPoint())) {
+            for (const scope of Query.searchFrom(fun, Scope)) {
+
+                for (const stmt of scope.stmts) {
+                    if (stmt instanceof DeclStmt) {
+                        const noInits = stmt.decls.every((decl) => {
+                            if (decl instanceof Vardecl) {
+                                return !decl.hasInit ||
+                                    (decl.hasInit && decl.init instanceof Literal);
+                            }
+                        });
+                        if (!noInits) {
+                            continue;
+                        }
+                        stmt.detach();
+                        scope.insertBegin(stmt);
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     private generateIntermediateCode(subfolder: string, message: string): void {

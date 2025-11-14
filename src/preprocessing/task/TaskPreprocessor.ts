@@ -49,7 +49,7 @@ export class TaskPreprocessor extends AStage {
     }
 
 
-    public outlineAll(): void {
+    public outlineAll(): boolean {
         this.log("Finding code regions for outlining...");
         const topFun = this.getTopFunctionName();
         const outputDir = this.getOutputDir();
@@ -86,6 +86,8 @@ export class TaskPreprocessor extends AStage {
             n += 1;
         }
         this.log(`Total outlined regions: ${totalOutlined}`);
+
+        return finder.updateDecls();
     }
 
     public createFunctionReplicas() {
