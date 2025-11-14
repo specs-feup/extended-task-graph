@@ -55,14 +55,37 @@ export class TaskPreprocessor extends AStage {
         const outputDir = this.getOutputDir();
         const appName = this.getAppName();
         const finder = new OutlineRegionFinder(topFun, outputDir, appName);
+        let keepRunning = true;
+        let totalOutlined = 0;
+        let n = 1;
 
-        const genCnt = finder.outlineGenericRegions();
-        this.log(`Outlined ${genCnt} generic regions`);
+        while (keepRunning) {
+            const genCnt = finder.outlineGenericRegions(n);
+            const loopCnt = finder.outlineLoops(n);
 
-        const loopCnt = finder.outlineLoops();
-        this.log(`Outlined ${loopCnt} loop regions`);
+            if (genCnt > 0) {
+                this.log(`Outlined ${genCnt} generic regions`);
+                totalOutlined += genCnt;
+            }
+            else {
+                this.log("No generic regions found for outlining");
+            }
 
-        this.log("Finished outlining regions");
+            if (loopCnt > 0) {
+                this.log(`Outlined ${loopCnt} loop regions`);
+                totalOutlined += loopCnt;
+            }
+            else {
+                this.log("No loop regions found for outlining");
+            }
+
+            if (genCnt === 0 && loopCnt === 0) {
+                this.log("No more regions found for outlining");
+                keepRunning = false;
+            }
+            n += 1;
+        }
+        this.log(`Total outlined regions: ${totalOutlined}`);
     }
 
     public createFunctionReplicas() {

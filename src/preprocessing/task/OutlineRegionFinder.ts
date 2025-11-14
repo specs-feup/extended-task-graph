@@ -15,7 +15,7 @@ export class OutlineRegionFinder extends AStage {
         super("TransFlow-TaskPrep-Outliner", topFunction, outputDir, appName);
     }
 
-    public outlineGenericRegions(): number {
+    public outlineGenericRegions(iteration: number): number {
         this.log("Beginning the annotation of generic outlining regions");
 
         const funs = ClavaUtils.getAllUniqueFunctions(this.getTopFunctionJoinPoint());
@@ -43,18 +43,18 @@ export class OutlineRegionFinder extends AStage {
         for (const region of filteredRegions) {
             wrappedRegion.push(this.wrapRegion(region, false));
         }
-        this.generateIntermediateCode("t1-outlining-annotated", "generic annotated outlining regions");
+        this.generateIntermediateCode(`t1.${iteration}-outlining-annotated`, "generic annotated outlining regions");
 
         for (const region of wrappedRegion) {
             this.outlineRegion(region, DefaultPrefix.OUTLINED_FUN);
         }
 
         this.log("Finished annotating generic outlining regions");
-        this.generateIntermediateCode("t1-outlining-generic", "generic outlined regions");
+        this.generateIntermediateCode(`t1.${iteration}-outlining-generic`, "generic outlined regions");
         return wrappedRegion.length;
     }
 
-    public outlineLoops(): number {
+    public outlineLoops(iteration: number): number {
         this.log("Beginning the annotation of loop outlining regions");
 
         const funs = ClavaUtils.getAllUniqueFunctions(this.getTopFunctionJoinPoint());
@@ -66,7 +66,7 @@ export class OutlineRegionFinder extends AStage {
             }
         }
         this.log("Finished annotating loop outlining regions");
-        this.generateIntermediateCode("t1-outlining-loop", "loop outlined regions");
+        this.generateIntermediateCode(`t1.${iteration}-outlining-loop`, "loop outlined regions");
         return outlinedCount;
     }
 
@@ -258,12 +258,18 @@ export class OutlineRegionFinder extends AStage {
 
     private hasFunctionCalls(jp: Joinpoint): boolean {
         if (jp instanceof Call) {
+            if (jp == undefined) {
+                return false;
+            }
             const isValidExternal = ExternalFunctionsMatcher.isValidExternal(jp);
             return !isValidExternal;
         }
 
         for (const call of Query.searchFrom(jp, Call)) {
             const fun = call.function;
+            if (fun == undefined) {
+                continue;
+            }
             const isValidExternal = ExternalFunctionsMatcher.isValidExternal(fun);
             if (!isValidExternal) {
                 return true;
