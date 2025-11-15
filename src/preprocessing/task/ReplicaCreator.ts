@@ -39,7 +39,7 @@ export class ReplicaCreator extends AStage {
                 if (count <= 1) {
                     continue;
                 }
-                this.log(`  Replicating function ${signature.split("(")[0]}`);
+                this.log(`Replicating function ${signature.split("(")[0]}`);
 
                 const calls = Query.search(Call, { signature: signature }).get();
                 for (const call of calls) {

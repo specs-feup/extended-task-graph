@@ -32,6 +32,9 @@ export class OutlineRegionFinder extends AStage {
             else {
                 // find all outlining regions of the function
                 const funRegions = this.findRegionsInScope(fun.body);
+                if (fun.name == "mser_out5_loop1") {
+                    console.log(funRegions.map(r => `{${r.length}, ${r[0].code}, ..., ${r[r.length - 1].code}}`).join("\n"));
+                }
                 regions.push(...funRegions);
                 this.log(`  ${fun.name}: found ${funRegions.length} outlining regions`);
             }
@@ -157,7 +160,6 @@ export class OutlineRegionFinder extends AStage {
         const outliner = new Outliner(true);
         outliner.setDefaultPrefix(prefix);
 
-
         const [outFun, outCall] = outliner.outlineWithWrappers(start, end);
         start.detach();
         end.detach();
@@ -218,7 +220,7 @@ export class OutlineRegionFinder extends AStage {
                 currRegion.push(stmt);
                 continue;
             }
-            if (stmt instanceof If || stmt instanceof Loop) {
+            if (stmt instanceof If) {
                 const bodies = [];
                 for (const child of stmt.children) {
                     if (child instanceof Body) {
@@ -240,6 +242,19 @@ export class OutlineRegionFinder extends AStage {
                         currRegion = [];
                     }
                     extraScopes.push(...bodies);
+                }
+                else {
+                    currRegion.push(stmt);
+                }
+            }
+            else if (stmt instanceof Loop) {
+                const scope = stmt.body;
+                if (this.hasFunctionCalls(scope)) {
+                    if (currRegion.length > 0) {
+                        regions.push(currRegion);
+                        currRegion = [];
+                    }
+                    extraScopes.push(scope);
                 }
                 else {
                     currRegion.push(stmt);

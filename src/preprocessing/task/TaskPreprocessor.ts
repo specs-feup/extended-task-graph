@@ -16,11 +16,11 @@ export class TaskPreprocessor extends AStage {
         this.outlineAll();
         Clava.rebuild();
 
-        // this.ensureVoidReturns();
-        // Clava.rebuild();
+        this.ensureVoidReturns();
+        Clava.rebuild();
 
-        // this.createFunctionReplicas();
-        // Clava.rebuild();
+        this.createFunctionReplicas();
+        Clava.rebuild();
     }
 
     public generateIntermediateCode(subfolder: string, message: string): void {
@@ -56,7 +56,7 @@ export class TaskPreprocessor extends AStage {
         this.generateIntermediateCode("t2-voidification", "Voidified");
     }
 
-    public outlineAll(): boolean {
+    public outlineAll(maxIter: number = 10): boolean {
         this.log("Finding code regions for outlining...");
         const topFun = this.getTopFunctionName();
         const outputDir = this.getOutputDir();
@@ -67,8 +67,19 @@ export class TaskPreprocessor extends AStage {
         let n = 1;
 
         while (keepRunning) {
-            const genCnt = finder.outlineGenericRegions(n);
-            const loopCnt = finder.outlineLoops(n);
+            let genCnt = 0;
+            let loopCnt = 0;
+
+            try {
+                genCnt = finder.outlineGenericRegions(n);
+                Clava.rebuild();
+                loopCnt = finder.outlineLoops(n);
+                Clava.rebuild();
+            }
+            catch (e) {
+                this.log(`Error during outlining iteration ${n}: ${(e as Error).message}`);
+                throw e;
+            }
 
             if (genCnt > 0) {
                 this.log(`Outlined ${genCnt} generic regions`);
@@ -91,6 +102,9 @@ export class TaskPreprocessor extends AStage {
                 keepRunning = false;
             }
             n += 1;
+            if (n > maxIter) {
+                throw new Error(`Exceeded maximum number of outlining iterations (${maxIter})`);
+            }
         }
         this.log(`Total outlined regions: ${totalOutlined}`);
 

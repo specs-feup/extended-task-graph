@@ -1,4 +1,4 @@
-import { DeclStmt, ExprStmt, ReturnStmt, Statement, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { Call, DeclStmt, ExprStmt, ReturnStmt, Statement, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { DefaultPrefix } from "../../api/PreSuffixDefaults.js";
 
@@ -19,9 +19,21 @@ export class OutlineRegionValidator {
     }
 
     public validate(region: Statement[]): boolean {
+        // Basic cases:
+        // Empty region
         if (region.length == 0) {
             return false;
         }
+        // Region only has one statement, and it is a call
+        if (region.length == 1 && region[0] instanceof ExprStmt) {
+            const exprStmt = region[0] as ExprStmt;
+            const calls = Query.searchFrom(exprStmt, Call).get();
+            if (calls.length == 1) {
+                return false;
+            }
+        }
+
+        // Advanced scenarios
         for (const scenario of this.scenarios) {
             if (!scenario.validate(region)) {
                 return false;
