@@ -32,9 +32,6 @@ export class OutlineRegionFinder extends AStage {
             else {
                 // find all outlining regions of the function
                 const funRegions = this.findRegionsInScope(fun.body);
-                if (fun.name == "mser_out5_loop1") {
-                    console.log(funRegions.map(r => `{${r.length}, ${r[0].code}, ..., ${r[r.length - 1].code}}`).join("\n"));
-                }
                 regions.push(...funRegions);
                 this.log(`  ${fun.name}: found ${funRegions.length} outlining regions`);
             }
@@ -88,6 +85,8 @@ export class OutlineRegionFinder extends AStage {
 
         for (const fun of ClavaUtils.getAllUniqueFunctions(this.getTopFunctionJoinPoint())) {
             for (const scope of Query.searchFrom(fun, Scope)) {
+                const simpleDecls: DeclStmt[] = [];
+                const arrayDecls: DeclStmt[] = [];
 
                 for (const stmt of scope.stmts) {
                     if (stmt instanceof DeclStmt) {
@@ -100,9 +99,18 @@ export class OutlineRegionFinder extends AStage {
                         if (!noInits) {
                             continue;
                         }
-                        stmt.detach();
-                        scope.insertBegin(stmt);
+                        if (stmt.decls.every(decl => decl.type.isArray)) {
+                            arrayDecls.push(stmt);
+                        }
+                        else {
+                            simpleDecls.push(stmt);
+                        }
                     }
+                }
+                const allDecls = [...simpleDecls, ...arrayDecls].reverse();
+                for (const decl of allDecls) {
+                    decl.detach();
+                    scope.insertBegin(decl);
                 }
             }
         }
