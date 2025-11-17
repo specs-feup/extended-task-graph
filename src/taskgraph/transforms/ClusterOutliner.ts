@@ -78,6 +78,17 @@ export class ClusterOutliner extends AStage {
         // replicate includes to cluster and bridge files
         this.replicateIncludes(swFile, bridgeFile);
         this.replicateIncludes(swFile, clusterFile);
+        // replicate includes in all header files with cluster or bridge function declarations
+        const headerFiles = new Map<string, FileJp>();
+        for (const fun of Query.search(FunctionJp, (f) => (f.name == clusterFun.name || f.name == bridgeFun.name) && !f.isImplementation)) {
+            const file = fun.getAncestor("file") as FileJp;
+            if (!headerFiles.has(file.name) && file.isHeader) {
+                headerFiles.set(file.name, file);
+            }
+        }
+        headerFiles.forEach((file) => {
+            this.replicateIncludes(swFile, file);
+        });
 
         try {
             Clava.rebuild();
@@ -110,6 +121,7 @@ export class ClusterOutliner extends AStage {
         for (const include of Query.searchFrom(sourceFile, Include)) {
             targetFile.addInclude(include.name, include.isAngled);
         }
+        this.log(`  Replicated includes, struct definitions, and typedefs from file ${sourceFile.name} to file ${targetFile.name}.`);
     }
 
     private buildSelector(swCall: Statement, bridgeCall: Statement): void {
