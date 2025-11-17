@@ -3,6 +3,7 @@ import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
 import { BinaryOp, Call, FunctionJp, InitList, Joinpoint, Vardecl } from "@specs-feup/clava/api/Joinpoints.js";
 import Io from "@specs-feup/lara/api/lara/Io.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
+import { execSync } from "child_process";
 
 export class ClavaUtils {
     public static verifySyntax(): boolean {
@@ -40,12 +41,21 @@ export class ClavaUtils {
     }
 
     public static generateCode(weaveDir: string, folder: string): string {
-        const path = weaveDir + "/" + folder;
-
-        //ClavaUtils.verifySyntax();
-
+        const path = `${weaveDir}/${folder}`;
         Io.deleteFolderContents(path);
         Clava.writeCode(path);
+
+        const command = `clang-format -style=Microsoft -i ${path}/*.c`;
+        try {
+            const output = execSync(command, { encoding: "utf8" });
+
+            if (output !== "") {
+                console.log(`[ClavaUtils] Output formatting using clang-format may have failed:`);
+                console.log(output);
+            }
+        } catch (e) {
+            console.log(`[ClavaUtils] Error during clang-format execution: ${e}`);
+        }
         return path;
     }
 
