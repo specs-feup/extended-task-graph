@@ -3,7 +3,9 @@ import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
 import { BinaryOp, Call, FunctionJp, InitList, Joinpoint, Vardecl } from "@specs-feup/clava/api/Joinpoints.js";
 import Io from "@specs-feup/lara/api/lara/Io.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
-import { execSync } from "child_process";
+import { execFileSync } from "child_process";
+import { readdirSync, statSync } from "fs";
+import { join } from "path";
 
 export class ClavaUtils {
     public static verifySyntax(): boolean {
@@ -45,18 +47,31 @@ export class ClavaUtils {
         Io.deleteFolderContents(path);
         Clava.writeCode(path);
 
-        const command = `clang-format -style=Microsoft -i ${path}/*.c`;
-        try {
-            const output = execSync(command, { encoding: "utf8" });
-
-            if (output !== "") {
-                console.log(`[ClavaUtils] Output formatting using clang-format may have failed:`);
-                console.log(output);
-            }
-        } catch (e) {
-            console.log(`[ClavaUtils] Error during clang-format execution: ${e}`);
-        }
+        ClavaUtils.runClangFormatOnFolder(path);
         return path;
+    }
+
+    public static runClangFormatOnFolder(path: string): void {
+        const files = readdirSync(path)
+            .filter(f => {
+                const full = join(path, f);
+                return statSync(full).isFile() &&
+                    [".c", ".cpp", ".h", ".hpp"].some(ext => f.endsWith(ext));
+            })
+            .map(f => join(path, f));
+
+        for (const file of files) {
+            try {
+                const output = execFileSync('clang-format', ['-style=Microsoft', '-i', file], { stdio: 'pipe' });
+
+                if (output.length > 0) {
+                    console.log(`[ClavaUtils] Output formatting using clang-format may have failed:`);
+                    console.log(output.toString());
+                }
+            } catch (e) {
+                console.log(`[ClavaUtils] Error during clang-format execution: ${e}`);
+            }
+        }
     }
 
     public static getCurrentFileExt(): string {
