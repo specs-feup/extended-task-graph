@@ -1,6 +1,6 @@
 import { TopologicalSort } from "./util/TopologicalSort.js";
 import { DataItem } from "./dataitems/DataItem.js";
-import { Call, If, Loop } from "@specs-feup/clava/api/Joinpoints.js";
+import { Call, ExprStmt, If, Loop } from "@specs-feup/clava/api/Joinpoints.js";
 import { ConcreteTask } from "./tasks/ConcreteTask.js";
 import { RegularTask } from "./tasks/RegularTask.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
@@ -61,6 +61,23 @@ export class Cluster {
 
     public hasTask(task: ConcreteTask): boolean {
         return this.tasks.some(t => t.getUniqueName() == task.getUniqueName());
+    }
+
+    public getTaskOfCall(call: Call | ExprStmt): ConcreteTask | null {
+        if (call instanceof ExprStmt) {
+            call = Query.searchFrom(call, Call).get()[0];
+            if (call == null) {
+                return null;
+            }
+        }
+        const found = this.tasks.find(t => {
+            const tCall = t.getCall();
+            if (tCall == null) {
+                return false;
+            }
+            return tCall.code === call.code;
+        });
+        return found || null;
     }
 
     public getInterfaceDataItems(): Record<string, DataItem[]> {
