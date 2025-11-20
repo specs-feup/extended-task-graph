@@ -6,6 +6,7 @@ import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { execFileSync } from "child_process";
 import { readdirSync, statSync } from "fs";
 import { join } from "path";
+import { chdir, cwd } from "process";
 
 export class ClavaUtils {
     public static verifySyntax(): boolean {
@@ -57,9 +58,9 @@ export class ClavaUtils {
                 const full = join(path, f);
                 return statSync(full).isFile() &&
                     [".c", ".cpp", ".h", ".hpp"].some(ext => f.endsWith(ext));
-            })
-            .map(f => join(path, f));
+            });
 
+        chdir(path);
         for (const file of files) {
             try {
                 const output = execFileSync('clang-format', ['-style=Microsoft', '-i', file], { stdio: 'pipe' });
@@ -72,6 +73,8 @@ export class ClavaUtils {
                 console.log(`[ClavaUtils] Error during clang-format execution: ${e}`);
             }
         }
+        const subdirLevels = path.split("/").length;
+        chdir("../".repeat(subdirLevels));
     }
 
     public static getCurrentFileExt(): string {
