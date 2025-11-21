@@ -68,13 +68,10 @@ export class TaskPreprocessor extends AStage {
 
         while (keepRunning) {
             let genCnt = 0;
-            let loopCnt = 0;
 
             try {
                 genCnt = finder.outlineGenericRegions(n);
                 Clava.rebuild();
-                //loopCnt = finder.outlineLoops(n);
-                //Clava.rebuild();
             }
             catch (e) {
                 this.log(`Error during outlining iteration ${n}: ${(e as Error).message}`);
@@ -89,15 +86,7 @@ export class TaskPreprocessor extends AStage {
                 this.log("No generic regions found for outlining");
             }
 
-            if (loopCnt > 0) {
-                this.log(`Outlined ${loopCnt} loop regions`);
-                totalOutlined += loopCnt;
-            }
-            else {
-                this.log("No loop regions found for outlining");
-            }
-
-            if (genCnt === 0 && loopCnt === 0) {
+            if (genCnt === 0) {
                 this.log("No more regions found for outlining");
                 keepRunning = false;
             }

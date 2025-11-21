@@ -1,4 +1,4 @@
-import { Body, Call, DeclStmt, ExprStmt, FunctionJp, If, Joinpoint, Literal, Loop, ReturnStmt, Scope, Statement, Vardecl, Varref, WrapperStmt } from "@specs-feup/clava/api/Joinpoints.js";
+import { Call, DeclStmt, FunctionJp, If, Joinpoint, Literal, Loop, ReturnStmt, Scope, Statement, Vardecl, Varref, WrapperStmt } from "@specs-feup/clava/api/Joinpoints.js";
 import { AStage } from "../../AStage.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
@@ -37,37 +37,23 @@ export class OutlineRegionFinder extends AStage {
             }
         }
         this.log(`Found ${regions.length} outlining regions in total`);
-        const filteredRegions = this.filterRegions(regions);
 
         const wrappedRegions: Statement[][] = [];
-        for (const region of filteredRegions) {
+        for (const region of regions) {
             wrappedRegions.push(this.wrapRegion(region, false));
         }
         this.generateIntermediateCode(`t1.${iteration}-outlining-annotated`, "generic annotated outlining regions");
 
+        const filteredRegions = this.filterRegions(wrappedRegions);
+        this.log(`Filtered ${filteredRegions.length} valid outlining regions out of ${regions.length} total`);
+
         let outlinedCount = 0;
-        for (const region of wrappedRegions) {
+        for (const region of filteredRegions) {
             outlinedCount += this.outlineRegion(region, DefaultPrefix.OUTLINED_FUN);
         }
 
         this.log("Finished annotating generic outlining regions");
         this.generateIntermediateCode(`t1.${iteration}-outlining-generic`, "generic outlined regions");
-        return outlinedCount;
-    }
-
-    public outlineLoops(iteration: number): number {
-        this.log("Beginning the annotation of loop outlining regions");
-
-        const funs = ClavaUtils.getAllUniqueFunctions(this.getTopFunctionJoinPoint());
-        let outlinedCount = 0;
-
-        for (const fun of funs) {
-            for (const loop of Query.searchFrom(fun, Loop)) {
-                outlinedCount += this.handleLoopRegion(loop);
-            }
-        }
-        this.log("Finished annotating loop outlining regions");
-        this.generateIntermediateCode(`t1.${iteration}-outlining-loop`, "loop outlined regions");
         return outlinedCount;
     }
 
@@ -123,44 +109,6 @@ export class OutlineRegionFinder extends AStage {
         this.logOutput(`Source code with ${message} written to `, path);
     }
 
-    private handleLoopRegion(loop: Loop): number {
-        let outlinedCount = 0;
-        const scope: Scope = loop.body;
-
-        const callsInScope: Call[] = [];
-        const loopsInScope: Loop[] = [];
-
-        for (const stmt of scope.children) {
-            if (stmt instanceof Loop) {
-                loopsInScope.push(stmt);
-            }
-            if (stmt instanceof ExprStmt && stmt.children[0] instanceof Call) {
-                const call = stmt.children[0];
-                if (this.hasFunctionCalls(call)) {
-                    callsInScope.push(call);
-                }
-            }
-        }
-
-        for (const childLoop of loopsInScope) {
-            outlinedCount += this.handleLoopRegion(childLoop);
-        }
-
-        const cond1 = callsInScope.length == 0 && loopsInScope.length == 0;
-        const cond2 = callsInScope.length == 1 && loopsInScope.length == 0;
-        const cond3 = callsInScope.length == 0 && loopsInScope.length == 1;
-
-        if (cond1 || cond2 || cond3) {
-            return outlinedCount;
-        }
-        else {
-            const wrappedRegion = this.wrapRegion(scope.children as Statement[], true);
-            this.outlineRegion(wrappedRegion, DefaultPrefix.OUTLINED_LOOP);
-
-            return outlinedCount + 1;
-        }
-    }
-
     private outlineRegion(wrappedRegion: Statement[], prefix: string): number {
         const start = wrappedRegion[0] as WrapperStmt;
         const end = wrappedRegion[wrappedRegion.length - 1] as WrapperStmt;
@@ -193,11 +141,25 @@ export class OutlineRegionFinder extends AStage {
         const filteredRegions = [];
 
         for (const region of regions) {
+            const beginWrapper = region[0] as WrapperStmt;
+            const endWrapper = region.at(-1) as WrapperStmt;
+
+            if (!(beginWrapper instanceof WrapperStmt) || !(endWrapper instanceof WrapperStmt)) {
+                this.logError("  Region does not have proper wrappers; skipping");
+                continue;
+            }
+            const unwrappedRegion = region.slice(1, region.length - 1);
+
             const validator = new OutlineRegionValidator();
-            const valid = validator.validate(region);
+            const valid = validator.validate(unwrappedRegion);
 
             if (valid) {
                 filteredRegions.push(region);
+            }
+            else {
+                this.log(`  Region ${beginWrapper.code.split(" ").at(-1)?.trim()} is not valid for outlining; skipping`);
+                beginWrapper.detach();
+                endWrapper.detach();
             }
         }
         return filteredRegions;
