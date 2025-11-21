@@ -1,4 +1,4 @@
-import { Call, DeclStmt, ExprStmt, ReturnStmt, Statement, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { Call, DeclStmt, ExprStmt, If, Loop, ReturnStmt, Statement, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { DefaultPrefix } from "../../api/PreSuffixDefaults.js";
 
@@ -77,6 +77,8 @@ class AllUselessStatements implements OutlineRegionScenario {
             hasOneUsefulStmt ||= stmt instanceof DeclStmt;
             hasOneUsefulStmt ||= stmt instanceof ReturnStmt;
             hasOneUsefulStmt ||= stmt instanceof ExprStmt;
+            hasOneUsefulStmt ||= stmt instanceof Loop;
+            hasOneUsefulStmt ||= stmt instanceof If;
 
             if (hasOneUsefulStmt) {
                 break;

@@ -6,6 +6,7 @@ import { DefaultPrefix } from "../../api/PreSuffixDefaults.js";
 import { Voidifier } from "@specs-feup/clava-code-transforms/Voidifier";
 import { SourceCodeOutput } from "../../api/OutputDirectories.js";
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
+import { FunctionJp, ReturnStmt } from "@specs-feup/clava/api/Joinpoints.js";
 
 export class TaskPreprocessor extends AStage {
     constructor(topFunction: string, outputDir: string, appName: string) {
@@ -39,21 +40,34 @@ export class TaskPreprocessor extends AStage {
             const vf = new Voidifier();
 
             if (fun.name == "main") {
-                this.log("Skipping voidification of main(), which is part of the valid call graph for subset reduction");
+                this.log("  Skipping voidification of main(), which is part of the valid call graph for subset reduction");
             }
             else {
                 const turnedVoid = vf.voidify(fun, DefaultPrefix.RETURN_VAR, true);
                 count += turnedVoid ? 1 : 0;
                 if (turnedVoid) {
-                    this.log(`  "${fun.name}" return type changed to void`);
+                    this.log(`  Function "${fun.name}" return type changed to void`);
                 }
                 else {
-                    this.log(`  "${fun.name}" already has void return type`);
+                    this.log(`  Function "${fun.name}" already has void return type`);
                 }
+                this.removeVoidReturn(fun);
             }
         });
         this.log(`Ensured ${count} function${count > 1 ? "s" : ""} return${count > 1 ? "s" : ""} void`);
         this.generateIntermediateCode("t2-voidification", "Voidified");
+    }
+
+    public removeVoidReturn(fun: FunctionJp): void {
+        const stmts = fun.body.stmts;
+        const lastStmt = stmts.at(-1);
+        if (lastStmt == null) {
+            return;
+        }
+        if (lastStmt instanceof ReturnStmt && lastStmt.children.length == 0) {
+            lastStmt.detach();
+            this.log(`  Removed void return statement from function "${fun.name}"`);
+        }
     }
 
     public outlineAll(maxIter: number = 100): boolean {

@@ -151,13 +151,13 @@ export class OutlineRegionFinder extends AStage {
             const unwrappedRegion = region.slice(1, region.length - 1);
 
             const validator = new OutlineRegionValidator();
-            const valid = validator.validate(unwrappedRegion);
+            const [valid, reason] = validator.validate(unwrappedRegion);
 
             if (valid) {
                 filteredRegions.push(region);
             }
             else {
-                this.log(`  Region ${beginWrapper.code.split(" ").at(-1)?.trim()} is not valid for outlining; skipping`);
+                this.log(`  Region ${beginWrapper.code.split(" ").at(-1)?.trim()} failed criterion ${reason}; skipping`);
                 beginWrapper.detach();
                 endWrapper.detach();
             }

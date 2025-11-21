@@ -55,7 +55,6 @@ export class ReplicaCreator extends AStage {
         }
         this.log("Replica creation finished.");
         this.rebuildDeclarations();
-        this.log(`Created ${nReplicas} replicas for ${nUnique} unique functions.`);
         return [nReplicas, nUnique];
     }
 
