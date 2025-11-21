@@ -81,31 +81,24 @@ class TrivialReturn implements OutlineRegionScenario {
 
 class NoInitDecls implements OutlineRegionScenario {
     validate(region: Statement[]): boolean {
-        let oneDeclWithInit = false;
-        let otherStmts = false;
-        for (const stmt of region) {
+        const allNoInitDecls = region.every((stmt) => {
             if (stmt instanceof DeclStmt) {
-                // stmt.decls could also work and simplify this, assuming it only returns vardecls
-                for (const child of stmt.children) {
-                    if (!(child instanceof Vardecl)) {
-                        continue;
+                const declStmt = stmt as DeclStmt;
+                const noInit = declStmt.decls.every((decl) => {
+                    if (decl instanceof Vardecl) {
+                        const varDecl = decl as Vardecl;
+                        return varDecl.init == null;
                     }
-
-                    const decl = child as Vardecl;
-                    if (decl.children.length > 0) {
-                        oneDeclWithInit = true;
-                        break;
+                    else {
+                        return false;
                     }
-                }
+                });
+                return noInit;
             }
-            else if (stmt instanceof ExprStmt || stmt instanceof ReturnStmt) {
-                otherStmts = true;
-                break;
+            else {
+                return false;
             }
-        }
-        if (!oneDeclWithInit && !otherStmts) {
-            return false;
-        }
-        return true;
+        });
+        return !allNoInitDecls;
     }
 }
