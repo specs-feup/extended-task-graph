@@ -1,8 +1,7 @@
 import { Outliner } from "@specs-feup/clava-code-transforms/Outliner";
 import { Cluster } from "../Cluster.js";
 import { RegularTask } from "../tasks/RegularTask.js";
-import { TopologicalSort } from "../util/TopologicalSort.js";
-import { BinaryOp, Call, DeclStmt, Expression, FileJp, FunctionJp, If, Include, Loop, Param, ReturnStmt, Scope, Statement, Struct, Switch, TypedefDecl, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { BinaryOp, Call, DeclStmt, Expression, ExprStmt, FileJp, FunctionJp, If, Include, Loop, Param, ReturnStmt, Scope, Statement, Struct, Switch, TypedefDecl, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
 import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
@@ -319,60 +318,10 @@ export class ClusterOutliner extends AStage {
     }
 
     private buildSwFunction(cluster: Cluster): [FunctionJp, Call] {
-        const tasks = cluster.getTasks();
         const name = `${cluster.getEntryPointName()}_sw`;
-        let startPoint: Statement | null = null;
-        let endPoint: Statement | null = null;
 
-        if (this.isFlatCluster(cluster)) {
-            this.log("  Cluster is flat. Using first and last task calls as outlining boundaries.");
-            const orderedTasks = TopologicalSort.sort(tasks);
-            const firstTask = orderedTasks[0] as RegularTask;
-            const lastTask = orderedTasks[orderedTasks.length - 1] as RegularTask;
-
-            const firstCall = firstTask.getCall()!.parent as Statement;
-            const lastCall = lastTask.getCall()!.parent as Statement;
-
-            if (firstCall === undefined || lastCall === undefined) {
-                throw new Error("[ClusterOutliner] Task calls must have a parent statement.");
-            }
-            startPoint = firstCall;
-            endPoint = lastCall;
-        }
-        else {
-            this.log("  Cluster is non-flat, searching for common ancestor statement");
-            const [stmtChains, minSize] = this.buildStmtChains(cluster);
-            let commonAncestor: Statement | null = null;
-
-            for (let i = 0; i < minSize; i++) {
-                const currentStmts = stmtChains.map((chain) => chain[i]);
-                const firstStmt = currentStmts[0];
-                const allEqual = currentStmts.every((stmt) => stmt.astId === firstStmt.astId);
-                if (allEqual) {
-                    commonAncestor = firstStmt;
-                }
-                else {
-                    break;
-                }
-            }
-            if (commonAncestor === null) {
-                throw new Error("[ClusterOutliner] Could not find a common ancestor statement for outlining");
-            }
-            if (commonAncestor instanceof Loop) {
-                this.log("  Common ancestor is a loop");
-            }
-            else if (commonAncestor instanceof If) {
-                this.log("  Common ancestor is an if statement");
-            }
-            else if (commonAncestor instanceof Switch) {
-                this.log("  Common ancestor is a switch");
-            }
-            else {
-                throw new Error(`[ClusterOutliner] Common ancestor is not a valid outlining statement, was of type ${commonAncestor.joinPointType}`);
-            }
-            startPoint = commonAncestor;
-            endPoint = commonAncestor;
-        }
+        const [startPoint, endPoint] = this.buildOutlineRegion(cluster);
+        this.log(`  Outline region built with ${startPoint.code} as start and ${endPoint.code} as end.`);
 
         this.log(`  Outlining cluster region into function ${name}`);
         const outliner = new Outliner();
@@ -384,16 +333,63 @@ export class ClusterOutliner extends AStage {
         return [newFun, newCall];
     }
 
-    private isFlatCluster(cluster: Cluster): boolean {
-        const tasks = cluster.getTasks();
-        const scopes = tasks.map((task) => {
-            const call = task.getCall();
-            if (call === null) {
-                throw new Error("[ClusterOutliner] Task does not have an associated call");
+    private buildOutlineRegion(cluster: Cluster): [Statement, Statement] {
+        const aTask = cluster.getTasks()[0];
+        const aCall = aTask.getCall();
+        if (aCall === null) {
+            throw new Error("[ClusterOutliner] Task does not have an associated call");
+        }
+        const commonFun = aCall.getAncestor("function") as FunctionJp;
+        const commonScope = commonFun.body;
+        const regionStmts: Statement[] = [];
+
+        for (const stmt of commonScope.stmts) {
+            if (stmt instanceof ExprStmt) {
+                const call = cluster.getTaskOfCall(stmt);
+                if (call !== null) {
+                    regionStmts.push(stmt);
+                }
             }
-            return call.getAncestor("scope") as Scope;
-        });
-        return scopes.every((scope) => scope.astId === scopes[0].astId);
+            else if (stmt instanceof If) {
+                const subRegions = [...stmt.then.stmts, ...stmt.else?.stmts ?? []];
+                const allCallStmts = subRegions.every((s) => s instanceof ExprStmt);
+                if (!allCallStmts) {
+                    continue;
+                }
+                const tasksInIf = subRegions.map((s) => cluster.getTaskOfCall(s as ExprStmt)).filter((t) => t !== null);
+                if (tasksInIf.length != subRegions.length) {
+                    continue;
+                }
+                regionStmts.push(stmt);
+            }
+            else if (stmt instanceof Loop) {
+                const subRegions = stmt.body.stmts;
+                const allCallStmts = subRegions.every((s) => s instanceof ExprStmt);
+                if (!allCallStmts) {
+                    continue;
+                }
+                const tasksInLoop = subRegions.map((s) => cluster.getTaskOfCall(s as ExprStmt)).filter((t) => t !== null);
+                if (tasksInLoop.length != subRegions.length) {
+                    continue;
+                }
+                regionStmts.push(stmt);
+            }
+            else {
+                this.logWarning(`[ClusterOutliner] Unsupported statement type ${stmt.constructor.name} inside cluster region. Skipping.`);
+            }
+        }
+
+        if (regionStmts.length === 0) {
+            throw new Error("[ClusterOutliner] Could not find any statements to outline for the cluster.");
+        }
+
+        const subRegion = regionStmts.slice(1);
+        subRegion.forEach((s) => s.detach());
+        subRegion.reverse().forEach((s) => regionStmts[0].insertAfter(s));
+
+        const startPoint = regionStmts[0];
+        const endPoint = regionStmts[regionStmts.length - 1];
+        return [startPoint, endPoint];
     }
 
     private buildStmtChains(cluster: Cluster): [Statement[][], number] {

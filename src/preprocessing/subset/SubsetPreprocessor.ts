@@ -17,7 +17,7 @@ export class SubsetPreprocessor extends AStage {
 
     constructor(topFunction: string, outputDir: string, appName: string) {
         super("TransFlow-Subset", topFunction, outputDir, appName);
-        this.intermediateDir = `${SourceCodeOutput.SRC_PARENT}/${SourceCodeOutput.SRC_INTERMEDIATE}`;
+        this.intermediateDir = `${SourceCodeOutput.SRC_PARENT}/${SourceCodeOutput.SRC_TASKS}`;
     }
 
     public preprocess(recipe: SubsetTransform[] = SubsetPreprocessor.DEFAULT_RECIPE, silentTransforms = false): boolean {
@@ -32,7 +32,7 @@ export class SubsetPreprocessor extends AStage {
 
         this.sanitizeCodePostSubset();
 
-        this.generateCode(`${this.intermediateDir}-t0-normalization`);
+        this.generateCode(`${this.intermediateDir}/t0-normalization`);
 
         this.applyCodeTransformations(recipe, silentTransforms);
         return true;

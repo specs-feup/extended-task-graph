@@ -118,7 +118,7 @@ export class OutlineRegionFinder extends AStage {
     }
 
     private generateIntermediateCode(subfolder: string, message: string): void {
-        const dir = `${SourceCodeOutput.SRC_PARENT}/${SourceCodeOutput.SRC_TASKS}-${subfolder}`;
+        const dir = `${SourceCodeOutput.SRC_PARENT}/${SourceCodeOutput.SRC_TASKS}/${subfolder}`;
         const path = this.generateCode(dir);
         this.logOutput(`Source code with ${message} written to `, path);
     }
@@ -180,7 +180,7 @@ export class OutlineRegionFinder extends AStage {
         if (outFun.body.stmts.length === 0) {
             outFun.detach();
             outCall.parent.detach();
-            this.logWarning("  Outlined region was empty, removing outlined function and call");
+            this.log(`  Outlined function "${outFun.name}" is empty; removing it`);
             return 0;
         }
         else {
@@ -220,52 +220,56 @@ export class OutlineRegionFinder extends AStage {
 
     private findRegionsInScope(scope: Scope): Statement[][] {
         const regions: Statement[][] = [];
-        const extraScopes = [];
         let currRegion: Statement[] = [];
 
         for (const stmt of scope.children) {
-            if ((stmt instanceof Loop) && (stmt.parent.parent instanceof If)) {
-                currRegion.push(stmt);
-                continue;
-            }
             if (stmt instanceof If) {
-                const bodies = [];
-                for (const child of stmt.children) {
-                    if (child instanceof Body) {
-                        bodies.push(child);
-                    }
-                }
+                const thenScope = stmt.then;
+                const thenOk = !this.hasFunctionCalls(thenScope) || this.isTrivialIf(thenScope);
+                const elseScope = stmt.else;
+                const elseOk = elseScope == null ? true : !this.hasFunctionCalls(elseScope) || this.isTrivialIf(elseScope);
 
-                let atLeastOne = false;
-                for (const body of bodies) {
-                    if (this.hasFunctionCalls(body) || this.isTrivialIf(body)) {
-                        atLeastOne = true;
-                        break;
-                    }
+                if (thenOk && elseOk) {
+                    currRegion.push(stmt);
                 }
-
-                if (atLeastOne) {
+                else {
                     if (currRegion.length > 0) {
                         regions.push(currRegion);
                         currRegion = [];
+
+                        // how to handle an if scope:
+                        // if *all* stmts are calls, leave it be
+                        // if there's at least one non-call stmt, outline everything and hope the next pass breaks it down
+                        const thenIsAllCalls = thenScope.stmts.every(s => this.hasFunctionCalls(s));
+                        const elseIsAllCalls = elseScope != null ? elseScope.stmts.every(s => this.hasFunctionCalls(s)) : true;
+
+                        if (!(thenIsAllCalls && elseIsAllCalls)) {
+                            regions.push([thenScope.stmts[0], thenScope.stmts[thenScope.stmts.length - 1]]);
+
+                            if (!elseIsAllCalls) {
+                                regions.push([elseScope.stmts[0], elseScope.stmts[elseScope.stmts.length - 1]]);
+                            }
+                        }
                     }
-                    extraScopes.push(...bodies);
-                }
-                else {
-                    currRegion.push(stmt);
                 }
             }
             else if (stmt instanceof Loop) {
-                const scope = stmt.body;
-                if (this.hasFunctionCalls(scope)) {
+                const loopScope = stmt.body;
+                const loopOk = !this.hasFunctionCalls(loopScope);
+
+                if (loopOk) {
+                    currRegion.push(stmt);
+                }
+                else {
                     if (currRegion.length > 0) {
                         regions.push(currRegion);
                         currRegion = [];
                     }
-                    extraScopes.push(scope);
-                }
-                else {
-                    currRegion.push(stmt);
+                    // outline the loop body as a region if it has non-call statements
+                    const lookIsAllCalls = loopScope.stmts.every(s => this.hasFunctionCalls(s));
+                    if (!lookIsAllCalls) {
+                        regions.push([loopScope.stmts[0], loopScope.stmts[loopScope.children.length - 1]]);
+                    }
                 }
             }
             else if (this.hasFunctionCalls(stmt)) {
@@ -284,12 +288,6 @@ export class OutlineRegionFinder extends AStage {
         // push the last region
         if (currRegion.length > 0) {
             regions.push(currRegion);
-        }
-
-        // recursively find and push regions in the scopes we found
-        for (const extraScope of extraScopes) {
-            const extraScopeRegions = this.findRegionsInScope(extraScope);
-            regions.push(...extraScopeRegions);
         }
 
         return regions;

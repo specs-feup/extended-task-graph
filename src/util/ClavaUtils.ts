@@ -6,7 +6,7 @@ import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { execFileSync } from "child_process";
 import { readdirSync, statSync } from "fs";
 import { join } from "path";
-import { chdir, cwd } from "process";
+import { chdir } from "process";
 
 export class ClavaUtils {
     public static verifySyntax(): boolean {

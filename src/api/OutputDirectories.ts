@@ -8,7 +8,7 @@ export enum SourceCodeOutput {
     SRC_PARENT = "src",
     SRC_ORIGINAL = "golden",
     SRC_INTERMEDIATE = "subset-inter",
-    SRC_TASKS = "subset-taskready",
+    SRC_TASKS = "subset",
     SRC_FINAL = "trans",
     SRC_FINAL_INSTRUMENTED = "trans-instr"
 }

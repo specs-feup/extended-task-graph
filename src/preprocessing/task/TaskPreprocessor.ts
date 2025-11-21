@@ -24,7 +24,7 @@ export class TaskPreprocessor extends AStage {
     }
 
     public generateIntermediateCode(subfolder: string, message: string): void {
-        const dir = `${SourceCodeOutput.SRC_PARENT}/${SourceCodeOutput.SRC_TASKS}-${subfolder}`;
+        const dir = `${SourceCodeOutput.SRC_PARENT}/${SourceCodeOutput.SRC_TASKS}/${subfolder}`;
         const path = this.generateCode(dir);
         this.logOutput(`${message} source code written to `, path);
     }
@@ -56,7 +56,7 @@ export class TaskPreprocessor extends AStage {
         this.generateIntermediateCode("t2-voidification", "Voidified");
     }
 
-    public outlineAll(maxIter: number = 10): boolean {
+    public outlineAll(maxIter: number = 100): boolean {
         this.log("Finding code regions for outlining...");
         const topFun = this.getTopFunctionName();
         const outputDir = this.getOutputDir();
@@ -73,8 +73,8 @@ export class TaskPreprocessor extends AStage {
             try {
                 genCnt = finder.outlineGenericRegions(n);
                 Clava.rebuild();
-                loopCnt = finder.outlineLoops(n);
-                Clava.rebuild();
+                //loopCnt = finder.outlineLoops(n);
+                //Clava.rebuild();
             }
             catch (e) {
                 this.log(`Error during outlining iteration ${n}: ${(e as Error).message}`);
