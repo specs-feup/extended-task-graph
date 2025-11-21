@@ -8,6 +8,8 @@ export class OutlineRegionValidator {
     constructor(scenarios?: OutlineRegionScenario[]) {
         if (scenarios == undefined) {
             this.scenarios = [
+                new EmptyRegion(),
+                new SingleCallStatement(),
                 new AllUselessStatements(),
                 new TrivialReturn(),
                 new NoInitDecls()
@@ -18,13 +20,37 @@ export class OutlineRegionValidator {
         }
     }
 
-    public validate(region: Statement[]): boolean {
-        // Basic cases:
-        // Empty region
-        if (region.length == 0) {
-            return false;
+    public validate(region: Statement[]): [boolean, string] {
+        for (const scenario of this.scenarios) {
+            if (!scenario.validate(region)) {
+                return [false, scenario.getName()];
+            }
         }
-        // Region only has one statement, and it is a call
+        return [true, ""];
+    }
+}
+
+export interface OutlineRegionScenario {
+    getName(): string;
+    validate(region: Statement[]): boolean;
+}
+
+class EmptyRegion implements OutlineRegionScenario {
+    getName(): string {
+        return "EmptyRegion";
+    }
+
+    validate(region: Statement[]): boolean {
+        return region.length > 0;
+    }
+}
+
+class SingleCallStatement implements OutlineRegionScenario {
+    getName(): string {
+        return "SingleCallStatement";
+    }
+
+    validate(region: Statement[]): boolean {
         if (region.length == 1 && region[0] instanceof ExprStmt) {
             const exprStmt = region[0] as ExprStmt;
             const calls = Query.searchFrom(exprStmt, Call).get();
@@ -32,22 +58,15 @@ export class OutlineRegionValidator {
                 return false;
             }
         }
-
-        // Advanced scenarios
-        for (const scenario of this.scenarios) {
-            if (!scenario.validate(region)) {
-                return false;
-            }
-        }
         return true;
     }
 }
 
-export interface OutlineRegionScenario {
-    validate(region: Statement[]): boolean;
-}
-
 class AllUselessStatements implements OutlineRegionScenario {
+    getName(): string {
+        return "AllUselessStatements";
+    }
+
     validate(region: Statement[]): boolean {
         if (region.length == 0) {
             return false;
@@ -68,6 +87,10 @@ class AllUselessStatements implements OutlineRegionScenario {
 }
 
 class TrivialReturn implements OutlineRegionScenario {
+    getName(): string {
+        return "TrivialReturn";
+    }
+
     validate(region: Statement[]): boolean {
         if (region.length == 2 && region[1] instanceof ReturnStmt) {
             const isTrivialReturn = Query.searchFrom(region[0], Varref, { name: DefaultPrefix.RETURN_VAR }).chain().length > 0;
@@ -80,6 +103,10 @@ class TrivialReturn implements OutlineRegionScenario {
 }
 
 class NoInitDecls implements OutlineRegionScenario {
+    getName(): string {
+        return "NoInitDecls";
+    }
+
     validate(region: Statement[]): boolean {
         const allNoInitDecls = region.every((stmt) => {
             if (stmt instanceof DeclStmt) {
