@@ -1,7 +1,7 @@
 import { Outliner } from "@specs-feup/clava-code-transforms/Outliner";
 import { Cluster } from "../Cluster.js";
 import { RegularTask } from "../tasks/RegularTask.js";
-import { BinaryOp, Call, DeclStmt, Expression, ExprStmt, FileJp, FunctionJp, If, Include, Loop, Param, ReturnStmt, Scope, Statement, Struct, Switch, TypedefDecl, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { BinaryOp, Call, DeclStmt, Expression, ExprStmt, FileJp, FunctionJp, If, Include, Loop, Param, ReturnStmt, Scope, Statement, Struct, TypedefDecl, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
 import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
@@ -75,19 +75,13 @@ export class ClusterOutliner extends AStage {
         (swCall.getAncestor("function") as FunctionJp).insertBefore(bridgeDecl);
 
         // replicate includes to cluster and bridge files
-        this.replicateIncludes(swFile, bridgeFile);
-        this.replicateIncludes(swFile, clusterFile);
-        // replicate includes in all header files with cluster or bridge function declarations
-        const headerFiles = new Map<string, FileJp>();
-        for (const fun of Query.search(FunctionJp, (f) => (f.name == clusterFun.name || f.name == bridgeFun.name) && !f.isImplementation)) {
-            const file = fun.getAncestor("file") as FileJp;
-            if (!headerFiles.has(file.name) && file.isHeader) {
-                headerFiles.set(file.name, file);
-            }
-        }
-        headerFiles.forEach((file) => {
-            this.replicateIncludes(swFile, file);
-        });
+        const newHeader = this.createHeaderFile(clusterName, swFile);
+        bridgeFile.addInclude(newHeader.name, false);
+        clusterFile.addInclude(newHeader.name, false);
+
+        // add declaration of hw function to the new header file
+        const clusterDecl = ClavaJoinPoints.stmtLiteral(`${clusterFun.getDeclaration(true)};`);
+        newHeader.insertEnd(clusterDecl);
 
         try {
             Clava.rebuild();
@@ -99,11 +93,14 @@ export class ClusterOutliner extends AStage {
         }
     }
 
-    private replicateIncludes(sourceFile: FileJp, targetFile: FileJp): void {
+    private createHeaderFile(clusterName: string, sourceFile: FileJp): FileJp {
+        const newFile = ClavaJoinPoints.file(`${clusterName}.h`);
+        Clava.addFile(newFile);
+
         // add struct defs
         for (const struct of Query.searchFrom(sourceFile, Struct)) {
             const structClone = struct.deepCopy() as Struct;
-            targetFile.insertBegin(structClone);
+            newFile.insertBegin(structClone);
         }
         // add typedefs
         for (const declStmt of Query.searchFrom(sourceFile, DeclStmt, (d) => {
@@ -114,13 +111,14 @@ export class ClusterOutliner extends AStage {
             return child instanceof TypedefDecl;
         })) {
             const declClone = declStmt.deepCopy() as DeclStmt;
-            targetFile.insertBegin(declClone);
+            newFile.insertBegin(declClone);
         }
+
         // add includes
         for (const include of Query.searchFrom(sourceFile, Include)) {
-            targetFile.addInclude(include.name, include.isAngled);
+            newFile.addInclude(include.name, include.isAngled);
         }
-        this.log(`  Replicated includes, struct definitions, and typedefs from file ${sourceFile.name} to file ${targetFile.name}.`);
+        return newFile;
     }
 
     private buildSelector(swCall: Statement, bridgeCall: Statement): void {
@@ -309,10 +307,6 @@ export class ClusterOutliner extends AStage {
         const clusterCall = ClavaJoinPoints.call(clusterFun, ...args);
         const clusterCallStmt = ClavaJoinPoints.exprStmt(clusterCall);
         bridgeFun.body.insertBegin(clusterCallStmt);
-
-        // add declaration of hw function
-        const clusterDecl = ClavaJoinPoints.stmtLiteral(`${clusterFun.getDeclaration(true)};`);
-        bridgeFun.insertBefore(clusterDecl);
 
         return [bridgeFun, newBridgeParams];
     }
