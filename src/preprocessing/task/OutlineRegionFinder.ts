@@ -179,7 +179,7 @@ export class OutlineRegionFinder extends AStage {
             return Query.searchFromInclusive(scope, Varref, v => {
                 const conds = [
                     v.name.startsWith(DefaultPrefix.RETURN_VAR),
-                    v.name == "__doContinue",
+                    // v.name == "__doContinue",
                     v.name.startsWith("__rtr_val") || v.name.startsWith("__rtr_flag"),
                     v.name.startsWith("__premExitParam") || v.name.startsWith("__prematureExit")
                 ];

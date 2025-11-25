@@ -1,4 +1,4 @@
-import { BinaryOp, Call, Comment, DeclStmt, FunctionJp, LabelStmt, Scope, Statement, StorageClass, Vardecl, Varref, WrapperStmt } from "@specs-feup/clava/api/Joinpoints.js";
+import { BinaryOp, Call, Comment, DeclStmt, FunctionJp, LabelStmt, Scope, Statement, StorageClass, TernaryOp, Vardecl, Varref, WrapperStmt } from "@specs-feup/clava/api/Joinpoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { AStage } from "../../AStage.js";
 import { ScopeFlattener } from "@specs-feup/clava-code-transforms/ScopeFlattener";
@@ -20,6 +20,9 @@ export class CodeSanitizer extends AStage {
         const comms = this.removeAllComments();
         this.log(comms > 0 ? `  Removed ${comms} comments` : "  No comments to remove");
 
+        const asserts = this.removeAsserts();
+        this.log(asserts > 0 ? `  Removed ${asserts} assert statements` : "  No assert statements to remove");
+
         const brackets = this.forceBracketsInScopes();
         this.log(brackets > 0 ? `  Forced brackets in ${brackets} scopes` : "  No scopes to force brackets in");
 
@@ -33,6 +36,19 @@ export class CodeSanitizer extends AStage {
         //this.log(mallocs > 0 ? `Ensured ${mallocs} calls to malloc() have no expressions as arguments` : "No mallocs to sanitize");
 
         this.logSuccess("code successfully sanitized.");
+    }
+
+    public removeAsserts(): number {
+        let count: number = 0;
+
+        for (const ternary of Query.search(TernaryOp, (trn) =>
+            trn.children[2] instanceof Call && trn.children[2].name.startsWith("__assert")
+        )) {
+            const parentStmt = ternary.getAncestor("statement") as Statement;
+            parentStmt.detach();
+            count++;
+        }
+        return count;
     }
 
     public singleArgumentMallocs(): number {
