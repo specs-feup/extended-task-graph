@@ -46,6 +46,7 @@ export class OutlineRegionFinder extends AStage {
 
         const filteredRegions = this.filterRegions(wrappedRegions);
         this.log(`Filtered ${filteredRegions.length} valid outlining regions out of ${regions.length} total`);
+        this.generateIntermediateCode(`t1.${iteration}-annotated-f`, "filtered annotated outlining regions");
 
         const outlinedFuns: FunctionJp[] = [];
         for (const region of filteredRegions) {
@@ -215,10 +216,28 @@ export class OutlineRegionFinder extends AStage {
                         const elseIsAllCalls = elseScope != null ? elseScope.stmts.every(s => this.hasFunctionCalls(s) && (s instanceof ExprStmt)) : true;
 
                         if (!(thenIsAllCalls && elseIsAllCalls)) {
-                            regions.push([thenScope.stmts[0], thenScope.stmts[thenScope.stmts.length - 1]]);
+                            const firstThenStmt = thenScope.stmts[0];
+                            let lastThenStmt = thenScope.stmts.at(-1);
+                            // if last statement is a simple return;, skip it
+                            if (lastThenStmt instanceof ReturnStmt && lastThenStmt.children.length == 0) {
+                                lastThenStmt = thenScope.stmts.at(-2);
+                            }
+                            if (firstThenStmt == undefined || lastThenStmt == undefined) {
+                                continue;
+                            }
+                            regions.push([thenScope.stmts[0], lastThenStmt]);
 
                             if (!elseIsAllCalls) {
-                                regions.push([elseScope.stmts[0], elseScope.stmts[elseScope.stmts.length - 1]]);
+                                const firstElseStmt = elseScope!.stmts[0];
+                                let lastElseStmt = elseScope!.stmts.at(-1);
+                                // if last statement is a simple return;, skip it
+                                if (lastElseStmt instanceof ReturnStmt && lastElseStmt.children.length == 0) {
+                                    lastElseStmt = elseScope!.stmts.at(-2);
+                                }
+                                if (firstElseStmt == undefined || lastElseStmt == undefined) {
+                                    continue;
+                                }
+                                regions.push([elseScope.stmts[0], lastElseStmt]);
                             }
                         }
                     }
