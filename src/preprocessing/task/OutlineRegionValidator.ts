@@ -1,4 +1,4 @@
-import { Call, DeclStmt, ExprStmt, If, Loop, ReturnStmt, Statement, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { Call, DeclStmt, Expression, ExprStmt, If, Loop, ReturnStmt, Statement, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import { DefaultPrefix } from "../../api/PreSuffixDefaults.js";
 
@@ -11,6 +11,7 @@ export class OutlineRegionValidator {
                 new EmptyRegion(),
                 new SingleCallStatement(),
                 new AllUselessStatements(),
+                new PrematureReturn(),
                 new TrivialReturn(),
                 new NoInitDecls()
             ];
@@ -88,19 +89,75 @@ class AllUselessStatements implements OutlineRegionScenario {
     }
 }
 
+class PrematureReturn implements OutlineRegionScenario {
+    getName(): string {
+        return "PrematureReturn";
+    }
+
+    validate(region: Statement[]): boolean {
+        if (region.length != 1) {
+            return true;
+        }
+        const stmt = region[0];
+        if (stmt instanceof If) {
+            const cond = stmt.cond;
+            if (cond.code.includes("__prematureExit")) {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+        else {
+            return true;
+        }
+    }
+}
+
 class TrivialReturn implements OutlineRegionScenario {
     getName(): string {
         return "TrivialReturn";
     }
 
     validate(region: Statement[]): boolean {
-        if (region.length == 2 && region[1] instanceof ReturnStmt) {
-            const isTrivialReturn = Query.searchFrom(region[0], Varref, { name: DefaultPrefix.RETURN_VAR }).chain().length > 0;
-            if (isTrivialReturn) {
-                return false;
+        let isValid = true;
+        for (const stmt of region) {
+            if (stmt instanceof If) {
+                isValid &&= this.validateSubregion(stmt.then.stmts);
+                if (stmt.else != null) {
+                    isValid &&= this.validateSubregion(stmt.else.stmts);
+                }
+            }
+            else if (stmt instanceof Loop) {
+                isValid &&= this.validateSubregion(stmt.body.stmts);
+            }
+            else {
+                isValid &&= this.validateStmt(stmt);
             }
         }
+        return isValid;
+    }
+
+    validateSubregion(region: Statement[]): boolean {
+        const scope2or3stmts = region.length >= 2 && region.length <= 3;
+        const lastIsReturn = region.at(-1) instanceof ReturnStmt;
+
+        if (scope2or3stmts && lastIsReturn) {
+            return this.validateStmt(region[0]);
+        }
         return true;
+    }
+
+    validateStmt(jp: Statement | Expression): boolean {
+        return Query.searchFromInclusive(jp, Varref, v => {
+            const conds = [
+                v.name.startsWith(DefaultPrefix.RETURN_VAR),
+                v.name == "__doContinue",
+                v.name.startsWith("__rtr_val") || v.name.startsWith("__rtr_flag"),
+                v.name.startsWith("__premExitParam") || v.name.startsWith("__prematureExit")
+            ];
+            return conds.reduce((a, b) => a || b, false);
+        }).get().length == 0;
     }
 }
 

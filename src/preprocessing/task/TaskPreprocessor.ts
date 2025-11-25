@@ -70,7 +70,7 @@ export class TaskPreprocessor extends AStage {
         }
     }
 
-    public outlineAll(maxIter: number = 100): boolean {
+    public outlineAll(maxIter: number = 15): boolean {
         this.log("Finding code regions for outlining...");
         const topFun = this.getTopFunctionName();
         const outputDir = this.getOutputDir();
@@ -79,39 +79,78 @@ export class TaskPreprocessor extends AStage {
         let keepRunning = true;
         let totalOutlined = 0;
         let n = 1;
+        let prevOutlinedFuns: FunctionJp[] = [];
 
         while (keepRunning) {
-            let genCnt = 0;
-
+            this.log(`Outlining iteration ${n}...`);
             try {
-                genCnt = finder.outlineGenericRegions(n);
+                const newFuns = finder.outlineRegions(n);
+                const nNewFuns = newFuns.length;
                 Clava.rebuild();
+
+                if (nNewFuns > 0) {
+                    this.log(`Outlined ${nNewFuns} generic regions`);
+                    totalOutlined += nNewFuns;
+
+                    if (n > 1) {
+                        keepRunning = !this.checkEarlyStop(prevOutlinedFuns, newFuns);
+                    }
+                    prevOutlinedFuns = newFuns;
+                }
+                else {
+                    this.log("No generic regions found for outlining");
+                }
+
+                if (nNewFuns === 0) {
+                    this.log("No more regions found for outlining");
+                    keepRunning = false;
+                }
+                n += 1;
+                if (n > maxIter) {
+                    this.logWarning(`Exceeded maximum number of outlining iterations (${maxIter})`);
+                    this.logWarning("Verify that the outlined regions are valid");
+                    keepRunning = false;
+                }
+                this.logLine(`Outlined ${nNewFuns} generic regions`.length);
             }
             catch (e) {
                 this.log(`Error during outlining iteration ${n}: ${(e as Error).message}`);
                 throw e;
             }
 
-            if (genCnt > 0) {
-                this.log(`Outlined ${genCnt} generic regions`);
-                totalOutlined += genCnt;
-            }
-            else {
-                this.log("No generic regions found for outlining");
-            }
-
-            if (genCnt === 0) {
-                this.log("No more regions found for outlining");
-                keepRunning = false;
-            }
-            n += 1;
-            if (n > maxIter) {
-                throw new Error(`Exceeded maximum number of outlining iterations (${maxIter})`);
-            }
         }
         this.log(`Total outlined regions: ${totalOutlined}`);
 
         return finder.updateDecls();
+    }
+
+    private checkEarlyStop(prevOutlined: FunctionJp[], currentOutlined: FunctionJp[]): boolean {
+        if (prevOutlined.length !== currentOutlined.length) {
+            return false;
+        }
+        for (let i = 0; i < prevOutlined.length; i++) {
+            const prev = prevOutlined[i].name;
+            const curr = currentOutlined[i].name;
+
+            const prevSplit = prev.split("_");
+            const currSplit = curr.split("_");
+            if (prevSplit.length !== currSplit.length) {
+                return false;
+            }
+            for (let j = 0; j < prevSplit.length; j++) {
+                if (prevSplit[j].startsWith("out") && currSplit[j].startsWith("out")) {
+                    continue;
+                }
+                else {
+                    if (prevSplit[j] !== currSplit[j]) {
+                        return false;
+                    }
+                }
+            }
+        }
+        this.log("Outlined functions are the same as in the previous iteration");
+        this.log("Stopping further outlining iterations to prevent infinite loop");
+        return true;
     }
 
     public createFunctionReplicas() {

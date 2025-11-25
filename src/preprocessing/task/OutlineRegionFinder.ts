@@ -1,4 +1,4 @@
-import { Call, DeclStmt, FunctionJp, If, Joinpoint, Literal, Loop, ReturnStmt, Scope, Statement, Vardecl, Varref, WrapperStmt } from "@specs-feup/clava/api/Joinpoints.js";
+import { Call, DeclStmt, ExprStmt, FunctionJp, If, Joinpoint, Literal, Loop, ReturnStmt, Scope, Statement, Vardecl, Varref, WrapperStmt } from "@specs-feup/clava/api/Joinpoints.js";
 import { AStage } from "../../AStage.js";
 import { ClavaUtils } from "../../util/ClavaUtils.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
@@ -16,7 +16,7 @@ export class OutlineRegionFinder extends AStage {
         super("TransFlow-TaskPrep-Outliner", topFunction, outputDir, appName);
     }
 
-    public outlineGenericRegions(iteration: number): number {
+    public outlineRegions(iteration: number): FunctionJp[] {
         this.log("Beginning the annotation of generic outlining regions");
 
         const funs = ClavaUtils.getAllUniqueFunctions(this.getTopFunctionJoinPoint());
@@ -27,13 +27,13 @@ export class OutlineRegionFinder extends AStage {
 
             // if the function has no calls, there is no need to outline it
             if (nCalls == 0) {
-                this.log(`  ${fun.name}: no outlining regions found`);
+                //this.log(`  ${fun.name}: no outlining regions found`);
             }
             else {
                 // find all outlining regions of the function
                 const funRegions = this.findRegionsInScope(fun.body);
                 regions.push(...funRegions);
-                this.log(`  ${fun.name}: found ${funRegions.length} outlining regions`);
+                //this.log(`  ${fun.name}: found ${funRegions.length} outlining regions`);
             }
         }
         this.log(`Found ${regions.length} outlining regions in total`);
@@ -42,19 +42,22 @@ export class OutlineRegionFinder extends AStage {
         for (const region of regions) {
             wrappedRegions.push(this.wrapRegion(region, false));
         }
-        this.generateIntermediateCode(`t1.${iteration}-outlining-annotated`, "generic annotated outlining regions");
+        this.generateIntermediateCode(`t1.${iteration}-annotated`, "annotated outlining regions");
 
         const filteredRegions = this.filterRegions(wrappedRegions);
         this.log(`Filtered ${filteredRegions.length} valid outlining regions out of ${regions.length} total`);
 
-        let outlinedCount = 0;
+        const outlinedFuns: FunctionJp[] = [];
         for (const region of filteredRegions) {
-            outlinedCount += this.outlineRegion(region, DefaultPrefix.OUTLINED_FUN);
+            const outFun = this.outlineRegion(region, DefaultPrefix.OUTLINED_FUN);
+            if (outFun != null) {
+                outlinedFuns.push(outFun);
+            }
         }
 
         this.log("Finished annotating generic outlining regions");
-        this.generateIntermediateCode(`t1.${iteration}-outlining-generic`, "generic outlined regions");
-        return outlinedCount;
+        this.generateIntermediateCode(`t1.${iteration}-outlining`, "outlined regions");
+        return outlinedFuns;
     }
 
     public updateDecls(): boolean {
@@ -109,7 +112,7 @@ export class OutlineRegionFinder extends AStage {
         this.logOutput(`Source code with ${message} written to `, path);
     }
 
-    private outlineRegion(wrappedRegion: Statement[], prefix: string): number {
+    private outlineRegion(wrappedRegion: Statement[], prefix: string): FunctionJp | null {
         const start = wrappedRegion[0] as WrapperStmt;
         const end = wrappedRegion[wrappedRegion.length - 1] as WrapperStmt;
 
@@ -122,18 +125,18 @@ export class OutlineRegionFinder extends AStage {
 
         if (outFun == undefined || outCall == undefined) {
             this.logError(`  Outlining failed for region at ${start.location}`);
-            return 0;
+            return null;
         }
 
         if (outFun.body.stmts.length === 0) {
             outFun.detach();
             outCall.parent.detach();
             this.log(`  Outlined function "${outFun.name}" is empty; removing it`);
-            return 0;
+            return null;
         }
         else {
             this.log(`  Created outlined function "${outFun ? outFun.name : "<unknown>"}"`);
-            return 1;
+            return outFun;
         }
     }
 
@@ -157,7 +160,10 @@ export class OutlineRegionFinder extends AStage {
                 filteredRegions.push(region);
             }
             else {
-                this.log(`  Region ${beginWrapper.code.split(" ").at(-1)?.trim()} failed criterion ${reason}; skipping`);
+                if (reason == "TrivialIf") {
+                    this.log(`  Region ${beginWrapper.code.split(" ").at(-1)?.trim()} is a trivial if; skipping`);
+                }
+                //this.log(`  Region ${beginWrapper.code.split(" ").at(-1)?.trim()} failed criterion ${reason}; skipping`);
                 beginWrapper.detach();
                 endWrapper.detach();
             }
@@ -166,16 +172,19 @@ export class OutlineRegionFinder extends AStage {
     }
 
     private isTrivialIf(scope: Scope): boolean {
-        if (scope.children.length == 2 && scope.children[1] instanceof ReturnStmt) {
-            const isTrivialReturn = Query.searchFrom(scope.children[0], Varref, { name: DefaultPrefix.RETURN_VAR }).chain().length > 0;
+        const scope2or3stmts = scope.stmts.length >= 2 && scope.stmts.length <= 3;
+        const lastIsReturn = scope.stmts.at(-1) instanceof ReturnStmt;
 
-            if (isTrivialReturn) {
-                const stmt = scope.children[0].code.replace(/\n/g, '\\n');
-                const ret = scope.children[1].code.replace(/\n/g, '');
-                this.log(`  Found a trivial return with statements "${stmt}" and "${ret}"`);
-            }
-
-            return isTrivialReturn;
+        if (scope2or3stmts && lastIsReturn) {
+            return Query.searchFromInclusive(scope, Varref, v => {
+                const conds = [
+                    v.name.startsWith(DefaultPrefix.RETURN_VAR),
+                    v.name == "__doContinue",
+                    v.name.startsWith("__rtr_val") || v.name.startsWith("__rtr_flag"),
+                    v.name.startsWith("__premExitParam") || v.name.startsWith("__prematureExit")
+                ];
+                return conds.reduce((a, b) => a || b, false);
+            }).get().length > 0;
         }
         return false;
     }
@@ -202,8 +211,8 @@ export class OutlineRegionFinder extends AStage {
                         // how to handle an if scope:
                         // if *all* stmts are calls, leave it be
                         // if there's at least one non-call stmt, outline everything and hope the next pass breaks it down
-                        const thenIsAllCalls = thenScope.stmts.every(s => this.hasFunctionCalls(s));
-                        const elseIsAllCalls = elseScope != null ? elseScope.stmts.every(s => this.hasFunctionCalls(s)) : true;
+                        const thenIsAllCalls = thenScope.stmts.every(s => this.hasFunctionCalls(s) && (s instanceof ExprStmt));
+                        const elseIsAllCalls = elseScope != null ? elseScope.stmts.every(s => this.hasFunctionCalls(s) && (s instanceof ExprStmt)) : true;
 
                         if (!(thenIsAllCalls && elseIsAllCalls)) {
                             regions.push([thenScope.stmts[0], thenScope.stmts[thenScope.stmts.length - 1]]);
@@ -228,7 +237,7 @@ export class OutlineRegionFinder extends AStage {
                         currRegion = [];
                     }
                     // outline the loop body as a region if it has non-call statements
-                    const lookIsAllCalls = loopScope.stmts.every(s => this.hasFunctionCalls(s));
+                    const lookIsAllCalls = loopScope.stmts.every(s => this.hasFunctionCalls(s) && (s instanceof ExprStmt));
                     if (!lookIsAllCalls) {
                         regions.push([loopScope.stmts[0], loopScope.stmts[loopScope.children.length - 1]]);
                     }
