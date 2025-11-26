@@ -328,62 +328,47 @@ export class ClusterOutliner extends AStage {
     }
 
     private buildOutlineRegion(cluster: Cluster): [Statement, Statement] {
-        const aTask = cluster.getTasks()[0];
-        const aCall = aTask.getCall();
-        if (aCall === null) {
-            throw new Error("[ClusterOutliner] Task does not have an associated call");
-        }
-        const commonFun = aCall.getAncestor("function") as FunctionJp;
-        const commonScope = commonFun.body;
-        const regionStmts: Statement[] = [];
+        const tasks = cluster.getTasks();
+        const parentFun = tasks[0].getCall()!.getAncestor("function") as FunctionJp;
+        const taskCalls = tasks.map((task) => task.getCall()!);
+        const callStmts: Statement[] = [];
 
-        for (const stmt of commonScope.stmts) {
-            if (stmt instanceof ExprStmt) {
-                const call = cluster.getTaskOfCall(stmt);
-                if (call !== null) {
-                    regionStmts.push(stmt);
-                }
-            }
-            else if (stmt instanceof If) {
-                const subRegions = [...stmt.then.stmts, ...stmt.else?.stmts ?? []];
-                const allCallStmts = subRegions.every((s) => s instanceof ExprStmt);
-                if (!allCallStmts) {
-                    continue;
-                }
-                const tasksInIf = subRegions.map((s) => cluster.getTaskOfCall(s as ExprStmt)).filter((t) => t !== null);
-                if (tasksInIf.length != subRegions.length) {
-                    continue;
-                }
-                regionStmts.push(stmt);
-            }
-            else if (stmt instanceof Loop) {
-                const subRegions = stmt.body.stmts;
-                const allCallStmts = subRegions.every((s) => s instanceof ExprStmt);
-                if (!allCallStmts) {
-                    continue;
-                }
-                const tasksInLoop = subRegions.map((s) => cluster.getTaskOfCall(s as ExprStmt)).filter((t) => t !== null);
-                if (tasksInLoop.length != subRegions.length) {
-                    continue;
-                }
-                regionStmts.push(stmt);
-            }
-            else {
-                this.logWarning(`[ClusterOutliner] Unsupported statement type ${stmt.constructor.name} inside cluster region. Skipping.`);
+        for (const call of Query.searchFrom(parentFun, Call)) {
+            if (taskCalls.some((c) => c.name === call.name)) {
+                const callStmt = call.parent as Statement;
+                callStmts.push(callStmt);
             }
         }
 
-        if (regionStmts.length === 0) {
-            throw new Error("[ClusterOutliner] Could not find any statements to outline for the cluster.");
+        if (callStmts.every((stmt) => stmt.parent.parent instanceof If)) {
+            const ifStmt = callStmts[0].getAncestor("if") as If;
+            return [ifStmt, ifStmt];
         }
-
-        const subRegion = regionStmts.slice(1);
-        subRegion.forEach((s) => s.detach());
-        subRegion.reverse().forEach((s) => regionStmts[0].insertAfter(s));
-
-        const startPoint = regionStmts[0];
-        const endPoint = regionStmts[regionStmts.length - 1];
-        return [startPoint, endPoint];
+        else if (callStmts.every((stmt) => stmt.parent.parent instanceof Loop)) {
+            const loopStmt = callStmts[0].getAncestor("loop") as Loop;
+            return [loopStmt, loopStmt];
+        }
+        else {
+            const regionStmts = new Set<Statement>();
+            for (const stmt of callStmts) {
+                const parentLoop = stmt.getAncestor("loop");
+                if (parentLoop !== null && parentLoop !== undefined) {
+                    regionStmts.add(parentLoop as Statement);
+                    continue;
+                }
+                const parentIf = stmt.getAncestor("if");
+                if (parentIf !== null && parentIf !== undefined) {
+                    regionStmts.add(parentIf as Statement);
+                    continue;
+                }
+                regionStmts.add(stmt);
+            }
+            const regionArray = Array.from(regionStmts);
+            const lastStmt = regionArray.pop()!;
+            regionArray.forEach((stmt) => stmt.detach());
+            regionArray.reverse().forEach((stmt) => lastStmt.insertBefore(stmt));
+            return [regionArray[0], lastStmt];
+        }
     }
 
     private buildStmtChains(cluster: Cluster): [Statement[][], number] {
