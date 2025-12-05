@@ -54,7 +54,8 @@
     "./TaskMerger": "./dist/src/taskgraph/transforms/TaskMerger.js",
     "./TaskSplitter": "./dist/src/taskgraph/transforms/TaskSplitter.js",
     "./AStage": "./dist/src/AStage.js",
-    "./SubsetTransforms": "./dist/src/preprocessing/subset/SubsetTransforms.js"
+    "./SubsetTransforms": "./dist/src/preprocessing/subset/SubsetTransforms.js",
+    "./EtgLogger": "./dist/src/EtgLogger.js"
   },
   "dependencies": {
     "@specs-feup/clava": "^3.0.8",
