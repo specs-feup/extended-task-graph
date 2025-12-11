@@ -55,7 +55,9 @@
     "./TaskSplitter": "./dist/src/taskgraph/transforms/TaskSplitter.js",
     "./AStage": "./dist/src/AStage.js",
     "./SubsetTransforms": "./dist/src/preprocessing/subset/SubsetTransforms.js",
-    "./EtgLogger": "./dist/src/EtgLogger.js"
+    "./EtgLogger": "./dist/src/EtgLogger.js",
+    "./InstrumentationAnnotator": "./dist/src/instrumentation/InstrumentationAnnotator.js",
+    "./InstrumentationInserter": "./dist/src/instrumentation/InstrumentationInserter.js"
   },
   "dependencies": {
     "@specs-feup/clava": "^3.0.8",
