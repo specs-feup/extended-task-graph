@@ -10,7 +10,8 @@ export enum SourceCodeOutput {
     SRC_INTERMEDIATE = "subset-inter",
     SRC_TASKS = "subset",
     SRC_FINAL = "trans",
-    SRC_FINAL_INSTRUMENTED = "trans-instr"
+    SRC_FINAL_INSTRUMENTED = "trans-instr",
+    SRC_FINAL_ANNOTATED = "trans-annot"
 }
 
 export enum TaskGraphOutput {

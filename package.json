@@ -57,7 +57,8 @@
     "./SubsetTransforms": "./dist/src/preprocessing/subset/SubsetTransforms.js",
     "./EtgLogger": "./dist/src/EtgLogger.js",
     "./InstrumentationAnnotator": "./dist/src/instrumentation/InstrumentationAnnotator.js",
-    "./InstrumentationInserter": "./dist/src/instrumentation/InstrumentationInserter.js"
+    "./InstrumentationInserter": "./dist/src/instrumentation/InstrumentationInserter.js",
+    "./InstrumentationFlow": "./dist/src/api/InstrumentationFlow.js"
   },
   "dependencies": {
     "@specs-feup/clava": "^3.0.8",

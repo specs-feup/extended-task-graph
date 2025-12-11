@@ -1,4 +1,4 @@
-import { Call, FileJp, FunctionJp, Loop } from "@specs-feup/clava/api/Joinpoints.js";
+import { Call, FileJp, FunctionJp, Loop, ReturnStmt } from "@specs-feup/clava/api/Joinpoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
 import IdGenerator from "@specs-feup/lara/api/lara/util/IdGenerator.js";
 import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
@@ -8,22 +8,57 @@ export class InstrumentationInserter {
     private logger: EtgLogger;
 
     constructor(outputDir: string, appName: string) {
-        this.logger = new EtgLogger("InstrInserter", outputDir, appName, "Hoopa");
+        this.logger = new EtgLogger("InstrInserter", outputDir, appName, "ETG");
+    }
+
+    public createLoopsInstrumentationFile(): void {
+        const main = Query.search(FunctionJp, (f) => f.name == "main" && f.isImplementation).get().at(0);
+        if (!main) {
+            this.logger.logError("Main function not found for loops instrumentation.");
+            return;
+        }
+
+        // include stdio.h in main file
+        const mainFile = main.getAncestor("file") as FileJp;
+        mainFile.addInclude("stdio.h", true);
+
+        // declare file pointer at the beginning of main
+        const filePtrDeclStr = `FILE* loops_fptr;`;
+        const filePtrDeclStmt = ClavaJoinPoints.stmtLiteral(filePtrDeclStr);
+        Query.searchFrom(mainFile, FunctionJp).get().at(0)!.insertBefore(filePtrDeclStmt);
+
+        // add extern declaration of file pointer to other files
+        for (const file of Query.search(FileJp, (f) => f.name.endsWith(".c") && f.name != mainFile.name).get()) {
+            const filePtrDeclStr = `extern FILE* loops_fptr;`;
+            const filePtrDeclStmt = ClavaJoinPoints.stmtLiteral(filePtrDeclStr);
+            const firstFun = Query.searchFrom(file, FunctionJp).get().at(0);
+            if (firstFun) {
+                firstFun.insertBefore(filePtrDeclStmt);
+            }
+            else {
+                file.insertEnd(filePtrDeclStmt);
+            }
+            file.addInclude("stdio.h", true);
+        }
+
+        // open file in main
+        const fopenStr = `loops_fptr = fopen("loop_counts.csv", "w");`;
+        const fopenStmt = ClavaJoinPoints.stmtLiteral(fopenStr);
+        main.body.insertBegin(fopenStmt);
+
+        // close file on every return in main
+        // (this ignores any early exits via exit() calls)
+        for (const ret of Query.searchFrom(main, ReturnStmt).get()) {
+            const fcloseStr = `fclose(loops_fptr);`;
+            const fcloseStmt = ClavaJoinPoints.stmtLiteral(fcloseStr);
+            ret.insertBefore(fcloseStmt);
+        }
+        this.logger.log("Created loops instrumentation file in main function.");
     }
 
     public instrumentLoops(fun: FunctionJp): number {
         this.logger.log(`Instrumenting loops in ${fun.name}`);
         let loopCount = 0;
-
-        // file pointer declared just before the function
-        const fopenDeclStr = `FILE* ${fun.name}_fptr;`;
-        const fopenDeclStmt = ClavaJoinPoints.stmtLiteral(fopenDeclStr);
-        fun.insertBefore(fopenDeclStmt);
-
-        // init file at the beginning of the function
-        const fopenStr = `${fun.name}_fptr = fopen("loop_counts_${fun.name}.csv", "w");`;
-        const fopenStmt = ClavaJoinPoints.stmtLiteral(fopenStr);
-        fun.body.insertBegin(fopenStmt);
 
         for (const loop of Query.searchFrom(fun, Loop)) {
             this.logger.log(`  Instr. loop at ${fun.name}:${loop.line}`);
@@ -41,7 +76,7 @@ export class InstrumentationInserter {
             loop.body.insertBegin(incrementStmt);
 
             // write to file after the loop
-            const fprintfStr = `fprintf(${fun.name}_fptr, "${fun.name}:${loop.line},%d\\n", ${loopCounterName});`;
+            const fprintfStr = `fprintf(loops_fptr, "${fun.name}:${loop.line},%d\\n", ${loopCounterName});`;
             const fprintfStmt = ClavaJoinPoints.stmtLiteral(fprintfStr);
             loop.insertAfter(fprintfStmt);
 

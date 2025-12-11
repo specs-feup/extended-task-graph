@@ -22,11 +22,17 @@ export abstract class AStage {
     }
 
     public getTopFunctionJoinPoint(): FunctionJp {
-        return Query.search(FunctionJp, { name: this.getTopFunctionName(), isImplementation: true }).first() as FunctionJp;
+        const funName = this.getTopFunctionName();
+        const funs = Query.search(FunctionJp, (f) => f.name === funName && f.isImplementation).get();
+        if (funs.length === 0) {
+            throw new Error(`Top function '${funName}' not found.`);
+        }
+        return funs[0];
     }
 
     public getValidFunctions(): FunctionJp[] {
-        return ClavaUtils.getAllUniqueFunctions(this.getTopFunctionJoinPoint());
+        const topFun = this.getTopFunctionJoinPoint();
+        return ClavaUtils.getAllUniqueFunctions(topFun);
     }
 
     public setAppName(appName: string): void {
