@@ -57,10 +57,15 @@ export class InstrumentationInserter {
     }
 
     public instrumentLoops(fun: FunctionJp): number {
-        this.logger.log(`Instrumenting loops in ${fun.name}`);
+        const loops = Query.searchFrom(fun, Loop).get();
         let loopCount = 0;
 
-        for (const loop of Query.searchFrom(fun, Loop)) {
+        if (loops.length === 0) {
+            return loopCount;
+        }
+        this.logger.log(`Instrumenting ${loops.length} loops in ${fun.name}`);
+
+        for (const loop of loops) {
             this.logger.log(`  Instr. loop at ${fun.name}:${loop.line}`);
 
             // declare loop counter before the loop

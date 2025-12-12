@@ -1,4 +1,6 @@
+import { existsSync } from "fs";
 import { AStage } from "../AStage.js";
+import { InstrumentationAnnotator } from "../instrumentation/InstrumentationAnnotator.js";
 import { InstrumentationInserter } from "../instrumentation/InstrumentationInserter.js";
 import { SourceCodeOutput } from "./OutputDirectories.js";
 
@@ -29,7 +31,19 @@ export class InstrumentationFlow extends AStage {
     public annotateApp(): void {
         this.log("Annotating application code");
 
-        // TBD
+        const annot = new InstrumentationAnnotator(this.getOutputDir(), this.getAppName());
+
+        const prevPath = `${this.getOutputDir()}/${this.getAppName()}/${SourceCodeOutput.SRC_PARENT}/${SourceCodeOutput.SRC_FINAL_INSTRUMENTED}`;
+        if (!existsSync(prevPath)) {
+            this.logError(`Previous instrumented code not found at: ${prevPath}`);
+            return;
+        }
+        const jsonPath = `${prevPath}/instrumentation_summary.json`;
+        if (!existsSync(jsonPath)) {
+            this.logError(`Instrumentation summary not found at: ${jsonPath}`);
+            return;
+        }
+        annot.annotateAll(jsonPath);
 
         const dir = `${this.getAppName()}/${SourceCodeOutput.SRC_PARENT}/${SourceCodeOutput.SRC_FINAL_ANNOTATED}`;
         const path = this.generateCode(dir);

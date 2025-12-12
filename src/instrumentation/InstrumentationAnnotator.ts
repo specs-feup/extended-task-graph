@@ -81,7 +81,9 @@ export class InstrumentationAnnotator {
                 continue;
             }
 
-            const pragmaStr = `#pragma HLS loop_tripcount max=${max} min=${min} avg=${avg}`;
+            const pragmaStr = (avg >= max || avg >= min) ?
+                `#pragma HLS loop_tripcount max=${max} min=${min}` :
+                `#pragma HLS loop_tripcount max=${max} min=${min} avg=${avg}`;
             const pragmaStmt = ClavaJoinPoints.stmtLiteral(pragmaStr);
             loop.body.insertBegin(pragmaStmt);
             annotatedLoops++;
