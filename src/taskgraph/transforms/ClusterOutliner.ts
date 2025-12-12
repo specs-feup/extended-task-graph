@@ -1,7 +1,7 @@
 import { Outliner } from "@specs-feup/clava-code-transforms/Outliner";
 import { Cluster } from "../Cluster.js";
 import { RegularTask } from "../tasks/RegularTask.js";
-import { BinaryOp, Call, DeclStmt, Expression, ExprStmt, FileJp, FunctionJp, If, Include, Loop, Param, ReturnStmt, Scope, Statement, Struct, TypedefDecl, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
+import { BinaryOp, Call, DeclStmt, Expression, FileJp, FunctionJp, If, Include, Loop, Param, ReturnStmt, Scope, Statement, Struct, TypedefDecl, Vardecl, Varref } from "@specs-feup/clava/api/Joinpoints.js";
 import Clava from "@specs-feup/clava/api/clava/Clava.js";
 import ClavaJoinPoints from "@specs-feup/clava/api/clava/ClavaJoinPoints.js";
 import Query from "@specs-feup/lara/api/weaver/Query.js";
@@ -83,6 +83,9 @@ export class ClusterOutliner extends AStage {
         const clusterDecl = ClavaJoinPoints.stmtLiteral(`${clusterFun.getDeclaration(true)};`);
         newHeader.insertEnd(clusterDecl);
 
+        // add some common includes to all files. We can improve the granularity later if needed
+        this.addCommonIncludes();
+
         try {
             Clava.rebuild();
             this.log(`Successfully outlined cluster ${clusterName}.`);
@@ -90,6 +93,13 @@ export class ClusterOutliner extends AStage {
         } catch (error) {
             this.logError("[ClusterOutliner] Error during outlining cluster:" + error);
             return null;
+        }
+    }
+
+    private addCommonIncludes(): void {
+        const allFiles = Query.search(FileJp).get();
+        for (const file of allFiles) {
+            file.addInclude("stdint.h", true);
         }
     }
 
