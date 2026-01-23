@@ -31,6 +31,7 @@
   },
   "exports": {
     "./ExtendedTaskGraphAPI": "./dist/src/api/ExtendedTaskGraphAPI.js",
+    "./TaskGraphGenerationFlow": "./dist/src/api/TaskGraphGenerationFlow.js",
     "./TransFlowConfig": "./dist/src/api/TransFlowConfig.js",
     "./OutputDirectories": "./dist/src/api/OutputDirectories.js",
     "./GenFlowConfig": "./dist/src/api/GenFlowConfig.js",
