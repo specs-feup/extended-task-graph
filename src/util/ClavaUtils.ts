@@ -43,9 +43,11 @@ export class ClavaUtils {
         return true;
     }
 
-    public static generateCode(weaveDir: string, folder: string): string {
+    public static generateCode(weaveDir: string, folder: string, deleteContents: boolean = true): string {
         const path = `${weaveDir}/${folder}`;
-        Io.deleteFolderContents(path);
+        if (deleteContents) {
+            Io.deleteFolderContents(path);
+        }
         Clava.writeCode(path);
 
         ClavaUtils.runClangFormatOnFolder(path);

@@ -59,8 +59,8 @@ export abstract class AStage {
         return this.commonPrefix;
     }
 
-    public generateCode(subfolder: string): string {
-        return ClavaUtils.generateCode(this.getOutputDir(), subfolder);
+    public generateCode(subfolder: string, deleteContents: boolean = true): string {
+        return ClavaUtils.generateCode(this.getOutputDir(), subfolder, deleteContents);
     }
 
     public generateFile(filepath: string, content: string): string {
