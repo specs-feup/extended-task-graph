@@ -8,8 +8,8 @@ import { TransFlowConfig } from "./TransFlowConfig.js";
 import { GenFlowConfig } from "./GenFlowConfig.js";
 
 export class ExtendedTaskGraphAPI extends AStage {
-    constructor(topFunctionName: string = "main", outputDir: string = "output", appName: string = "default_app_name") {
-        super("API", topFunctionName, `${outputDir}/${appName}`, appName);
+    constructor(topFunctionName: string = "main", outputDir: string = "output", appName: string = "default_app_name", stageName: string = "API") {
+        super(stageName, topFunctionName, `${outputDir}/${appName}`, appName);
     }
 
     public runCodeTransformationFlow(config: TransFlowConfig = new TransFlowConfig()): boolean {

@@ -133,3 +133,7 @@ dist
 # TernJS port file
 .tern-port
 inputs/spec2017/
+
+bin/
+
+extended-task-graph

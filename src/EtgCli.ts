@@ -1,75 +1,161 @@
 #!/usr/bin/env node
-
 import { spawn } from 'child_process';
 import chalk from 'chalk';
-import commandLineArgs from 'command-line-args';
+import commandLineArgs, { CommandLineOptions } from 'command-line-args';
 import commandLineUsage from 'command-line-usage';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
+
+export type CliContext = {
+    inputFolder: string;
+    outputFolder: string;
+    appName: string;
+    topFunction: string;
+    standard?: string;
+    flows: {
+        transform: {
+            enabled: boolean;
+            dumpAst: boolean;
+            dumpCg: boolean;
+        };
+        generate: {
+            enabled: boolean;
+            calculateMetrics: boolean;
+        };
+    };
+};
 
 const optionDefinitions = [
-    { name: 'input', alias: 'i', type: String, defaultOption: true, description: 'Input source folder.' },
-    { name: 'std', type: String, description: 'C/C++ standard.' },
+    { name: 'input', type: String, defaultOption: true, description: 'Input folder or file containing the source code to analyze.' },
+    { name: 'output', alias: 'o', type: String, description: 'Output folder     (default: "output").' },
+    { name: 'app-name', alias: 'a', type: String, description: 'Application name  (default: "default_app_name").' },
+    { name: 'top-function', alias: 't', type: String, description: 'Top function name (default: "main").' },
+    { name: 'standard', alias: 's', type: String, description: 'C/C++ standard    (default: c11, c++11)' },
+    { name: 'help', alias: 'h', type: Boolean, description: 'Display this help guide.' },
+
     // Primary Flows
-    { name: 'transform', type: Boolean, description: 'Run transformation flow.' },
-    { name: 'generate', type: Boolean, description: 'Run generation flow.' },
-    { name: 'all', type: Boolean, description: 'Run all flows.' },
+    { name: 'transform', type: Boolean, group: 'main', description: 'Run the code transformation flow.' },
+    { name: 'generate', type: Boolean, group: 'main', description: 'Run the ETG generation flow.' },
+    { name: 'all', type: Boolean, group: 'main', description: 'Run all flows.' },
+
     // Transform Sub-options
-    { name: 'no-ast', type: Boolean, description: 'Disable AST dump.' },
-    { name: 'no-cg', type: Boolean, description: 'Disable Call Graph dump.' },
-    { name: 'only-ast', type: Boolean, description: 'Only dump AST (disables others).' },
-    { name: 'only-cg', type: Boolean, description: 'Only dump Call Graph (disables others).' },
+    { name: 'no-ast', type: Boolean, group: 'transform', description: 'Disable AST dump.' },
+    { name: 'no-cg', type: Boolean, group: 'transform', description: 'Disable Call Graph dump.' },
+    { name: 'only-ast', type: Boolean, group: 'transform', description: 'Only dump AST.' },
+    { name: 'only-cg', type: Boolean, group: 'transform', description: 'Only dump Call Graph.' },
+
     // Generate Sub-options
-    { name: 'no-metrics', type: Boolean, description: 'Disable metrics calculation.' },
-    { name: 'help', alias: 'h', type: Boolean, description: 'Display help.' }
+    { name: 'no-metrics', type: Boolean, group: 'generate', description: 'Disable ETG metrics reporting.' }
 ];
 
-function runClavaWithContext(): void {
-    let options: any;
+const usageSections = [
+    {
+        header: 'etg',
+        content: 'Extended Task Graph generator.'
+    },
+    {
+        header: 'Synopsis',
+        content: '$ etg <input_folder_or_file> [options]'
+    },
+    {
+        header: 'Global Options',
+        optionList: optionDefinitions,
+        group: '_none' // Includes input, std, help
+    },
+    {
+        header: 'Flow Selection',
+        optionList: optionDefinitions,
+        group: 'main'
+    },
+    {
+        header: 'Code Transformation Flow Sub-options',
+        optionList: optionDefinitions,
+        group: 'transform'
+    },
+    {
+        header: 'ETG Generation Flow Sub-options',
+        optionList: optionDefinitions,
+        group: 'generate'
+    }
+];
+
+function getCliContext(): CliContext {
+    let options: CommandLineOptions = {};
     try {
         options = commandLineArgs(optionDefinitions);
-    } catch (err: any) {
-        console.error(chalk.red(`Argument Error: ${err.message}`));
+    } catch (err: unknown) {
+        if (err instanceof Error) {
+            console.error(chalk.red(`Argument Error: ${err.message}`));
+        } else {
+            console.error(chalk.red('An unknown error occurred while parsing arguments.'));
+        }
         process.exit(1);
     }
 
-    if (options.help || !options.input) {
-        const sections = [
-            { header: 'etg', content: 'Extended Task Graph generator.' },
-            { header: 'Synopsis', content: '$ etg <input_folder> [options]' },
-            { header: 'Options', optionList: optionDefinitions }
-        ];
-        console.log(commandLineUsage(sections));
-        process.exit(options.help ? 0 : 1);
+    const actualOptions = options._all;
+
+    if (actualOptions.help || !actualOptions.input) {
+        console.log(commandLineUsage(usageSections));
+        process.exit(actualOptions.help ? 0 : 1);
     }
 
-    // Configuration Logic
-    const isTransform = !!(options.all || options.transform || options['only-ast'] || options['only-cg']);
-    const isGenerate = !!(options.all || options.generate);
+    const isTransform = !!(actualOptions.all || actualOptions.transform || actualOptions['only-ast'] || actualOptions['only-cg']);
+    const isGenerate = !!(actualOptions.all || actualOptions.generate);
 
-    const context = {
-        inputFolder: options.input,
+    const context: CliContext = {
+        inputFolder: actualOptions.input,
+        outputFolder: actualOptions.output || "output",
+        appName: actualOptions['app-name'] || "default_app_name",
+        topFunction: actualOptions['top-function'] || "main",
+        standard: actualOptions.standard,
         flows: {
             transform: {
                 enabled: isTransform,
-                dumpAst: options['only-ast'] ? true : (options['only-cg'] ? false : !options['no-ast']),
-                dumpCg: options['only-cg'] ? true : (options['only-ast'] ? false : !options['no-cg'])
+                dumpAst: actualOptions['only-ast'] ? true : (actualOptions['only-cg'] ? false : !actualOptions['no-ast']),
+                dumpCg: actualOptions['only-cg'] ? true : (actualOptions['only-ast'] ? false : !actualOptions['no-cg'])
             },
             generate: {
                 enabled: isGenerate,
-                calculateMetrics: !options['no-metrics']
+                calculateMetrics: !actualOptions['no-metrics']
             }
         }
     };
+    return context;
+}
 
+function runClava(context: CliContext): void {
     const childEnv = {
         ...process.env,
         CLAVA_WRAPPER_ARGS: JSON.stringify(context)
     };
 
-    const clavaArgs = ["clava", "classic", "dist/src/EtgEntrypoint.js", "-p", options.input, "-ncg"];
-    if (options.std) clavaArgs.push("-std", options.std);
+    const require = createRequire(import.meta.url);
+    const __dirname = dirname(fileURLToPath(import.meta.url));
+    const entryPoint = join(__dirname, "EtgEntrypoint.js");
+    const clavaRoot = dirname(require.resolve('@specs-feup/clava/package.json'));
+    const clavaBin = join(clavaRoot, 'code', 'index.js');
 
-    const child = spawn("npx", clavaArgs, { stdio: 'inherit', shell: true, env: childEnv });
-    child.on('close', (code) => process.exit(code ?? 0));
+    const clavaArgs = [clavaBin, "classic", entryPoint, "-p", context.inputFolder, "-ncg"];
+    if (context.standard) {
+        clavaArgs.push("-std", context.standard);
+    }
+
+    const child = spawn(process.execPath, clavaArgs, {
+        stdio: 'inherit',
+        shell: true,
+        env: childEnv
+    });
+
+    child.on('error', (err) => {
+        console.error(chalk.red(`Failed to start Clava: ${err.message}`));
+        process.exit(1);
+    });
+
+    child.on('close', (code: number | null) => {
+        process.exit(code ?? 0);
+    });
 }
 
-runClavaWithContext();
+const context = getCliContext();
+runClava(context);
