@@ -5,6 +5,10 @@
   "description": "An Extended Task Graph (ETG) implementation for the Clava C/C++ to C/C++ source-to-source compiler",
   "type": "module",
   "private": false,
+  "main": "dist/src/EtgCli.js",
+  "bin": {
+    "etg": "./dist/src/EtgCli.js"
+  },
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
@@ -63,9 +67,11 @@
   },
   "dependencies": {
     "@specs-feup/clava": "^3.0.8",
-    "@specs-feup/lara": "^3.0.5",
     "@specs-feup/clava-code-transforms": "^1.2.0",
+    "@specs-feup/lara": "^3.0.5",
     "chalk": "^5.3.0",
+    "command-line-args": "^6.0.1",
+    "command-line-usage": "^7.0.4",
     "fs": "^0.0.1-security",
     "path": "^0.12.7",
     "winston": "^3.15.0"
@@ -77,6 +83,8 @@
     "@eslint/js": "^9.12.0",
     "@jest/globals": "^29.7.0",
     "@specs-feup/clava-lite-benchmarks": "^1.0.0",
+    "@types/command-line-args": "^5.2.3",
+    "@types/command-line-usage": "^5.0.4",
     "@types/jest": "^29.5.12",
     "@types/node": "^22.7.5",
     "@typescript-eslint/eslint-plugin": "^7.16.0",
