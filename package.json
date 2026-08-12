@@ -1,6 +1,6 @@
 {
   "name": "@specs-feup/extended-task-graph",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": "Tiago Lascasas Santos <tiagolascasas@outlook.com> (https://tiagolascasas.dev)",
   "description": "An Extended Task Graph (ETG) implementation for the Clava C/C++ to C/C++ source-to-source compiler",
   "type": "module",
