@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
-import { registerSourceCode } from "@specs-feup/lara/jest/jestHelpers.js";
+import JavaTypes from "@specs-feup/lara/api/lara/util/JavaTypes.js";
+import Weaver from "@specs-feup/lara/api/weaver/Weaver.js";
 import { ExtendedTaskGraphAPI } from "../src/api/ExtendedTaskGraphAPI.js";
 import { GenFlowConfig } from "../src/api/GenFlowConfig.js";
 import { TransFlowConfig } from "../src/api/TransFlowConfig.js";
@@ -8,6 +9,30 @@ const source = readFileSync(
     "inputs/cluster-scenario/ClusterScenario.cpp",
     "utf8",
 );
+
+function registerSourceCode(code: string): void {
+    beforeEach(() => {
+        const javaWeaver = Weaver.getWeaverEngine();
+        const javaDatastore = javaWeaver.getData().get();
+
+        javaWeaver.run(["ClusterScenario.cpp"], [code], javaDatastore);
+    });
+
+    afterEach(() => {
+        Weaver.getWeaverEngine().end();
+    });
+
+    afterAll(() => {
+        const javaWeaver = Weaver.getWeaverEngine();
+        const javaDatastore = javaWeaver.getData().get();
+
+        javaDatastore.set(
+            JavaTypes.LaraiKeys.WORKSPACE_FOLDER,
+            JavaTypes.FileList.newInstance(),
+        );
+        javaWeaver.run(javaDatastore);
+    });
+}
 
 describe("ExtendedTaskGraphAPI workflows", () => {
     registerSourceCode(source);
