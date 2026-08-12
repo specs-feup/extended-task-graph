@@ -15,6 +15,7 @@
     "clean": "rm -rf node_modules package-lock.json dist/ woven_code/ output/",
     "lint": "eslint .",
     "docs": "typedoc",
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --runInBand --detectOpenHandles --forceExit",
     "bundle": "npm run build && pkg . --targets node18-linux-x64,node18-macos-x64,node18-win-x64 --out-path bin",
     "simple:appdump": "clava dist/test/simple-use-cases/AppDumping.js -- clang inputs/edgedetect-transformed/",
     "simple:transflow": "clava dist/test/simple-use-cases/CodeTransformationFlow.js -- clang inputs/edgedetect/",
