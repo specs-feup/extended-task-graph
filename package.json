@@ -68,9 +68,9 @@
     "./InstrumentationFlow": "./dist/src/api/InstrumentationFlow.js"
   },
   "dependencies": {
-    "@specs-feup/clava": "^3.0.8",
+    "@specs-feup/clava": "^3.5.2",
     "@specs-feup/clava-code-transforms": "^1.2.0",
-    "@specs-feup/lara": "^3.0.5",
+    "@specs-feup/lara": "^3.5.1",
     "chalk": "^5.3.0",
     "command-line-args": "^6.0.1",
     "command-line-usage": "^7.0.4",
